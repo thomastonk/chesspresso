@@ -1,0 +1,44 @@
+/*******************************************************************************
+ * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
+ * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or (at
+ * your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
+ * General Public License for more details.
+ ******************************************************************************/
+package chesspresso.pgn;
+
+import java.io.PrintStream;
+
+/**
+ * Simple implementation of a PGN error handler. Write the errors and warnings directly to a configured print stream.
+ *
+ * @author Bernhard Seybold
+ * @version $Revision: 1.1 $
+ */
+public class PGNSimpleErrorHandler implements PGNErrorHandler {
+
+	private PrintStream m_out;
+
+	/* ================================================================================ */
+
+	public PGNSimpleErrorHandler(PrintStream out) {
+		m_out = out;
+	}
+
+	/* ================================================================================ */
+
+	public void handleError(PGNSyntaxError error) {
+		m_out.println(error);
+	}
+
+	public void handleWarning(PGNSyntaxError warning) {
+		m_out.println(warning);
+	}
+}
