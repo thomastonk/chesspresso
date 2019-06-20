@@ -32,6 +32,8 @@ import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import chesspresso.Chess;
 import chesspresso.position.AbstractMutablePosition;
@@ -45,7 +47,7 @@ import chesspresso.position.PositionMotionListener;
  * @version $Revision: 1.2 $
  */
 @SuppressWarnings("serial")
-public class PositionView extends java.awt.Component implements PositionListener, MouseListener, MouseMotionListener {
+public class PosViewPlus extends java.awt.Component implements PositionListener, MouseListener, MouseMotionListener {
     private int m_bottom;
     private AbstractMutablePosition m_position;
     @SuppressWarnings("unused")
@@ -67,6 +69,8 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     final static private int squareOffset = 4;
 
+    final private Map<Integer, Color> m_backgroundColors = new HashMap<>();
+
     // ======================================================================
 
     /**
@@ -74,7 +78,7 @@ public class PositionView extends java.awt.Component implements PositionListener
      * 
      * @param position the position to display
      */
-    public PositionView(AbstractMutablePosition position) {
+    public PosViewPlus(AbstractMutablePosition position) {
 	this(position, Chess.WHITE);
     }
 
@@ -84,7 +88,7 @@ public class PositionView extends java.awt.Component implements PositionListener
      * @param position     the position to display
      * @param bottomPlayer the player at the lower edge
      */
-    public PositionView(AbstractMutablePosition position, int bottomPlayer) {
+    public PosViewPlus(AbstractMutablePosition position, int bottomPlayer) {
 	m_position = position;
 	m_bottom = bottomPlayer;
 	m_showSqiEP = false;
@@ -247,6 +251,14 @@ public class PositionView extends java.awt.Component implements PositionListener
 	return getFont().getSize() + squareOffset;
     }
 
+    public void setBackgroundColor(int sqi, Color color) {
+	if (color == null) {
+	    m_backgroundColors.remove(sqi);
+	} else {
+	    m_backgroundColors.put(sqi, color);
+	}
+    }
+
     // ======================================================================
     // interface PositionListener
 
@@ -379,7 +391,9 @@ public class PositionView extends java.awt.Component implements PositionListener
 		// First step: draw the background
 		int sqi = (m_bottom == Chess.WHITE ? Chess.coorToSqi(x, Chess.NUM_OF_ROWS - y - 1)
 			: Chess.coorToSqi(Chess.NUM_OF_COLS - x - 1, y));
-		if (Chess.isWhiteSquare(sqi)) {
+		if (m_backgroundColors.containsKey(sqi)) {
+		    graphics.setColor(m_backgroundColors.get(sqi));
+		} else if (Chess.isWhiteSquare(sqi)) {
 		    graphics.setColor(m_whiteSquareColor);
 		} else {
 		    graphics.setColor(m_blackSquareColor);

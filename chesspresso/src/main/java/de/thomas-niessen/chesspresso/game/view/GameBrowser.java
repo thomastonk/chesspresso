@@ -853,7 +853,7 @@ public class GameBrowser extends JPanel
 		if (!m_userActionEnabled) {
 		    return;
 		}
-		// The behavior if DefaultCaret doesn't select the move, if it is a right
+		// The behavior of DefaultCaret doesn't select the move, if it is a right
 		// click, while a left click works. So, the caret has to be set here manually in
 		// order to get the *usual* (expected) behavior. Moreover, this has to be done
 		// in mousePressed (and not below in mouseClicked) because otherwise the caret

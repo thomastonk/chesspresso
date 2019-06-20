@@ -68,6 +68,22 @@ public abstract class Chess {
     }
 
     /**
+     * Converts coordinates to square index. Check column and row values.
+     *
+     * @param col the column (file)
+     * @param row the row (rank)
+     * @return the square index
+     */
+    public static final int coorToSqiWithCheck(int col, int row) {
+	if (0 <= col && col < NUM_OF_COLS) {
+	    if (0 <= row && row < NUM_OF_ROWS) {
+		return row * NUM_OF_COLS + col;
+	    }
+	}
+	return NO_SQUARE;
+    }
+
+    /**
      * Extract the row of a square index.
      *
      * @param sqi the square index
@@ -78,6 +94,19 @@ public abstract class Chess {
     }
 
     /**
+     * Extract the row of a square index. Check the square index.
+     *
+     * @param sqi the square index
+     * @return the row
+     */
+    public static final int sqiToRowWithCheck(int sqi) {
+	if (A1 <= sqi && sqi <= H8) {
+	    return sqi / NUM_OF_COLS;
+	}
+	return NO_ROW;
+    }
+
+    /**
      * Extract the column of a square index.
      *
      * @param sqi the square index
@@ -85,6 +114,19 @@ public abstract class Chess {
      */
     public static final int sqiToCol(int sqi) {
 	return sqi % NUM_OF_COLS;
+    }
+
+    /**
+     * Extract the column of a square index. Check the square index.
+     *
+     * @param sqi the square index
+     * @return the column
+     */
+    public static final int sqiToColWithCheck(int sqi) {
+	if (A1 <= sqi && sqi <= H8) {
+	    return sqi % NUM_OF_COLS;
+	}
+	return NO_COL;
     }
 
     /**

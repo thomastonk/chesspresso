@@ -233,7 +233,7 @@ public class FEN {
 	int row = 7, col = 0;
 	int blanks = 0;
 	while (row >= 0) {
-	    int stone = pos.getStone(Chess.coorToSqi(col, row));
+	    int stone = pos.getStone(Chess.coorToSqiWithCheck(col, row));
 	    if (stone == Chess.NO_STONE) {
 		blanks++;
 	    } else {
