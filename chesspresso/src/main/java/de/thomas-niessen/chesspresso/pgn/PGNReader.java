@@ -440,6 +440,8 @@ public final class PGNReader extends PGN {
 	    return Chess.RES_NOT_FINISHED;
 	if (getLastToken() == TOK_EOF)
 	    return Chess.NO_RES;
+	if (getLastToken() == TOK_COMMENT_BEGIN || getLastToken() == TOK_COMMENT_END)
+	    return Chess.NO_RES;
 	if (m_buf[0] == '1') {
 	    if (m_buf[1] == '/') {
 		if (m_lastTokenLength == 7 && m_buf[2] == '2' && m_buf[3] == '-' && m_buf[4] == '1' && m_buf[5] == '/'

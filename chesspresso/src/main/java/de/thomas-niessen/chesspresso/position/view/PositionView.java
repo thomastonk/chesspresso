@@ -19,9 +19,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.TexturePaint;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -31,7 +33,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import chesspresso.Chess;
 import chesspresso.position.AbstractMutablePosition;
@@ -43,6 +49,8 @@ import chesspresso.position.PositionMotionListener;
  * 
  * @author Bernhard Seybold
  * @version $Revision: 1.2 $
+ * 
+ * 
  */
 @SuppressWarnings("serial")
 public class PositionView extends java.awt.Component implements PositionListener, MouseListener, MouseMotionListener {
@@ -65,7 +73,34 @@ public class PositionView extends java.awt.Component implements PositionListener
     final static private Color m_whiteSquareDefaultColor = new Color(232, 219, 200);
     final static private Color m_blackSquareDefaultColor = new Color(224, 175, 100);
 
+    final static private BufferedImage m_highlightWhiteDefault;
+    final static private BufferedImage m_highlightBlackDefault;
+
+    static {
+	{
+	    m_highlightWhiteDefault = new BufferedImage(5, 5, BufferedImage.TYPE_INT_RGB);
+	    Graphics2D g2d = m_highlightWhiteDefault.createGraphics();
+	    g2d.setColor(m_blackSquareDefaultColor);
+	    g2d.fillRect(0, 0, 5, 5);
+	    g2d.setColor(m_whiteSquareDefaultColor);
+	    g2d.fillOval(0, 0, 5, 5);
+	}
+	{
+	    m_highlightBlackDefault = new BufferedImage(5, 5, BufferedImage.TYPE_INT_RGB);
+	    Graphics2D g2d = m_highlightBlackDefault.createGraphics();
+	    g2d.setColor(m_whiteSquareDefaultColor);
+	    g2d.fillRect(0, 0, 5, 5);
+	    g2d.setColor(m_blackSquareDefaultColor);
+	    g2d.fillOval(0, 0, 5, 5);
+	}
+    }
+
     final static private int squareOffset = 4;
+
+    final private Map<Integer, Paint> m_backgroundPaints = new HashMap<>();
+
+    final private List<Decoration> lowerLevel = new ArrayList<>(); // below the figure symbols
+    final private List<Decoration> upperLevel = new ArrayList<>(); // above the figure symbols
 
     // ======================================================================
 
@@ -247,6 +282,62 @@ public class PositionView extends java.awt.Component implements PositionListener
 	return getFont().getSize() + squareOffset;
     }
 
+    public int getSquare(int x, int y) {
+	if (x < 0 || y < 0) {
+	    return -1;
+	}
+	int squareSize = getSquareSize();
+	if (x >= 8 * squareSize || y >= 8 * squareSize) {
+	    return -1;
+	}
+
+	int y0 = y / squareSize;
+	int x0 = x / squareSize;
+	return 8 * (7 - y0) + x0;
+    }
+
+    public void setPaint(int sqi, Paint paint) {
+	if (paint == null) {
+	    m_backgroundPaints.remove(sqi);
+	} else {
+	    m_backgroundPaints.put(sqi, paint);
+	}
+    }
+
+    public void setHighlight(int sqi, boolean highlight) {
+	if (highlight) {
+	    if (Chess.isWhiteSquare(sqi)) {
+		m_backgroundPaints.put(sqi, new TexturePaint(m_highlightWhiteDefault, new Rectangle(0, 0, 5, 5)));
+	    } else {
+		m_backgroundPaints.put(sqi, new TexturePaint(m_highlightBlackDefault, new Rectangle(0, 0, 5, 5)));
+	    }
+	} else {
+	    m_backgroundPaints.remove(sqi);
+	}
+	repaint();
+    }
+
+    public void toggleHighlight(int sqi) {
+	if (m_backgroundPaints.containsKey(sqi)) {
+	    m_backgroundPaints.remove(sqi);
+	} else {
+	    if (Chess.isWhiteSquare(sqi)) {
+		m_backgroundPaints.put(sqi, new TexturePaint(m_highlightWhiteDefault, new Rectangle(0, 0, 5, 5)));
+	    } else {
+		m_backgroundPaints.put(sqi, new TexturePaint(m_highlightBlackDefault, new Rectangle(0, 0, 5, 5)));
+	    }
+	}
+	repaint();
+    }
+
+    public void addDecoration(Decoration decoration, boolean top) {
+	if (top) {
+	    upperLevel.add(decoration);
+	} else {
+	    lowerLevel.add(decoration);
+	}
+    }
+
     // ======================================================================
     // interface PositionListener
 
@@ -281,12 +372,22 @@ public class PositionView extends java.awt.Component implements PositionListener
 	m_positionMotionListener = listener;
     }
 
-    private int getSquareForEvent(MouseEvent evt) {
+    public int getSquareForEvent(MouseEvent evt) {
 	int size = getFont().getSize() + squareOffset;
 	return (m_bottom == Chess.WHITE
 		? Chess.coorToSqiWithCheck(evt.getX() / size, Chess.NUM_OF_ROWS - evt.getY() / size - 1)
 		: Chess.coorToSqiWithCheck(Chess.NUM_OF_COLS - 1 - evt.getX() / size, evt.getY() / size));
 //        : Chess.coorToSqi(Chess.NUM_OF_COLS - evt.getX() / size, evt.getY() / size - 1)); // TN: old version
+    }
+
+    // TODO find a suitable place in chesspresso and eliminate the same method
+    // elsewhere (VarPosSetupPanel and SquaresDialog).
+    private boolean isSpecial(MouseEvent e) {
+	// META excluded, because isMetaDown returns true, if right mouse button is
+	// pressed.
+	// POPUP_TRIGGER excluded, because isPopupTrigger returns false in mousePreesed
+	// and mouseDragged, but true in mouseReleased!
+	return e.isAltDown() || e.isAltGraphDown() || e.isControlDown() || e.isShiftDown();
     }
 
     @Override
@@ -303,6 +404,9 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     @Override
     public void mousePressed(MouseEvent e) {
+	if (isSpecial(e)) {
+	    return;
+	}
 	if (m_positionMotionListener == null)
 	    return;
 	m_draggedFrom = getSquareForEvent(e);
@@ -321,6 +425,14 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     @Override
     public void mouseReleased(MouseEvent e) {
+	if (isSpecial(e)) {
+	    if (m_draggedStone != Chess.NO_STONE) {
+		m_draggedFrom = Chess.NO_SQUARE;
+		m_draggedStone = Chess.NO_STONE;
+		repaint();
+	    }
+	    return;
+	}
 	if (m_positionMotionListener == null)
 	    return;
 	if (m_draggedFrom != Chess.NO_SQUARE) {
@@ -345,6 +457,14 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     @Override
     public void mouseDragged(MouseEvent e) {
+	if (isSpecial(e)) {
+	    if (m_draggedStone != Chess.NO_STONE) {
+		m_draggedFrom = Chess.NO_SQUARE;
+		m_draggedStone = Chess.NO_STONE;
+		repaint();
+	    }
+	    return;
+	}
 	if (m_draggedFrom != Chess.NO_SQUARE) {
 	    m_draggedX = e.getX();
 	    m_draggedY = e.getY();
@@ -373,26 +493,40 @@ public class PositionView extends java.awt.Component implements PositionListener
     @Override
     public void paint(Graphics graphics) {
 	super.paint(graphics);
+	Graphics2D g2 = (Graphics2D) graphics;
 	int squareSize = getFont().getSize() + squareOffset;
+
+	// First step: draw the background
 	for (int y = 0; y < Chess.NUM_OF_ROWS; y++) {
 	    for (int x = 0; x < Chess.NUM_OF_COLS; x++) {
-		// First step: draw the background
 		int sqi = (m_bottom == Chess.WHITE ? Chess.coorToSqi(x, Chess.NUM_OF_ROWS - y - 1)
 			: Chess.coorToSqi(Chess.NUM_OF_COLS - x - 1, y));
-		if (Chess.isWhiteSquare(sqi)) {
+		if (m_backgroundPaints.containsKey(sqi)) {
+		    g2.setPaint(m_backgroundPaints.get(sqi));
+		} else if (Chess.isWhiteSquare(sqi)) {
 		    graphics.setColor(m_whiteSquareColor);
 		} else {
 		    graphics.setColor(m_blackSquareColor);
 		}
 		graphics.fillRect(x * squareSize, y * squareSize, squareSize, squareSize);
-		// Second step: get the stone and paint over the background with white color.
+	    }
+	}
+	// Second step: draw the layer below the stones
+	for (Decoration decoration : lowerLevel) {
+	    decoration.paint(g2, squareSize);
+	}
+
+	// Third step: get the stone and paint over the background with white color.
+	for (int y = 0; y < Chess.NUM_OF_ROWS; y++) {
+	    for (int x = 0; x < Chess.NUM_OF_COLS; x++) {
+		int sqi = (m_bottom == Chess.WHITE ? Chess.coorToSqi(x, Chess.NUM_OF_ROWS - y - 1)
+			: Chess.coorToSqi(Chess.NUM_OF_COLS - x - 1, y));
 		int stone = (sqi == m_draggedFrom ? Chess.NO_STONE : m_position.getStone(sqi));
 		boolean stoneIsWhite = Chess.stoneToColor(stone) == Chess.WHITE;
 		graphics.setColor(stoneIsWhite ? m_whiteColor : m_blackColor);
 		if (m_solidStones) {
 		    stone = Chess.pieceToStone(Chess.stoneToPiece(stone), Chess.BLACK);
 		}
-		Graphics2D g2 = (Graphics2D) graphics;
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		FontRenderContext frc = g2.getFontRenderContext();
 		GlyphVector gv = getFont().createGlyphVector(frc, getStringForStone(stone, stoneIsWhite));
@@ -412,24 +546,26 @@ public class PositionView extends java.awt.Component implements PositionListener
 		for (final Shape part : partsOfShape) {
 		    g2.fill(part);
 		}
-		// Third step: draw the stone's image
+		// draw the stone's image
 		g2.setColor(color);
 		graphics.drawString(getStringForStone(stone, stoneIsWhite), transX, transY + 1); // <- mystical
 		// I introduced text anti-aliasing, which improves the layout. But the mystical
 		// +1 is not understood.
 	    }
 	}
+	// Fourth step: draw the layer below the stones
+	for (Decoration decoration : upperLevel) {
+	    decoration.paint(g2, squareSize);
+	}
 
+	// Drag & Drop
 	if (m_draggedStone != Chess.NO_STONE) {
 	    // That's the old implementation. The first line does nothing, because the two
-	    // colors
-	    // are equal.
+	    // colors are equal.
 //			graphics.setColor(Chess.stoneToColor(m_draggedStone) == Chess.WHITE ? m_whiteColor : m_blackColor);
 //			graphics.drawString(getStringForStone(m_draggedStone, true), m_draggedX - size / 2, m_draggedY + size / 2);
 	    // End of old implementation.
-	    // NEW:
-	    // Again first the background
-	    Graphics2D g2 = (Graphics2D) graphics;
+	    // NEW: Again first the background
 	    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    FontRenderContext frc = g2.getFontRenderContext();
 	    GlyphVector gv = getFont().createGlyphVector(frc,

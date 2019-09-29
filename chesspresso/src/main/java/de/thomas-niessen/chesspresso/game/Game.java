@@ -832,6 +832,7 @@ public class Game implements PositionChangeListener, Serializable {
 		m_ignoreNotifications = false;
 		return true;
 	    } catch (IllegalMoveException ex) {
+		System.out.println(m_model.toString() + " at move " + Move.getString(shortMove));
 		ex.printStackTrace();
 	    }
 	}

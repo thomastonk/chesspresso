@@ -68,8 +68,8 @@ public class GameTextViewer extends JEditorPane
     private static SimpleAttributeSet LINE = new SimpleAttributeSet();
 
     static {
-	// TODO take some parameters from actual editor pane instance
-	// (e.g. font, font size)
+	// TODO take some parameters from actual editor pane instance (e.g. font, font
+	// size)
 
 	StyleConstants.setForeground(MAIN, Color.black);
 	StyleConstants.setBold(MAIN, true);
@@ -120,10 +120,11 @@ public class GameTextViewer extends JEditorPane
 
 	addMouseListener(new MouseAdapter() {
 	    @Override
-	    public void mouseClicked(MouseEvent e) {
-		if (!m_userActionEnabled) {
-		    return;
-		}
+	    public void mouseReleased(MouseEvent e) {
+		// the following three lines seem to be over-restrictive.
+//		if (!m_userActionEnabled) {
+//		    return;
+//		}
 		getCaret().setMagicCaretPosition(e.getPoint());
 		gotoPlyForCaret();
 	    }
@@ -132,15 +133,16 @@ public class GameTextViewer extends JEditorPane
 	addKeyListener(new KeyAdapter() {
 	    @Override
 	    public void keyReleased(KeyEvent e) {
-		if (!m_userActionEnabled) {
-		    return;
-		}
+		// the following three lines seem to be over-restrictive.
+//		if (!m_userActionEnabled) {
+//		    return;
+//		}
 		if (e.getKeyCode() == KeyEvent.VK_CONTROL)
-		    return; // =====>
+		    return;
 		if (e.getKeyCode() == KeyEvent.VK_SHIFT)
-		    return; // =====>
+		    return;
 		if (e.getKeyCode() == KeyEvent.VK_ALT)
-		    return; // =====>
+		    return;
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 		    if ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)
 			goBackToLineBegin();
@@ -426,12 +428,6 @@ public class GameTextViewer extends JEditorPane
     void gotoPlyForCaret() {
 	m_game.gotoNode(getNodeForCaret());
 	m_game.getPosition().firePositionChanged();
-    }
-
-    private boolean m_userActionEnabled = true;
-
-    public void setUserActionEnabled(final boolean userActionEnabled) {
-	m_userActionEnabled = userActionEnabled;
     }
 
     private class FocusRequester implements FocusListener {

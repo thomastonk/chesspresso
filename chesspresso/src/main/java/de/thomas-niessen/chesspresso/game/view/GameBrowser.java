@@ -665,7 +665,8 @@ public class GameBrowser extends JPanel
 	}
 	Object comment = inputDialog.showInputDialog(this, "Edit a comment", message, currentComment);
 	if (comment != null) {
-	    String newComment = comment.toString().replaceAll(System.lineSeparator(), " ").replaceAll("\\n", " ");
+	    String newComment = comment.toString().replaceAll(System.lineSeparator(), " ").replaceAll("\\n", " ")
+		    .replaceAll("\\{", "(").replaceAll("\\}", ")");
 	    if (!newComment.equals(currentComment)) {
 		if (m_game.getNumOfPlies() > 0) {
 		    m_game.setPostMoveComment(newComment);
@@ -688,7 +689,8 @@ public class GameBrowser extends JPanel
 	}
 	Object comment = inputDialog.showInputDialog(this, "Edit a comment", message, currentComment);
 	if (comment != null) {
-	    String newComment = comment.toString().replaceAll(System.lineSeparator(), " ").replaceAll("\\n", " ");
+	    String newComment = comment.toString().replaceAll(System.lineSeparator(), " ").replaceAll("\\n", " ")
+		    .replaceAll("\\{", "(").replaceAll("\\}", ")");
 	    if (!newComment.equals(currentComment)) {
 		if (m_game.getNumOfPlies() > 0) {
 		    m_game.setPreMoveComment(newComment);
@@ -830,8 +832,6 @@ public class GameBrowser extends JPanel
 	m_buttEnd.setEnabled(userActionEnabled);
 	m_fenButton.setEnabled(userActionEnabled);
 	m_pgnButton.setEnabled(userActionEnabled);
-
-	m_textViewer.setUserActionEnabled(userActionEnabled);
 
 	Component[] components = jPanel3.getComponents();
 	for (Component component : components) {
