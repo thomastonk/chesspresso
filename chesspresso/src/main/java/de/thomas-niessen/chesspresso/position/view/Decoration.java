@@ -6,10 +6,10 @@ import java.awt.Graphics2D;
 public interface Decoration {
 
     public enum DecorationType {
-	ARROW, BORDER, CIRCLE, STROKE
+	ARROW, BORDER, CIRCLE, STROKE, FRAMED_AREA, GRAY_HAZE
     };
 
-    void paint(Graphics2D g, int squareSize);
+    void paint(Graphics2D g, int squareSize, int bottomPlayer);
 
     Color getColor();
 

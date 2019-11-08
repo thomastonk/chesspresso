@@ -125,6 +125,9 @@ public class GameTextViewer extends JEditorPane
 //		if (!m_userActionEnabled) {
 //		    return;
 //		}
+		if (SwingUtilities.isRightMouseButton(e) || e.isPopupTrigger()) {
+		    return;
+		}
 		getCaret().setMagicCaretPosition(e.getPoint());
 		gotoPlyForCaret();
 	    }
@@ -426,8 +429,11 @@ public class GameTextViewer extends JEditorPane
     }
 
     void gotoPlyForCaret() {
-	m_game.gotoNode(getNodeForCaret());
-	m_game.getPosition().firePositionChanged();
+	int newNode = getNodeForCaret();
+	if (m_game.getCurNode() != newNode) {
+	    m_game.gotoNode(newNode);
+	    m_game.getPosition().firePositionChanged();
+	}
     }
 
     private class FocusRequester implements FocusListener {

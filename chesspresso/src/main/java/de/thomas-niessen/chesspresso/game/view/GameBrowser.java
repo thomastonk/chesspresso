@@ -57,6 +57,9 @@ import chesspresso.position.ImmutablePosition;
 import chesspresso.position.NAG;
 import chesspresso.position.PositionChangeListener;
 import chesspresso.position.PositionMotionListener;
+import chesspresso.position.view.Decoration.DecorationType;
+import chesspresso.position.view.DecorationFactory;
+import chesspresso.position.view.FenToClipBoard;
 import chesspresso.position.view.PositionView;
 import chesspresso.position.view.PositionViewProperties;
 
@@ -64,7 +67,6 @@ import chesspresso.position.view.PositionViewProperties;
  * Game browser.
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.4 $
  */
 @SuppressWarnings("serial")
 public class GameBrowser extends JPanel
@@ -78,6 +80,8 @@ public class GameBrowser extends JPanel
 
     private Component m_parent = null;
     private JLabel m_moveLabel = null;
+
+    private boolean m_highlightLastMove;
 
     private InputDialog inputDialog = new DefaultInputDialog();
 
@@ -149,6 +153,7 @@ public class GameBrowser extends JPanel
 	    m_buttPreComment.setVisible(false);
 	    m_buttPostComment.setVisible(false);
 	    m_buttDelete.setVisible(false);
+	    addPopupToPositionView();
 	    addPopupToTextViewer();
 	}
 
@@ -192,6 +197,7 @@ public class GameBrowser extends JPanel
 	    }
 
 	    setHeaderLines();
+	    highlightLastMove();
 	}
     }
 
@@ -241,6 +247,15 @@ public class GameBrowser extends JPanel
 	    m_positionView.setBlackSquareColor(blackSquares);
 	    invalidate();
 	}
+    }
+
+    public void setHighlightLastMove(boolean hlm) {
+	m_highlightLastMove = hlm;
+	highlightLastMove();
+    }
+
+    public boolean isHighlightingLastMove() {
+	return m_highlightLastMove;
     }
 
     public Game getGame() {
@@ -350,6 +365,24 @@ public class GameBrowser extends JPanel
 
     public void setParent(final Component c) {
 	m_parent = c;
+    }
+
+    // =======================================================================
+
+    public void highlightLastMove() {
+	if (m_positionView == null) {
+	    return;
+	}
+	m_positionView.removeDecorations(DecorationType.ARROW, Color.BLUE);
+	if (m_highlightLastMove) {
+	    Move lastMove = m_game.getLastMove();
+	    if (lastMove != null) {
+		m_positionView.addDecoration(
+			DecorationFactory.getArrowDecoration(lastMove.getFromSqi(), lastMove.getToSqi(), Color.BLUE),
+			false);
+	    }
+	}
+	m_positionView.repaint();
     }
 
     // =======================================================================
@@ -543,34 +576,7 @@ public class GameBrowser extends JPanel
 	toolBarPanel.add(moveLabelPanel, BorderLayout.CENTER);
 
 	m_fenButton = new JButton("FEN");
-	m_fenButton.addActionListener(new ActionListener() {
-	    @Override
-	    public void actionPerformed(ActionEvent evt) {
-		String fen = FEN.getFEN(m_game.getPosition());
-		JDialog fenDialog = new JDialog();
-		fenDialog.setTitle("FEN");
-		JPanel textPanel = new JPanel();
-		JTextPane textPane = new JTextPane();
-		textPane.setContentType("text/plain");
-		textPanel.add(textPane);
-		textPane.setText(fen);
-		textPane.setEditable(false);
-		JButton copyButton = new JButton("Copy to clipboard");
-		copyButton.addActionListener(e -> {
-		    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(fen), null);
-		    fenDialog.setVisible(false);
-		    fenDialog.dispose();
-		});
-		textPanel.add(copyButton);
-		fenDialog.setModal(true);
-		fenDialog.add(textPanel);
-		fenDialog.pack();
-		if (m_parent != null) {
-		    fenDialog.setLocationRelativeTo(m_parent);
-		}
-		fenDialog.setVisible(true);
-	    }
-	});
+	m_fenButton.addActionListener(new FenToClipBoard(() -> m_game.getPosition(), () -> m_parent));
 	jToolBar2.add(m_fenButton);
 
 	m_pgnButton = new JButton("PGN");
@@ -791,6 +797,10 @@ public class GameBrowser extends JPanel
     public void notifyPositionChanged(ImmutablePosition position) {
 	// it shall not be allowed to replace the position!
 	updateMovePane();
+	highlightLastMove();
+	if (m_positionView != null) {
+	    m_positionView.removeChessbaseDecorations();
+	}
     }
 
     /*
@@ -802,6 +812,10 @@ public class GameBrowser extends JPanel
     @Override
     public void notifyMoveDone(ImmutablePosition position, short move) {
 	updateMovePane();
+	highlightLastMove();
+	if (m_positionView != null) {
+	    m_positionView.removeChessbaseDecorations();
+	}
     }
 
     /*
@@ -814,6 +828,11 @@ public class GameBrowser extends JPanel
     @Override
     public void notifyMoveUndone(ImmutablePosition position) {
 	updateMovePane();
+	highlightLastMove();
+	if (m_positionView != null) {
+	    m_positionView.removeChessbaseDecorations();
+	}
+
     }
 
     private void updateMovePane() {
@@ -844,6 +863,27 @@ public class GameBrowser extends JPanel
 	jPanel3.setAlignmentX(RIGHT_ALIGNMENT);
 	jPanel3.add(component);
 	jPanel3.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+    }
+
+    private void addPopupToPositionView() {
+	m_positionView.addMouseListener(new MouseAdapter() {
+	    @Override
+	    public void mouseClicked(MouseEvent event) {
+		if (!m_userActionEnabled) {
+		    return;
+		}
+		if (SwingUtilities.isRightMouseButton(event)) {
+		    JPopupMenu popup = new JPopupMenu();
+		    JMenuItem deleteColorCommentsMenuItem = new JMenuItem("Delete color comments");
+		    deleteColorCommentsMenuItem.addActionListener(e -> {
+			m_positionView.removeChessbaseDecorations();
+			m_positionView.repaint();
+		    });
+		    popup.add(deleteColorCommentsMenuItem);
+		    popup.show(m_positionView, event.getX(), event.getY());
+		}
+	    }
+	});
     }
 
     private void addPopupToTextViewer() {

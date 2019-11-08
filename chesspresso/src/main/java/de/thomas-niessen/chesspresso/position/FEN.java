@@ -18,11 +18,6 @@ import java.util.regex.Pattern;
 
 import chesspresso.Chess;
 
-/**
- *
- * @author Bernhard Seybold
- * @version $Revision: 1.1 $
- */
 public class FEN {
 
     private static final char fenChars[] = { 'K', 'P', 'Q', 'R', 'B', 'N', '-', 'n', 'b', 'r', 'q', 'p', 'k' };
@@ -123,13 +118,21 @@ public class FEN {
 		    for (int i = 0; i < castleString.length(); ++i) {
 			char ch = castleString.charAt(i);
 			if (ch == 'K') {
-			    castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
+			    if (pos.getStone(Chess.E1) == Chess.WHITE_KING
+				    && pos.getStone(Chess.H1) == Chess.WHITE_ROOK)
+				castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
 			} else if (ch == 'Q') {
-			    castles |= ImmutablePosition.WHITE_LONG_CASTLE;
+			    if (pos.getStone(Chess.E1) == Chess.WHITE_KING
+				    && pos.getStone(Chess.A1) == Chess.WHITE_ROOK)
+				castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 			} else if (ch == 'k') {
-			    castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
+			    if (pos.getStone(Chess.E8) == Chess.BLACK_KING
+				    && pos.getStone(Chess.H8) == Chess.BLACK_ROOK)
+				castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
 			} else if (ch == 'q') {
-			    castles |= ImmutablePosition.BLACK_LONG_CASTLE;
+			    if (pos.getStone(Chess.E8) == Chess.BLACK_KING
+				    && pos.getStone(Chess.A8) == Chess.BLACK_ROOK)
+				castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 			} else
 			    throw new IllegalArgumentException(
 				    "Malformed FEN: illegal castling character " + ch + " in " + castleString);

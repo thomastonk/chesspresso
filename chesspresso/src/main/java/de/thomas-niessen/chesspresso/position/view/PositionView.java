@@ -36,6 +36,7 @@ import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,14 +44,12 @@ import chesspresso.Chess;
 import chesspresso.position.AbstractMutablePosition;
 import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
+import chesspresso.position.view.Decoration.DecorationType;
 
 /**
  * Position view.
  * 
  * @author Bernhard Seybold
- * @version $Revision: 1.2 $
- * 
- * 
  */
 @SuppressWarnings("serial")
 public class PositionView extends java.awt.Component implements PositionListener, MouseListener, MouseMotionListener {
@@ -99,8 +98,13 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     final private Map<Integer, Paint> m_backgroundPaints = new HashMap<>();
 
+    final private Object decorationToken = new Object();
     final private List<Decoration> lowerLevel = new ArrayList<>(); // below the figure symbols
     final private List<Decoration> upperLevel = new ArrayList<>(); // above the figure symbols
+
+    final static private Color GREEN_TRANSPARENT = new Color(0.f, 1.f, 0.f, 0.6f);
+    final static private Color YELLOW_TRANSPARENT = new Color(1.f, 1.f, 0.f, 0.6f);
+    final static private Color RED_TRANSPARENT = new Color(1.f, 0.f, 0.f, 0.6f);
 
     // ======================================================================
 
@@ -296,7 +300,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 	return 8 * (7 - y0) + x0;
     }
 
-    public void setPaint(int sqi, Paint paint) {
+    public void setOrRemovePaint(int sqi, Paint paint) {
 	if (paint == null) {
 	    m_backgroundPaints.remove(sqi);
 	} else {
@@ -330,11 +334,36 @@ public class PositionView extends java.awt.Component implements PositionListener
 	repaint();
     }
 
-    public void addDecoration(Decoration decoration, boolean top) {
-	if (top) {
-	    upperLevel.add(decoration);
-	} else {
-	    lowerLevel.add(decoration);
+    public void addDecoration(Decoration decoration, boolean onTop) {
+	synchronized (decorationToken) {
+	    if (onTop) {
+		upperLevel.add(decoration);
+	    } else {
+		lowerLevel.add(decoration);
+	    }
+	}
+    }
+
+    public void removeAllDecorations() {
+	synchronized (decorationToken) {
+	    lowerLevel.clear();
+	    upperLevel.clear();
+	}
+    }
+
+    public void removeDecorations(Decoration.DecorationType type, Color color) {
+	synchronized (decorationToken) {
+	    if (color != null) {
+		lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
+		upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
+	    } else {
+		try {
+		    lowerLevel.removeIf(d -> d.getType().equals(type));
+		    upperLevel.removeIf(d -> d.getType().equals(type));
+		} catch (NullPointerException ex) {
+		    System.err.println(ex);
+		}
+	    }
 	}
     }
 
@@ -405,6 +434,9 @@ public class PositionView extends java.awt.Component implements PositionListener
     @Override
     public void mousePressed(MouseEvent e) {
 	if (isSpecial(e)) {
+	    if (e.isAltDown()) {
+		m_draggedFrom = getSquareForEvent(e);
+	    }
 	    return;
 	}
 	if (m_positionMotionListener == null)
@@ -423,9 +455,56 @@ public class PositionView extends java.awt.Component implements PositionListener
 	}
     }
 
+    private void drawChessbaseDecorations(MouseEvent e) {
+	if (e.isAltDown() && m_draggedFrom != Chess.NO_SQUARE) {
+	    int draggedTo = getSquareForEvent(e);
+	    if (draggedTo == Chess.NO_SQUARE) {
+		return;
+	    } else if (draggedTo == m_draggedFrom) {
+		if (e.isControlDown() || e.isMetaDown()) {
+		    setOrRemovePaint(draggedTo, YELLOW_TRANSPARENT);
+		} else if (e.isShiftDown()) {
+		    setOrRemovePaint(draggedTo, RED_TRANSPARENT);
+		} else {
+		    setOrRemovePaint(draggedTo, GREEN_TRANSPARENT);
+		}
+	    } else { // arrows
+		if (e.isControlDown() || e.isMetaDown()) {
+		    addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, YELLOW_TRANSPARENT),
+			    true);
+		} else if (e.isShiftDown()) {
+		    addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, RED_TRANSPARENT),
+			    true);
+		} else {
+		    addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, GREEN_TRANSPARENT),
+			    true);
+		}
+	    }
+	}
+	m_draggedFrom = Chess.NO_SQUARE; // otherwise paint draws there an empty square
+	repaint();
+    }
+
+    public void removeChessbaseDecorations() {
+	Iterator<Map.Entry<Integer, Paint>> iterator = m_backgroundPaints.entrySet().iterator();
+	while (iterator.hasNext()) {
+	    Map.Entry<Integer, Paint> entry = iterator.next();
+	    Paint p = entry.getValue();
+	    if (p.equals(YELLOW_TRANSPARENT) || p.equals(RED_TRANSPARENT) || p.equals(GREEN_TRANSPARENT)) {
+		iterator.remove();
+	    }
+	}
+	removeDecorations(DecorationType.ARROW, YELLOW_TRANSPARENT);
+	removeDecorations(DecorationType.ARROW, RED_TRANSPARENT);
+	removeDecorations(DecorationType.ARROW, GREEN_TRANSPARENT);
+    }
+
     @Override
     public void mouseReleased(MouseEvent e) {
 	if (isSpecial(e)) {
+	    if (e.isAltDown()) {
+		drawChessbaseDecorations(e);
+	    }
 	    if (m_draggedStone != Chess.NO_STONE) {
 		m_draggedFrom = Chess.NO_SQUARE;
 		m_draggedStone = Chess.NO_STONE;
@@ -512,8 +591,10 @@ public class PositionView extends java.awt.Component implements PositionListener
 	    }
 	}
 	// Second step: draw the layer below the stones
-	for (Decoration decoration : lowerLevel) {
-	    decoration.paint(g2, squareSize);
+	synchronized (decorationToken) {
+	    for (Decoration decoration : lowerLevel) {
+		decoration.paint(g2, squareSize, m_bottom);
+	    }
 	}
 
 	// Third step: get the stone and paint over the background with white color.
@@ -554,8 +635,10 @@ public class PositionView extends java.awt.Component implements PositionListener
 	    }
 	}
 	// Fourth step: draw the layer below the stones
-	for (Decoration decoration : upperLevel) {
-	    decoration.paint(g2, squareSize);
+	synchronized (decorationToken) {
+	    for (Decoration decoration : upperLevel) {
+		decoration.paint(g2, squareSize, m_bottom);
+	    }
 	}
 
 	// Drag & Drop
@@ -577,14 +660,13 @@ public class PositionView extends java.awt.Component implements PositionListener
 	    final AffineTransform trans = AffineTransform.getTranslateInstance(transX, transY);
 	    final Shape shapeCentered = trans.createTransformedShape(shape);
 	    final Area shapeArea = new Area(shapeCentered);
-	    Color color = g2.getColor();
 	    g2.setColor(Color.WHITE);
 	    final ArrayList<Shape> partsOfShape = getAllPartsOfTheShape(shapeArea);
 	    for (final Shape part : partsOfShape) {
 		g2.fill(part);
 	    }
 	    // and then the piece itself
-	    g2.setColor(color);
+	    g2.setColor(Chess.stoneToColor(m_draggedStone) == Chess.WHITE ? m_whiteColor : m_blackColor);
 	    graphics.drawString(getStringForStone(m_draggedStone, Chess.stoneToColor(m_draggedStone) == Chess.WHITE),
 		    m_draggedX - squareSize / 2, m_draggedY + squareSize / 2);
 	}
