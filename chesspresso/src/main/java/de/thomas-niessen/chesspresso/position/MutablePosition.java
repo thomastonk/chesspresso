@@ -22,7 +22,7 @@ package chesspresso.position;
 public interface MutablePosition extends ImmutablePosition {
 	public void clear();
 
-	public void set(ImmutablePosition position);
+	public void setPosition(ImmutablePosition position);
 
 	public void setStart();
 

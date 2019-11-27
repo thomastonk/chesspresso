@@ -153,6 +153,11 @@ public class PositionView extends java.awt.Component implements PositionListener
     }
 
     // ======================================================================
+    public void setImmutablePosition(AbstractMutablePosition position) {
+	m_position = position;
+    }
+
+    // ======================================================================
 
     public int getBottomPlayer() {
 	return m_bottom;

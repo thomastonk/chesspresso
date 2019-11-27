@@ -218,7 +218,7 @@ public class FEN {
 	/* ============= check the resulting position ========== */
 	if (validate) {
 	    try {
-		pos.validate();
+		pos.internalValidate();
 	    } catch (Exception e) {
 		e.printStackTrace();
 		throw new IllegalArgumentException("Malformed FEN: " + e.getMessage());

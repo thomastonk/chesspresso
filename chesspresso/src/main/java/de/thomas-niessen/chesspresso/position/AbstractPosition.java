@@ -258,10 +258,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	return true;
     }
 
-    // TN changed three RuntimeExceptions to IllegalPositionExceptions and put
-    // hashCode condition
-    // from the beginning to the end:
-    public void validate() throws IllegalPositionException {
+    public void internalValidate() throws IllegalPositionException {
 	int numOfWhiteKings = 0;
 	int numOfBlackKings = 0;
 	for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {

@@ -135,6 +135,6 @@ public interface ImmutablePosition {
      *
      * @throws IllegalPositionException if the internal state is illegal
      */
-    void validate() throws IllegalPositionException;
+    void internalValidate() throws IllegalPositionException;
 
 }

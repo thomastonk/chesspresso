@@ -461,7 +461,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     public Position(ImmutablePosition pos) {
 	this();
-	set(pos);
+	setPosition(pos);
     }
 
     public Position(String fen) throws IllegalArgumentException {
@@ -1626,8 +1626,8 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     }
 
     @Override
-    public void validate() throws IllegalPositionException {
-	super.validate();
+    public void internalValidate() throws IllegalPositionException {
+	super.internalValidate();
 
 	if (m_whiteKing < 0 || m_whiteKing >= Chess.NUM_OF_SQUARES)
 	    throw new IllegalPositionException("White king square illegal: " + m_whiteKing);
@@ -2677,7 +2677,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		sb.append(getLastMove());
 		if (validateEachMove) {
 		    try {
-			validate();
+			internalValidate();
 		    } catch (Throwable t) {
 			sb.append("EXCEPTION: after move " + Move.getString(moves[i]) + ": " + t.getMessage());
 		    }

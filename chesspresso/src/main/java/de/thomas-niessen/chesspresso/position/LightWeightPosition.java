@@ -44,7 +44,7 @@ public class LightWeightPosition extends AbstractMutablePosition {
 
 	public LightWeightPosition(ImmutablePosition position) {
 		this();
-		set(position);
+		setPosition(position);
 	}
 
 	/* ================================================================================ */

@@ -103,7 +103,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	firePositionChanged();
     }
 
-    public void set(ImmutablePosition position) {
+    public void setPosition(ImmutablePosition position) {
 	boolean notify = m_notifyPositionChanged;
 	m_notifyPositionChanged = false;
 
@@ -122,7 +122,88 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
     /*
      * =========================================================================
-     * =======
+     */
+
+    public final void moveAllUp() {
+	boolean notify = m_notifyPositionChanged;
+	m_notifyPositionChanged = false;
+
+	for (int sqi = Chess.H7; sqi >= Chess.A1; --sqi) {
+	    setStone(sqi + 8, getStone(sqi));
+	}
+	for (int sqi = Chess.A1; sqi <= Chess.H1; ++sqi) {
+	    setStone(sqi, Chess.NO_STONE);
+	}
+
+	setCastles(NO_CASTLES);
+	setSqiEP(Chess.NO_SQUARE);
+	setHalfMoveClock(0);
+
+	m_notifyPositionChanged = notify;
+	firePositionChanged();
+    }
+
+    public final void moveAllDown() {
+	boolean notify = m_notifyPositionChanged;
+	m_notifyPositionChanged = false;
+
+	for (int sqi = Chess.A2; sqi <= Chess.H8; ++sqi) {
+	    setStone(sqi - 8, getStone(sqi));
+	}
+	for (int sqi = Chess.A8; sqi <= Chess.H8; ++sqi) {
+	    setStone(sqi, Chess.NO_STONE);
+	}
+
+	setCastles(NO_CASTLES);
+	setSqiEP(Chess.NO_SQUARE);
+	setHalfMoveClock(0);
+
+	m_notifyPositionChanged = notify;
+	firePositionChanged();
+    }
+
+    public final void moveAllLeft() {
+	boolean notify = m_notifyPositionChanged;
+	m_notifyPositionChanged = false;
+
+	for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+	    if (sqi % 8 != 7) {
+		setStone(sqi, getStone(sqi + 1));
+	    } else {
+		setStone(sqi, Chess.NO_STONE);
+	    }
+	}
+
+	setCastles(NO_CASTLES);
+	setSqiEP(Chess.NO_SQUARE);
+	setHalfMoveClock(0);
+
+	m_notifyPositionChanged = notify;
+	firePositionChanged();
+    }
+
+    public final void moveAllRight() {
+	boolean notify = m_notifyPositionChanged;
+	m_notifyPositionChanged = false;
+
+	for (int sqi = Chess.H8; sqi >= Chess.A1; --sqi) {
+	    if (sqi % 8 != 0) {
+		setStone(sqi, getStone(sqi - 1));
+	    } else {
+		setStone(sqi, Chess.NO_STONE);
+	    }
+	}
+
+	setCastles(NO_CASTLES);
+	setSqiEP(Chess.NO_SQUARE);
+	setHalfMoveClock(0);
+
+	m_notifyPositionChanged = notify;
+	firePositionChanged();
+    }
+
+    /*
+     * =========================================================================
      */
     // inverse
 
@@ -309,6 +390,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 		    m_listeners = new PositionListener[listeners.length - 1];
 		    System.arraycopy(listeners, 0, listeners, 0, i);
 		    System.arraycopy(listeners, i + 1, listeners, i, m_listeners.length - i - 1);
+		    // TN: this caused an ArrayIndexOutOfBoundsException. TODO
 		}
 		return; // =====>
 	    }
