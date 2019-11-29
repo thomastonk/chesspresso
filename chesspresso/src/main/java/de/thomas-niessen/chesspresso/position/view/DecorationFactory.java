@@ -35,6 +35,10 @@ public class DecorationFactory {
 	return new Circle(square, color);
     }
 
+    static public Decoration getCrossMarkDecoration(int square, Color color) {
+	return new CrossMark(square, color);
+    }
+
     static public Decoration getStrokeDecoration(int from, int to, Color color) {
 	return new Stroke(from, to, color);
     }
@@ -187,6 +191,45 @@ public class DecorationFactory {
 	@Override
 	public DecorationType getType() {
 	    return DecorationType.CIRCLE;
+	}
+    }
+
+    static class CrossMark implements Decoration {
+	private final int square;
+	private final Color color;
+
+	CrossMark(int square, Color color) {
+	    this.square = square;
+	    this.color = color;
+	}
+
+	@Override
+	public void paint(Graphics2D g, int squareSize, int bottomPlayer) {
+	    g.setColor(color);
+	    g.setStroke(new BasicStroke(squareSize / 6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+	    int square_col, square_row;
+	    if (bottomPlayer == Chess.WHITE) {
+		square_col = Chess.sqiToCol(square);
+		square_row = Chess.NUM_OF_ROWS - 1 - Chess.sqiToRow(square);
+	    } else {
+		square_col = Chess.NUM_OF_COLS - 1 - Chess.sqiToCol(square);
+		square_row = Chess.sqiToRow(square);
+	    }
+	    g.drawLine(squareSize * square_col + squareSize / 6, squareSize * square_row + squareSize / 6,
+		    squareSize * (square_col + 1) - squareSize / 6, squareSize * (square_row + 1) - squareSize / 6);
+	    g.drawLine(squareSize * square_col + squareSize / 6, squareSize * (square_row + 1) - squareSize / 6,
+		    squareSize * (square_col + 1) - squareSize / 6, squareSize * square_row + squareSize / 6);
+	}
+
+	@Override
+	public Color getColor() {
+	    return color;
+	}
+
+	@Override
+	public DecorationType getType() {
+	    return DecorationType.CROSS_MARK;
 	}
     }
 
