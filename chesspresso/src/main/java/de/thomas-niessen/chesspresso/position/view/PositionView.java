@@ -578,6 +578,7 @@ public class PositionView extends java.awt.Component implements PositionListener
     public void paint(Graphics graphics) {
 	super.paint(graphics);
 	Graphics2D g2 = (Graphics2D) graphics;
+	g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	int squareSize = getFont().getSize() + squareOffset;
 
 	// First step: draw the background
@@ -613,7 +614,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 		if (m_solidStones) {
 		    stone = Chess.pieceToStone(Chess.stoneToPiece(stone), Chess.BLACK);
 		}
-		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+//		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		FontRenderContext frc = g2.getFontRenderContext();
 		GlyphVector gv = getFont().createGlyphVector(frc, getStringForStone(stone, stoneIsWhite));
 
