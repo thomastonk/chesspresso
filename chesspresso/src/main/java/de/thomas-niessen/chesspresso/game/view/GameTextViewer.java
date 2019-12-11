@@ -128,7 +128,11 @@ public class GameTextViewer extends JEditorPane
 		if (SwingUtilities.isRightMouseButton(e) || e.isPopupTrigger()) {
 		    return;
 		}
-		getCaret().setMagicCaretPosition(e.getPoint());
+		if (e.getPoint().y < 3) {
+		    // clicks at the upper boundary move the game to first ply
+		    return;
+		}
+		getCaret().setMagicCaretPosition(e.getPoint()); // TN: Isn't this useless?
 		gotoPlyForCaret();
 	    }
 	});

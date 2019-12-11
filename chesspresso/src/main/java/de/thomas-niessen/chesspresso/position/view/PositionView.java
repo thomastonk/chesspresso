@@ -40,6 +40,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.SwingUtilities;
+
 import chesspresso.Chess;
 import chesspresso.position.AbstractMutablePosition;
 import chesspresso.position.PositionListener;
@@ -93,6 +95,11 @@ public class PositionView extends java.awt.Component implements PositionListener
 	    g2d.fillOval(0, 0, 5, 5);
 	}
     }
+
+    final static private Paint m_highlightPaintWhite = new TexturePaint(m_highlightWhiteDefault,
+	    new Rectangle(0, 0, 5, 5));
+    final static private Paint m_highlightPaintBlack = new TexturePaint(m_highlightBlackDefault,
+	    new Rectangle(0, 0, 5, 5));
 
     final static private int squareOffset = 4;
 
@@ -316,9 +323,9 @@ public class PositionView extends java.awt.Component implements PositionListener
     public void setHighlight(int sqi, boolean highlight) {
 	if (highlight) {
 	    if (Chess.isWhiteSquare(sqi)) {
-		m_backgroundPaints.put(sqi, new TexturePaint(m_highlightWhiteDefault, new Rectangle(0, 0, 5, 5)));
+		m_backgroundPaints.put(sqi, m_highlightPaintWhite);
 	    } else {
-		m_backgroundPaints.put(sqi, new TexturePaint(m_highlightBlackDefault, new Rectangle(0, 0, 5, 5)));
+		m_backgroundPaints.put(sqi, m_highlightPaintBlack);
 	    }
 	} else {
 	    m_backgroundPaints.remove(sqi);
@@ -331,9 +338,21 @@ public class PositionView extends java.awt.Component implements PositionListener
 	    m_backgroundPaints.remove(sqi);
 	} else {
 	    if (Chess.isWhiteSquare(sqi)) {
-		m_backgroundPaints.put(sqi, new TexturePaint(m_highlightWhiteDefault, new Rectangle(0, 0, 5, 5)));
+		m_backgroundPaints.put(sqi, m_highlightPaintWhite);
 	    } else {
-		m_backgroundPaints.put(sqi, new TexturePaint(m_highlightBlackDefault, new Rectangle(0, 0, 5, 5)));
+		m_backgroundPaints.put(sqi, m_highlightPaintBlack);
+	    }
+	}
+	repaint();
+    }
+
+    public void removeAllHighlighting() {
+	for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+	    Paint paint = m_backgroundPaints.get(sqi);
+	    if (paint != null) {
+		if (paint == m_highlightPaintWhite || paint == m_highlightPaintBlack) {
+		    m_backgroundPaints.remove(sqi);
+		}
 	    }
 	}
 	repaint();
@@ -419,7 +438,7 @@ public class PositionView extends java.awt.Component implements PositionListener
     private boolean isSpecial(MouseEvent e) {
 	// META excluded, because isMetaDown returns true, if right mouse button is
 	// pressed.
-	// POPUP_TRIGGER excluded, because isPopupTrigger returns false in mousePreesed
+	// POPUP_TRIGGER excluded, because isPopupTrigger returns false in mousePressed
 	// and mouseDragged, but true in mouseReleased!
 	return e.isAltDown() || e.isAltGraphDown() || e.isControlDown() || e.isShiftDown();
     }
@@ -438,7 +457,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     @Override
     public void mousePressed(MouseEvent e) {
-	if (isSpecial(e)) {
+	if (isSpecial(e) || SwingUtilities.isRightMouseButton(e)) {
 	    if (e.isAltDown()) {
 		m_draggedFrom = getSquareForEvent(e);
 	    }

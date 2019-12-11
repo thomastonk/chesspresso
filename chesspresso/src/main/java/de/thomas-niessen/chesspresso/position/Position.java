@@ -470,7 +470,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     public Position(String fen, boolean strict) throws IllegalArgumentException {
 	this();
-	FEN.initFromFEN(this, fen);
+	FEN.initFromFEN(this, fen, strict);
     }
 
     /*
