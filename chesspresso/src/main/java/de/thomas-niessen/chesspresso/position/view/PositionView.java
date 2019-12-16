@@ -318,6 +318,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 	} else {
 	    m_backgroundPaints.put(sqi, paint);
 	}
+	repaint();
     }
 
     public void setHighlight(int sqi, boolean highlight) {
@@ -366,6 +367,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 		lowerLevel.add(decoration);
 	    }
 	}
+	repaint();
     }
 
     public void removeAllDecorations() {
@@ -373,6 +375,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 	    lowerLevel.clear();
 	    upperLevel.clear();
 	}
+	repaint();
     }
 
     public void removeDecorations(Decoration.DecorationType type, Color color) {
@@ -389,6 +392,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 		}
 	    }
 	}
+	repaint();
     }
 
     // ======================================================================
