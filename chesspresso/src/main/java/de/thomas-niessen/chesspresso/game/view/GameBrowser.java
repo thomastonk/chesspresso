@@ -900,7 +900,7 @@ public class GameBrowser extends JPanel
 		// position is updated at a later point of time (a phenomenon which I didn't
 		// understand at all).
 		if (SwingUtilities.isRightMouseButton(event)) {
-		    int rightClickCaretPosition = m_textViewer.viewToModel(event.getPoint());
+		    int rightClickCaretPosition = m_textViewer.viewToModel2D(event.getPoint());
 		    m_textViewer.setCaretPosition(rightClickCaretPosition);
 		}
 	    }

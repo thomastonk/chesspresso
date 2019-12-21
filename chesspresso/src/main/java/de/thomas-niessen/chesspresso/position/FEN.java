@@ -39,6 +39,7 @@ public class FEN {
     }
 
     public static final String START_POSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    public static final String EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
     // ======================================================================
     // TN: The new implementation accepts a position description, and adds default

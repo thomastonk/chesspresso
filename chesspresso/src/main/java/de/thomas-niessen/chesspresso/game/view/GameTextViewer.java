@@ -151,14 +151,14 @@ public class GameTextViewer extends JEditorPane
 		if (e.getKeyCode() == KeyEvent.VK_ALT)
 		    return;
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-		    if ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+		    if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
 			goBackToLineBegin();
 		    else
 			goBackward();
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-		    if ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+		    if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
 			gotoEndOfLine();
-		    else if ((e.getModifiers() & KeyEvent.SHIFT_MASK) != 0)
+		    else if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
 			goForwardMainLine();
 		    else
 			goForward();
