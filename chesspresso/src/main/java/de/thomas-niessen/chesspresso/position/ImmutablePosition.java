@@ -29,6 +29,12 @@ public interface ImmutablePosition {
 	    BLACK_SHORT_CASTLE = 8, WHITE_CASTLE = WHITE_LONG_CASTLE + WHITE_SHORT_CASTLE,
 	    BLACK_CASTLE = BLACK_LONG_CASTLE + BLACK_SHORT_CASTLE, ALL_CASTLES = WHITE_CASTLE + BLACK_CASTLE;
 
+    // validity
+    public static enum Validity {
+	IS_VALID, NO_ONE_TO_PLAY, NEGATIVE_PLY_NUMBER, NEGATIVE_HALF_MOVE_CLOCK, INVALID_HALF_MOVE_CLOCK,
+	INVALID_EN_PASSANT_SQUARE, INVALID_NUMBER_OF_KINGS, WRONG_KING_ATTACKED
+    }
+
     // ======================================================================
     // read access
 
@@ -84,11 +90,11 @@ public interface ImmutablePosition {
     public int getHalfMoveClock();
 
     /**
-     * Return whether the current position is legal.
+     * Return whether the current position is valid or a error code.
      *
-     * @return whether the current position is legal
+     * @return whether the current position is valid or a error code
      */
-    public boolean isLegal();
+    public Validity isValid();
 
     // ======================================================================
     // FEN

@@ -230,8 +230,6 @@ public final class PGNReader extends PGN {
 
     private final int get() throws IOException {
 	return m_in.read();
-	// 1.4 return m_in != null ? m_in.read() : (m_charBuf.hasRemaining() ?
-	// m_charBuf.get() : TOK_EOF);
     }
 
     private final int getChar() throws IOException {
@@ -761,7 +759,6 @@ public final class PGNReader extends PGN {
 	    System.out.println("===> new game");
 	if (m_in == null)
 	    return null;
-	// 1.4 if(m_in == null && m_charBuf == null) return null;
 	try {
 	    m_curGame = null;
 	    if (!findNextGameStart()) {

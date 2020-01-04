@@ -222,18 +222,39 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	}
     }
 
-    public boolean isLegal() {
+    public Validity isValid() {
 	/*---------- check to play ----------*/
-	if (getToPlay() != Chess.WHITE && getToPlay() != Chess.BLACK)
-	    return false;
+	if (getToPlay() != Chess.WHITE && getToPlay() != Chess.BLACK) {
+	    return Validity.NO_ONE_TO_PLAY;
+	}
 
 	/*---------- check ply number ----------*/
-	if (getPlyNumber() < 0)
-	    return false;
-	if (getHalfMoveClock() > getPlyNumber())
-	    return false;
+	if (getPlyNumber() < 0) {
+	    return Validity.NEGATIVE_PLY_NUMBER;
+	}
+
+	/*---------- check ply number ----------*/
+	if (getPlyNumber() < 0) {
+	    return Validity.NEGATIVE_HALF_MOVE_CLOCK;
+	}
+	if (getHalfMoveClock() > getPlyNumber()) {
+	    return Validity.INVALID_HALF_MOVE_CLOCK;
+	}
 
 	/*---------- check sqi ep ----------*/
+	if (!checkEnPassantSquare()) {
+	    return Validity.INVALID_EN_PASSANT_SQUARE;
+	}
+
+	/*---------- check number of kings ----------*/
+	if (!checkNumberOfKings()) {
+	    return Validity.INVALID_NUMBER_OF_KINGS;
+	}
+
+	return Validity.IS_VALID;
+    }
+
+    public boolean checkEnPassantSquare() {
 	if (getSqiEP() != Chess.NO_SQUARE) {
 	    if (getToPlay() == Chess.WHITE) {
 		if (getStone(getSqiEP() - Chess.NUM_OF_COLS) != Chess.pieceToStone(Chess.PAWN, Chess.BLACK))
@@ -243,8 +264,10 @@ public abstract class AbstractPosition implements ImmutablePosition {
 		    return false;
 	    }
 	}
+	return true;
+    }
 
-	/*---------- check number of kings ----------*/
+    public boolean checkNumberOfKings() {
 	int numOfWhiteKings = 0, numOfBlackKings = 0;
 	for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 	    if (getStone(sqi) == Chess.WHITE_KING)
@@ -252,9 +275,9 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	    if (getStone(sqi) == Chess.BLACK_KING)
 		numOfBlackKings++;
 	}
-	if (numOfWhiteKings != 1 || numOfBlackKings != 1)
+	if (numOfWhiteKings != 1 || numOfBlackKings != 1) {
 	    return false;
-
+	}
 	return true;
     }
 

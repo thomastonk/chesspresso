@@ -196,20 +196,28 @@ public class FEN {
 
 	/* ========== 6th field : full move number ========== */
 	if (fenParts.length > 5) {
-	    String moveNumber = fenParts[5];
+	    int moveNumber;
 	    try {
-		int ply;
-		if (pos.getToPlay() == Chess.WHITE) {
-		    ply = 2 * (Integer.parseInt(moveNumber) - 1);
-		} else {
-		    ply = 2 * (Integer.parseInt(moveNumber) - 1) + 1;
-		}
-		pos.setPlyNumber(ply);
-		pos.setFirstPlyNumber(ply);
+		moveNumber = Integer.parseInt(fenParts[5]);
 	    } catch (NumberFormatException e) {
 		throw new IllegalArgumentException(
-			"Malformed FEN: tried to evaluate the move number, found " + moveNumber);
+			"Malformed FEN: tried to evaluate the move number, found " + fenParts[5]);
 	    }
+	    if (moveNumber < 0) {
+		throw new IllegalArgumentException(
+			"Malformed FEN: tried to evaluate the move number, found " + fenParts[5]);
+	    }
+	    if (moveNumber == 0) {
+		moveNumber = 1;
+	    }
+	    int ply;
+	    if (pos.getToPlay() == Chess.WHITE) {
+		ply = 2 * (moveNumber - 1);
+	    } else {
+		ply = 2 * (moveNumber - 1) + 1;
+	    }
+	    pos.setPlyNumber(ply);
+	    pos.setFirstPlyNumber(ply);
 	} else { // default value
 	    int ply = pos.getToPlay() == Chess.WHITE ? 0 : 1;
 	    pos.setPlyNumber(ply);

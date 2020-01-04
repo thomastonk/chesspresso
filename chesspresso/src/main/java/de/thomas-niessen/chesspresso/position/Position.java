@@ -1613,11 +1613,19 @@ public final class Position extends AbstractMoveablePosition implements Serializ
      */
 
     @Override
-    public boolean isLegal() {
-	if (!super.isLegal())
-	    return false; // =====>
+    public Validity isValid() {
+	Validity val = super.isValid();
+	if (val != Validity.IS_VALID)
+	    return val;
 
 	/*---------- king of toPlay must not be attacked ----------*/
+	if (!checkKingOfToPlay()) {
+	    return Validity.WRONG_KING_ATTACKED;
+	}
+	return Validity.IS_VALID;
+    }
+
+    public boolean checkKingOfToPlay() {
 	int kingSquare = (getToPlay() == Chess.WHITE ? m_blackKing : m_whiteKing);
 	if (isAttacked(kingSquare, getToPlay(), 0L))
 	    return false; // =====>
@@ -1847,7 +1855,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		int tryFrom = getFirstSqi(bb2);
 		short tryMove = Move.getRegularMove(tryFrom, to, isCapturing);
 		doMoveNoMoveListeners(tryMove);
-		if (!isLegal()) {
+		if (isValid() != Validity.IS_VALID) {
 		    bb = bb & (~ofSquare(tryFrom));
 		}
 		undoMoveNoMoveListeners();
