@@ -43,6 +43,7 @@ import java.util.Map;
 import javax.swing.SwingUtilities;
 
 import chesspresso.Chess;
+import chesspresso.Mouse;
 import chesspresso.position.AbstractMutablePosition;
 import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
@@ -437,16 +438,6 @@ public class PositionView extends java.awt.Component implements PositionListener
 //        : Chess.coorToSqi(Chess.NUM_OF_COLS - evt.getX() / size, evt.getY() / size - 1)); // TN: old version
     }
 
-    // TODO find a suitable place in chesspresso and eliminate the same method
-    // elsewhere (VarPosSetupPanel and SquaresDialog).
-    private boolean isSpecial(MouseEvent e) {
-	// META excluded, because isMetaDown returns true, if right mouse button is
-	// pressed.
-	// POPUP_TRIGGER excluded, because isPopupTrigger returns false in mousePressed
-	// and mouseDragged, but true in mouseReleased!
-	return e.isAltDown() || e.isAltGraphDown() || e.isControlDown() || e.isShiftDown();
-    }
-
     @Override
     public void mouseClicked(MouseEvent e) {
     }
@@ -461,7 +452,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     @Override
     public void mousePressed(MouseEvent e) {
-	if (isSpecial(e) || SwingUtilities.isRightMouseButton(e)) {
+	if (Mouse.isSpecial(e) || SwingUtilities.isRightMouseButton(e)) {
 	    if (e.isAltDown()) {
 		m_draggedFrom = getSquareForEvent(e);
 	    }
@@ -529,7 +520,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     @Override
     public void mouseReleased(MouseEvent e) {
-	if (isSpecial(e)) {
+	if (Mouse.isSpecial(e)) {
 	    if (e.isAltDown()) {
 		drawChessbaseDecorations(e);
 	    }
@@ -564,7 +555,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     @Override
     public void mouseDragged(MouseEvent e) {
-	if (isSpecial(e)) {
+	if (Mouse.isSpecial(e)) {
 	    if (m_draggedStone != Chess.NO_STONE) {
 		m_draggedFrom = Chess.NO_SQUARE;
 		m_draggedStone = Chess.NO_STONE;

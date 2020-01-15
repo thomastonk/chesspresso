@@ -24,7 +24,6 @@ import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
-import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.Position;
 import chesspresso.position.PositionChangeListener;
@@ -224,9 +223,8 @@ public class Game implements PositionChangeListener, Serializable {
 
     public void setGameByFEN(String fen) throws IllegalArgumentException {
 	m_header.setTag(PGN.TAG_FEN, fen);
-	if (!fen.equals(FEN.START_POSITION)) {
-	    m_header.setTag(PGN.TAG_ECO, "");
-	}
+	m_header.setTag(PGN.TAG_ECO, "");
+	m_header.setTag(PGN.TAG_RESULT, "*");
 	setPosition(new Position(fen, false));
 	m_moves.clear();
 	fireMoveModelChanged();

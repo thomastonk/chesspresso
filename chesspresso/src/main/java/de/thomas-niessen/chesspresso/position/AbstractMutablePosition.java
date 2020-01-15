@@ -390,7 +390,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 		    m_listeners = new PositionListener[listeners.length - 1];
 		    System.arraycopy(listeners, 0, listeners, 0, i);
 		    System.arraycopy(listeners, i + 1, listeners, i, m_listeners.length - i - 1);
-		    // TN: this caused an ArrayIndexOutOfBoundsException. TODO
+		    // TN: TODO this once caused an ArrayIndexOutOfBoundsException.
 		}
 		return; // =====>
 	    }
