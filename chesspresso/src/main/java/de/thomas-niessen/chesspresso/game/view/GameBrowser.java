@@ -167,6 +167,12 @@ public class GameBrowser extends JPanel
 		}
 	    }
 	});
+
+	// TN: guarantees a suitable maximum height
+	setMaximumSize(new Dimension(2000, m_positionView.getPreferredSize().height + 100));
+	// The value 100 is larger than the height of the two header lines plus the
+	// height of the tools under the position view. Other values work, too, but too
+	// small values, say 30 cause problems. TODO Observe.
     }
 
     // ======================================================================
