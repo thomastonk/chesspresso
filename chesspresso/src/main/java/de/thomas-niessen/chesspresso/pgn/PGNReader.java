@@ -398,7 +398,7 @@ public final class PGNReader extends PGN {
 
 	    try {
 		if (tagName.equals("FEN")) {
-		    m_curGame.setGameByFEN(tagValue);
+		    m_curGame.setGameByFEN(tagValue, false);
 		} else {
 		    m_curGame.setTag(tagName, tagValue);
 		}

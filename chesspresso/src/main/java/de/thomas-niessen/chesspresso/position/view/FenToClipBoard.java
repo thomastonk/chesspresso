@@ -15,7 +15,10 @@
 package chesspresso.position.view;
 
 import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Frame;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 
@@ -42,7 +45,25 @@ public class FenToClipBoard extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent ae) {
 	String fen = FEN.getFEN(positionSupplier.getCurrentPosition());
-	JDialog fenDialog = new JDialog();
+	JDialog fenDialog;
+	if (parentSupplier != null) {
+	    Component parent = parentSupplier.getCurrentParent();
+	    if (parent != null) {
+		if (parent instanceof Frame) {
+		    fenDialog = new JDialog((Frame) parent);
+		} else if (parent instanceof Window) {
+		    fenDialog = new JDialog((Window) parent);
+		} else if (parent instanceof Dialog) {
+		    fenDialog = new JDialog((Dialog) parent);
+		} else {
+		    fenDialog = new JDialog();
+		}
+	    } else {
+		fenDialog = new JDialog();
+	    }
+	} else {
+	    fenDialog = new JDialog();
+	}
 	fenDialog.setTitle("FEN");
 	JPanel textPanel = new JPanel();
 	JTextPane textPane = new JTextPane();

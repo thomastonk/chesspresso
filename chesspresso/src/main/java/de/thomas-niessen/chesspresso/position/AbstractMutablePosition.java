@@ -14,6 +14,10 @@
  ******************************************************************************/
 package chesspresso.position;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import chesspresso.Chess;
 //import java.util.*;
 //import chesspresso.move.Move;
@@ -25,9 +29,8 @@ import chesspresso.Chess;
  * @version $Revision: 1.1 $
  */
 public abstract class AbstractMutablePosition extends AbstractPosition implements MutablePosition {
-    protected PositionListener[] m_listeners; // protected to allow fast read
-					      // access
-    protected PositionChangeListener[] m_changeListeners;
+    private final List<PositionListener> m_listeners;
+    private final List<PositionChangeListener> m_changeListeners;
     protected boolean m_notifyListeners; // ... to check whether or not to fire
     protected boolean m_notifyPositionChanged;
 
@@ -39,8 +42,8 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
      */
 
     protected AbstractMutablePosition() {
-	m_listeners = null;
-	m_changeListeners = null;
+	m_listeners = new ArrayList<>();
+	m_changeListeners = new ArrayList<>();
 	m_notifyListeners = true;
 	m_notifyPositionChanged = true;
     }
@@ -271,86 +274,86 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
     // trigger listeners
 
     protected void fireSquareChanged(int sqi) {
-	if (m_notifyListeners && m_listeners != null) {
+	if (m_notifyListeners) {
 	    int stone = getStone(sqi);
-	    for (int i = 0; i < m_listeners.length; i++) {
-		m_listeners[i].squareChanged(sqi, stone);
+	    for (PositionListener listener : m_listeners) {
+		listener.squareChanged(sqi, stone);
 	    }
 	    firePositionChanged();
 	}
     }
 
     protected void fireToPlayChanged() {
-	if (m_notifyListeners && m_listeners != null) {
+	if (m_notifyListeners) {
 	    int toPlay = getToPlay();
-	    for (int i = 0; i < m_listeners.length; i++) {
-		m_listeners[i].toPlayChanged(toPlay);
+	    for (PositionListener listener : m_listeners) {
+		listener.toPlayChanged(toPlay);
 	    }
 	    firePositionChanged();
 	}
     }
 
     protected void fireSqiEPChanged() {
-	if (m_notifyListeners && m_listeners != null) {
+	if (m_notifyListeners) {
 	    int sqiEP = getSqiEP();
-	    for (int i = 0; i < m_listeners.length; i++) {
-		m_listeners[i].sqiEPChanged(sqiEP);
+	    for (PositionListener listener : m_listeners) {
+		listener.sqiEPChanged(sqiEP);
 	    }
 	    firePositionChanged();
 	}
     }
 
     protected void fireCastlesChanged() {
-	if (m_notifyListeners && m_listeners != null) {
+	if (m_notifyListeners) {
 	    int castles = getCastles();
-	    for (int i = 0; i < m_listeners.length; i++) {
-		m_listeners[i].castlesChanged(castles);
+	    for (PositionListener listener : m_listeners) {
+		listener.castlesChanged(castles);
 	    }
 	    firePositionChanged();
 	}
     }
 
     protected void firePlyNumberChanged() {
-	if (m_notifyListeners && m_listeners != null) {
+	if (m_notifyListeners) {
 	    int plyNumber = getPlyNumber();
-	    for (int i = 0; i < m_listeners.length; i++) {
-		m_listeners[i].plyNumberChanged(plyNumber);
+	    for (PositionListener listener : m_listeners) {
+		listener.plyNumberChanged(plyNumber);
 	    }
 	    firePositionChanged();
 	}
     }
 
     protected void fireHalfMoveClockChanged() {
-	if (m_notifyListeners && m_listeners != null) {
+	if (m_notifyListeners) {
 	    int halfMoveClock = getHalfMoveClock();
-	    for (int i = 0; i < m_listeners.length; i++) {
-		m_listeners[i].halfMoveClockChanged(halfMoveClock);
+	    for (PositionListener listener : m_listeners) {
+		listener.halfMoveClockChanged(halfMoveClock);
 	    }
 	    firePositionChanged();
 	}
     }
 
     protected void fireMoveDone(short move) {
-	if (m_notifyListeners && m_changeListeners != null) {
-	    for (int i = 0; i < m_changeListeners.length; i++) {
-		m_changeListeners[i].notifyMoveDone(this, move);
+	if (m_notifyListeners) {
+	    for (PositionChangeListener listener : m_changeListeners) {
+		listener.notifyMoveDone(this, move);
 	    }
 	}
     }
 
     protected void fireMoveUndone() {
-	if (m_notifyListeners && m_changeListeners != null) {
-	    for (int i = 0; i < m_changeListeners.length; i++) {
-		m_changeListeners[i].notifyMoveUndone(this);
+	if (m_notifyListeners) {
+	    for (PositionChangeListener listener : m_changeListeners) {
+		listener.notifyMoveUndone(this);
 	    }
 	}
     }
 
     // private void firePositionChanged()
     public void firePositionChanged() {
-	if (m_notifyPositionChanged && m_changeListeners != null) {
-	    for (int i = 0; i < m_changeListeners.length; i++) {
-		m_changeListeners[i].notifyPositionChanged(this);
+	if (m_notifyPositionChanged) {
+	    for (PositionChangeListener listener : m_changeListeners) {
+		listener.notifyPositionChanged(this);
 	    }
 	}
     }
@@ -362,16 +365,9 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
     // IChPositionListener
 
     public final void addPositionListener(PositionListener listener) {
-	if (m_listeners == null) {
-	    m_listeners = new PositionListener[1];
-	    m_listeners[0] = listener;
-	} else {
-	    PositionListener[] listeners = m_listeners;
-	    m_listeners = new PositionListener[listeners.length + 1];
-	    System.arraycopy(listeners, 0, m_listeners, 0, listeners.length);
-	    m_listeners[m_listeners.length - 1] = listener;
+	if (!m_listeners.contains(listener)) {
+	    m_listeners.add(listener);
 	}
-
 	for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 	    listener.squareChanged(sqi, getStone(sqi));
 	}
@@ -381,20 +377,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
     }
 
     public final void removePositionListener(PositionListener listener) {
-	for (int i = 0; i < m_listeners.length; i++) {
-	    if (m_listeners[i] == listener) {
-		if (m_listeners.length == 1) {
-		    m_listeners = null;
-		} else {
-		    PositionListener[] listeners = m_listeners;
-		    m_listeners = new PositionListener[listeners.length - 1];
-		    System.arraycopy(listeners, 0, listeners, 0, i);
-		    System.arraycopy(listeners, i + 1, listeners, i, m_listeners.length - i - 1);
-		    // TN: TODO this once caused an ArrayIndexOutOfBoundsException.
-		}
-		return; // =====>
-	    }
-	}
+	m_listeners.remove(listener);
     }
 
     public final synchronized void setNotifyListeners(boolean notify) {
@@ -408,45 +391,19 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
     // IChPositionChangeListener
 
     public final void addPositionChangeListener(PositionChangeListener listener) {
-	// System.out.println("addPositionChangeListener " + listener);
-	if (m_changeListeners == null) {
-	    m_changeListeners = new PositionChangeListener[1];
-	    m_changeListeners[0] = listener;
-	} else {
-	    PositionChangeListener[] oldListeners = m_changeListeners;
-	    m_changeListeners = new PositionChangeListener[oldListeners.length + 1];
-	    System.arraycopy(oldListeners, 0, m_changeListeners, 0, oldListeners.length);
-	    m_changeListeners[m_changeListeners.length - 1] = listener;
+	if (!m_changeListeners.contains(listener)) {
+	    m_changeListeners.add(listener);
 	}
 
 	listener.notifyPositionChanged(this); // for initialization
-	// for (int i=0; i<m_changeListeners.length; i++) {
-	// System.out.println(m_changeListeners[i]);
-	// }
     }
 
     public final void removePositionChangeListener(PositionChangeListener listener) {
-	// System.out.println("removePositionChangeListener " + listener);
-	for (int i = 0; i < m_changeListeners.length; i++) {
-	    if (m_changeListeners[i] == listener) {
-		if (m_changeListeners.length == 1) {
-		    m_changeListeners = null;
-		} else {
-		    PositionChangeListener[] oldListeners = m_changeListeners;
-		    m_changeListeners = new PositionChangeListener[oldListeners.length - 1];
-		    System.arraycopy(oldListeners, 0, m_changeListeners, 0, i);
-		    System.arraycopy(oldListeners, i + 1, m_changeListeners, i, m_changeListeners.length - i - 1);
-		}
-		break; // =====>
-	    }
-	}
-	// for (int i=0; i<m_changeListeners.length; i++) {
-	// System.out.println(m_changeListeners[i]);
-	// }
+	m_changeListeners.remove(listener);
     }
 
-    public final PositionChangeListener[] getPositionChangeListeners() {
-	return m_changeListeners;
+    public final List<PositionChangeListener> getPositionChangeListeners() {
+	return Collections.unmodifiableList(m_changeListeners);
     }
 
     @Override

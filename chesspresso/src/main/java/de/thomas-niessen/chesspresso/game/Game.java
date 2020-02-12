@@ -121,7 +121,7 @@ public class Game implements PositionChangeListener, Serializable {
 
     private void setPosition(Position position) {
 	if (m_position != null) {
-	    PositionChangeListener[] listeners = m_position.getPositionChangeListeners();
+	    List<PositionChangeListener> listeners = m_position.getPositionChangeListeners();
 	    m_position = position;
 	    for (PositionChangeListener listener : listeners) {
 		m_position.addPositionChangeListener(listener);
@@ -221,10 +221,15 @@ public class Game implements PositionChangeListener, Serializable {
 	fireHeaderModelChanged();
     }
 
-    public void setGameByFEN(String fen) throws IllegalArgumentException {
+    public void setGameByFEN(String fen, boolean overwriteTags) throws IllegalArgumentException {
+	if (overwriteTags) {
+	    m_header.clearTags();
+	    m_header.setTag(PGN.TAG_DATE, "????.??.??");
+	    m_header.setTag(PGN.TAG_ROUND, "?");
+	    m_header.setTag(PGN.TAG_ECO, "");
+	    m_header.setTag(PGN.TAG_RESULT, "*");
+	}
 	m_header.setTag(PGN.TAG_FEN, fen);
-	m_header.setTag(PGN.TAG_ECO, "");
-	m_header.setTag(PGN.TAG_RESULT, "*");
 	setPosition(new Position(fen, false));
 	m_moves.clear();
 	fireMoveModelChanged();
@@ -439,17 +444,6 @@ public class Game implements PositionChangeListener, Serializable {
 
     public boolean currentMoveHasNag(short nag) {
 	return m_moves.hasNag(m_cur, nag);
-    }
-
-    public boolean hasNag(short nag) {
-	int index = 0;
-	while (m_moves.hasNextMove(index)) {
-	    if (m_moves.hasNag(index, nag)) {
-		return true;
-	    }
-	    ++index;
-	}
-	return false;
     }
 
     public short[] getNags() {

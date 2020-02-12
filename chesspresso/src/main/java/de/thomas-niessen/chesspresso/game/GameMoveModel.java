@@ -38,7 +38,7 @@ public class GameMoveModel implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final static boolean DEBUG = false;
-    private final static boolean EXTRA_CHECKS = false;
+    private final static boolean EXTRA_CHECKS = true;
 
     // ======================================================================
 

@@ -17,9 +17,12 @@ package chesspresso.game.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -598,7 +601,20 @@ public class GameBrowser extends JPanel
 			    JOptionPane.ERROR_MESSAGE);
 		    return;
 		}
-		JDialog pgnDialog = new JDialog();
+		JDialog pgnDialog;
+		if (m_parent != null) {
+		    if (m_parent instanceof Frame) {
+			pgnDialog = new JDialog((Frame) m_parent);
+		    } else if (m_parent instanceof Window) {
+			pgnDialog = new JDialog((Window) m_parent);
+		    } else if (m_parent instanceof Dialog) {
+			pgnDialog = new JDialog((Dialog) m_parent);
+		    } else {
+			pgnDialog = new JDialog();
+		    }
+		} else {
+		    pgnDialog = new JDialog();
+		}
 		pgnDialog.setTitle("PGN");
 		JPanel textPanel = new JPanel();
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
@@ -624,6 +640,9 @@ public class GameBrowser extends JPanel
 		pgnDialog.pack();
 		if (m_parent != null) {
 		    pgnDialog.setLocationRelativeTo(m_parent);
+		}
+		if (pgnDialog.getSize().width > 600) {
+		    pgnDialog.setSize(new Dimension(600, pgnDialog.getSize().height));
 		}
 		if (pgnDialog.getSize().height > 600) {
 		    pgnDialog.setSize(new Dimension(pgnDialog.getSize().width, 600));
@@ -1175,7 +1194,7 @@ public class GameBrowser extends JPanel
 				    "Set startposition by FEN", JOptionPane.OK_CANCEL_OPTION, null, null,
 				    m_game.getTag(PGN.TAG_FEN));
 			    if (fen != null) {
-				m_game.setGameByFEN(fen.toString());
+				m_game.setGameByFEN(fen.toString(), false);
 				setHeaderLines();
 			    }
 			}

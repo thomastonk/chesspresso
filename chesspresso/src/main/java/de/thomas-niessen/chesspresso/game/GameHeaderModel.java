@@ -55,7 +55,6 @@ public class GameHeaderModel implements Serializable {
     private String[] m_standardTags;
     private LinkedList<String> m_otherTags;
     private LinkedList<String> m_otherTagValues;
-    private long m_long;
 
     /*
      * =============================================================================
@@ -65,13 +64,11 @@ public class GameHeaderModel implements Serializable {
     public GameHeaderModel() {
 	m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 	m_otherTags = null;
-	m_long = -1;
     }
 
     public GameHeaderModel(DataInput in, int mode) throws IOException {
 	m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 	m_otherTags = null;
-	m_long = -1;
 	load(in, mode);
     }
 
@@ -89,22 +86,7 @@ public class GameHeaderModel implements Serializable {
 	    copy.m_otherTagValues = (LinkedList<String>) this.m_otherTagValues.clone();
 	}
 
-	copy.m_long = -1; // seems to be unused
 	return copy;
-    }
-
-    /*
-     * =============================================================================
-     * ===
-     */
-    // use to store game position in file
-
-    public long getLong() {
-	return m_long;
-    }
-
-    public void setLong(long l) {
-	m_long = l;
     }
 
     /*
@@ -187,6 +169,11 @@ public class GameHeaderModel implements Serializable {
 	    }
 	    return tags;
 	}
+    }
+
+    public void clearTags() {
+	m_standardTags = new String[NUM_OF_STANDARD_TAGS];
+	m_otherTags = null;
     }
 
     /*

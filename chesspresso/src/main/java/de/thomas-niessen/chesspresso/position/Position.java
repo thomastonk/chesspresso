@@ -784,7 +784,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    // System.out.println("hash code set: " + m_hashCode);
 
 	    /*---------- listeners ----------*/
-	    if (m_notifyListeners && m_listeners != null)
+	    if (m_notifyListeners)
 		fireSquareChanged(sqi);
 	}
     }
@@ -798,7 +798,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	m_flags &= ~(PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
 	m_flags |= (long) plyNumber << PLY_NUMBER_SHIFT;
 	if (m_flags != flags) {
-	    if (m_notifyListeners && m_listeners != null)
+	    if (m_notifyListeners)
 		firePlyNumberChanged();
 	}
 	// if (plyNumber != getPlyNumber()) new Exception("Ply number " +
@@ -810,7 +810,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	if (DEBUG)
 	    System.out.println("incPlyNumber");
 	m_flags += 1L << PLY_NUMBER_SHIFT;
-	if (m_notifyListeners && m_listeners != null)
+	if (m_notifyListeners)
 	    firePlyNumberChanged();
     }
 
@@ -819,7 +819,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     //// System.out.println("decPlyNumber");
     // if (DEBUG) System.out.println("decPlyNumber");
     // m_flags -= 1L << PLY_NUMBER_SHIFT;
-    // if (m_notifyListeners && m_listeners != null) firePlyNumberChanged();
+    // if (m_notifyListeners) firePlyNumberChanged();
     // }
 
     @Override
@@ -830,7 +830,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	m_flags &= ~(HALF_MOVE_CLOCK_MASK << HALF_MOVE_CLOCK_SHIFT);
 	m_flags |= (long) halfMoveClock << HALF_MOVE_CLOCK_SHIFT;
 	if (m_flags != flags) {
-	    if (m_notifyListeners && m_listeners != null)
+	    if (m_notifyListeners)
 		fireHalfMoveClockChanged();
 	}
     }
@@ -848,7 +848,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    m_hashCode ^= s_hashCastleMod[castles];
 	    // System.out.println("hash code castles: " + m_hashCode);
 	    /*---------- listeners ----------*/
-	    if (m_notifyListeners && m_listeners != null)
+	    if (m_notifyListeners)
 		fireCastlesChanged();
 	}
     }
@@ -895,7 +895,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    // System.out.println("hash code ep: " + m_hashCode);
 
 	    /*---------- listeners ----------*/
-	    if (m_notifyListeners && m_listeners != null)
+	    if (m_notifyListeners)
 		fireSqiEPChanged();
 	}
     }
@@ -916,7 +916,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    // if (toPlay == Chess.BLACK) m_hashCode |= HASH_TOPLAY_MULT;
 	    // //System.out.println("hash code toPlay: " + m_hashCode);
 	    // /*---------- listeners ----------*/
-	    // if (m_notifyListeners && m_listeners != null)
+	    // if (m_notifyListeners)
 	    // fireToPlayChanged();
 	}
     }
@@ -930,7 +930,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	m_hashCode ^= HASH_TOPLAY_MULT;
 	// System.out.println("hash code toPlay: " + m_hashCode);
 	/*---------- listeners ----------*/
-	if (m_notifyListeners && m_listeners != null)
+	if (m_notifyListeners)
 	    fireToPlayChanged();
     }
 
@@ -1195,7 +1195,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	toggleToPlay();
 
 	/*---------- notify listeners ----------*/
-	if (m_notifyListeners && m_listeners != null) {
+	if (m_notifyListeners) {
 	    // enabled this to be sure that changes are sent
 	    // for (int i=0; i<Chess.NUM_OF_SQUARES; i++) fireSquareChanged(i);
 
@@ -1277,7 +1277,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     @Override
     public void doMove(short move) throws IllegalMoveException {
 	doMoveNoMoveListeners(move);
-	if (m_notifyListeners && m_changeListeners != null)
+	if (m_notifyListeners)
 	    fireMoveDone(move);
     }
 
@@ -1382,7 +1382,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     public boolean undoMove() {
 	boolean res = undoMoveNoMoveListeners();
 	if (res) {
-	    if (m_notifyListeners && m_changeListeners != null)
+	    if (m_notifyListeners)
 		fireMoveUndone();
 	}
 	return res;
@@ -1457,22 +1457,20 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
 	    // ---------- notify listeners ----------
 	    if (m_notifyListeners) {
-		if (m_listeners != null) {
-		    // // enable this to be sure that changes are sent
-		    // long squaresChanged = ~0L;
-		    long squaresChanged = (bbWhites ^ m_bbWhites) | (bbBlacks ^ m_bbBlacks);
-		    while (squaresChanged != 0L) {
-			int sqi = getFirstSqi(squaresChanged);
-			fireSquareChanged(sqi);
-			squaresChanged &= squaresChanged - 1;
-		    }
-		    if (getSqiEP() != sqiEP)
-			fireSqiEPChanged();
-		    if (getCastles() != castles)
-			fireCastlesChanged();
-		    fireHalfMoveClockChanged();
-		    fireToPlayChanged();
+		// // enable this to be sure that changes are sent
+		// long squaresChanged = ~0L;
+		long squaresChanged = (bbWhites ^ m_bbWhites) | (bbBlacks ^ m_bbBlacks);
+		while (squaresChanged != 0L) {
+		    int sqi = getFirstSqi(squaresChanged);
+		    fireSquareChanged(sqi);
+		    squaresChanged &= squaresChanged - 1;
 		}
+		if (getSqiEP() != sqiEP)
+		    fireSqiEPChanged();
+		if (getCastles() != castles)
+		    fireCastlesChanged();
+		fireHalfMoveClockChanged();
+		fireToPlayChanged();
 	    }
 
 	    m_notifyPositionChanged = notify;
@@ -1492,7 +1490,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     @Override
     public boolean redoMove() {
 	boolean res = redoMoveNoMoveListeners();
-	if (m_notifyListeners && m_changeListeners != null)
+	if (m_notifyListeners)
 	    fireMoveDone(getLastShortMove());
 	return res;
     }
@@ -1565,22 +1563,20 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
 	    /*---------- notify listeners ----------*/
 	    if (m_notifyListeners) {
-		if (m_listeners != null) {
-		    // // enable this to be sure that changes are sent
-		    // long squaresChanged = ~0L;
-		    long squaresChanged = (bbWhites ^ m_bbWhites) | (bbBlacks ^ m_bbBlacks);
-		    while (squaresChanged != 0L) {
-			int sqi = getFirstSqi(squaresChanged);
-			fireSquareChanged(sqi);
-			squaresChanged &= squaresChanged - 1;
-		    }
-		    if (getSqiEP() != sqiEP)
-			fireSqiEPChanged();
-		    if (getCastles() != castles)
-			fireCastlesChanged();
-		    fireHalfMoveClockChanged();
-		    fireToPlayChanged();
+		// // enable this to be sure that changes are sent
+		// long squaresChanged = ~0L;
+		long squaresChanged = (bbWhites ^ m_bbWhites) | (bbBlacks ^ m_bbBlacks);
+		while (squaresChanged != 0L) {
+		    int sqi = getFirstSqi(squaresChanged);
+		    fireSquareChanged(sqi);
+		    squaresChanged &= squaresChanged - 1;
 		}
+		if (getSqiEP() != sqiEP)
+		    fireSqiEPChanged();
+		if (getCastles() != castles)
+		    fireCastlesChanged();
+		fireHalfMoveClockChanged();
+		fireToPlayChanged();
 	    }
 
 	    m_notifyPositionChanged = notify;
@@ -1875,7 +1871,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	doMoveNoMoveListeners(move);
 	Move m = new Move(move, Chess.stoneToPiece(stone), colFrom, rowFrom, isCheck(), isMate(),
 		getToPlay() == Chess.BLACK);
-	if (m_notifyListeners && m_changeListeners != null)
+	if (m_notifyListeners)
 	    fireMoveDone(move);
 	return m;
     }
@@ -1903,7 +1899,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     // doMoveNoMoveListeners(intMove);
     // ChMove move = new ChMove(intMove, colFrom, rowFrom, isCheck(), isMate(),
     // getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners && m_changeListeners != null) fireMoveDone(move);
+    // if (m_notifyListeners) fireMoveDone(move);
     // return move;
     // } else if (DEBUG) {
     // if (!attacks(from, to)) System.out.println(" does not attack");
@@ -1958,7 +1954,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     // doMoveNoMoveListeners(intMove);
     // ChMove move = new ChMove(intMove, Chess.NO_COL, Chess.NO_ROW, isCheck(),
     // isMate(), getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners && m_changeListeners != null) fireMoveDone(move);
+    // if (m_notifyListeners) fireMoveDone(move);
     // return move;
     // } else if (Chess.sqiToRow(to) == fourthRank) {
     // from = to - 2 * step;
@@ -1967,7 +1963,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     // doMoveNoMoveListeners(intMove);
     // ChMove move = new ChMove(intMove, Chess.NO_COL, Chess.NO_ROW, isCheck(),
     // isMate(), getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners && m_changeListeners != null) fireMoveDone(move);
+    // if (m_notifyListeners) fireMoveDone(move);
     // return move;
     // }
     // }
@@ -1981,7 +1977,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     // doMoveNoMoveListeners(intMove);
     // ChMove move = new ChMove(intMove, colFrom, Chess.NO_ROW, isCheck(),
     // isMate(), getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners && m_changeListeners != null) fireMoveDone(move);
+    // if (m_notifyListeners) fireMoveDone(move);
     // return move;
     // }
     // } else if (getColor(to) == getNotToPlay()) {
@@ -1991,7 +1987,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     // doMoveNoMoveListeners(intMove);
     // ChMove move = new ChMove(intMove, colFrom, Chess.NO_ROW, isCheck(),
     // isMate(), getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners && m_changeListeners != null) fireMoveDone(move);
+    // if (m_notifyListeners) fireMoveDone(move);
     // return move;
     // }
     // }
@@ -2009,7 +2005,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     // doMoveNoMoveListeners(ChMove.SHORT_CASTLE);
     // ChMove move = ChMove.createShortCastle(isCheck(), isMate(), getToPlay()
     // == Chess.BLACK);
-    // if (m_notifyListeners && m_changeListeners != null) fireMoveDone(move);
+    // if (m_notifyListeners) fireMoveDone(move);
     // return move;
     // }
     //
@@ -2020,7 +2016,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     // doMoveNoMoveListeners(ChMove.LONG_CASTLE);
     // ChMove move = ChMove.createLongCastle(isCheck(), isMate(), getToPlay() ==
     // Chess.BLACK);
-    // if (m_notifyListeners && m_changeListeners != null) fireMoveDone(move);
+    // if (m_notifyListeners) fireMoveDone(move);
     // return move;
     // }
     //
