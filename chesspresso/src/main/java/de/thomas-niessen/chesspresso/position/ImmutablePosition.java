@@ -20,7 +20,6 @@ package chesspresso.position;
  * @version $Revision: 1.1 $
  */
 public interface ImmutablePosition {
-    // TODO have method to get initial ply number?
 
     // ======================================================================
     // constants for castle mask
@@ -109,9 +108,9 @@ public interface ImmutablePosition {
     // ======================================================================
 
     /**
-     * Returns whether the represented position is the startposition
+     * Returns whether the represented position is the start position
      *
-     * @return whether the represented position is the startposition
+     * @return whether the represented position is the start position
      */
     public boolean isStartPosition();
 

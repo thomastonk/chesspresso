@@ -351,7 +351,6 @@ public class GameBrowser extends JPanel
 
     @Override
     public void squareClicked(ImmutablePosition position, int sqi, MouseEvent e) {
-	// nothing
     }
 
     // ======================================================================
@@ -401,7 +400,7 @@ public class GameBrowser extends JPanel
     }
 
     // =======================================================================
-    private void initComponents(boolean boardOnTheRight) {// GEN-BEGIN:initComponents
+    private void initComponents(boolean boardOnTheRight) {
 	jPanel1 = new javax.swing.JPanel();
 	jPanel2 = new javax.swing.JPanel();
 	jPanel3 = new javax.swing.JPanel();
@@ -638,14 +637,15 @@ public class GameBrowser extends JPanel
 		pgnDialog.setModal(true);
 		pgnDialog.add(textPanel);
 		pgnDialog.pack();
-		if (m_parent != null) {
-		    pgnDialog.setLocationRelativeTo(m_parent);
-		}
 		if (pgnDialog.getSize().width > 600) {
 		    pgnDialog.setSize(new Dimension(600, pgnDialog.getSize().height));
 		}
 		if (pgnDialog.getSize().height > 600) {
 		    pgnDialog.setSize(new Dimension(pgnDialog.getSize().width, 600));
+		}
+		// and only now:
+		if (m_parent != null) {
+		    pgnDialog.setLocationRelativeTo(m_parent);
 		}
 		pgnDialog.setVisible(true);
 	    }
@@ -657,7 +657,7 @@ public class GameBrowser extends JPanel
 
 	posPanel.add(toolBarPanel);
 
-    }// GEN-END:initComponents
+    }
 
     private void setHeaderLines() {
 	String s = m_game.getHeaderString(0);
@@ -810,7 +810,7 @@ public class GameBrowser extends JPanel
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
 
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
 
     /*
      * (non-Javadoc)

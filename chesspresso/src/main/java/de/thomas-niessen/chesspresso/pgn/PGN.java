@@ -76,7 +76,7 @@ public abstract class PGN {
 
 	    // Standard extensions
 	    TAG_EVENT_DATE = "EventDate", TAG_WHITE_ELO = "WhiteElo", TAG_BLACK_ELO = "BlackElo", TAG_ECO = "ECO",
-	    TAG_FEN = "FEN";
+	    TAG_SET_UP = "SetUp", TAG_FEN = "FEN", TAG_TERMINATION = "Termination", TAG_VARIANT = "Variant";
 
     // ======================================================================
     // Result constants

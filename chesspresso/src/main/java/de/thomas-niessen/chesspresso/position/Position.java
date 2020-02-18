@@ -23,21 +23,7 @@ import chesspresso.move.Move;
 public final class Position extends AbstractMoveablePosition implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    /*
-     * =========================================================================
-     * =======
-     */
-    // Debug flag
-
     private final static boolean DEBUG = false;
-
-    /*
-     * =========================================================================
-     * =======
-     */
-    // Profiling
-
     private final static boolean PROFILE = false;
 
     private static long m_numIsAttacked = 0;
@@ -54,14 +40,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     private static long m_numUndoMove = 0;
     private static long m_numSet = 0;
     private static long m_numGetSquare = 0;
-
-    // private static DecimalFormat df = new DecimalFormat("#");
-
-    // private static String format(long num)
-    // {
-    // String res = " " + df.format(num);
-    // return res.substring(res.length() - 12);
-    // }
 
     public static void printProfile() {
 	if (!PROFILE)
@@ -94,7 +72,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
     // Bit Board operations
     // put here for performance (inlining)
@@ -120,11 +97,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return bb != 0L && (bb & (bb - 1L)) == 0L;
     }
 
-    // private static final boolean isMoreThanOneBitSet(long bb)
-    // {
-    // return (bb & (bb - 1L)) != 0L;
-    // }
-
     private static final int numOfBitsSet(long bb) {
 	int num = 0;
 	while (bb != 0L) {
@@ -135,9 +107,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return num;
     }
 
-    // public static final long ofSquare(int sqi) {return 1L << sqi;}
-    // public static final long ofCol(int col) {return 0x0101010101010101L << col;}
-    // public static final long ofRow(int row) {return 255L << (8*row);}
     public static final long ofSquare(int sqi) {
 	return s_ofSquare[sqi];
     }
@@ -214,7 +183,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
     // directions
 
@@ -319,7 +287,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
     // pre-computed bit boards
 
@@ -397,7 +364,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
     // settings for information flags in m_flags
 
@@ -416,16 +382,12 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
 
     private long m_bbWhites, m_bbBlacks, m_bbPawns, m_bbKnights, m_bbBishops, m_bbRooks;
     private int m_whiteKing, m_blackKing; // actually only a short (6 bit)
     private long m_flags;
     private long m_hashCode;
-
-    // private int getToPlay();
-    // private int m_plyNumber;
 
     private long[] m_bakStack;
     private int m_bakIndex;
@@ -437,7 +399,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
 
     public static Position createInitialPosition() {
@@ -475,7 +436,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
 
     @Override
@@ -486,7 +446,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
 
     @Override
@@ -566,7 +525,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     @Override
     public final int getPiece(int sqi) {
 	if (PROFILE)
-	    m_numGetSquare++; // TODO
+	    m_numGetSquare++;
 
 	long bbSqi = ofSquare(sqi);
 	if ((m_bbPawns & bbSqi) != 0L)
@@ -585,7 +544,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     @Override
     public final int getColor(int sqi) {
 	if (PROFILE)
-	    m_numGetSquare++; // TODO
+	    m_numGetSquare++;
 
 	long bbSqi = ofSquare(sqi);
 	if ((m_bbWhites & bbSqi) != 0L)
@@ -628,28 +587,8 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	}
     }
 
-    // private final long getBitBoard(int piece, int color)
-    // {
-    // long bb;
-    // switch(piece) {
-    // case Chess.NO_PIECE: return 0L;
-    // case Chess.KING: return ofSquare(color == Chess.WHITE ? m_whiteKing :
-    // m_blackKing);
-    // case Chess.PAWN: bb = m_bbPawns; break;
-    // case Chess.KNIGHT: bb = m_bbKnights; break;
-    // case Chess.BISHOP: bb = m_bbBishops & (~m_bbRooks); break;
-    // case Chess.ROOK: bb = m_bbRooks & (~m_bbBishops); break;
-    // case Chess.QUEEN: bb = m_bbBishops & m_bbRooks; break;
-    // default:
-    // throw new RuntimeException("Unknown piece: " + piece);
-    // }
-    // if (color == Chess.WHITE) return bb & m_bbWhites; else return bb &
-    // m_bbBlacks;
-    // }
-
     /*
      * =========================================================================
-     * =======
      */
 
     @Override
@@ -801,8 +740,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    if (m_notifyListeners)
 		firePlyNumberChanged();
 	}
-	// if (plyNumber != getPlyNumber()) new Exception("Ply number " +
-	// plyNumber).printStackTrace();
     }
 
     private final void incPlyNumber() {
@@ -813,14 +750,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	if (m_notifyListeners)
 	    firePlyNumberChanged();
     }
-
-    // private final void decPlyNumber()
-    // {
-    //// System.out.println("decPlyNumber");
-    // if (DEBUG) System.out.println("decPlyNumber");
-    // m_flags -= 1L << PLY_NUMBER_SHIFT;
-    // if (m_notifyListeners) firePlyNumberChanged();
-    // }
 
     @Override
     public void setHalfMoveClock(int halfMoveClock) {
@@ -1032,7 +961,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 			m_hashCode ^= s_hashMod[sqiTo][capturedStone - Chess.MIN_STONE];
 		    }
 		    // this.printBoard(notBBTo);
-		    // TODO: remove all bits -> faster than switching?
+		    // remove all bits -> faster than switching?
 		    m_bbWhites &= notBBTo;
 		    m_bbBlacks &= notBBTo;
 		    m_bbPawns &= notBBTo;
@@ -1098,9 +1027,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		    m_hashCode ^= s_hashMod[sqiTo][promotionStone - Chess.MIN_STONE];
 		    increaseHalfMoveClock = false;
 		} else {
-		    // int stone =
-		    // Chess.pieceToStone(ChMove.getMovingPiece(move),
-		    // getToPlay());
 		    int stone = getStone(Move.getFromSqi(move));
 		    switch (stone) {
 		    case Chess.NO_STONE: {
@@ -1196,7 +1122,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
 	/*---------- notify listeners ----------*/
 	if (m_notifyListeners) {
-	    // enabled this to be sure that changes are sent
+	    // enable this to be sure that changes are sent
 	    // for (int i=0; i<Chess.NUM_OF_SQUARES; i++) fireSquareChanged(i);
 
 	    while (squaresChanged != 0L) {
@@ -1457,8 +1383,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
 	    // ---------- notify listeners ----------
 	    if (m_notifyListeners) {
-		// // enable this to be sure that changes are sent
-		// long squaresChanged = ~0L;
 		long squaresChanged = (bbWhites ^ m_bbWhites) | (bbBlacks ^ m_bbBlacks);
 		while (squaresChanged != 0L) {
 		    int sqi = getFirstSqi(squaresChanged);
@@ -1588,21 +1512,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	}
     }
 
-    // public boolean redoMove()
-    // {
-    // try {
-    // short move = m_moveStack[m_moveStackIndex];
-    // if (move == OTHER_CHANGE_MOVE) {
-    // // TODO replay values, need to swap them in undo move
-    // } else {
-    // doMove(move); //m_plyNumber - m_initialPlyNumber]);
-    // }
-    // return true;
-    // } catch (ChIllegalMoveException ex) {
-    // return false;
-    // }
-    // }
-
     /*
      * =========================================================================
      * =======
@@ -1675,7 +1584,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
 
     public final boolean isCheck() {
@@ -1720,7 +1628,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
 
     @Override
@@ -1812,8 +1719,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     }
 
     public short getPawnMove(int colFrom, int to, int promoPiece) {
-	// if (getColor(from) != getToPlay()) throw new
-	// ChIllegalMoveException("Wrong color");
 	if (to == getSqiEP()) {
 	    int from = Chess.coorToSqi(colFrom, getToPlay() == Chess.WHITE ? 4 : 3);
 	    return Move.getEPMove(from, to);
@@ -1878,151 +1783,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
-     */
-
-    // public ChMove getMoveAndDo(int piece, int colFrom, int rowFrom, int to)
-    // throws ChIllegalMoveException
-    // {
-    // long bb = getBitBoard(Chess.pieceToStone(piece, getToPlay()));
-    // if (colFrom != Chess.NO_COL) {bb &= ofCol(colFrom);}
-    // if (rowFrom != Chess.NO_ROW) {bb &= ofRow(rowFrom);}
-    //
-    // while (bb != 0L) {
-    // int from = getFirstSqi(bb);
-    // if (DEBUG) System.out.print(" trying from: " + from);
-    // int pinnedDir = getPinnedDirection(from, getToPlay());
-    // if (attacks(from, to) && (pinnedDir == NO_DIR ||
-    // areDirectionsParallel(pinnedDir, DIR[from][to]))) {
-    // if (DEBUG) System.out.println(" ok");
-    // int intMove = ChMove.getRegularMove(from, to, piece, getPiece(to));
-    // doMoveNoMoveListeners(intMove);
-    // ChMove move = new ChMove(intMove, colFrom, rowFrom, isCheck(), isMate(),
-    // getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners) fireMoveDone(move);
-    // return move;
-    // } else if (DEBUG) {
-    // if (!attacks(from, to)) System.out.println(" does not attack");
-    // else if (pinnedDir == NO_DIR || areDirectionsParallel(pinnedDir,
-    // DIR[from][to])) System.out.println("is pinned");
-    // }
-    // bb &= bb -1;
-    // }
-    //
-    // // no piece can move to the to-square
-    // StringBuffer sb = new StringBuffer();
-    // sb.append(Chess.pieceToChar(piece));
-    // if (colFrom != Chess.NO_COL) sb.append(Chess.colToChar(colFrom));
-    // if (rowFrom != Chess.NO_ROW) sb.append(Chess.rowToChar(rowFrom));
-    // sb.append(Chess.sqiToStr(to));
-    // throw new ChIllegalMoveException(sb.toString());
-    // }
-    //
-    // public ChMove getPawnMoveAndDo(int colFrom, int to, int promo) throws
-    // ChIllegalMoveException
-    // {
-    // if (DEBUG) System.out.println("getPawnMove from " +
-    // Chess.colToChar(colFrom) +
-    // " to " + Chess.sqiToStr(to) +
-    // " promo " + Chess.pieceToChar(promo));
-    //
-    // int from, step, pawn, fourthRank, backRank;
-    //
-    // if (getToPlay() == Chess.WHITE) {
-    // step = Chess.NUM_OF_COLS; pawn = Chess.WHITE_PAWN; fourthRank = 3;
-    // backRank = 7;
-    // } else {
-    // step = -Chess.NUM_OF_COLS; pawn = Chess.BLACK_PAWN; fourthRank = 4;
-    // backRank = 0;
-    // }
-    //
-    // if (Chess.sqiToRow(to) == backRank) {
-    // if ((promo == Chess.KING) || (promo == Chess.PAWN)) {
-    // throw new ChIllegalMoveException("Cannot promote to a " +
-    // Chess.pieceToChar(promo));
-    // }
-    // } else if (promo != Chess.NO_STONE) {
-    // throw new ChIllegalMoveException("Need to specify a promotion piece");
-    // }
-    //
-    // if (colFrom == Chess.NO_COL || Chess.sqiToCol(to) == colFrom) {
-    // /*----- normal move -----*/
-    // if (isSquareEmpty(to)) {
-    // from = to - step;
-    // if (getPiece(from) == Chess.PAWN) {
-    // int intMove = ChMove.getPawnMove(from, to, Chess.NO_PIECE, promo);
-    // doMoveNoMoveListeners(intMove);
-    // ChMove move = new ChMove(intMove, Chess.NO_COL, Chess.NO_ROW, isCheck(),
-    // isMate(), getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners) fireMoveDone(move);
-    // return move;
-    // } else if (Chess.sqiToRow(to) == fourthRank) {
-    // from = to - 2 * step;
-    // if (getPiece(from) == Chess.PAWN) {
-    // int intMove = ChMove.getPawnMove(from, to, Chess.NO_PIECE, promo);
-    // doMoveNoMoveListeners(intMove);
-    // ChMove move = new ChMove(intMove, Chess.NO_COL, Chess.NO_ROW, isCheck(),
-    // isMate(), getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners) fireMoveDone(move);
-    // return move;
-    // }
-    // }
-    // }
-    // } else {
-    // /*----- capturing move -----*/
-    // if (to == getSqiEP()) {
-    // from = Chess.coorToSqi(colFrom, Chess.sqiToRow(to - step));
-    // if (getPiece(from) == Chess.PAWN) { // TODO: necessary?
-    // int intMove = ChMove.getEPMove(from, to);
-    // doMoveNoMoveListeners(intMove);
-    // ChMove move = new ChMove(intMove, colFrom, Chess.NO_ROW, isCheck(),
-    // isMate(), getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners) fireMoveDone(move);
-    // return move;
-    // }
-    // } else if (getColor(to) == getNotToPlay()) {
-    // from = Chess.coorToSqi(colFrom, Chess.sqiToRow(to - step));
-    // if (getPiece(from) == Chess.PAWN) {
-    // int intMove = ChMove.getPawnMove(from, to, getPiece(to), promo);
-    // doMoveNoMoveListeners(intMove);
-    // ChMove move = new ChMove(intMove, colFrom, Chess.NO_ROW, isCheck(),
-    // isMate(), getToPlay() == Chess.BLACK);
-    // if (m_notifyListeners) fireMoveDone(move);
-    // return move;
-    // }
-    // }
-    // }
-    //
-    // throw new ChIllegalMoveException("Illegal pawn move: colFrom=" +
-    // Chess.colToChar(colFrom) + ", to=" + Chess.sqiToStr(to) + ", promo=" +
-    // Chess.pieceToChar(promo));
-    // }
-    //
-    // public ChMove getShortCastleAndDo() throws ChIllegalMoveException
-    // {
-    // if (DEBUG) System.out.println("short castle");
-    //
-    // doMoveNoMoveListeners(ChMove.SHORT_CASTLE);
-    // ChMove move = ChMove.createShortCastle(isCheck(), isMate(), getToPlay()
-    // == Chess.BLACK);
-    // if (m_notifyListeners) fireMoveDone(move);
-    // return move;
-    // }
-    //
-    // public ChMove getLongCastleAndDo() throws ChIllegalMoveException
-    // {
-    // if (DEBUG) System.out.println("long castle");
-    //
-    // doMoveNoMoveListeners(ChMove.LONG_CASTLE);
-    // ChMove move = ChMove.createLongCastle(isCheck(), isMate(), getToPlay() ==
-    // Chess.BLACK);
-    // if (m_notifyListeners) fireMoveDone(move);
-    // return move;
-    // }
-    //
-    /*
-     * =========================================================================
-     * =======
      */
 
     /**
@@ -2031,7 +1791,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
      * not pinned.
      *
      * @param sqi   the square for which the pinned direction should be computed. It
-     *              is not rquired that there is a piece on the square
+     *              is not required that there is a piece on the square
      * @param color of king with respect to which the pinned direction is computed
      **/
     private int getPinnedDirection(int sqi, int color) {
@@ -2137,7 +1897,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
 
     private final boolean isAttacked(int sqi, int attacker, long bbExclude) {
@@ -2500,26 +2259,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		    & bbTargets;
 	    destSquares &= bbNotToPlay;
 
-	    // if (sqiEP != Chess.NO_SQUARE) {
-	    // if (
-	    // long bbEP = ofSquare(sqiEP + (getToPlay() == Chess.WHITE ?
-	    // Chess.NUM_OF_COL : -Chess.NUM_OF_COL));
-	    // if ((destSquares & bbEP) != 0) {
-	    // destSquares &= bbNotToPlay;
-	    // destSquares |= bbEP; // leave ep square if corresponding pawn was
-	    // in destSquares
-	    // } else {
-	    // destSquares &= bbNotToPlay;
-	    // }
-	    // } else {
-	    // destSquares &= bbNotToPlay;
-	    // }
-
-	    // if (getSqiEP() != Chess.NO_SQUARE) {
-	    // destSquares &= bbNotToPlay | ofSquare(getSqiEP());
-	    // } else {
-	    // destSquares &= bbNotToPlay;
-	    // }
 	    while (destSquares != 0L) {
 		to = getFirstSqi(destSquares);
 		int dir = DIR[from][to];
@@ -2581,7 +2320,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	if (bbTargets == 0L)
 	    return new short[0]; // =====>
 
-	int moveIndex = 0; // TODO: make class?
+	int moveIndex = 0;
 
 	long bbToPlay = (getToPlay() == Chess.WHITE ? m_bbWhites : m_bbBlacks);
 	if (isCheck()) {
@@ -2688,91 +2427,17 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		}
 		undoMove();
 	    } catch (IllegalMoveException ex) {
-		System.err.println("Tor!");
-		sb.append("Illegal Move " + Move.getString(moves[i]) + ": " + ex.getMessage());
+		sb.append("Position::getMovesAsString: Illegal Move " + Move.getString(moves[i]) + ": "
+			+ ex.getMessage());
 	    }
 	}
 	sb.append('}');
 
 	return sb.toString();
-
-	// SortedSet set = new TreeSet();
-	// for (int i=0; i < moves.length; i++) {
-	// ChMove move = null;
-	// // System.out.println(ChMove.getString(moves[i]));
-	// try {
-	// move = getMoveAndDo(moves[i]);
-	// set.add(move.toString());
-	// if (validateEachMove) validate();
-	// undoMove();
-	// } catch (Throwable t) {sb.append("EXCEPTION: after move " + move + ":
-	// " + t.getMessage()); System.exit(0);}
-	// }
-	//
-	// sb.append('{');
-	// Iterator it = set.iterator();
-	// boolean first = true;
-	// while (it.hasNext()) {
-	// if (!first) sb.append(',');
-	// first = false;
-	// sb.append(it.next());
-	// }
-	// sb.append('}');
-	//
-	// return sb.toString();
     }
 
     /*
      * =========================================================================
-     * =======
-     */
-
-    // public byte getMoveIndex(int move) throws ChIllegalMoveException
-    // {
-    // short[] moves = getAllMoves();
-    // ChMove.normalizeOrder(moves);
-    // int ind = Arrays.binarySearch(moves, move);
-    // if (ind >= 0 && ind < moves.length && moves[ind] == move) {
-    // if (ind > 254) throw new RuntimeException("Index higher than 254");
-    // return (byte)ind;
-    // } else {
-    // System.out.println(getMovesAsString(moves, false));
-    // throw new ChIllegalMoveException("Impossible move " +
-    // ChMove.getString(move) + " index " + ind);
-    // }
-    // }
-    //
-    // public byte getMoveIndex(ChMove move) throws ChIllegalMoveException
-    // {
-    // return getMoveIndex(move.getMoveDesc());
-    // }
-    //
-    // public int getMoveByIndex(byte index) throws ChIllegalMoveException
-    // {
-    // int[] moves = getAllMoves();
-    // ChMove.normalizeOrder(moves);
-    // if (index >= 0 && index < moves.length) {
-    // return moves[index];
-    // } else {
-    // System.out.println(getMovesAsString(moves, false));
-    // throw new ChIllegalMoveException("Illegal move index " + index);
-    // }
-    // }
-    //
-    // public ChMove getMoveAndDoByIndex(byte index) throws
-    // ChIllegalMoveException
-    // {
-    // return getMoveAndDo(getMoveByIndex(index));
-    // }
-    //
-    // public void doMoveByIndex(byte index) throws ChIllegalMoveException
-    // {
-    // doMove(getMoveByIndex(index));
-    // }
-
-    /*
-     * =========================================================================
-     * =======
      */
 
     public int getMaterial() {

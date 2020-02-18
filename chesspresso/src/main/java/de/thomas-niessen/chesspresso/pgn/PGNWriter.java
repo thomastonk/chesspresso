@@ -132,6 +132,7 @@ public class PGNWriter extends PGN {
 	Game copy = new Game(game.getModel());
 	copy.gotoStart();
 	if (!copy.getPosition().isStartPosition()) {
+	    m_out.println(TOK_TAG_BEGIN + TAG_SET_UP + " " + TOK_QUOTE + "1" + TOK_QUOTE + TOK_TAG_END);
 	    m_out.println(TOK_TAG_BEGIN + TAG_FEN + " " + TOK_QUOTE + FEN.getFEN(copy.getPosition()) + TOK_QUOTE
 		    + TOK_TAG_END);
 	}
@@ -139,15 +140,15 @@ public class PGNWriter extends PGN {
 	// same job, but if the game is shown in a game browser, it would be set to the
 	// start position, too.
 
-	// TN: And the (further) additional tags are missing!
+	// TN: And the (further) additional tags were missing!
 	String[] otherTags = game.getModel().getHeaderModel().getOtherTags();
 	if (otherTags != null) {
-	    for (int index = 0; index < otherTags.length; ++index) {
-		if (otherTags[index].equals(TAG_FEN)) {
+	    for (String otherTag : otherTags) {
+		if (otherTag.equals(TAG_FEN) || otherTag.equals(TAG_SET_UP)) {
 		    continue;
 		}
-		m_out.println(TOK_TAG_BEGIN + otherTags[index] + " " + TOK_QUOTE + game.getTag(otherTags[index])
-			+ TOK_QUOTE + TOK_TAG_END);
+		m_out.println(
+			TOK_TAG_BEGIN + otherTag + " " + TOK_QUOTE + game.getTag(otherTag) + TOK_QUOTE + TOK_TAG_END);
 	    }
 	}
     }

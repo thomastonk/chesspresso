@@ -115,11 +115,12 @@ public class GameHeaderModel implements Serializable {
     }
 
     public void setTag(String tagName, String tagValue) {
+	// TN: the dependency between the tags SetUp and FEN is not solved here.
+	// So far, it is only treated in PGNWriter::writeHeader.
 	int index = getStandardTagIndex(tagName);
 	if (index != -1) {
 	    m_standardTags[index] = tagValue;
 	} else if (!"PlyCount".equals(tagName)) {
-//            System.out.println(tagName + "=" + tagValue);
 	    if (m_otherTags == null) {
 		m_otherTags = new LinkedList<String>();
 		m_otherTagValues = new LinkedList<String>();
