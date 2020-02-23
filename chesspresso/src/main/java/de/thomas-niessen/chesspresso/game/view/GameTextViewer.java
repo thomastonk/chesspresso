@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -46,7 +46,7 @@ import chesspresso.position.PositionChangeListener;
  * Textual representation of a game on a panel.
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.2 $
+ * 
  */
 @SuppressWarnings("serial")
 public class GameTextViewer extends JEditorPane

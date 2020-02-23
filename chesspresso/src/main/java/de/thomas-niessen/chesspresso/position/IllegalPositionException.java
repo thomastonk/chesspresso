@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,7 @@ package chesspresso.position;
  * Exception to indicate an illegal position.
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.1 $
+ * 
  */
 @SuppressWarnings("serial")
 public class IllegalPositionException extends java.lang.Exception {

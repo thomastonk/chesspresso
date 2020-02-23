@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -35,13 +35,12 @@ import chesspresso.game.Game;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.position.NAG;
-//1.4 import java.nio.*;
 
 /**
  * Reader for PGN files.
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.2 $
+ * 
  */
 public final class PGNReader extends PGN {
 
@@ -368,9 +367,9 @@ public final class PGNReader extends PGN {
 	for (;;) {
 	    int last = getLastToken();
 	    if (last == TOK_EOF)
-		return false; // =====>
+		return false;
 	    if (last == TOK_TAG_BEGIN)
-		return true; // =====>
+		return true;
 	    getNextToken();
 	}
     }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -26,7 +26,7 @@ import chesspresso.pgn.PGN;
 /**
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.1 $
+ * 
  */
 public class GameHeaderModel implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -49,7 +49,6 @@ public class GameHeaderModel implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     private String[] m_standardTags;
@@ -58,7 +57,6 @@ public class GameHeaderModel implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public GameHeaderModel() {
@@ -91,7 +89,6 @@ public class GameHeaderModel implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     private int getStandardTagIndex(String tagName) {
@@ -179,7 +176,6 @@ public class GameHeaderModel implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
     // convenience methods for tags
 
@@ -271,7 +267,6 @@ public class GameHeaderModel implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     private String readUTFNonNull(DataInput in) throws IOException {
@@ -363,7 +358,6 @@ public class GameHeaderModel implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public String toString() {

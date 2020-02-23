@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -23,7 +23,7 @@ import chesspresso.Chess;
  * for internal representation (plus some overhead for java internals).
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.1 $
+ * 
  */
 public class CompactPosition extends AbstractPosition {
 
@@ -35,7 +35,6 @@ public class CompactPosition extends AbstractPosition {
 
     /*
      * =============================================================================
-     * ===
      */
 
     private int[] m_stones; // 32 bytes
@@ -43,7 +42,6 @@ public class CompactPosition extends AbstractPosition {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public CompactPosition() {
@@ -72,7 +70,6 @@ public class CompactPosition extends AbstractPosition {
 
     /*
      * =============================================================================
-     * ===
      */
 
     @Override

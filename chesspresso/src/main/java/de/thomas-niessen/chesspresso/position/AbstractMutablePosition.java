@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -19,14 +19,11 @@ import java.util.Collections;
 import java.util.List;
 
 import chesspresso.Chess;
-//import java.util.*;
-//import chesspresso.move.Move;
-//import chesspresso.move.IllegalMoveException;
 
 /**
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.1 $
+ * 
  */
 public abstract class AbstractMutablePosition extends AbstractPosition implements MutablePosition {
     private final List<PositionListener> m_listeners;
@@ -38,7 +35,6 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
     /*
      * =========================================================================
-     * =======
      */
 
     protected AbstractMutablePosition() {
@@ -50,7 +46,6 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
     /*
      * =========================================================================
-     * =======
      */
 
     public int getPiece(int sqi) {
@@ -67,7 +62,6 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
     /*
      * =========================================================================
-     * =======
      */
 
     public void toggleToPlay() {
@@ -76,7 +70,6 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
     /*
      * =========================================================================
-     * =======
      */
 
     public void clear() {
@@ -247,7 +240,6 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
     /*
      * =========================================================================
-     * =======
      */
     // convenience methods
 
@@ -269,7 +261,6 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
     /*
      * =========================================================================
-     * =======
      */
     // trigger listeners
 
@@ -360,7 +351,6 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
     /*
      * =========================================================================
-     * =======
      */
     // IChPositionListener
 
@@ -386,9 +376,8 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
     /*
      * =========================================================================
-     * =======
      */
-    // IChPositionChangeListener
+    // PositionChangeListener
 
     public final void addPositionChangeListener(PositionChangeListener listener) {
 	if (!m_changeListeners.contains(listener)) {

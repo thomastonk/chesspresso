@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,7 @@ import chesspresso.position.FEN;
  * A PGN writer is able to write a game (collection) in PGN syntax.
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.2 $
+ * 
  */
 public class PGNWriter extends PGN {
 
@@ -40,7 +40,6 @@ public class PGNWriter extends PGN {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public PGNWriter(Writer out) {
@@ -54,7 +53,6 @@ public class PGNWriter extends PGN {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public void setCharactersPerLine(int chars) {
@@ -100,7 +98,6 @@ public class PGNWriter extends PGN {
 
     /*
      * =============================================================================
-     * ===
      */
 
     private void writeHeader(Game game) {

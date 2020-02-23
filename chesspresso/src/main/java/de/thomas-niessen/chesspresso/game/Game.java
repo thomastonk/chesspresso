@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -53,7 +53,7 @@ import chesspresso.position.PositionChangeListener;
  * </ul>
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.3 $
+ * 
  */
 public class Game implements PositionChangeListener, Serializable {
     private static final long serialVersionUID = 1L;
@@ -613,7 +613,6 @@ public class Game implements PositionChangeListener, Serializable {
 	try {
 	    m_position.setNotifyListeners(false);
 	    m_position.doMove(shortMove);
-	    // ChMove move = m_position.getLastMove(shortMove);
 	    Move move = m_position.getLastMove();
 	    m_position.undoMove();
 	    m_position.setNotifyListeners(true);
@@ -947,6 +946,7 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     // ======================================================================
+
     public boolean promoteVariation() {
 	if (isMainLine()) {
 	    return true;

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,7 @@ import chesspresso.position.Position;
  * Producer for HTML pages displaying a game.
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.3 $
+ * 
  */
 public class HTMLGameBrowser implements GameListener {
 

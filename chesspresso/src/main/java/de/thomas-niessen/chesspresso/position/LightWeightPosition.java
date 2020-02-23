@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -24,8 +24,8 @@ import chesspresso.move.Move;
  * This class is optimized for simplicity of the underlying data structure, not for access speed nor for memory footprint.
  * Use this class if you do not care about performance.
  *
- * @author BerniMan
- * @version $Revision: 1.1 $
+ * @author Bernhard Seybold
+ * 
  */
 public class LightWeightPosition extends AbstractMutablePosition {
 	private int[] m_stone;

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -37,7 +37,7 @@ import chesspresso.Chess;
  * In order to create a full move out of a short move a position is needed.
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.3 $
+ * 
  */
 public class Move implements Serializable {
 
@@ -65,7 +65,7 @@ public class Move implements Serializable {
     // cccmmm 0pppttttttffffff regular move
     // cccmmm 1pppttttttffffff capturing move
     // cccmmm 1110ttttttffffff ep move
-    // 1111xxxxxxxxxxxx castles
+    // 1111xxxxxxxxxxxx castles (TN: should it be 0111xxxxxxxxxxxx?)
 
     // mmm moving piece
     // ccc captured piece
@@ -102,9 +102,13 @@ public class Move implements Serializable {
 	    BLACK_SHORT_CASTLE = CASTLE_MOVE | Chess.E8 << FROM_SHIFT | Chess.G8 << TO_SHIFT,
 	    BLACK_LONG_CASTLE = CASTLE_MOVE | Chess.E8 << FROM_SHIFT | Chess.C8 << TO_SHIFT;
 
-    /**
+    /*
      * TN: representing a null move. This is tricky, because I encode it as an
-     * impossible castling move. (the choice CASTLE_MOVE +1 corresponds to Ka1-b1)
+     * impossible castling move. The much more logical choice NULL_MOVE =
+     * SPECIAL_MOVE + 2; made problems with Move::isValid(Move) and excluding it
+     * there has unknown implications in Move::isSpecial(Move).
+     * 
+     * (The choice CASTLE_MOVE +1 corresponds to Ka1-b1.)
      */
     public static final short NULL_MOVE = CASTLE_MOVE | Chess.A1 << FROM_SHIFT | Chess.H1 << TO_SHIFT;
 
@@ -220,7 +224,6 @@ public class Move implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public final static int getFromSqi(short move) {
@@ -279,7 +282,6 @@ public class Move implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public static String getBinaryString(short move) {
@@ -325,7 +327,6 @@ public class Move implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     private static final Move MOVE_ILLEGAL_MOVE = new Move(ILLEGAL_MOVE, Chess.NO_PIECE, Chess.NO_ROW, Chess.NO_COL,
@@ -381,7 +382,6 @@ public class Move implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     // encoding for additional information
@@ -403,7 +403,6 @@ public class Move implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     /**
@@ -429,7 +428,6 @@ public class Move implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public short getShortMoveDesc() {
@@ -502,7 +500,6 @@ public class Move implements Serializable {
 
     /*
      * =============================================================================
-     * ===
      */
 
     /*

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -19,8 +19,8 @@ import chesspresso.move.Move;
 
 /**
  *
- * @author $Author: BerniMan $
- * @version $Revision: 1.1 $
+ * @author $Author: Bernhard Seybold $
+ * 
  */
 public interface MoveablePosition extends MutablePosition {
 	public void doMove(short move) throws IllegalMoveException;

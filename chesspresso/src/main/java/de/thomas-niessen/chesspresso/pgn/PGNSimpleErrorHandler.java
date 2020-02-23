@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Basic version: Copyright (C) 2003 Bernhard Seybold. All rights reserved.
- * All changes since then: Copyright (C) 2019 Thomas Niessen. All rights reserved.
+ * All changes since then: Copyright (C) Thomas Niessen. All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -20,7 +20,7 @@ import java.io.PrintStream;
  * Simple implementation of a PGN error handler. Write the errors and warnings directly to a configured print stream.
  *
  * @author Bernhard Seybold
- * @version $Revision: 1.1 $
+ * 
  */
 public class PGNSimpleErrorHandler implements PGNErrorHandler {
 
