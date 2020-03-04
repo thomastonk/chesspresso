@@ -20,9 +20,9 @@ import chesspresso.Chess;
 
 public class FEN {
 
-    private static final char fenChars[] = { 'K', 'P', 'Q', 'R', 'B', 'N', '-', 'n', 'b', 'r', 'q', 'p', 'k' };
+    private static final char[] fenChars = { 'K', 'P', 'Q', 'R', 'B', 'N', '-', 'n', 'b', 'r', 'q', 'p', 'k' };
 
-    public static final int fenCharToStone(char ch) {
+    public static int fenCharToStone(char ch) {
 	for (int stone = Chess.MIN_STONE; stone <= Chess.MAX_STONE; stone++) {
 	    if (fenChars[stone - Chess.MIN_STONE] == ch)
 		return stone;
@@ -30,7 +30,7 @@ public class FEN {
 	return Chess.NO_STONE;
     }
 
-    public static final char stoneToFenChar(int stone) {
+    public static char stoneToFenChar(int stone) {
 	if (stone >= Chess.MIN_STONE && stone <= Chess.MAX_STONE) {
 	    return fenChars[stone - Chess.MIN_STONE];
 	} else {
@@ -239,7 +239,7 @@ public class FEN {
 	if (numberOfParts < 1) {
 	    return null;
 	}
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 
 	/* ========== 1st field : pieces ========== */
 	int row = 7, col = 0;

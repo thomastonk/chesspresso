@@ -43,42 +43,42 @@ public interface ImmutablePosition {
      * @param sqi the square
      * @return the stone of the given square
      */
-    public int getStone(int sqi);
+    int getStone(int sqi);
 
     /**
      * Return the current en passant square.
      *
      * @return the current en passant square, NO_SQUARE if none
      */
-    public int getSqiEP();
+    int getSqiEP();
 
     /**
      * Return the still allowed castles as mask.
      *
      * @return the still allowed castles as mask.
      */
-    public int getCastles();
+    int getCastles();
 
     /**
      * Return the player whose turn it is.
      *
      * @return the player whose turn it is
      */
-    public int getToPlay();
+    int getToPlay();
 
     /**
      * Return the current ply number.
      *
      * @return the current ply number, starting at play no. 0
      */
-    public int getPlyNumber();
+    int getPlyNumber();
 
     /**
      * Return the first ply number.
      *
      * @return the first ply number
      */
-    public int getFirstPlyNumber();
+    int getFirstPlyNumber();
 
     /**
      * Return the number of moves since the last capture and the last pawn move.
@@ -86,14 +86,14 @@ public interface ImmutablePosition {
      *
      * @return the number of moves since the last capture and the last pawn move
      */
-    public int getHalfMoveClock();
+    int getHalfMoveClock();
 
     /**
      * Return whether the current position is valid or a error code.
      *
      * @return whether the current position is valid or a error code
      */
-    public Validity isValid();
+    Validity isValid();
 
     // ======================================================================
     // FEN
@@ -103,7 +103,7 @@ public interface ImmutablePosition {
      *
      * @return the FEN representation of the current position
      */
-    public String getFEN();
+    String getFEN();
 
     // ======================================================================
 
@@ -112,7 +112,7 @@ public interface ImmutablePosition {
      *
      * @return whether the represented position is the start position
      */
-    public boolean isStartPosition();
+    boolean isStartPosition();
 
     // ======================================================================
     // hash codes
@@ -123,7 +123,7 @@ public interface ImmutablePosition {
      *
      * @return a 64bit hash code
      */
-    public long getHashCode();
+    long getHashCode();
 
     /**
      * Returns a 32bit hash code of the current position. 32 bit is not enough to
@@ -131,7 +131,7 @@ public interface ImmutablePosition {
      *
      * @return a 32bit hash code
      */
-    public int hashCode();
+    int hashCode();
 
     // ======================================================================
 

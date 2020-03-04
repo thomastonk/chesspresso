@@ -94,7 +94,6 @@ public class Move implements Serializable {
 
     private final static int FROM_SHIFT = 0;
     private final static int TO_SHIFT = 6;
-//    private final static int PROMOTION_SHIFT          = 12;
 
     // precalculated castles moves
     public static final short WHITE_SHORT_CASTLE = CASTLE_MOVE | Chess.E1 << FROM_SHIFT | Chess.G1 << TO_SHIFT,
@@ -226,24 +225,24 @@ public class Move implements Serializable {
      * =============================================================================
      */
 
-    public final static int getFromSqi(short move) {
+    public static int getFromSqi(short move) {
 	return (move >> FROM_SHIFT) & 0x3F;
     }
 
-    public final static int getToSqi(short move) {
+    public static int getToSqi(short move) {
 	return (move >> TO_SHIFT) & 0x3F;
     }
 
-    public final static boolean isCapturing(short move) {
+    public static boolean isCapturing(short move) {
 	return (move & TYPE_MASK) == CAPTURING_MOVE;
     }
 
-    public final static boolean isPromotion(short move) {
+    public static boolean isPromotion(short move) {
 	int promo = move & PROMO_MASK;
 	return promo == PROMO_QUEEN || promo == PROMO_ROOK || promo == PROMO_BISHOP || promo == PROMO_KNIGHT;
     } // slow but safe
 
-    public final static int getPromotionPiece(short move) {
+    public static int getPromotionPiece(short move) {
 	int promo = move & PROMO_MASK;
 	for (int piece = 0; piece <= Chess.MAX_PIECE; piece++) {
 	    if (s_promo[piece] == promo)
@@ -252,12 +251,12 @@ public class Move implements Serializable {
 	return Chess.NO_PIECE;
     }
 
-    public final static boolean isEPMove(short move) {
+    public static boolean isEPMove(short move) {
 	return (move & PROMO_MASK) == EP_MOVE;
     }
 
     public static boolean isCastle(short move) {
-	return (move & PROMO_MASK) == CASTLE_MOVE;
+	return (move & PROMO_MASK) == CASTLE_MOVE && move != NULL_MOVE;
     }
 
     public static boolean isShortCastle(short move) {
@@ -285,7 +284,7 @@ public class Move implements Serializable {
      */
 
     public static String getBinaryString(short move) {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	for (int i = 15; i >= 0; i--) {
 	    if ((move & (1 << i)) != 0)
 		sb.append("1");
@@ -298,7 +297,7 @@ public class Move implements Serializable {
     /**
      * Returns a string representation of the move.
      *
-     * @param the move
+     * @param move move
      * @return the string representation, e.g. e2xf4
      */
     public static String getString(short move) {
@@ -315,7 +314,7 @@ public class Move implements Serializable {
 	else if (isNullMove(move))
 	    return NULL_MOVE_STRING;
 	else {
-	    StringBuffer sb = new StringBuffer();
+	    StringBuilder sb = new StringBuilder();
 	    sb.append(Chess.sqiToStr(getFromSqi(move)));
 	    sb.append(isCapturing(move) ? 'x' : '-');
 	    sb.append(Chess.sqiToStr(getToSqi(move)));
@@ -344,40 +343,40 @@ public class Move implements Serializable {
     /**
      * Convenience method to create a castle move.
      *
-     * @param move    a castling move to based upon, must be a castling move
-     * @param isCheck whether the move gives a check
-     * @param isMate  whether the move sets mate
-     * @param isWhite whether it is a white move
+     * @param move        a castling move to based upon, must be a castling move
+     * @param isCheck     whether the move gives a check
+     * @param isMate      whether the move sets mate
+     * @param whiteToMove whether it is a white move
      * @return the castle move
      */
-    public static Move createCastle(short move, boolean isCheck, boolean isMate, boolean whiteMove) {
-	return new Move(move, Chess.KING, Chess.NO_COL, Chess.NO_ROW, isCheck, isMate, whiteMove);
+    public static Move createCastle(short move, boolean isCheck, boolean isMate, boolean whiteToMove) {
+	return new Move(move, Chess.KING, Chess.NO_COL, Chess.NO_ROW, isCheck, isMate, whiteToMove);
     }
 
     /**
      * Convenience factory method to create a short castle move.
      *
-     * @param toPlay  the moving player
-     * @param isCheck whether the move gives a check
-     * @param isMate  whether the move sets mate
-     * @param isWhite whether it is a white move
+     * @param toPlay      the moving player
+     * @param isCheck     whether the move gives a check
+     * @param isMate      whether the move sets mate
+     * @param whiteToMove whether it is a white move
      * @return the castle move
      */
-    public static Move createShortCastle(int toPlay, boolean isCheck, boolean isMate, boolean whiteMove) {
-	return new Move(getShortCastle(toPlay), Chess.KING, Chess.NO_COL, Chess.NO_ROW, isCheck, isMate, whiteMove);
+    public static Move createShortCastle(int toPlay, boolean isCheck, boolean isMate, boolean whiteToMove) {
+	return new Move(getShortCastle(toPlay), Chess.KING, Chess.NO_COL, Chess.NO_ROW, isCheck, isMate, whiteToMove);
     }
 
     /**
      * Convenience factory method to create a long castle move.
      *
-     * @param toPlay  the moving player
-     * @param isCheck whether the move gives a check
-     * @param isMate  whether the move sets mate
-     * @param isWhite whether it is a white move
+     * @param toPlay      the moving player
+     * @param isCheck     whether the move gives a check
+     * @param isMate      whether the move sets mate
+     * @param whiteToMove whether it is a white move
      * @return the castle move
      */
-    public static Move createLongCastle(int toPlay, boolean isCheck, boolean isMate, boolean whiteMove) {
-	return new Move(getLongCastle(toPlay), Chess.KING, Chess.NO_COL, Chess.NO_ROW, isCheck, isMate, whiteMove);
+    public static Move createLongCastle(int toPlay, boolean isCheck, boolean isMate, boolean whiteToMove) {
+	return new Move(getLongCastle(toPlay), Chess.KING, Chess.NO_COL, Chess.NO_ROW, isCheck, isMate, whiteToMove);
     }
 
     /*
@@ -416,13 +415,13 @@ public class Move implements Serializable {
      *                    otherwise
      * @param isCheck     whether the move gives a check
      * @param isMate      whether the move sets mate
-     * @param isWhite     whether it is a white move
+     * @param whiteToMove whether it is a white move
      */
     public Move(short move, int movingPiece, int colFrom, int rowFrom, boolean isCheck, boolean isMate,
-	    boolean isWhiteMove) {
+	    boolean whiteToMove) {
 	m_move = move;
 	m_info = COL_FROM_MUL * (colFrom - Chess.NO_COL) + ROW_FROM_MUL * (rowFrom - Chess.NO_ROW)
-		+ (isCheck ? CHECK_MUL : 0) + (isMate ? MATE_MUL : 0) + (isWhiteMove ? TOPLAY_MUL : 0)
+		+ (isCheck ? CHECK_MUL : 0) + (isMate ? MATE_MUL : 0) + (whiteToMove ? TOPLAY_MUL : 0)
 		+ MOVING_MUL * movingPiece;
     }
 
@@ -431,7 +430,7 @@ public class Move implements Serializable {
      */
 
     public short getShortMoveDesc() {
-	return (short) m_move;
+	return m_move;
     }
 
     public int getPromo() {
@@ -502,11 +501,6 @@ public class Move implements Serializable {
      * =============================================================================
      */
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
 	final int prime = 31;
@@ -516,11 +510,6 @@ public class Move implements Serializable {
 	return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
 	if (this == obj)
@@ -532,9 +521,7 @@ public class Move implements Serializable {
 	Move other = (Move) obj;
 	if (m_info != other.m_info)
 	    return false;
-	if (m_move != other.m_move)
-	    return false;
-	return true;
+	return m_move == other.m_move;
     }
 
     /**
@@ -546,7 +533,7 @@ public class Move implements Serializable {
 	if (!isValid()) {
 	    return "<illegal move>";
 	} else {
-	    StringBuffer sb = new StringBuffer();
+	    StringBuilder sb = new StringBuilder();
 	    if (isShortCastle()) {
 		sb.append(SHORT_CASTLE_STRING);
 	    } else if (isLongCastle()) {
@@ -584,7 +571,7 @@ public class Move implements Serializable {
 	if (!isValid()) {
 	    return "<illegal move>";
 	} else {
-	    StringBuffer sb = new StringBuffer();
+	    StringBuilder sb = new StringBuilder();
 	    if (isShortCastle()) {
 		sb.append(SHORT_CASTLE_STRING);
 	    } else if (isLongCastle()) {

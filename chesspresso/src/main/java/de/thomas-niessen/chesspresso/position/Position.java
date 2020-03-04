@@ -93,11 +93,11 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    s_ofSquare[sqi] = 1L << sqi;
     }
 
-    private static final boolean isExactlyOneBitSet(long bb) {
+    private static boolean isExactlyOneBitSet(long bb) {
 	return bb != 0L && (bb & (bb - 1L)) == 0L;
     }
 
-    private static final int numOfBitsSet(long bb) {
+    private static int numOfBitsSet(long bb) {
 	int num = 0;
 	while (bb != 0L) {
 	    bb &= bb - 1;
@@ -107,19 +107,19 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return num;
     }
 
-    public static final long ofSquare(int sqi) {
+    public static long ofSquare(int sqi) {
 	return s_ofSquare[sqi];
     }
 
-    public static final long ofCol(int col) {
+    public static long ofCol(int col) {
 	return s_ofCol[col];
     }
 
-    public static final long ofRow(int row) {
+    public static long ofRow(int row) {
 	return s_ofRow[row];
     }
 
-    private static final int getFirstSqi(long bb) {
+    private static int getFirstSqi(long bb) {
 	// inefficient for bb == 0L, test outside (in while loop condition)
 	// if (bb == 0L) {
 	// return Chess.NO_SQUARE;
@@ -154,14 +154,14 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	// }
     }
 
-    public static final long getFirstSqiBB(long bb) // returns 0 if no bit set,
-						    // not -1!!!
+    public static long getFirstSqiBB(long bb) // returns 0 if no bit set,
+					      // not -1!!!
     {
 	return bb & -bb;
     }
 
     @SuppressWarnings("unused")
-    private static final String toString(long bb) {
+    private static String toString(long bb) {
 	String ZEROS = "0000000000000000000000000000000000000000000000000000000000000000";
 	String s = ZEROS + Long.toBinaryString(bb);
 	return s.substring(s.length() - 64);
@@ -244,18 +244,18 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	}
     }
 
-    private static final boolean isDiagonal(int dir) {
+    private static boolean isDiagonal(int dir) {
 	return (dir & 1) == 0;
     }
 
-    private static final boolean areDirectionsParallel(int dir1, int dir2) {
+    private static boolean areDirectionsParallel(int dir1, int dir2) {
 	if (dir1 == NO_DIR || dir2 == NO_DIR) {
 	    return false;
 	}
 	return (dir1 & 3) == (dir2 & 3);
     }
 
-    private static final int getDir(int from, int to) {
+    private static int getDir(int from, int to) {
 	// used to generate DIR[from][to]
 
 	int dcol = Chess.deltaCol(from, to);
@@ -453,7 +453,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return ((m_flags >> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
     }
 
-    private final int getNotToPlay() {
+    private int getNotToPlay() {
 	return ((m_flags >> TO_PLAY_SHIFT) & TO_PLAY_MASK) != 0 ? Chess.WHITE : Chess.BLACK;
     }
 
@@ -472,7 +472,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return (int) ((m_flags >> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
     }
 
-    private final int getHashColEP() {
+    private int getHashColEP() {
 	return (int) ((m_flags >> HASH_COL_EP_SHIFT) & HASH_COL_EP_MASK) + Chess.NO_SQUARE;
     }
 
@@ -554,7 +554,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return Chess.NOBODY;
     }
 
-    private final long getBitBoard(int stone) {
+    private long getBitBoard(int stone) {
 	switch (stone) {
 	case Chess.NO_STONE:
 	    return 0L;
@@ -730,11 +730,14 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     @Override
     public final void setPlyNumber(int plyNumber) {
-	// new Exception("setPlyNumber " + plyNumber).printStackTrace();
+	// By the bit operations a ply number will always be between 0 and 1023!
+	if (plyNumber < 0 || plyNumber > 1023) {
+	    System.err.println("Invalid ply number: " + plyNumber);
+	}
 	if (DEBUG)
 	    System.out.println("setPlyNumber " + plyNumber);
 	long flags = m_flags;
-	m_flags &= ~(PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
+	m_flags &= ~((long) PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
 	m_flags |= (long) plyNumber << PLY_NUMBER_SHIFT;
 	if (m_flags != flags) {
 	    if (m_notifyListeners)
@@ -742,8 +745,8 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	}
     }
 
-    private final void incPlyNumber() {
-	// System.out.println("incPlyNumber");
+    private void incPlyNumber() {
+	// By the bit operations a ply number will always be between 0 and 1023!
 	if (DEBUG)
 	    System.out.println("incPlyNumber");
 	m_flags += 1L << PLY_NUMBER_SHIFT;
@@ -753,6 +756,8 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     @Override
     public void setHalfMoveClock(int halfMoveClock) {
+	// By the bit operations a half move clock number will always be between 0 and
+	// 255!
 	if (DEBUG)
 	    System.out.println("setHalfMoveClock " + halfMoveClock);
 	long flags = m_flags;
@@ -863,7 +868,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    fireToPlayChanged();
     }
 
-    private final void setMove(short move) throws IllegalMoveException {
+    private void setMove(short move) throws IllegalMoveException {
 	if (DEBUG) {
 	    System.out.println(getPlyNumber() + ": " + Move.getString(move));
 	}
@@ -1207,7 +1212,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    fireMoveDone(move);
     }
 
-    private final void doMoveNoMoveListeners(short move) throws IllegalMoveException {
+    private void doMoveNoMoveListeners(short move) throws IllegalMoveException {
 	if (PROFILE)
 	    m_numDoMove++;
 
@@ -1419,7 +1424,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return res;
     }
 
-    private final boolean redoMoveNoMoveListeners() {
+    private boolean redoMoveNoMoveListeners() {
 	// if (PROFILE) m_numRedoMove++;
 
 	boolean notify = m_notifyPositionChanged;
@@ -1694,7 +1699,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	}
     }
 
-    private final int getFromSqi(int piece, int colFrom, int rowFrom, int to) {
+    private int getFromSqi(int piece, int colFrom, int rowFrom, int to) {
 	long bb = getBitBoard(Chess.pieceToStone(piece, getToPlay()));
 	if (colFrom != Chess.NO_COL) {
 	    bb &= ofCol(colFrom);
@@ -1840,14 +1845,8 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return NO_DIR;
     }
 
-    private static final int sign(int i) {
-	if (i < 0) {
-	    return -1;
-	} else if (i > 0) {
-	    return 1;
-	} else {
-	    return 0;
-	}
+    private static int sign(int i) {
+	return Integer.compare(i, 0);
     }
 
     private boolean attacks(int from, int to) {
@@ -1899,7 +1898,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
      * =========================================================================
      */
 
-    private final boolean isAttacked(int sqi, int attacker, long bbExclude) {
+    private boolean isAttacked(int sqi, int attacker, long bbExclude) {
 	if (PROFILE)
 	    m_numIsAttacked++;
 
@@ -1942,7 +1941,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return false;
     }
 
-    private final long getDirectAttackers(int sqi, int color, boolean includeInbetweenSquares) {
+    private long getDirectAttackers(int sqi, int color, boolean includeInbetweenSquares) {
 	if (PROFILE)
 	    m_numDirectAttackers++;
 
@@ -1985,7 +1984,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return attackers;
     }
 
-    private final long getAllAttackers(int sqi, int color) {
+    private long getAllAttackers(int sqi, int color) {
 	if (PROFILE)
 	    m_numGetAllAttackers++;
 
@@ -2036,7 +2035,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return attackers;
     }
 
-    private final int getAllKnightMoves(int moveIndex, long bbTargets) {
+    private int getAllKnightMoves(int moveIndex, long bbTargets) {
 	if (bbTargets == 0L)
 	    return moveIndex;
 
@@ -2061,7 +2060,8 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return moveIndex;
     }
 
-    private final int getAllSlidingMoves(int moveIndex, long bbTargets, long bbPieces, int piece) {
+    // TN: seemingly a method for bishop, queen and rook moves
+    private int getAllSlidingMoves(int moveIndex, long bbTargets, long bbPieces, int piece) {
 	if (bbTargets == 0L)
 	    return moveIndex;
 
@@ -2112,7 +2112,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return moveIndex;
     }
 
-    private final int getAllKingMoves(int moveIndex, long bbTargets, boolean withCastles) {
+    private int getAllKingMoves(int moveIndex, long bbTargets, boolean withCastles) {
 	if (bbTargets == 0L)
 	    return moveIndex;
 
@@ -2175,7 +2175,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return moveIndex;
     }
 
-    private final int getAllPawnMoves(int moveIndex, long bbTargets) {
+    private int getAllPawnMoves(int moveIndex, long bbTargets) {
 	if (bbTargets == 0L)
 	    return moveIndex;
 
@@ -2313,7 +2313,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return getAllMoves(bbTargets, bbPawnTargets);
     }
 
-    private final short[] getAllMoves(long bbTargets, long bbPawnTargets) {
+    private short[] getAllMoves(long bbTargets, long bbPawnTargets) {
 	if (PROFILE)
 	    m_numGetAllMoves++;
 
@@ -2407,7 +2407,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     @Override
     public String getMovesAsString(short[] moves, boolean validateEachMove) {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	Move.normalizeOrder(moves);
 
 	sb.append('{');
@@ -2422,13 +2422,14 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		    try {
 			internalValidate();
 		    } catch (Throwable t) {
-			sb.append("EXCEPTION: after move " + Move.getString(moves[i]) + ": " + t.getMessage());
+			sb.append("EXCEPTION: after move ").append(Move.getString(moves[i])).append(": ")
+				.append(t.getMessage());
 		    }
 		}
 		undoMove();
 	    } catch (IllegalMoveException ex) {
-		sb.append("Position::getMovesAsString: Illegal Move " + Move.getString(moves[i]) + ": "
-			+ ex.getMessage());
+		sb.append("Position::getMovesAsString: Illegal Move ").append(Move.getString(moves[i])).append(": ")
+			.append(ex.getMessage());
 	    }
 	}
 	sb.append('}');

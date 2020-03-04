@@ -324,14 +324,14 @@ public abstract class NAG {
 
     public static String[] getDefinedShortNags() {
 	int num = 0;
-	for (int i = 0; i < SHORT_DESCRIPTION.length; i++)
-	    if (SHORT_DESCRIPTION[i] != null)
-		num++;
+		for (String s : SHORT_DESCRIPTION)
+			if (s != null)
+				num++;
 	String[] res = new String[num];
 	num = 0;
-	for (int i = 0; i < SHORT_DESCRIPTION.length; i++)
-	    if (SHORT_DESCRIPTION[i] != null)
-		res[num++] = SHORT_DESCRIPTION[i];
+		for (String s : SHORT_DESCRIPTION)
+			if (s != null)
+				res[num++] = s;
 	return res;
     }
 

@@ -20,23 +20,23 @@ package chesspresso.position;
  * 
  */
 public interface MutablePosition extends ImmutablePosition {
-	public void clear();
+	void clear();
 
-	public void setPosition(ImmutablePosition position);
+	void setPosition(ImmutablePosition position);
 
-	public void setStart();
+	void setStart();
 
-	public void setStone(int sqi, int stone);
+	void setStone(int sqi, int stone);
 
-	public void setCastles(int castles);
+	void setCastles(int castles);
 
-	public void setSqiEP(int sqiEP);
+	void setSqiEP(int sqiEP);
 
-	public void setToPlay(int toPlay);
+	void setToPlay(int toPlay);
 
-	public void setPlyNumber(int plyNumber);
+	void setPlyNumber(int plyNumber);
 
-	public void setFirstPlyNumber(int plyNumber);
+	void setFirstPlyNumber(int plyNumber);
 
-	public void setHalfMoveClock(int halfMoveClock);
+	void setHalfMoveClock(int halfMoveClock);
 }

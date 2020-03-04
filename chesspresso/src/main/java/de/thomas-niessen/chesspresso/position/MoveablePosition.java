@@ -23,26 +23,26 @@ import chesspresso.move.Move;
  * 
  */
 public interface MoveablePosition extends MutablePosition {
-	public void doMove(short move) throws IllegalMoveException;
+	void doMove(short move) throws IllegalMoveException;
 
-	public void doMove(Move move) throws IllegalMoveException;
+	void doMove(Move move) throws IllegalMoveException;
 
-	public short getLastShortMove() throws IllegalMoveException;
+	short getLastShortMove() throws IllegalMoveException;
 
-	public Move getLastMove() throws IllegalMoveException;
+	Move getLastMove() throws IllegalMoveException;
 
-	public boolean canUndoMove();
+	boolean canUndoMove();
 
-	public boolean undoMove();
+	boolean undoMove();
 
-	public boolean canRedoMove();
+	boolean canRedoMove();
 
-	public boolean redoMove();
+	boolean redoMove();
 
-	public short getMove(int from, int to, int promoPiece);
+	short getMove(int from, int to, int promoPiece);
 
-	public short[] getAllMoves();
+	short[] getAllMoves();
 
-	public String getMovesAsString(short[] moves, boolean validateEachMove);
+	String getMovesAsString(short[] moves, boolean validateEachMove);
 
 }

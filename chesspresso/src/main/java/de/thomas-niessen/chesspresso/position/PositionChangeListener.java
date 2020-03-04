@@ -20,9 +20,9 @@ public interface PositionChangeListener {
     // chesspresso don't do anything within this method.
     // TN: This method shall not be used for replacing a position within a Game,
     // GameBrowser, GameTextViewer context.
-    public void notifyPositionChanged(ImmutablePosition position);
+    void notifyPositionChanged(ImmutablePosition position);
 
-    public void notifyMoveDone(ImmutablePosition position, short move);
+    void notifyMoveDone(ImmutablePosition position, short move);
 
-    public void notifyMoveUndone(ImmutablePosition position);
+    void notifyMoveUndone(ImmutablePosition position);
 }

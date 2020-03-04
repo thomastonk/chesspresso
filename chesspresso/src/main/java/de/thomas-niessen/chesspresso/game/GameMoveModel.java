@@ -845,7 +845,7 @@ public class GameMoveModel implements Serializable {
 	boolean nextMove = isMoveValue(m_moves[goForward(index)]);
 	if (DEBUG)
 	    System.out.println("  --> " + nextMove);
-	return (nextMove);
+	return nextMove;
     }
 
     // ======================================================================
