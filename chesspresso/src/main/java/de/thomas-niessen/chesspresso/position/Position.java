@@ -17,6 +17,7 @@ package chesspresso.position;
 import java.io.Serializable;
 
 import chesspresso.Chess;
+import chesspresso.Variant;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 
@@ -397,6 +398,13 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     private short[] m_moves = new short[256]; // buffer for getAllMoves,
 					      // allocated once for efficiency
 
+    private Variant m_variant = Variant.STANDARD;
+
+    // only White's squares will be stored
+    private int m_chess960KingFile = -1;
+    private int m_chess960QueensideRookFile = -1;
+    private int m_chess960KingsideRookFile = -1;
+
     /*
      * =========================================================================
      */
@@ -441,7 +449,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     @Override
     public void clear() {
 	super.clear();
-	// m_bakIndex = 0;
     }
 
     /*
@@ -923,6 +930,37 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		    }
 		    excludeCastles(BLACK_CASTLE);
 		}
+	    } else if (Move.isCastleChess960(move)) {
+		// the implementation with setStone is less efficient, but much easier
+		int kingSquare = Move.getFromSqi(move);
+		int rookSquare = Move.getToSqi(move);
+		if (getToPlay() == Chess.WHITE) {
+		    if (kingSquare < rookSquare) { // a white short castle
+			setStone(kingSquare, Chess.NO_STONE);
+			setStone(rookSquare, Chess.NO_STONE);
+			setStone(Chess.G1, Chess.WHITE_KING);
+			setStone(Chess.F1, Chess.WHITE_ROOK);
+		    } else { // a white long castle
+			setStone(kingSquare, Chess.NO_STONE);
+			setStone(rookSquare, Chess.NO_STONE);
+			setStone(Chess.C1, Chess.WHITE_KING);
+			setStone(Chess.D1, Chess.WHITE_ROOK);
+		    }
+		    excludeCastles(WHITE_CASTLE);
+		} else { // Black's castling
+		    if (kingSquare < rookSquare) { // a black short castle
+			setStone(kingSquare, Chess.NO_STONE);
+			setStone(rookSquare, Chess.NO_STONE);
+			setStone(Chess.G8, Chess.BLACK_KING);
+			setStone(Chess.F8, Chess.BLACK_ROOK);
+		    } else { // a black long castle
+			setStone(kingSquare, Chess.NO_STONE);
+			setStone(rookSquare, Chess.NO_STONE);
+			setStone(Chess.C8, Chess.BLACK_KING);
+			setStone(Chess.D8, Chess.BLACK_ROOK);
+		    }
+		    excludeCastles(BLACK_CASTLE);
+		}
 	    } else {
 		int sqiFrom = Move.getFromSqi(move);
 		int sqiTo = Move.getToSqi(move);
@@ -1024,9 +1062,11 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 			    m_bbRooks ^= bbTo;
 			    break;
 			default:
-			    throw new IllegalMoveException(
-				    "Move " + ((getPlyNumber() + 1) / 2 + 1) + ": illegal promotion stone ("
-					    + promotionStone + ", " + Chess.stoneToChar(promotionStone) + ")");
+			    System.out.println("Position::setMove: IllegalMoveException at " + this);
+			    String message = "Move " + ((getPlyNumber() + 1) / 2 + 1) + ": illegal promotion stone ("
+				    + promotionStone + ", " + Chess.stoneToChar(promotionStone) + ")";
+			    System.out.println(message);
+			    throw new IllegalMoveException(message);
 			}
 		    }
 		    m_hashCode ^= s_hashMod[sqiTo][promotionStone - Chess.MIN_STONE];
@@ -1035,9 +1075,11 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		    int stone = getStone(Move.getFromSqi(move));
 		    switch (stone) {
 		    case Chess.NO_STONE: {
-			System.out.println("Position::setMove: " + this);
-			throw new IllegalMoveException(
-				"Move " + ((getPlyNumber() + 1) / 2 + 1) + ": moving stone is non-existent");
+			System.out.println("Position::setMove: IllegalMoveException at " + this);
+			String message = "Move " + ((getPlyNumber() + 1) / 2 + 1) + "(" + Move.getString(move)
+				+ "): moving stone is non-existent";
+			System.out.println(message);
+			throw new IllegalMoveException(message);
 		    }
 		    case Chess.WHITE_KING:
 			m_bbWhites ^= bbFromTo;
@@ -1103,18 +1145,36 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		/*---------- update castles ----------*/
 		int castles = getCastles();
 		if (castles != NO_CASTLES) {
-		    if (sqiFrom == Chess.A1 || sqiTo == Chess.A1) {
-			castles &= ~WHITE_LONG_CASTLE;
-		    } else if (sqiFrom == Chess.H1 || sqiTo == Chess.H1) {
-			castles &= ~WHITE_SHORT_CASTLE;
-		    } else if (sqiFrom == Chess.A8 || sqiTo == Chess.A8) {
-			castles &= ~BLACK_LONG_CASTLE;
-		    } else if (sqiFrom == Chess.H8 || sqiTo == Chess.H8) {
-			castles &= ~BLACK_SHORT_CASTLE;
-		    } else if (sqiFrom == Chess.E1) {
-			castles &= ~WHITE_CASTLE;
-		    } else if (sqiFrom == Chess.E8) {
-			castles &= ~BLACK_CASTLE;
+		    if (m_variant == Variant.STANDARD) {
+			if (sqiFrom == Chess.A1 || sqiTo == Chess.A1) {
+			    castles &= ~WHITE_LONG_CASTLE;
+			} else if (sqiFrom == Chess.H1 || sqiTo == Chess.H1) {
+			    castles &= ~WHITE_SHORT_CASTLE;
+			} else if (sqiFrom == Chess.A8 || sqiTo == Chess.A8) {
+			    castles &= ~BLACK_LONG_CASTLE;
+			} else if (sqiFrom == Chess.H8 || sqiTo == Chess.H8) {
+			    castles &= ~BLACK_SHORT_CASTLE;
+			} else if (sqiFrom == Chess.E1) {
+			    castles &= ~WHITE_CASTLE;
+			} else if (sqiFrom == Chess.E8) {
+			    castles &= ~BLACK_CASTLE;
+			}
+		    } else { // Chess960
+			if (sqiFrom == m_chess960QueensideRookFile || sqiTo == m_chess960QueensideRookFile) {
+			    castles &= ~WHITE_LONG_CASTLE;
+			} else if (sqiFrom == m_chess960KingsideRookFile || sqiTo == m_chess960KingsideRookFile) {
+			    castles &= ~WHITE_SHORT_CASTLE;
+			} else if (sqiFrom == m_chess960QueensideRookFile + Chess.A8
+				|| sqiTo == m_chess960QueensideRookFile + Chess.A8) {
+			    castles &= ~BLACK_LONG_CASTLE;
+			} else if (sqiFrom == m_chess960QueensideRookFile + Chess.A8
+				|| sqiTo == m_chess960QueensideRookFile + Chess.A8) {
+			    castles &= ~BLACK_SHORT_CASTLE;
+			} else if (sqiFrom == m_chess960KingFile) {
+			    castles &= ~WHITE_CASTLE;
+			} else if (sqiFrom == m_chess960KingFile + Chess.A8) {
+			    castles &= ~BLACK_CASTLE;
+			}
 		    }
 		    setCastles(castles);
 		}
@@ -2138,41 +2198,202 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	/*---------- castles ----------*/
 	if (withCastles) {
 	    int castles = getCastles();
-	    if (getToPlay() == Chess.WHITE) {
-		// don't need to exclude anything for isAttack since other check
-		// would fail in those cases
-		if ((castles & WHITE_SHORT_CASTLE) != 0 && (ofSquare(Chess.G1) & bbTargets) != 0L
-			&& (bbAllPieces & WHITE_SHORT_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.F1, Chess.BLACK, 0L)
-			&& !isAttacked(Chess.G1, Chess.BLACK, 0L)) {
-		    if (moveIndex == -1)
-			return 1; // =====>
-		    m_moves[moveIndex++] = Move.WHITE_SHORT_CASTLE;
+	    if (m_variant == Variant.STANDARD) {
+		if (getToPlay() == Chess.WHITE) {
+		    // don't need to exclude anything for isAttack since other check
+		    // would fail in those cases
+		    if ((castles & WHITE_SHORT_CASTLE) != 0 && (ofSquare(Chess.G1) & bbTargets) != 0L
+			    && (bbAllPieces & WHITE_SHORT_CASTLE_EMPTY_MASK) == 0L
+			    && !isAttacked(Chess.F1, Chess.BLACK, 0L) && !isAttacked(Chess.G1, Chess.BLACK, 0L)) {
+			if (moveIndex == -1)
+			    return 1; // =====>
+			m_moves[moveIndex++] = Move.WHITE_SHORT_CASTLE;
+		    }
+		    if ((castles & WHITE_LONG_CASTLE) != 0 && (ofSquare(Chess.C1) & bbTargets) != 0L
+			    && (bbAllPieces & WHITE_LONG_CASTLE_EMPTY_MASK) == 0L
+			    && !isAttacked(Chess.D1, Chess.BLACK, 0L) && !isAttacked(Chess.C1, Chess.BLACK, 0L)) {
+			if (moveIndex == -1)
+			    return 1; // =====>
+			m_moves[moveIndex++] = Move.WHITE_LONG_CASTLE;
+		    }
+		} else {
+		    if ((castles & BLACK_SHORT_CASTLE) != 0 && (ofSquare(Chess.G8) & bbTargets) != 0L
+			    && (bbAllPieces & BLACK_SHORT_CASTLE_EMPTY_MASK) == 0L
+			    && !isAttacked(Chess.F8, Chess.WHITE, 0L) && !isAttacked(Chess.G8, Chess.WHITE, 0L)) {
+			if (moveIndex == -1)
+			    return 1; // =====>
+			m_moves[moveIndex++] = Move.BLACK_SHORT_CASTLE;
+		    }
+		    if ((castles & BLACK_LONG_CASTLE) != 0 && (ofSquare(Chess.C8) & bbTargets) != 0L
+			    && (bbAllPieces & BLACK_LONG_CASTLE_EMPTY_MASK) == 0L
+			    && !isAttacked(Chess.D8, Chess.WHITE, 0L) && !isAttacked(Chess.C8, Chess.WHITE, 0L)) {
+			if (moveIndex == -1)
+			    return 1; // =====>
+			m_moves[moveIndex++] = Move.BLACK_LONG_CASTLE;
+		    }
 		}
-		if ((castles & WHITE_LONG_CASTLE) != 0 && (ofSquare(Chess.C1) & bbTargets) != 0L
-			&& (bbAllPieces & WHITE_LONG_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.D1, Chess.BLACK, 0L)
-			&& !isAttacked(Chess.C1, Chess.BLACK, 0L)) {
-		    if (moveIndex == -1)
-			return 1; // =====>
-		    m_moves[moveIndex++] = Move.WHITE_LONG_CASTLE;
-		}
-	    } else {
-		if ((castles & BLACK_SHORT_CASTLE) != 0 && (ofSquare(Chess.G8) & bbTargets) != 0L
-			&& (bbAllPieces & BLACK_SHORT_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.F8, Chess.WHITE, 0L)
-			&& !isAttacked(Chess.G8, Chess.WHITE, 0L)) {
-		    if (moveIndex == -1)
-			return 1; // =====>
-		    m_moves[moveIndex++] = Move.BLACK_SHORT_CASTLE;
-		}
-		if ((castles & BLACK_LONG_CASTLE) != 0 && (ofSquare(Chess.C8) & bbTargets) != 0L
-			&& (bbAllPieces & BLACK_LONG_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.D8, Chess.WHITE, 0L)
-			&& !isAttacked(Chess.C8, Chess.WHITE, 0L)) {
-		    if (moveIndex == -1)
-			return 1; // =====>
-		    m_moves[moveIndex++] = Move.BLACK_LONG_CASTLE;
+	    } else { // Chess960
+		if (getToPlay() == Chess.WHITE) {
+		    if (checkChess960WhiteShortCastle(bbAllPieces, bbTargets)) {
+			if (moveIndex == -1) {
+			    return 1;
+			}
+			m_moves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, m_chess960KingFile,
+				m_chess960KingsideRookFile);
+		    }
+		    if (checkChess960WhiteLongCastle(bbAllPieces, bbTargets)) {
+			if (moveIndex == -1) {
+			    return 1;
+			}
+			m_moves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, m_chess960KingFile,
+				m_chess960QueensideRookFile);
+		    }
+		} else {
+		    if (checkChess960BlackShortCastle(bbAllPieces, bbTargets)) {
+			if (moveIndex == -1) {
+			    return 1;
+			}
+			m_moves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, m_chess960KingFile,
+				m_chess960KingsideRookFile);
+		    }
+		    if (checkChess960BlackLongCastle(bbAllPieces, bbTargets)) {
+			if (moveIndex == -1) {
+			    return 1;
+			}
+			m_moves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, m_chess960KingFile,
+				m_chess960QueensideRookFile);
+		    }
 		}
 	    }
 	}
 	return moveIndex;
+    }
+
+    private boolean checkChess960KingCastleCondition(long bbAllPieces, int startSquare, int endSquare, int exception,
+	    int attacker) {
+	for (int square = startSquare; square <= endSquare; ++square) {
+	    if (square != exception) {
+		if ((bbAllPieces & ofSquare(square)) != 0L || isAttacked(square, attacker, 0L)) {
+		    return false;
+		}
+	    } else {
+		if (isAttacked(square, attacker, 0L)) {
+		    return false;
+		}
+	    }
+	}
+	return true;
+    }
+
+    private boolean checkChess960RookCastleCondition(long bbAllPieces, int startSquare, int endSquare, int exception) {
+	for (int square = startSquare; square <= endSquare; ++square) {
+	    if (square != exception && (bbAllPieces & ofSquare(square)) != 0L) {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    private boolean checkChess960WhiteShortCastle(long bbAllPieces, long bbTargets) {
+	if ((getCastles() & WHITE_SHORT_CASTLE) == 0 || (ofSquare(Chess.G1) & bbTargets) == 0L) {
+	    return false;
+	}
+	if (!checkChess960KingCastleCondition(bbAllPieces, m_chess960KingFile + 1, Chess.G1, m_chess960KingsideRookFile,
+		Chess.BLACK)) {
+	    return false;
+	}
+	if (m_chess960KingsideRookFile < Chess.F1) {
+	    if (!checkChess960RookCastleCondition(bbAllPieces, m_chess960KingsideRookFile + 1, Chess.F1,
+		    m_chess960KingFile)) {
+		return false;
+	    }
+	} else if (m_chess960KingsideRookFile > Chess.F1) {
+	    if (!checkChess960RookCastleCondition(bbAllPieces, Chess.F1, m_chess960KingsideRookFile - 1,
+		    m_chess960KingFile)) {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    private boolean checkChess960WhiteLongCastle(long bbAllPieces, long bbTargets) {
+	if ((getCastles() & WHITE_LONG_CASTLE) == 0 || (ofSquare(Chess.C1) & bbTargets) == 0L) {
+	    return false;
+	}
+	if (m_chess960KingFile < Chess.C1) {
+	    if (!checkChess960KingCastleCondition(bbAllPieces, m_chess960KingFile + 1, Chess.C1,
+		    m_chess960QueensideRookFile, Chess.BLACK)) {
+		return false;
+	    }
+	} else {
+	    if (!checkChess960KingCastleCondition(bbAllPieces, Chess.C1, m_chess960KingFile - 1,
+		    m_chess960QueensideRookFile, Chess.BLACK)) {
+		return false;
+	    }
+	}
+	if (m_chess960QueensideRookFile < Chess.D1) {
+	    if (!checkChess960RookCastleCondition(bbAllPieces, m_chess960QueensideRookFile + 1, Chess.D1,
+		    m_chess960KingFile)) {
+		return false;
+	    }
+	} else if (m_chess960QueensideRookFile > Chess.D1) {
+	    if (!checkChess960RookCastleCondition(bbAllPieces, Chess.D1, m_chess960QueensideRookFile - 1,
+		    m_chess960KingFile)) {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    private boolean checkChess960BlackShortCastle(long bbAllPieces, long bbTargets) {
+	if ((getCastles() & BLACK_SHORT_CASTLE) == 0 || (ofSquare(Chess.G8) & bbTargets) == 0L) {
+	    return false;
+	}
+	if (!checkChess960KingCastleCondition(bbAllPieces, Chess.A8 + m_chess960KingFile + 1, Chess.A8 + Chess.G1,
+		Chess.A8 + m_chess960KingsideRookFile, Chess.WHITE)) {
+	    return false;
+	}
+	if (Chess.A8 + m_chess960KingsideRookFile < Chess.F8) {
+	    if (!checkChess960RookCastleCondition(bbAllPieces, Chess.A8 + m_chess960KingsideRookFile + 1, Chess.F8,
+		    Chess.A8 + m_chess960KingFile)) {
+		return false;
+	    }
+	} else if (Chess.A8 + m_chess960KingsideRookFile > Chess.F8) {
+	    if (!checkChess960RookCastleCondition(bbAllPieces, Chess.F8, Chess.A8 + m_chess960KingsideRookFile - 1,
+		    Chess.A8 + m_chess960KingFile)) {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    private boolean checkChess960BlackLongCastle(long bbAllPieces, long bbTargets) {
+	if ((getCastles() & BLACK_LONG_CASTLE) == 0 || (ofSquare(Chess.C8) & bbTargets) == 0L) {
+	    return false;
+	}
+	if (Chess.A8 + m_chess960KingFile < Chess.C8) {
+	    if (!checkChess960KingCastleCondition(bbAllPieces, Chess.A8 + m_chess960KingFile + 1, Chess.C8,
+		    Chess.A8 + m_chess960QueensideRookFile, Chess.WHITE)) {
+		return false;
+	    }
+	} else {
+	    if (!checkChess960KingCastleCondition(bbAllPieces, Chess.C8, Chess.A8 + m_chess960KingFile - 1,
+		    Chess.A8 + m_chess960QueensideRookFile, Chess.WHITE)) {
+		return false;
+	    }
+	}
+	if (Chess.A8 + m_chess960QueensideRookFile < Chess.D8) {
+	    if (!checkChess960RookCastleCondition(bbAllPieces, Chess.A8 + m_chess960QueensideRookFile + 1, Chess.D8,
+		    Chess.A8 + m_chess960KingFile)) {
+		return false;
+	    }
+	} else if (Chess.A8 + m_chess960QueensideRookFile > Chess.D8) {
+	    if (!checkChess960RookCastleCondition(bbAllPieces, Chess.D8, Chess.A8 + m_chess960QueensideRookFile - 1,
+		    Chess.A8 + m_chess960KingFile)) {
+		return false;
+	    }
+	}
+	return true;
     }
 
     private int getAllPawnMoves(int moveIndex, long bbTargets) {
@@ -2471,4 +2692,64 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return (getToPlay() == Chess.WHITE ? value : -value);
     }
 
+    public Variant getVariant() {
+	return m_variant;
+    }
+
+    public void setVariant(Variant variant) {
+	m_variant = variant;
+    }
+
+    /**
+     * A-file corresponds to Chess.A1, b-file to Chess.B1, etc. See also
+     * Move::getChess960Castle(..).
+     */
+    public void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile) {
+	m_chess960KingFile = kingFile % 8;
+	m_chess960QueensideRookFile = queensideRookFile % 8;
+	m_chess960KingsideRookFile = kingsideRookFile % 8;
+    }
+
+    public int getChess960KingFile() {
+	return m_chess960KingFile;
+    }
+
+    public int getChess960QueensideRookFile() {
+	return m_chess960QueensideRookFile;
+    }
+
+    public int getChess960KingsideRookFile() {
+	return m_chess960KingsideRookFile;
+    }
+
+    @Override
+    public short getMove(int from, int to, int promoPiece) {
+	if (m_variant != Variant.CHESS960) {
+	    return super.getMove(from, to, promoPiece);
+	} else {
+	    // as super.getMove: no validation!
+	    if (getColor(from) != getToPlay())
+		return Move.ILLEGAL_MOVE;
+	    int piece = getPiece(from);
+	    if (piece == Chess.PAWN) {
+		if (Chess.sqiToCol(from) == Chess.sqiToCol(to)) { // moves forward
+		    return Move.getPawnMove(from, to, false, promoPiece);
+		} else { // captures
+		    if (getSqiEP() != to) {
+			return Move.getPawnMove(from, to, true, promoPiece);
+		    } else {
+			return Move.getEPMove(from, to);
+		    }
+		}
+	    } else if (piece == Chess.KING) {
+		int fromStone = getStone(from);
+		int toStone = getStone(to);
+		if ((fromStone == Chess.WHITE_KING && toStone == Chess.WHITE_ROOK)
+			|| (fromStone == Chess.BLACK_KING && toStone == Chess.BLACK_ROOK)) {
+		    return Move.getChess960Castle(getToPlay(), from % 8, to % 8);
+		}
+	    }
+	    return Move.getRegularMove(from, to, !isSquareEmpty(to));
+	}
+    }
 }

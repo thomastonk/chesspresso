@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 
 import chesspresso.Chess;
+import chesspresso.Variant;
 import chesspresso.pgn.PGN;
 
 /**
@@ -54,6 +55,7 @@ public class GameHeaderModel implements Serializable {
     private String[] m_standardTags;
     private LinkedList<String> m_otherTags;
     private LinkedList<String> m_otherTagValues;
+    private Variant m_variant;
 
     /*
      * =============================================================================
@@ -62,11 +64,13 @@ public class GameHeaderModel implements Serializable {
     public GameHeaderModel() {
 	m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 	m_otherTags = null;
+	m_variant = Variant.STANDARD;
     }
 
     public GameHeaderModel(DataInput in, int mode) throws IOException {
 	m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 	m_otherTags = null;
+	m_variant = Variant.STANDARD;
 	load(in, mode);
     }
 
@@ -83,6 +87,7 @@ public class GameHeaderModel implements Serializable {
 	    copy.m_otherTagValues = new LinkedList<String>();
 	    copy.m_otherTagValues = (LinkedList<String>) this.m_otherTagValues.clone();
 	}
+	copy.m_variant = this.m_variant;
 
 	return copy;
     }
@@ -174,6 +179,20 @@ public class GameHeaderModel implements Serializable {
 	m_otherTags = null;
     }
 
+    public void removeTag(String tagName) {
+	int standardIndex = getStandardTagIndex(tagName);
+	if (standardIndex != -1) {
+	    m_standardTags[standardIndex] = "";
+	} else if (m_otherTags != null && tagName != null) {
+	    for (int index = 0; index < m_otherTags.size(); ++index) {
+		if (tagName.equals(m_otherTags.get(index))) {
+		    m_otherTags.remove(index);
+		    m_otherTagValues.remove(index);
+		}
+	    }
+	}
+    }
+
     /*
      * =============================================================================
      */
@@ -262,6 +281,25 @@ public class GameHeaderModel implements Serializable {
 	    return Integer.parseInt(blackElo);
 	} catch (NumberFormatException ex) {
 	    return 0; // =====>
+	}
+    }
+
+    /*
+     * =============================================================================
+     */
+
+    public Variant getVariant() {
+	return m_variant;
+    }
+
+    public void setVariant(Variant variant) {
+	m_variant = variant;
+	switch (variant) {
+	case CHESS960:
+	    setTag(PGN.TAG_VARIANT, "Chess960");
+	    break;
+	default:
+	    removeTag(PGN.TAG_VARIANT);
 	}
     }
 

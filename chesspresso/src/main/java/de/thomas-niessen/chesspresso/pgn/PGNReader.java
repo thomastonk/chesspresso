@@ -31,10 +31,12 @@ import java.util.zip.GZIPInputStream;
 import javax.swing.filechooser.FileFilter;
 
 import chesspresso.Chess;
+import chesspresso.Variant;
 import chesspresso.game.Game;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.position.NAG;
+import chesspresso.position.Position;
 
 /**
  * Reader for PGN files.
@@ -395,15 +397,7 @@ public final class PGNReader extends PGN {
 		tagValue = tagValue + " " + getLastTokenAsString();
 	    }
 
-	    try {
-		if (tagName.equals("FEN")) {
-		    m_curGame.setGameByFEN(tagValue, false);
-		} else {
-		    m_curGame.setTag(tagName, tagValue);
-		}
-	    } catch (Exception ex) {
-		syntaxError(ex.getMessage());
-	    }
+	    m_curGame.setTag(tagName, tagValue);
 
 	    if (getLastToken() != TOK_TAG_END) {
 		syntaxError(TOK_TAG_END + " expected");
@@ -424,7 +418,25 @@ public final class PGNReader extends PGN {
     // ======================================================================
     // routines for parsing move text sections
 
-    private void initForMovetext() {
+    private void initForMovetext() throws PGNSyntaxError {
+	String variant = m_curGame.getTag(TAG_VARIANT);
+	if (variant != null) {
+	    variant = variant.toLowerCase();
+	    if (variant.contains("chess") && variant.contains("960")) {
+		m_curGame.setVariant(Variant.CHESS960);
+	    } else {
+		System.err.println("PGNReader::initForMovetext: unknown variant " + m_curGame.getTag(TAG_VARIANT));
+	    }
+	}
+
+	String fen = m_curGame.getTag(TAG_FEN);
+	if (fen != null) {
+	    try {
+		m_curGame.setGameByFEN(fen, false);
+	    } catch (Exception ex) {
+		syntaxError(ex.getMessage());
+	    }
+	}
     }
 
     private boolean isLastTokenResult() throws PGNSyntaxError {
@@ -481,12 +493,25 @@ public final class PGNReader extends PGN {
 	// String s = getLastTokenAsString();
 	// if (DEBUG) System.out.println("moveStr= " + s);
 	short move = Move.ILLEGAL_MOVE;
+	Variant variant = m_curGame.getPosition().getVariant();
 	if (m_buf[0] == 'O' && m_buf[1] == '-' && m_buf[2] == 'O') {
 	    if (m_lastTokenLength >= 5 && m_buf[3] == '-' && m_buf[4] == 'O') {
-		move = Move.getLongCastle(m_curGame.getPosition().getToPlay());
+		if (variant == Variant.STANDARD) {
+		    move = Move.getLongCastle(m_curGame.getPosition().getToPlay());
+		} else {
+		    Position position = m_curGame.getPosition();
+		    move = Move.getChess960Castle(position.getToPlay(), position.getChess960KingFile(),
+			    position.getChess960QueensideRookFile());
+		}
 		next = 5;
 	    } else if (m_lastTokenLength >= 3) {
-		move = Move.getShortCastle(m_curGame.getPosition().getToPlay());
+		if (variant == Variant.STANDARD) {
+		    move = Move.getShortCastle(m_curGame.getPosition().getToPlay());
+		} else {
+		    Position position = m_curGame.getPosition();
+		    move = Move.getChess960Castle(position.getToPlay(), position.getChess960KingFile(),
+			    position.getChess960KingsideRookFile());
+		}
 		next = 3;
 	    } else {
 		syntaxError("Illegal castle move");
@@ -494,11 +519,23 @@ public final class PGNReader extends PGN {
 	} else if (m_buf[0] == '0' && m_buf[1] == '-' && m_buf[2] == '0') {
 	    if (m_lastTokenLength >= 5 && m_buf[3] == '-' && m_buf[4] == '0') {
 		warning("Castles with zeros");
-		move = Move.getLongCastle(m_curGame.getPosition().getToPlay());
+		if (variant == Variant.STANDARD) {
+		    move = Move.getLongCastle(m_curGame.getPosition().getToPlay());
+		} else {
+		    Position position = m_curGame.getPosition();
+		    move = Move.getChess960Castle(position.getToPlay(), position.getChess960KingFile(),
+			    position.getChess960QueensideRookFile());
+		}
 		next = 5;
 	    } else if (m_lastTokenLength >= 3) {
 		warning("Castles with zeros");
-		move = Move.getShortCastle(m_curGame.getPosition().getToPlay());
+		if (variant == Variant.STANDARD) {
+		    move = Move.getShortCastle(m_curGame.getPosition().getToPlay());
+		} else {
+		    Position position = m_curGame.getPosition();
+		    move = Move.getChess960Castle(position.getToPlay(), position.getChess960KingFile(),
+			    position.getChess960QueensideRookFile());
+		}
 		next = 3;
 	    } else {
 		syntaxError("Illegal castle move");

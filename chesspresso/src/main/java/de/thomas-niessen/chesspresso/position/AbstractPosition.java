@@ -25,8 +25,10 @@ public abstract class AbstractPosition implements ImmutablePosition {
 
     /*
      * =============================================================================
-     * ===
      */
+
+    // TN: This is Zobrist hashing.
+
     // hash codes
     //
     // 6 5 4 3 2 1
@@ -85,8 +87,6 @@ public abstract class AbstractPosition implements ImmutablePosition {
 		// not change since hash keys might be externalized
 		randomNumber = (randomNumber * 0x5DEECE66DL + 0xBL);
 		s_hashMod[i][j] = randomNumber & HASH_ALL_MASK;
-//                System.out.println(s_hashMod[i][j]);
-//                if ((s_hashMod[i][j] & HASH_ALL_MASK) != s_hashMod[i][j]) System.out.println("Was ist los " + i + " " + j + " " + (s_hashMod[i][j] & HASH_ALL_MASK));
 	    }
 	}
 
@@ -107,9 +107,8 @@ public abstract class AbstractPosition implements ImmutablePosition {
     private static long s_startPositionHashCode = 0L;
 
     protected static long getStartPositionHashCode() {
-	// must be done after the bitboards are initialized in ChPosition -> cannot do
-	// it in
-	// static of ChAbstractPosition
+	// must be done after the bitboards are initialized in ChPosition -> cannot
+	// be done static of ChAbstractPosition
 	if (s_startPositionHashCode == 0L) {
 	    AbstractMutablePosition startPos = new LightWeightPosition();
 	    FEN.initFromFEN(startPos, FEN.START_POSITION);
@@ -124,7 +123,6 @@ public abstract class AbstractPosition implements ImmutablePosition {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public long getHashCode() {
@@ -181,7 +179,6 @@ public abstract class AbstractPosition implements ImmutablePosition {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public String getFEN() {
@@ -194,33 +191,18 @@ public abstract class AbstractPosition implements ImmutablePosition {
 
     /*
      * =============================================================================
-     * ===
      */
 
-    public boolean isCastlePossible(int castle) {
-	if (castle == WHITE_SHORT_CASTLE) {
-	    return getStone(Chess.E1) == Chess.WHITE_KING && getStone(Chess.H1) == Chess.WHITE_ROOK;
-	} else if (castle == WHITE_LONG_CASTLE) {
-	    return getStone(Chess.E1) == Chess.WHITE_KING && getStone(Chess.A1) == Chess.WHITE_ROOK;
-	} else if (castle == BLACK_SHORT_CASTLE) {
-	    return getStone(Chess.E8) == Chess.BLACK_KING && getStone(Chess.H8) == Chess.BLACK_ROOK;
-	} else if (castle == BLACK_LONG_CASTLE) {
-	    return getStone(Chess.E8) == Chess.BLACK_KING && getStone(Chess.A8) == Chess.BLACK_ROOK;
-	} else {
-	    return false;
-	}
-    }
-
-    public boolean isSquarePossibleEPSquare(int sqi) {
-	if (getToPlay() == Chess.WHITE) {
-	    // white to play -> sqi ep caused by black pawn
-	    return Chess.sqiToRow(sqi) == 5 && getStone(sqi + Chess.NUM_OF_COLS) == Chess.NO_STONE
-		    && getStone(sqi) == Chess.NO_STONE && getStone(sqi - Chess.NUM_OF_COLS) == Chess.BLACK_PAWN;
-	} else {
-	    return Chess.sqiToRow(sqi) == 2 && getStone(sqi - Chess.NUM_OF_COLS) == Chess.NO_STONE
-		    && getStone(sqi) == Chess.NO_STONE && getStone(sqi + Chess.NUM_OF_COLS) == Chess.WHITE_PAWN;
-	}
-    }
+//    public boolean isSquarePossibleEPSquare(int sqi) {
+//	if (getToPlay() == Chess.WHITE) {
+//	    // white to play -> sqi ep caused by black pawn
+//	    return Chess.sqiToRow(sqi) == 5 && getStone(sqi + Chess.NUM_OF_COLS) == Chess.NO_STONE
+//		    && getStone(sqi) == Chess.NO_STONE && getStone(sqi - Chess.NUM_OF_COLS) == Chess.BLACK_PAWN;
+//	} else {
+//	    return Chess.sqiToRow(sqi) == 2 && getStone(sqi - Chess.NUM_OF_COLS) == Chess.NO_STONE
+//		    && getStone(sqi) == Chess.NO_STONE && getStone(sqi + Chess.NUM_OF_COLS) == Chess.WHITE_PAWN;
+//	}
+//    }
 
     public Validity isValid() {
 	/*---------- check to play ----------*/
@@ -317,7 +299,6 @@ public abstract class AbstractPosition implements ImmutablePosition {
 
     /*
      * =============================================================================
-     * ===
      */
 
     public String toString() {

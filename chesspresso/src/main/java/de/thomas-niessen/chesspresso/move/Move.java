@@ -83,6 +83,7 @@ public class Move implements Serializable {
 
     private final static int PROMO_MASK = 0x00007000;
     private final static int CASTLE_MOVE = 0x00007000;
+    private final static int CASTLE_MOVE_CHESS960 = 0x00006000;
     private final static int EP_MOVE = 0x00006000;
     private final static int PROMO_QUEEN = 0x00005000;
     private final static int PROMO_ROOK = 0x00004000;
@@ -214,6 +215,21 @@ public class Move implements Serializable {
     }
 
     /**
+     * A-file corresponds to Chess.A1, b-file to Chess.B1, etc. See also
+     * Position::setChess960CastlingFiles(..) etc.
+     */
+    public static short getChess960Castle(int toPlay, int kingFile, int rookFile) {
+	short move;
+	if (toPlay == Chess.WHITE) {
+	    move = (short) (CASTLE_MOVE_CHESS960 | (kingFile % 8) << FROM_SHIFT | (rookFile % 8) << TO_SHIFT);
+	} else {
+	    move = (short) (CASTLE_MOVE_CHESS960 | ((kingFile % 8) + Chess.A8) << FROM_SHIFT
+		    | ((rookFile % 8) + Chess.A8) << TO_SHIFT);
+	}
+	return move;
+    }
+
+    /**
      * Get a null move.
      *
      */
@@ -252,7 +268,7 @@ public class Move implements Serializable {
     }
 
     public static boolean isEPMove(short move) {
-	return (move & PROMO_MASK) == EP_MOVE;
+	return (move & PROMO_MASK) == EP_MOVE && (move & TYPE_MASK) == CAPTURING_MOVE;
     }
 
     public static boolean isCastle(short move) {
@@ -265,6 +281,20 @@ public class Move implements Serializable {
 
     public static boolean isLongCastle(short move) {
 	return move == WHITE_LONG_CASTLE | move == BLACK_LONG_CASTLE;
+    }
+
+    public static boolean isCastleChess960(short move) {
+	return (move & TYPE_MASK) != CAPTURING_MOVE && (move & PROMO_MASK) == CASTLE_MOVE_CHESS960;
+    }
+
+    public static boolean isShortCastleChess960(short move) {
+	return (move & TYPE_MASK) != CAPTURING_MOVE && (move & PROMO_MASK) == CASTLE_MOVE_CHESS960
+		&& (getFromSqi(move) < getToSqi(move));
+    }
+
+    public static boolean isLongCastleChess960(short move) {
+	return (move & TYPE_MASK) != CAPTURING_MOVE && (move & PROMO_MASK) == CASTLE_MOVE_CHESS960
+		&& (getFromSqi(move) > getToSqi(move));
     }
 
     public static boolean isNullMove(short move) {
@@ -307,9 +337,9 @@ public class Move implements Serializable {
 	    return "<illegal move>";
 	else if (isSpecial(move))
 	    return "<special>";
-	else if (isShortCastle(move))
+	else if (isShortCastle(move) || isShortCastleChess960(move))
 	    return SHORT_CASTLE_STRING;
-	else if (isLongCastle(move))
+	else if (isLongCastle(move) || isLongCastleChess960(move))
 	    return LONG_CASTLE_STRING;
 	else if (isNullMove(move))
 	    return NULL_MOVE_STRING;
@@ -473,12 +503,28 @@ public class Move implements Serializable {
 	return (m_info & MATE_MASK) != 0;
     }
 
+    public boolean isCastle() {
+	return Move.isCastle(m_move);
+    }
+
     public boolean isShortCastle() {
 	return Move.isShortCastle(m_move);
     }
 
     public boolean isLongCastle() {
 	return Move.isLongCastle(m_move);
+    }
+
+    public boolean isCastleChess960() {
+	return Move.isCastleChess960(m_move);
+    }
+
+    public boolean isShortCastleChess960() {
+	return Move.isShortCastleChess960(m_move);
+    }
+
+    public boolean isLongCastleChess960() {
+	return Move.isLongCastleChess960(m_move);
     }
 
     public boolean isEPMove() {
@@ -534,9 +580,9 @@ public class Move implements Serializable {
 	    return "<illegal move>";
 	} else {
 	    StringBuilder sb = new StringBuilder();
-	    if (isShortCastle()) {
+	    if (isShortCastle() || isShortCastleChess960()) {
 		sb.append(SHORT_CASTLE_STRING);
-	    } else if (isLongCastle()) {
+	    } else if (isLongCastle() || isLongCastleChess960()) {
 		sb.append(LONG_CASTLE_STRING);
 	    } else if (isNullMove()) {
 		sb.append(NULL_MOVE_STRING);
@@ -572,9 +618,9 @@ public class Move implements Serializable {
 	    return "<illegal move>";
 	} else {
 	    StringBuilder sb = new StringBuilder();
-	    if (isShortCastle()) {
+	    if (isShortCastle() || isShortCastleChess960()) {
 		sb.append(SHORT_CASTLE_STRING);
-	    } else if (isLongCastle()) {
+	    } else if (isLongCastle() || isLongCastleChess960()) {
 		sb.append(LONG_CASTLE_STRING);
 	    } else if (isNullMove()) {
 		sb.append(NULL_MOVE_STRING);

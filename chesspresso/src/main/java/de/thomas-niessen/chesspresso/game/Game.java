@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chesspresso.Chess;
+import chesspresso.Variant;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
+import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.Position;
 import chesspresso.position.PositionChangeListener;
@@ -120,7 +122,9 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     private void setPosition(Position position) {
+	Variant oldVariant = null;
 	if (m_position != null) {
+	    oldVariant = m_position.getVariant();
 	    List<PositionChangeListener> listeners = m_position.getPositionChangeListeners();
 	    m_position = position;
 	    for (PositionChangeListener listener : listeners) {
@@ -131,6 +135,12 @@ public class Game implements PositionChangeListener, Serializable {
 	    m_position.addPositionChangeListener(this);
 	}
 	m_cur = 0;
+	if (m_position.getVariant() == Variant.CHESS960) {
+	    setVariant(m_position.getVariant());
+	}
+	if (oldVariant != null && oldVariant == Variant.CHESS960) {
+	    m_position.setVariant(oldVariant);
+	}
 	m_position.firePositionChanged();
     }
 
@@ -232,6 +242,7 @@ public class Game implements PositionChangeListener, Serializable {
 	m_header.setTag(PGN.TAG_FEN, fen);
 	setPosition(new Position(fen, false));
 	m_moves.clear();
+	setVariant(FEN.isShredderFEN(fen) ? Variant.CHESS960 : Variant.STANDARD);
 	fireMoveModelChanged();
 	fireHeaderModelChanged();
     }
@@ -324,6 +335,15 @@ public class Game implements PositionChangeListener, Serializable {
 	}
 	s += ", " + date;
 	return s;
+    }
+
+    public Variant getVariant() {
+	return m_header.getVariant();
+    }
+
+    public void setVariant(Variant variant) {
+	m_header.setVariant(variant);
+	m_position.setVariant(variant);
     }
 
     // ======================================================================

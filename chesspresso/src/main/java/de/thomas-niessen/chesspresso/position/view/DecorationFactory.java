@@ -101,8 +101,11 @@ public class DecorationFactory {
 
 	    Polygon arrowHead = new Polygon();
 	    arrowHead.addPoint(0, 0);
-	    arrowHead.addPoint(-squareSize / 4, -squareSize / 2);
-	    arrowHead.addPoint(squareSize / 4, -squareSize / 2);
+	    arrowHead.addPoint(-squareSize / 4, -squareSize / 2 + 1);
+	    arrowHead.addPoint(squareSize / 4, -squareSize / 2 + 1);
+	    // Old: bad for highlight castling
+	    // arrowHead.addPoint(-squareSize / 4, -squareSize / 2);
+	    // arrowHead.addPoint(squareSize / 4, -squareSize / 2);
 
 	    double length = Math
 		    .sqrt((from_col - to_col) * (from_col - to_col) + (from_row - to_row) * (from_row - to_row));

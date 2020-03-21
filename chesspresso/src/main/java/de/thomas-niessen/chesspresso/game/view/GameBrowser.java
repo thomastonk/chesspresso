@@ -385,9 +385,33 @@ public class GameBrowser extends JPanel
 	if (m_highlightLastMove) {
 	    Move lastMove = m_game.getLastMove();
 	    if (lastMove != null) {
-		m_positionView.addDecoration(
-			DecorationFactory.getArrowDecoration(lastMove.getFromSqi(), lastMove.getToSqi(), Color.BLUE),
-			false);
+		if (!lastMove.isCastle() && !lastMove.isCastleChess960()) {
+		    m_positionView.addDecoration(DecorationFactory.getArrowDecoration(lastMove.getFromSqi(),
+			    lastMove.getToSqi(), Color.BLUE), false);
+		} else {
+		    int fromSquare, toSquare;
+		    if (lastMove.isWhiteMove()) {
+			if (lastMove.isShortCastle() || lastMove.isShortCastleChess960()) {
+			    fromSquare = Chess.F1;
+			    toSquare = Chess.G1;
+			} else {
+			    fromSquare = Chess.C1;
+			    toSquare = Chess.D1;
+			}
+		    } else {
+			if (lastMove.isShortCastle() || lastMove.isShortCastleChess960()) {
+			    fromSquare = Chess.F8;
+			    toSquare = Chess.G8;
+			} else {
+			    fromSquare = Chess.C8;
+			    toSquare = Chess.D8;
+			}
+		    }
+		    m_positionView.addDecoration(DecorationFactory.getArrowDecoration(fromSquare, toSquare, Color.BLUE),
+			    false);
+		    m_positionView.addDecoration(DecorationFactory.getArrowDecoration(toSquare, fromSquare, Color.BLUE),
+			    false);
+		}
 	    }
 	}
 	m_positionView.repaint();

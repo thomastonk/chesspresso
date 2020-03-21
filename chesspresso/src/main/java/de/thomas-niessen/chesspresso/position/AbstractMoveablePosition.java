@@ -16,41 +16,41 @@ package chesspresso.position;
 
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
-//import java.util.*;
 import chesspresso.move.Move;
 
 /**
  *
  * @author Bernhard Seybold
- * 
  */
 public abstract class AbstractMoveablePosition extends AbstractMutablePosition implements MoveablePosition {
 
-	public void doMove(Move move) throws IllegalMoveException {
-		doMove(move.getShortMoveDesc());
-	}
+    @Override
+    public void doMove(Move move) throws IllegalMoveException {
+	doMove(move.getShortMoveDesc());
+    }
 
-	public short getMove(int from, int to, int promoPiece) {
-		if (getColor(from) != getToPlay())
-			return Move.ILLEGAL_MOVE; // =====>
-		int piece = getPiece(from);
-		if (piece == Chess.PAWN) {
-			if (Chess.sqiToCol(from) == Chess.sqiToCol(to)) { // moves forward
-				return Move.getPawnMove(from, to, false, promoPiece);
-			} else { // captures
-				if (getSqiEP() != to) {
-					return Move.getPawnMove(from, to, true, promoPiece);
-				} else {
-					return Move.getEPMove(from, to);
-				}
-			}
-		} else if (piece == Chess.KING && (to - from) == 2) {
-			return Move.getShortCastle(getToPlay());
-		} else if (piece == Chess.KING && (to - from) == -2) {
-			return Move.getLongCastle(getToPlay());
+    @Override
+    public short getMove(int from, int to, int promoPiece) {
+	if (getColor(from) != getToPlay())
+	    return Move.ILLEGAL_MOVE; // =====>
+	int piece = getPiece(from);
+	if (piece == Chess.PAWN) {
+	    if (Chess.sqiToCol(from) == Chess.sqiToCol(to)) { // moves forward
+		return Move.getPawnMove(from, to, false, promoPiece);
+	    } else { // captures
+		if (getSqiEP() != to) {
+		    return Move.getPawnMove(from, to, true, promoPiece);
 		} else {
-			return Move.getRegularMove(from, to, !isSquareEmpty(to));
+		    return Move.getEPMove(from, to);
 		}
+	    }
+	} else if (piece == Chess.KING && (to - from) == 2) {
+	    return Move.getShortCastle(getToPlay());
+	} else if (piece == Chess.KING && (to - from) == -2) {
+	    return Move.getLongCastle(getToPlay());
+	} else {
+	    return Move.getRegularMove(from, to, !isSquareEmpty(to));
 	}
+    }
 
 }

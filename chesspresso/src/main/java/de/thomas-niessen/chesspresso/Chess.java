@@ -160,7 +160,6 @@ public abstract class Chess {
     public static final char colToChar(int col) {
 	final char c[] = { '-', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
 	return c[col + 1];
-	// return String.valueOf('a' + (char)col);
     }
 
     /**
