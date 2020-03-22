@@ -162,4 +162,47 @@ public class Chess960 {
 	return true;
     }
 
+    public static boolean areBishopsValid(String pattern) {
+	int firstBishop = -1;
+	for (int index = 0; index < 8; ++index) {
+	    if (pattern.charAt(index) == 'B') {
+		if (firstBishop == -1) {
+		    firstBishop = index;
+		} else {
+		    if ((index - firstBishop) % 2 == 0) {
+			return false;
+		    }
+		}
+	    }
+	}
+	return true;
+    }
+
+    public static boolean areKingAndRooksValid(String pattern) {
+	int king = -1, firstRook = -1, secondRook = -1;
+	for (int index = 0; index < 8; ++index) {
+	    char ch = pattern.charAt(index);
+	    if (ch == 'R') {
+		if (firstRook == -1) {
+		    if (king != -1) {
+			return false;
+		    }
+		    firstRook = index;
+		} else {
+		    if (secondRook != -1) {
+			return false;
+		    }
+		    secondRook = index;
+		}
+
+	    } else if (ch == 'K') {
+		if (firstRook == -1) {
+		    return false;
+		}
+		king = index;
+	    }
+	}
+	return true;
+    }
+
 }
