@@ -257,7 +257,7 @@ public class PositionViewOrig extends java.awt.Component
 	    m_draggedStone = m_position.getStone(m_draggedFrom);
 	    m_draggedX = e.getX();
 	    m_draggedY = e.getY();
-	    m_draggedPartnerSqi = m_positionMotionListener.getPartnerSqi(m_position, m_draggedFrom);
+//	    m_draggedPartnerSqi = m_positionMotionListener.getPartnerSqi(m_position, m_draggedFrom);
 	    // TODO mark m_draggedPartnerSqi
 	    repaint();
 	} else {

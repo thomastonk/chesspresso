@@ -22,8 +22,6 @@ package chesspresso.position;
  */
 public abstract class NAG {
 
-    // TODO add short NAG chars for chess fonts
-
     // allow higher nags
     public static short NUM_OF_NAGS = 256;
     public static short NAG_BOUND = 140; // marks the beginning of extra nags
@@ -324,14 +322,14 @@ public abstract class NAG {
 
     public static String[] getDefinedShortNags() {
 	int num = 0;
-		for (String s : SHORT_DESCRIPTION)
-			if (s != null)
-				num++;
+	for (String s : SHORT_DESCRIPTION)
+	    if (s != null)
+		num++;
 	String[] res = new String[num];
 	num = 0;
-		for (String s : SHORT_DESCRIPTION)
-			if (s != null)
-				res[num++] = s;
+	for (String s : SHORT_DESCRIPTION)
+	    if (s != null)
+		res[num++] = s;
 	return res;
     }
 

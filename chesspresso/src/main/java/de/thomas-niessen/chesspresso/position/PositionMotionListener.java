@@ -17,11 +17,9 @@ package chesspresso.position;
 import java.awt.event.MouseEvent;
 
 public interface PositionMotionListener {
-	boolean allowDrag(ImmutablePosition position, int from);
+    boolean allowDrag(ImmutablePosition position, int from);
 
-	int getPartnerSqi(ImmutablePosition position, int from);
+    void dragged(ImmutablePosition position, int from, int to, MouseEvent e);
 
-	void dragged(ImmutablePosition position, int from, int to, MouseEvent e);
-
-	void squareClicked(ImmutablePosition position, int sqi, MouseEvent e);
+    void squareClicked(ImmutablePosition position, int sqi, MouseEvent e);
 }

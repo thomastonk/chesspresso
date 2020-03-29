@@ -31,7 +31,7 @@ public interface ImmutablePosition {
     // validity
     public static enum Validity {
 	IS_VALID, NO_ONE_TO_PLAY, NEGATIVE_PLY_NUMBER, NEGATIVE_HALF_MOVE_CLOCK, INVALID_HALF_MOVE_CLOCK,
-	INVALID_EN_PASSANT_SQUARE, INVALID_NUMBER_OF_KINGS, WRONG_KING_ATTACKED
+	INVALID_EN_PASSANT_SQUARE, INVALID_NUMBER_OF_KINGS, WRONG_KING_ATTACKED, PAWN_ON_BACK_RANK
     }
 
     // ======================================================================

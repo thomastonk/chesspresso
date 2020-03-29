@@ -32,12 +32,6 @@ import chesspresso.pgn.PGN;
 public class GameHeaderModel implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    // TODO store standard tags in variables, not array of string (e.g. elo as
-    // short)
-    // check tagValue for consistency, throw IllegalTagValue if wrong
-    // in pgnreader, issue warning if value is incorrect
-    // TODO fen as standard tag, most probably not
-
     private static final int INDEX_EVENT = 0, INDEX_SITE = 1, INDEX_DATE = 2, INDEX_ROUND = 3, INDEX_WHITE = 4,
 	    INDEX_BLACK = 5, INDEX_RESULT = 6, INDEX_WHITE_ELO = 7, INDEX_BLACK_ELO = 8, INDEX_EVENT_DATE = 9,
 	    INDEX_ECO = 10, NUM_OF_STANDARD_TAGS = 11;
@@ -249,6 +243,9 @@ public class GameHeaderModel implements Serializable {
 
     public int getResult() {
 	// TODO combine with PGNReader.isResultString
+	// TN: I assume PGNReader.getLastTokenAsResult is meant. Chess.java could
+	// get the code for string detection, e.g. the if/else below, and both methods
+	// could apply it. Not trivial.
 	String result = getResultStr();
 	if ("1-0".equals(result))
 	    return Chess.RES_WHITE_WINS;

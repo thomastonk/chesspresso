@@ -53,6 +53,9 @@ public class Move implements Serializable {
 	java.util.Arrays.sort(moves);
     }
 
+    // TN: these comments are misleading and do not match the implementation.
+    // ((Better comments and an idea fore a less confusing implementation is
+    // noted in Fortschritt.txt.)
     // ======================================================================
     // move encoding (users of the class should abstract from implementation and
     // use accessors)
@@ -381,32 +384,6 @@ public class Move implements Serializable {
      */
     public static Move createCastle(short move, boolean isCheck, boolean isMate, boolean whiteToMove) {
 	return new Move(move, Chess.KING, Chess.NO_COL, Chess.NO_ROW, isCheck, isMate, whiteToMove);
-    }
-
-    /**
-     * Convenience factory method to create a short castle move.
-     *
-     * @param toPlay      the moving player
-     * @param isCheck     whether the move gives a check
-     * @param isMate      whether the move sets mate
-     * @param whiteToMove whether it is a white move
-     * @return the castle move
-     */
-    public static Move createShortCastle(int toPlay, boolean isCheck, boolean isMate, boolean whiteToMove) {
-	return new Move(getShortCastle(toPlay), Chess.KING, Chess.NO_COL, Chess.NO_ROW, isCheck, isMate, whiteToMove);
-    }
-
-    /**
-     * Convenience factory method to create a long castle move.
-     *
-     * @param toPlay      the moving player
-     * @param isCheck     whether the move gives a check
-     * @param isMate      whether the move sets mate
-     * @param whiteToMove whether it is a white move
-     * @return the castle move
-     */
-    public static Move createLongCastle(int toPlay, boolean isCheck, boolean isMate, boolean whiteToMove) {
-	return new Move(getLongCastle(toPlay), Chess.KING, Chess.NO_COL, Chess.NO_ROW, isCheck, isMate, whiteToMove);
     }
 
     /*

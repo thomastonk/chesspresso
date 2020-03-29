@@ -233,6 +233,11 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	    return Validity.INVALID_NUMBER_OF_KINGS;
 	}
 
+	/*---------- check pawn squares ----------*/
+	if (!checkPawnSquares()) {
+	    return Validity.PAWN_ON_BACK_RANK;
+	}
+
 	return Validity.IS_VALID;
     }
 
@@ -259,6 +264,22 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	}
 	if (numOfWhiteKings != 1 || numOfBlackKings != 1) {
 	    return false;
+	}
+	return true;
+    }
+
+    public boolean checkPawnSquares() {
+	for (int sqi = Chess.A1; sqi <= Chess.H1; ++sqi) {
+	    int stone = getStone(sqi);
+	    if (stone == Chess.WHITE_PAWN || stone == Chess.BLACK_PAWN) {
+		return false;
+	    }
+	}
+	for (int sqi = Chess.A8; sqi <= Chess.H8; ++sqi) {
+	    int stone = getStone(sqi);
+	    if (stone == Chess.WHITE_PAWN || stone == Chess.BLACK_PAWN) {
+		return false;
+	    }
 	}
 	return true;
     }

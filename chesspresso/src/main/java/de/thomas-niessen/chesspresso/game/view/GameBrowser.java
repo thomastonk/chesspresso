@@ -335,11 +335,6 @@ public class GameBrowser extends JPanel
     }
 
     @Override
-    public int getPartnerSqi(ImmutablePosition position, int from) {
-	return Chess.NO_SQUARE; // =====>
-    }
-
-    @Override
     public void dragged(ImmutablePosition position, int from, int to, MouseEvent e) {
 	try {
 	    m_game.getPosition().doMove(m_game.getPosition().getMove(from, to, Chess.NO_PIECE));
@@ -491,7 +486,7 @@ public class GameBrowser extends JPanel
 	// TN: Generally the PositionView should take its required size and not more.
 	// And the GameTextViewer should have the remaining space in the component.
 	// But this does not happen, if the GameTextViewer is on the left. Here 330 is
-	// somehow a magic number. The handling should be improved. TODO
+	// somehow a magic number. The handling should be improved.
 	if (!boardOnTheRight) {
 	    jSplitPane1.setRightComponent(m_textFrame);
 	} else {
@@ -1297,8 +1292,15 @@ public class GameBrowser extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 			    try {
-				m_game.getPosition().doMove(Move.NULL_MOVE);
-				m_game.getPosition().firePositionChanged(); // TN: new, but is this strictly correct?
+				if (!m_game.getPosition().isCheck()) {
+				    m_game.getPosition().doMove(Move.NULL_MOVE);
+				    m_game.getPosition().firePositionChanged();
+				} else {
+				    String message = (m_game.getPosition().getToPlay() == Chess.WHITE ? "White "
+					    : "Black ") + "is in check.";
+				    JOptionPane.showMessageDialog(m_parent, message, "Null move is illegal",
+					    JOptionPane.ERROR_MESSAGE);
+				}
 			    } catch (IllegalMoveException e) {
 				e.printStackTrace();
 			    }

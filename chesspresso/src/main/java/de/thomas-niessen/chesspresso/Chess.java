@@ -35,11 +35,8 @@ package chesspresso;
  *
  * @author Bernhard Seybold
  * 
- *
  */
 public abstract class Chess {
-    // TODO make piece str configurable (even use Locale?)
-    // TODO rename col, row to file, rank?
 
     /* ========== squares, coordinates ========== */
 

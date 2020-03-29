@@ -345,7 +345,7 @@ public class GameTextViewer extends JEditorPane
     }
 
     /**
-     * (Re)Create the game text based on the current game.
+     * Create or recreate the game text based on the current game.
      */
     private synchronized void createText() {
 	int totalPlies = m_game.getTotalNumOfPlies();
@@ -362,11 +362,6 @@ public class GameTextViewer extends JEditorPane
 	}
 
 	m_needsMoveNumber = true;
-//        // first move's leading comment - why is this necessary? TODO
-//        String comment = m_game.getPreMoveComment();
-//        if (comment != null)
-//            appendText(comment + " ", COMMENT);
-
 	m_game.traverse(this, true);
 	appendText(m_game.getResultStr(), MAIN);
     }
@@ -421,7 +416,7 @@ public class GameTextViewer extends JEditorPane
 	int caret = getCaretPosition();
 	if (caret == 0)
 	    return m_game.getRootNode();
-	for (int i = 0; i < m_moveNode.length - 1; i++) { // TODO: bin search?
+	for (int i = 0; i < m_moveNode.length - 1; i++) {
 	    if (m_moveBegin[i + 1] > caret)
 		return m_moveNode[i];
 	}

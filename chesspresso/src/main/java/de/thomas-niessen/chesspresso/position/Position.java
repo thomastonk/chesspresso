@@ -1167,8 +1167,8 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 			} else if (sqiFrom == m_chess960QueensideRookFile + Chess.A8
 				|| sqiTo == m_chess960QueensideRookFile + Chess.A8) {
 			    castles &= ~BLACK_LONG_CASTLE;
-			} else if (sqiFrom == m_chess960QueensideRookFile + Chess.A8
-				|| sqiTo == m_chess960QueensideRookFile + Chess.A8) {
+			} else if (sqiFrom == m_chess960KingsideRookFile + Chess.A8
+				|| sqiTo == m_chess960KingsideRookFile + Chess.A8) {
 			    castles &= ~BLACK_SHORT_CASTLE;
 			} else if (sqiFrom == m_chess960KingFile) {
 			    castles &= ~WHITE_CASTLE;

@@ -45,7 +45,6 @@ public class CompactPosition extends AbstractPosition {
      */
 
     public CompactPosition() {
-	// TODO
     }
 
     public CompactPosition(ImmutablePosition position) {

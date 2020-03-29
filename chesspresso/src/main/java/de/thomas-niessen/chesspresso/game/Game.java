@@ -49,7 +49,7 @@ import chesspresso.position.PositionChangeListener;
  * <li>direct access to values of the game header
  * <li>methods to append or delete lines of the move model
  * <li>methods to handle listeners for game changes
- * <li>methods to walk through the game, beginning mit <code>go</code>
+ * <li>methods to walk through the game, beginning with <code>go</code>
  * <li>a method to {@link #traverse(GameListener, boolean)} the game in postfix
  * order (the order used by {@link chesspresso.pgn.PGN})
  * </ul>
@@ -118,7 +118,7 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     public void pack() {
-	m_cur = m_moves.pack(m_cur); // TODO pack headers?
+	m_cur = m_moves.pack(m_cur);
     }
 
     private void setPosition(Position position) {

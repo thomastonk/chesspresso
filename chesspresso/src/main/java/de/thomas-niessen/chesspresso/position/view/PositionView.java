@@ -69,7 +69,6 @@ public class PositionView extends java.awt.Component implements PositionListener
     private int m_draggedFrom;
     private int m_draggedStone;
     private int m_draggedX, m_draggedY;
-    private int m_draggedPartnerSqi;
     private PositionMotionListener m_positionMotionListener;
 
     final static private Color m_whiteSquareDefaultColor = new Color(232, 219, 200);
@@ -146,7 +145,6 @@ public class PositionView extends java.awt.Component implements PositionListener
 
 	m_draggedStone = Chess.NO_STONE;
 	m_draggedFrom = Chess.NO_SQUARE;
-	m_draggedPartnerSqi = Chess.NO_SQUARE;
 	m_positionMotionListener = null;
 	m_position.addPositionListener(this); // TODO: when do we remove it?
 	addMouseListener(this);
@@ -465,8 +463,6 @@ public class PositionView extends java.awt.Component implements PositionListener
 	    m_draggedStone = m_position.getStone(m_draggedFrom);
 	    m_draggedX = e.getX();
 	    m_draggedY = e.getY();
-	    m_draggedPartnerSqi = m_positionMotionListener.getPartnerSqi(m_position, m_draggedFrom);
-	    // TODO mark m_draggedPartnerSqi
 	    repaint();
 	} else {
 	    m_positionMotionListener.squareClicked(m_position, m_draggedFrom, e);
@@ -537,18 +533,13 @@ public class PositionView extends java.awt.Component implements PositionListener
 	    int draggedTo = getSquareForEvent(e);
 	    if (draggedTo != Chess.NO_SQUARE) {
 		if (m_draggedFrom == draggedTo) {
-		    if (m_draggedPartnerSqi != Chess.NO_SQUARE) {
-			m_positionMotionListener.dragged(m_position, m_draggedFrom, m_draggedPartnerSqi, e);
-		    } else {
-			m_positionMotionListener.squareClicked(m_position, m_draggedFrom, e);
-		    }
+		    m_positionMotionListener.squareClicked(m_position, m_draggedFrom, e);
 		} else {
 		    m_positionMotionListener.dragged(m_position, m_draggedFrom, draggedTo, e);
 		}
 	    }
 	    m_draggedFrom = Chess.NO_SQUARE;
 	    m_draggedStone = Chess.NO_STONE;
-	    // TODO unmark m_draggedPartnerSqi
 	    repaint();
 	}
     }
