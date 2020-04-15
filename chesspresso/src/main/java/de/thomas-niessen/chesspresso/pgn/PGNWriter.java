@@ -109,12 +109,17 @@ public class PGNWriter extends PGN {
 	m_out.println(TOK_TAG_BEGIN + TAG_BLACK + " " + TOK_QUOTE + game.getBlack() + TOK_QUOTE + TOK_TAG_END);
 	m_out.println(TOK_TAG_BEGIN + TAG_RESULT + " " + TOK_QUOTE + game.getResultStr() + TOK_QUOTE + TOK_TAG_END);
 
-	if (game.getWhiteEloStr() != null)
+	String eloStr = game.getWhiteEloStr();
+	if (eloStr != null && !eloStr.isEmpty()) {
 	    m_out.println(
 		    TOK_TAG_BEGIN + TAG_WHITE_ELO + " " + TOK_QUOTE + game.getWhiteElo() + TOK_QUOTE + TOK_TAG_END);
-	if (game.getBlackEloStr() != null)
+	}
+	eloStr = game.getBlackEloStr();
+	if (eloStr != null && !eloStr.isEmpty()) {
 	    m_out.println(
 		    TOK_TAG_BEGIN + TAG_BLACK_ELO + " " + TOK_QUOTE + game.getBlackElo() + TOK_QUOTE + TOK_TAG_END);
+	}
+
 	if (game.getEventDate() != null)
 	    m_out.println(
 		    TOK_TAG_BEGIN + TAG_EVENT_DATE + " " + TOK_QUOTE + game.getEventDate() + TOK_QUOTE + TOK_TAG_END);

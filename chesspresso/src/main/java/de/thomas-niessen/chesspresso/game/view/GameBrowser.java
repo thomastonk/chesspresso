@@ -335,13 +335,15 @@ public class GameBrowser extends JPanel
     }
 
     @Override
-    public void dragged(ImmutablePosition position, int from, int to, MouseEvent e) {
+    public boolean dragged(ImmutablePosition position, int from, int to, MouseEvent e) {
 	try {
 	    m_game.getPosition().doMove(m_game.getPosition().getMove(from, to, Chess.NO_PIECE));
 	    // TN: this code is not correct, because no promotion is possible.
 	} catch (IllegalMoveException ex) {
 	    ex.printStackTrace();
+	    return false;
 	}
+	return true;
     }
 
     @Override
