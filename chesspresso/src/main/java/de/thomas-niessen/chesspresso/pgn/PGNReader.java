@@ -61,10 +61,12 @@ public final class PGNReader extends PGN {
 
     public static FileFilter getFileFilter() {
 	return new FileFilter() {
+	    @Override
 	    public boolean accept(File file) {
 		return file.isDirectory() || PGNReader.isPGNFileOrZipped(file.getName());
 	    }
 
+	    @Override
 	    public String getDescription() {
 		return "PGN files (*.pgn, *.pgn.gz, *.zip)";
 	    }
@@ -239,7 +241,7 @@ public final class PGNReader extends PGN {
 	    return m_lastChar;
 	}
 	int ch = get();
-	while (ch == '\n' || ch == '\r' || ch == TOK_PGN_ESCAPE || ch == TOK_LINE_COMMENT) {
+	while (ch == '\n' || ch == '\r' || ch == TOK_PGN_ESCAPE || (!m_ignoreLineComment && ch == TOK_LINE_COMMENT)) {
 	    while ((ch == '\n' || ch == '\r') && ch >= 0) {
 		ch = get();
 	    }
@@ -247,7 +249,7 @@ public final class PGNReader extends PGN {
 		do {
 		    ch = get();
 		} while (ch != '\n' && ch != '\r' && ch >= 0);
-	    } else if (ch == TOK_LINE_COMMENT && !m_ignoreLineComment) { // TN changed
+	    } else if (!m_ignoreLineComment && ch == TOK_LINE_COMMENT) { // TN changed
 		do {
 		    ch = get();
 		} while (ch != '\n' && ch != '\r' && ch >= 0);
@@ -480,7 +482,7 @@ public final class PGNReader extends PGN {
 	    System.out.println("getLastTokenAsMove " + getLastTokenAsString());
 
 	if (!isLastTokenIdent())
-	    syntaxError("Move expected");
+	    syntaxError("Move expected near ply " + m_curGame.getPosition().getPlyNumber());
 
 	int next = 0;
 	int last = m_lastTokenLength - 1;
@@ -514,7 +516,7 @@ public final class PGNReader extends PGN {
 		}
 		next = 3;
 	    } else {
-		syntaxError("Illegal castle move");
+		syntaxError("Illegal castle moven ear ply " + m_curGame.getPosition().getPlyNumber());
 	    }
 	} else if (m_buf[0] == '0' && m_buf[1] == '-' && m_buf[2] == '0') {
 	    if (m_lastTokenLength >= 5 && m_buf[3] == '-' && m_buf[4] == '0') {
@@ -538,7 +540,7 @@ public final class PGNReader extends PGN {
 		}
 		next = 3;
 	    } else {
-		syntaxError("Illegal castle move");
+		syntaxError("Illegal castle move near ply " + m_curGame.getPosition().getPlyNumber());
 	    }
 	} else if (m_buf[0] == '-' && m_buf[1] == '-') { // TN: null move code
 	    move = Move.getNullMove();
@@ -550,7 +552,8 @@ public final class PGNReader extends PGN {
 		/*---------- pawn move ----------*/
 		int col = Chess.NO_COL;
 		if (1 > last)
-		    syntaxError("Illegal pawn move");
+		    syntaxError("Illegal pawn move near ply " + m_curGame.getPosition().getPlyNumber() + ", move "
+			    + getLastTokenAsString());
 		if (m_buf[1] == 'x') {
 		    col = Chess.charToCol(ch);
 		    next = 2;
@@ -562,7 +565,8 @@ public final class PGNReader extends PGN {
 		}
 
 		if (next + 1 > last)
-		    syntaxError("Illegal pawn move, no destination square");
+		    syntaxError("Illegal pawn move near ply " + m_curGame.getPosition().getPlyNumber()
+			    + ", no destination square for move " + getLastTokenAsString());
 		int toSqi = Chess.strToSqi(m_buf[next], m_buf[next + 1]);
 		next += 2;
 
@@ -571,7 +575,8 @@ public final class PGNReader extends PGN {
 		    if (next < last) {
 			promo = Chess.charToPiece(m_buf[next + 1]);
 		    } else {
-			syntaxError("Illegal promotion move, misssing piece");
+			syntaxError("Illegal promotion move near ply " + m_curGame.getPosition().getPlyNumber()
+				+ ", misssing piece for move " + getLastTokenAsString());
 		    }
 		}
 		move = m_curGame.getPosition().getPawnMove(col, toSqi, promo);
@@ -579,8 +584,10 @@ public final class PGNReader extends PGN {
 		/*---------- non-pawn move ----------*/
 		int piece = Chess.charToPiece(ch);
 
-		if (last < 2)
-		    syntaxError("Wrong move, no destination square");
+		if (last < 2) {
+		    syntaxError("Wrong move near ply " + m_curGame.getPosition().getPlyNumber()
+			    + ", no destination square for move " + getLastTokenAsString());
+		}
 		int toSqi = Chess.strToSqi(m_buf[last - 1], m_buf[last]);
 		last -= 2;
 
