@@ -129,7 +129,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	if ((bb & 0xFFFFFFFFL) == 0L) {
 	    bb >>>= 32;
 	    sqi += 32;
-	} // TODO: is this good for all VMs?
+	} // BS: is this good for all VMs?
 	if ((bb & 0xFFFFL) == 0L) {
 	    bb >>>= 16;
 	    sqi += 16;
@@ -451,6 +451,28 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	super.clear();
     }
 
+    // TN: Introduced for special purposes; could replace clear()?!
+    public void clearAll() {
+	super.clear();
+	int index = 0;
+	while (index < m_bakStack.length && m_bakStack[index] != 0L) {
+	    m_bakStack[index] = 0L;
+	    ++index;
+	}
+	m_bakIndex = 0;
+	index = 0;
+	while (index < m_moveStack.length && m_moveStack[index] != 0) {
+	    m_moveStack[index] = 0;
+	    ++index;
+	}
+	m_moveStackIndex = 0;
+	index = 0;
+	while (index < m_moves.length && m_moves[index] != 0) {
+	    m_moves[index] = 0;
+	    ++index;
+	}
+    }
+
     /*
      * =========================================================================
      */
@@ -498,6 +520,10 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return m_hashCode;
     }
 
+    public int getWhiteKing() {
+	return m_whiteKing;
+    }
+
     @Override
     public final int getStone(int sqi) {
 	if (PROFILE)
@@ -511,9 +537,13 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		return ((m_bbRooks & bbSqi) != 0L ? Chess.WHITE_QUEEN : Chess.WHITE_BISHOP);
 	    if ((m_bbKnights & bbSqi) != 0L)
 		return Chess.WHITE_KNIGHT;
-	    if (sqi == m_whiteKing)
-		return Chess.WHITE_KING;
-	    return Chess.WHITE_ROOK;
+	    // TN: old implementation (failed, when the board had no kings during setup):
+//	    if (sqi == m_whiteKing)
+//		return Chess.WHITE_KING;
+//	    return Chess.WHITE_ROOK;
+	    if ((m_bbRooks & bbSqi) != 0L)
+		return Chess.WHITE_ROOK;
+	    return Chess.WHITE_KING;
 	} else if ((m_bbBlacks & bbSqi) != 0L) {
 	    if ((m_bbPawns & bbSqi) != 0L)
 		return Chess.BLACK_PAWN;
@@ -521,9 +551,13 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		return ((m_bbRooks & bbSqi) != 0L ? Chess.BLACK_QUEEN : Chess.BLACK_BISHOP);
 	    if ((m_bbKnights & bbSqi) != 0L)
 		return Chess.BLACK_KNIGHT;
-	    if (sqi == m_blackKing)
-		return Chess.BLACK_KING;
-	    return Chess.BLACK_ROOK;
+	    // TN: old implementation (failed, when the board had no kings during setup):
+//	    if (sqi == m_blackKing)
+//		return Chess.BLACK_KING;
+//	    return Chess.BLACK_ROOK;
+	    if ((m_bbRooks & bbSqi) != 0L)
+		return Chess.BLACK_ROOK;
+	    return Chess.BLACK_KING;
 	} else {
 	    return Chess.NO_STONE;
 	}
@@ -543,7 +577,10 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    return ((m_bbRooks & bbSqi) != 0L ? Chess.QUEEN : Chess.BISHOP);
 	if ((m_bbRooks & bbSqi) != 0L)
 	    return Chess.ROOK;
-	if (sqi == m_whiteKing || sqi == m_blackKing)
+	// TN: Once more the old implementation fails during setup:
+//	if (sqi == m_whiteKing || sqi == m_blackKing)
+//	    return Chess.KING;
+	if (((m_bbWhites & bbSqi) != 0L && sqi == m_whiteKing) || ((m_bbBlacks & bbSqi) != 0L && sqi == m_blackKing))
 	    return Chess.KING;
 	return Chess.NO_PIECE;
     }
@@ -605,6 +642,23 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
 	if (DEBUG)
 	    System.out.println("Set " + Chess.stoneToChar(stone) + " to " + Chess.sqiToStr(sqi));
+
+	// TN: for kings: we remove a previous king
+	if (stone == Chess.WHITE_KING) {
+	    for (int i = 0; i < 64; ++i) {
+		if (getStone(i) == Chess.WHITE_KING) {
+		    setStone(i, Chess.NO_STONE);
+		    break;
+		}
+	    }
+	} else if (stone == Chess.BLACK_KING) {
+	    for (int i = 0; i < 64; ++i) {
+		if (getStone(i) == Chess.BLACK_KING) {
+		    setStone(i, Chess.NO_STONE);
+		    break;
+		}
+	    }
+	} // end of king removal
 
 	int old = getStone(sqi);
 	if (old != stone) {
@@ -847,18 +901,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    System.out.println("setToPlay " + toPlay);
 	if (toPlay != getToPlay()) {
 	    toggleToPlay();
-	    // if (toPlay == Chess.WHITE) {
-	    // m_flags &= (TO_PLAY_MULT << TO_PLAY_SHIFT);
-	    // } else {
-	    // m_flags |= (TO_PLAY_MULT << TO_PLAY_SHIFT);
-	    // }
-	    // /*---------- hash value ----------*/
-	    // m_hashCode &= HASH_TOPLAY_MASK;
-	    // if (toPlay == Chess.BLACK) m_hashCode |= HASH_TOPLAY_MULT;
-	    // //System.out.println("hash code toPlay: " + m_hashCode);
-	    // /*---------- listeners ----------*/
-	    // if (m_notifyListeners)
-	    // fireToPlayChanged();
 	}
     }
 
@@ -1910,7 +1952,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     }
 
     private boolean attacks(int from, int to) {
-	// TODO: replace by is attacked
+	// BS: replace by is attacked
 	int piece = getPiece(from);
 	long bbTo = ofSquare(to);
 	switch (piece) {
@@ -2751,5 +2793,110 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    }
 	    return Move.getRegularMove(from, to, !isSquareEmpty(to));
 	}
+    }
+
+    public static String internalCompare(Position pos1, Position pos2) {
+	StringBuilder sb = new StringBuilder("Internal compare:").append(System.lineSeparator());
+
+	if (pos1.m_bbWhites != pos2.m_bbWhites) {
+	    sb.append("m_bbWhites differ").append(System.lineSeparator());
+	}
+	if (pos1.m_bbBlacks != pos2.m_bbBlacks) {
+	    sb.append("m_bbBlacks differ").append(System.lineSeparator());
+	}
+	if (pos1.m_bbPawns != pos2.m_bbPawns) {
+	    sb.append("m_bbPawns differ").append(System.lineSeparator());
+	}
+	if (pos1.m_bbKnights != pos2.m_bbKnights) {
+	    sb.append("m_bbKnights differ").append(System.lineSeparator());
+	}
+	if (pos1.m_bbBishops != pos2.m_bbBishops) {
+	    sb.append("m_bbBishops differ").append(System.lineSeparator());
+	}
+	if (pos1.m_bbRooks != pos2.m_bbRooks) {
+	    sb.append("m_bbRooks differ").append(System.lineSeparator());
+	}
+	if (pos1.m_whiteKing != pos2.m_whiteKing) {
+	    sb.append("m_whiteKing differ").append(System.lineSeparator());
+	}
+	if (pos1.m_blackKing != pos2.m_blackKing) {
+	    sb.append("m_blackKing differ").append(System.lineSeparator());
+	}
+	if (pos1.m_flags != pos2.m_flags) {
+	    sb.append("m_flags differ").append(System.lineSeparator());
+	}
+	if (pos1.m_hashCode != pos2.m_hashCode) {
+	    sb.append("m_hashCode differ").append(System.lineSeparator());
+	}
+	// array:
+	if (pos1.m_bakStack.length != pos2.m_bakStack.length) {
+	    sb.append("m_bakStack lengths differ").append(System.lineSeparator());
+	    for (int i = 0; i < Math.min(pos1.m_bakStack.length, pos2.m_bakStack.length); ++i) {
+		if (pos1.m_bakStack[i] != pos2.m_bakStack[i]) {
+		    sb.append("m_bakStack[").append(i).append("] differ: ").append(pos1.m_bakStack[i]).append(" vs ")
+			    .append(pos2.m_bakStack[i]).append(System.lineSeparator());
+		}
+	    }
+	} else {
+	    for (int i = 0; i < pos1.m_bakStack.length; ++i) {
+		if (pos1.m_bakStack[i] != pos2.m_bakStack[i]) {
+		    sb.append("m_bakStack[").append(i).append("] differ: ").append(pos1.m_bakStack[i]).append(" vs ")
+			    .append(pos2.m_bakStack[i]).append(System.lineSeparator());
+		}
+	    }
+	}
+	if (pos1.m_bakIndex != pos2.m_bakIndex) {
+	    sb.append("m_bakIndex differ").append(System.lineSeparator());
+	}
+	// array:
+	if (pos1.m_moveStack.length != pos2.m_moveStack.length) {
+	    sb.append("m_moveStack lengths differ").append(System.lineSeparator());
+	    for (int i = 0; i < Math.min(pos1.m_moveStack.length, pos2.m_moveStack.length); ++i) {
+		if (pos1.m_moveStack[i] != pos2.m_moveStack[i]) {
+		    sb.append("m_moveStack[").append(i).append("] differ: ").append(Move.getString(pos1.m_moveStack[i]))
+			    .append(" vs ").append(Move.getString(pos2.m_moveStack[i])).append(System.lineSeparator());
+		}
+	    }
+	} else {
+	    for (int i = 0; i < pos1.m_moveStack.length; ++i) {
+		if (pos1.m_moveStack[i] != pos2.m_moveStack[i]) {
+		    sb.append("m_moveStack[").append(i).append("] differ: ").append(Move.getString(pos1.m_moveStack[i]))
+			    .append(" vs ").append(Move.getString(pos2.m_moveStack[i])).append(System.lineSeparator());
+		}
+	    }
+	}
+	if (pos1.m_moveStackIndex != pos2.m_moveStackIndex) {
+	    sb.append("m_moveStackIndex differ").append(System.lineSeparator());
+	}
+	// array:
+	if (pos1.m_moves.length != pos2.m_moves.length) {
+	    sb.append("m_moves lengths differ").append(System.lineSeparator());
+	    for (int i = 0; i < Math.min(pos1.m_moves.length, pos2.m_moves.length); ++i) {
+		if (pos1.m_moves[i] != pos2.m_moves[i]) {
+		    sb.append("m_moves[").append(i).append("] differ: ").append(Move.getString(pos1.m_moves[i]))
+			    .append(" vs ").append(Move.getString(pos2.m_moves[i])).append(System.lineSeparator());
+		}
+	    }
+	} else {
+	    for (int i = 0; i < pos1.m_moves.length; ++i) {
+		if (pos1.m_moves[i] != pos2.m_moves[i]) {
+		    sb.append("m_moves[").append(i).append("] differ: ").append(Move.getString(pos1.m_moves[i]))
+			    .append(" vs ").append(Move.getString(pos2.m_moves[i])).append(System.lineSeparator());
+		}
+	    }
+	}
+	if (pos1.m_variant != pos2.m_variant) {
+	    sb.append("m_variant differ").append(System.lineSeparator());
+	}
+	if (pos1.m_chess960KingFile != pos2.m_chess960KingFile) {
+	    sb.append("m_chess960KingFile differ").append(System.lineSeparator());
+	}
+	if (pos1.m_chess960QueensideRookFile != pos2.m_chess960QueensideRookFile) {
+	    sb.append("m_chess960QueensideRookFile differ").append(System.lineSeparator());
+	}
+	if (pos1.m_chess960KingsideRookFile != pos2.m_chess960KingsideRookFile) {
+	    sb.append("m_chess960KingsideRookFile differ").append(System.lineSeparator());
+	}
+	return sb.toString();
     }
 }
