@@ -28,6 +28,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
+import chesspresso.ParentSupplier;
 import chesspresso.position.FEN;
 import chesspresso.position.PositionSupplier;
 
@@ -85,9 +86,5 @@ public class FenToClipBoard extends AbstractAction {
 	    fenDialog.setLocationRelativeTo(parentSupplier.getCurrentParent());
 	}
 	fenDialog.setVisible(true);
-    }
-
-    public interface ParentSupplier {
-	Component getCurrentParent();
     }
 }

@@ -17,13 +17,8 @@ package chesspresso.game.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -32,11 +27,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -44,7 +37,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 
 import chesspresso.Chess;
@@ -54,7 +46,6 @@ import chesspresso.game.GameModelChangeListener;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
-import chesspresso.pgn.PGNWriter;
 import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.NAG;
@@ -63,6 +54,7 @@ import chesspresso.position.PositionMotionListener;
 import chesspresso.position.view.Decoration.DecorationType;
 import chesspresso.position.view.DecorationFactory;
 import chesspresso.position.view.FenToClipBoard;
+import chesspresso.position.view.PgnToClipBoard;
 import chesspresso.position.view.PositionView;
 import chesspresso.position.view.PositionViewProperties;
 
@@ -175,7 +167,7 @@ public class GameBrowser extends JPanel
 	setMaximumSize(new Dimension(2000, m_positionView.getPreferredSize().height + 100));
 	// The value 100 is larger than the height of the two header lines plus the
 	// height of the tools under the position view. Other values work, too, but too
-	// small values, say 30 cause problems. TODO Observe.
+	// small values, say 30 cause problems.
     }
 
     // ======================================================================
@@ -236,6 +228,7 @@ public class GameBrowser extends JPanel
 	}
     }
 
+    @Override
     public Font getFont() {
 	if (m_positionView != null) {
 	    return m_positionView.getFont();
@@ -609,68 +602,7 @@ public class GameBrowser extends JPanel
 	jToolBar2.add(m_fenButton);
 
 	m_pgnButton = new JButton("PGN");
-	m_pgnButton.addActionListener(new ActionListener() {
-	    @Override
-	    public void actionPerformed(ActionEvent evt) {
-		String s;
-		try {
-		    s = PGNWriter.writeToString(m_game);
-		} catch (IllegalArgumentException e) {
-		    JOptionPane.showMessageDialog(GameBrowser.this,
-			    "Unable to generate PGN:" + System.lineSeparator() + e.getMessage(), "Error",
-			    JOptionPane.ERROR_MESSAGE);
-		    return;
-		}
-		JDialog pgnDialog;
-		if (m_parent != null) {
-		    if (m_parent instanceof Frame) {
-			pgnDialog = new JDialog((Frame) m_parent);
-		    } else if (m_parent instanceof Window) {
-			pgnDialog = new JDialog((Window) m_parent);
-		    } else if (m_parent instanceof Dialog) {
-			pgnDialog = new JDialog((Dialog) m_parent);
-		    } else {
-			pgnDialog = new JDialog();
-		    }
-		} else {
-		    pgnDialog = new JDialog();
-		}
-		pgnDialog.setTitle("PGN");
-		JPanel textPanel = new JPanel();
-		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-		JTextPane textPane = new JTextPane();
-		textPane.setContentType("text/plain");
-		textPanel.add(new JScrollPane(textPane));
-		textPane.setText(s);
-		textPane.setCaretPosition(0);
-		textPane.setEditable(false);
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-		JButton copyButton = new JButton("Copy to clipboard");
-		copyButton.addActionListener(e -> {
-		    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(s), null);
-		    pgnDialog.setVisible(false);
-		    pgnDialog.dispose();
-		});
-		buttonPanel.add(copyButton);
-		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		textPanel.add(buttonPanel);
-		pgnDialog.setModal(true);
-		pgnDialog.add(textPanel);
-		pgnDialog.pack();
-		if (pgnDialog.getSize().width > 600) {
-		    pgnDialog.setSize(new Dimension(600, pgnDialog.getSize().height));
-		}
-		if (pgnDialog.getSize().height > 600) {
-		    pgnDialog.setSize(new Dimension(pgnDialog.getSize().width, 600));
-		}
-		// and only now:
-		if (m_parent != null) {
-		    pgnDialog.setLocationRelativeTo(m_parent);
-		}
-		pgnDialog.setVisible(true);
-	    }
-	});
+	m_pgnButton.addActionListener(new PgnToClipBoard(() -> m_game, () -> m_parent));
 
 	jToolBar2.add(m_pgnButton);
 	jToolBar2.setAlignmentX(RIGHT_ALIGNMENT);
