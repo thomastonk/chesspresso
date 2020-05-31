@@ -199,7 +199,7 @@ public abstract class Chess {
      */
     public static final int charToCol(char ch) {
 	if ((ch >= 'a') && (ch <= 'h')) {
-	    return (int) (ch - 'a');
+	    return ch - 'a';
 	} else {
 	    return NO_COL;
 	}
@@ -213,7 +213,7 @@ public abstract class Chess {
      */
     public static final int charToRow(char ch) {
 	if ((ch >= '1') && (ch <= '8')) {
-	    return (int) (ch - '1');
+	    return ch - '1';
 	} else {
 	    return NO_ROW;
 	}
@@ -415,4 +415,18 @@ public abstract class Chess {
 	}
     }
 
+    /**
+     * Returns the black/white-inverted piece.
+     */
+    public static int getInvertedPiece(int piece) {
+	return -piece;
+    }
+
+    /**
+     * Returns the inverted square in the following sense: A1 becomes A8, .., H1
+     * becomes H8, A2 becomes A7, .., .., A8 becomes A1, .., H8 becomes H1.
+     */
+    public static int getInvertedSquare(int square) {
+	return (7 - sqiToRow(square)) * 8 + sqiToCol(square);
+    }
 }

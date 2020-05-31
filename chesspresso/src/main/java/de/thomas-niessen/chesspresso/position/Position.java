@@ -386,7 +386,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
      */
 
     private long m_bbWhites, m_bbBlacks, m_bbPawns, m_bbKnights, m_bbBishops, m_bbRooks;
-    private int m_whiteKing, m_blackKing; // actually only a short (6 bit)
+    private int m_whiteKing = Chess.NO_SQUARE, m_blackKing = Chess.NO_SQUARE; // actually only a short (6 bit)
     private long m_flags;
     private long m_hashCode;
 
@@ -520,10 +520,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return m_hashCode;
     }
 
-    public int getWhiteKing() {
-	return m_whiteKing;
-    }
-
     @Override
     public final int getStone(int sqi) {
 	if (PROFILE)
@@ -643,22 +639,12 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	if (DEBUG)
 	    System.out.println("Set " + Chess.stoneToChar(stone) + " to " + Chess.sqiToStr(sqi));
 
-	// TN: for kings: we remove a previous king
-	if (stone == Chess.WHITE_KING) {
-	    for (int i = 0; i < 64; ++i) {
-		if (getStone(i) == Chess.WHITE_KING) {
-		    setStone(i, Chess.NO_STONE);
-		    break;
-		}
-	    }
-	} else if (stone == Chess.BLACK_KING) {
-	    for (int i = 0; i < 64; ++i) {
-		if (getStone(i) == Chess.BLACK_KING) {
-		    setStone(i, Chess.NO_STONE);
-		    break;
-		}
-	    }
-	} // end of king removal
+	/*---------- remove an old king on another square ----------*/
+	if (stone == Chess.WHITE_KING && m_whiteKing != Chess.NO_SQUARE && m_whiteKing != sqi) {
+	    setStone(m_whiteKing, Chess.NO_STONE);
+	} else if (stone == Chess.BLACK_KING && m_blackKing != Chess.NO_SQUARE && m_blackKing != sqi) {
+	    setStone(m_blackKing, Chess.NO_STONE);
+	}
 
 	int old = getStone(sqi);
 	if (old != stone) {
@@ -787,6 +773,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    if (m_notifyListeners)
 		fireSquareChanged(sqi);
 	}
+
     }
 
     @Override

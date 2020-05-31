@@ -72,6 +72,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
      * =========================================================================
      */
 
+    @Override
     public void clear() {
 	boolean notify = m_notifyPositionChanged;
 	m_notifyPositionChanged = false;
@@ -89,6 +90,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	firePositionChanged();
     }
 
+    @Override
     public void setStart() {
 	boolean notify = m_notifyPositionChanged;
 	m_notifyPositionChanged = false;
@@ -99,6 +101,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	firePositionChanged();
     }
 
+    @Override
     public void setPosition(ImmutablePosition position) {
 	boolean notify = m_notifyPositionChanged;
 	m_notifyPositionChanged = false;
@@ -125,7 +128,12 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	m_notifyPositionChanged = false;
 
 	for (int sqi = Chess.H7; sqi >= Chess.A1; --sqi) {
-	    setStone(sqi + 8, getStone(sqi));
+	    int stone = getStone(sqi);
+	    if (stone == Chess.WHITE_KING || stone == Chess.BLACK_KING) {
+		setStone(sqi, Chess.NO_STONE);
+		// Necessary to get a valid position again!
+	    }
+	    setStone(sqi + 8, stone);
 	}
 	for (int sqi = Chess.A1; sqi <= Chess.H1; ++sqi) {
 	    setStone(sqi, Chess.NO_STONE);
@@ -144,7 +152,12 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	m_notifyPositionChanged = false;
 
 	for (int sqi = Chess.A2; sqi <= Chess.H8; ++sqi) {
-	    setStone(sqi - 8, getStone(sqi));
+	    int stone = getStone(sqi);
+	    if (stone == Chess.WHITE_KING || stone == Chess.BLACK_KING) {
+		setStone(sqi, Chess.NO_STONE);
+		// Necessary to get a valid position again!
+	    }
+	    setStone(sqi - 8, stone);
 	}
 	for (int sqi = Chess.A8; sqi <= Chess.H8; ++sqi) {
 	    setStone(sqi, Chess.NO_STONE);
@@ -164,7 +177,12 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
 	for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
 	    if (sqi % 8 != 7) {
-		setStone(sqi, getStone(sqi + 1));
+		int stone = getStone(sqi + 1);
+		if (stone == Chess.WHITE_KING || stone == Chess.BLACK_KING) {
+		    setStone(sqi + 1, Chess.NO_STONE);
+		    // Necessary to get a valid position again!
+		}
+		setStone(sqi, stone);
 	    } else {
 		setStone(sqi, Chess.NO_STONE);
 	    }
@@ -184,7 +202,12 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
 	for (int sqi = Chess.H8; sqi >= Chess.A1; --sqi) {
 	    if (sqi % 8 != 0) {
-		setStone(sqi, getStone(sqi - 1));
+		int stone = getStone(sqi - 1);
+		if (stone == Chess.WHITE_KING || stone == Chess.BLACK_KING) {
+		    setStone(sqi - 1, Chess.NO_STONE);
+		    // Necessary to get a valid position again!
+		}
+		setStone(sqi, stone);
 	    } else {
 		setStone(sqi, Chess.NO_STONE);
 	    }
@@ -201,11 +224,10 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
     /*
      * =========================================================================
      */
-    // inverse
 
-    public final void inverse() {
-	/*---------- inverse stones ----------*/
-	// avoid to have two same kings on the board at the same time
+    public final void invert() {
+	/*---------- invert stones ----------*/
+	// avoid to have two kings of the same on the board at the same time
 	int[] stones = new int[Chess.NUM_OF_SQUARES];
 	for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 	    stones[sqi] = getStone(sqi);
@@ -216,13 +238,13 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	    setStone(sqi, Chess.getOpponentStone(stones[partnerSqi]));
 	}
 
-	/*---------- inverse en passant square ----------*/
+	/*---------- invert en passant square ----------*/
 	int sqiEP = getSqiEP();
 	if (sqiEP != Chess.NO_SQUARE) {
 	    setSqiEP(Chess.coorToSqi(Chess.sqiToCol(sqiEP), Chess.NUM_OF_ROWS - Chess.sqiToRow(sqiEP) - 1));
 	}
 
-	/*---------- inverse castles ----------*/
+	/*---------- invert castles ----------*/
 	int castles = getCastles();
 	setCastles(NO_CASTLES);
 	if ((castles & WHITE_SHORT_CASTLE) != 0)
@@ -234,7 +256,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	if ((castles & BLACK_LONG_CASTLE) != 0)
 	    includeCastles(WHITE_LONG_CASTLE);
 
-	/*---------- inverse to play ----------*/
+	/*---------- invert to play ----------*/
 	toggleToPlay();
     }
 
