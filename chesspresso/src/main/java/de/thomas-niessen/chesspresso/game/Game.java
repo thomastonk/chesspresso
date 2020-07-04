@@ -50,7 +50,7 @@ import chesspresso.position.PositionChangeListener;
  * <li>methods to append or delete lines of the move model
  * <li>methods to handle listeners for game changes
  * <li>methods to walk through the game, beginning with <code>go</code>
- * <li>a method to {@link #traverse(GameListener, boolean)} the game in postfix
+ * <li>a method to {@link #traverse(TraverseListener, boolean)} the game in postfix
  * order (the order used by {@link chesspresso.pgn.PGN})
  * </ul>
  *
@@ -224,6 +224,10 @@ public class Game implements PositionChangeListener, Serializable {
 
     public String[] getTags() {
 	return m_header.getTags();
+    }
+
+    public String[] getOtherTags() {
+	return m_header.getOtherTags();
     }
 
     public void setTag(String tagName, String tagValue) {
@@ -467,7 +471,7 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     public short[] getNags() {
-	return m_cur == 0 ? null : m_moves.getNags(m_cur);
+	return m_moves.getNags(m_cur);
     }
 
     public void addNag(short nag) {
@@ -540,8 +544,12 @@ public class Game implements PositionChangeListener, Serializable {
     public void removeAllComments() {
 	int index = m_cur;
 	gotoStart(true);
-	removeAllComments(0);
-	gotoNode(index, true); // index is indeed correct!
+	removeAllComments(0); // here fireMoveModelChanged is called, if necessary
+	if (index != 0) {
+	    gotoNode(index, true); // index is indeed correct!
+	} else {
+	    gotoNode(index, false); // Workaround: here silent=true would not update the GameTextViewer
+	}
     }
 
     private void removeAllComments(int level) {
@@ -998,9 +1006,13 @@ public class Game implements PositionChangeListener, Serializable {
     // ======================================================================
 
     public void deleteAllLines(boolean silent) {
+	int index = m_cur;
 	gotoStart();
-	m_moves.deleteAllLines();
-	fireMoveModelChanged();
+	if (m_moves.deleteAllLines()) {
+	    fireMoveModelChanged();
+	} else {
+	    gotoNode(index, silent);
+	}
     }
 
     // ======================================================================
@@ -1024,14 +1036,14 @@ public class Game implements PositionChangeListener, Serializable {
      * @param listener  the listener to receive event when arriving at nodes
      * @param withLines whether or not to include lines of the current main line.
      */
-    public void traverse(GameListener listener, boolean withLines) {
+    public void traverse(TraverseListener listener, boolean withLines) {
 	int index = getCurNode();
 	gotoStart(true);
 	traverse(listener, withLines, m_position.getPlyNumber(), 0);
 	gotoNode(index, true);
     }
 
-    private void traverse(GameListener listener, boolean withLines, int plyNumber, int level) {
+    private void traverse(TraverseListener listener, boolean withLines, int plyNumber, int level) {
 	while (hasNextMove()) {
 	    int numOfNextMoves = getNumOfNextMoves();
 

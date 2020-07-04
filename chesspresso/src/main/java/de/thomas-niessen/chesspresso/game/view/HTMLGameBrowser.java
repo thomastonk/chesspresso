@@ -19,7 +19,7 @@ import java.io.PrintStream;
 
 import chesspresso.Chess;
 import chesspresso.game.Game;
-import chesspresso.game.GameListener;
+import chesspresso.game.TraverseListener;
 import chesspresso.move.Move;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.NAG;
@@ -32,7 +32,7 @@ import chesspresso.position.Position;
  * @author Bernhard Seybold
  * 
  */
-public class HTMLGameBrowser implements GameListener {
+public class HTMLGameBrowser implements TraverseListener {
 
 	private StringBuffer m_moves;
 	private StringBuffer m_posData;

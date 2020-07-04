@@ -17,12 +17,11 @@ package chesspresso.game;
 import chesspresso.move.Move;
 
 /**
- * Listener for moves made on games.
+ * Listener for traverse games (see Game::traverse).
  *
  * @author Bernhard Seybold
- * 
  */
-public interface GameListener {
+public interface TraverseListener {
     public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber,
 	    int level);
 

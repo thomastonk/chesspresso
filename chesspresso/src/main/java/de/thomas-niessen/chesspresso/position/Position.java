@@ -169,7 +169,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     }
 
     @SuppressWarnings("unused")
-    private static final void printBoard(long bb) {
+    private static void printBoard(long bb) {
 	for (int row = Chess.NUM_OF_ROWS - 1; row >= 0; row--) {
 	    for (int col = 0; col < Chess.NUM_OF_COLS; col++) {
 		if ((bb & ofSquare(Chess.coorToSqi(col, row))) != 0L) {

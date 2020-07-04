@@ -159,6 +159,7 @@ public class PositionViewOrig extends java.awt.Component
 	setFont(view.getFont());
     }
 
+    @Override
     public void setFont(Font font) {
 	super.setFont(font);
 	repaint();
@@ -193,14 +194,17 @@ public class PositionViewOrig extends java.awt.Component
 	return m_position;
     }
 
+    @Override
     public Dimension getPreferredSize() {
 	return new Dimension(8 * getFont().getSize(), 8 * getFont().getSize());
     }
 
+    @Override
     public Dimension getMinimumSize() {
 	return new Dimension(8 * getFont().getSize(), 8 * getFont().getSize());
     }
 
+    @Override
     public Dimension getMaximumSize() {
 	return new Dimension(8 * getFont().getSize(), 8 * getFont().getSize());
     }
@@ -208,22 +212,28 @@ public class PositionViewOrig extends java.awt.Component
     // ======================================================================
     // interface PositionListener
 
+    @Override
     public void squareChanged(int sqi, int stone) {
 	repaint();
     }
 
+    @Override
     public void toPlayChanged(int toPlay) {
-    } // TODO white / black border?
+    } // white / black border?
 
+    @Override
     public void castlesChanged(int castles) {
     }
 
+    @Override
     public void sqiEPChanged(int sqiEP) {
     }
 
+    @Override
     public void plyNumberChanged(int plyNumber) {
     }
 
+    @Override
     public void halfMoveClockChanged(int halfMoveClock) {
     }
 
@@ -240,15 +250,19 @@ public class PositionViewOrig extends java.awt.Component
 		: Chess.coorToSqiWithCheck(Chess.NUM_OF_COLS - evt.getX() / size, evt.getY() / size - 1));
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
     }
 
+    @Override
     public void mouseEntered(MouseEvent e) {
     }
 
+    @Override
     public void mouseExited(MouseEvent e) {
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {
 	if (m_positionMotionListener == null)
 	    return;
@@ -266,6 +280,7 @@ public class PositionViewOrig extends java.awt.Component
 	}
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
 	if (m_positionMotionListener == null)
 	    return;
@@ -289,6 +304,7 @@ public class PositionViewOrig extends java.awt.Component
 	}
     }
 
+    @Override
     public void mouseDragged(MouseEvent e) {
 	if (m_draggedFrom != Chess.NO_SQUARE) {
 	    m_draggedX = e.getX();
@@ -297,6 +313,7 @@ public class PositionViewOrig extends java.awt.Component
 	}
     }
 
+    @Override
     public void mouseMoved(MouseEvent e) {
     }
 
@@ -309,6 +326,7 @@ public class PositionViewOrig extends java.awt.Component
 	return s;
     }
 
+    @Override
     public void paint(Graphics graphics) {
 	super.paint(graphics);
 	int size = getFont().getSize();

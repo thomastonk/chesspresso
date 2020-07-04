@@ -146,7 +146,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 	m_draggedStone = Chess.NO_STONE;
 	m_draggedFrom = Chess.NO_SQUARE;
 	m_positionMotionListener = null;
-	m_position.addPositionListener(this); // TODO: when do we remove it?
+	m_position.addPositionListener(this); // Seybold: when do we remove it?
 	addMouseListener(this);
 	addMouseMotionListener(this);
     }
@@ -619,7 +619,6 @@ public class PositionView extends java.awt.Component implements PositionListener
 		if (m_solidStones) {
 		    stone = Chess.pieceToStone(Chess.stoneToPiece(stone), Chess.BLACK);
 		}
-//		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		FontRenderContext frc = g2.getFontRenderContext();
 		GlyphVector gv = getFont().createGlyphVector(frc, getStringForStone(stone, stoneIsWhite));
 
@@ -660,7 +659,6 @@ public class PositionView extends java.awt.Component implements PositionListener
 //			graphics.drawString(getStringForStone(m_draggedStone, true), m_draggedX - size / 2, m_draggedY + size / 2);
 	    // End of old implementation.
 	    // NEW: Again first the background
-	    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    FontRenderContext frc = g2.getFontRenderContext();
 	    GlyphVector gv = getFont().createGlyphVector(frc,
 		    getStringForStone(m_draggedStone, Chess.stoneToColor(m_draggedStone) == Chess.WHITE));

@@ -20,9 +20,7 @@ import java.io.Writer;
 
 import chesspresso.Chess;
 import chesspresso.game.Game;
-import chesspresso.game.GameListener;
-import chesspresso.game.GameModel;
-import chesspresso.game.GameModelIterator;
+import chesspresso.game.TraverseListener;
 import chesspresso.move.Move;
 import chesspresso.position.FEN;
 
@@ -57,23 +55,6 @@ public class PGNWriter extends PGN {
 
     public void setCharactersPerLine(int chars) {
 	m_charactersPerLine = chars;
-    }
-
-    public void write(GameModelIterator iterator) {
-	while (iterator.hasNext()) {
-	    write(iterator.nextGameModel());
-	    m_out.println();
-	}
-    }
-
-    public void write(GameModel gameModel) {
-	Game game = new Game(gameModel);
-	writeHeader(game);
-	m_out.println();
-	m_curCol = 0;
-	writeMoves(game);
-	if (m_curCol > 0)
-	    m_out.println();
     }
 
     public void write(Game game) {
@@ -143,7 +124,7 @@ public class PGNWriter extends PGN {
 	// start position, too.
 
 	// TN: And the (further) additional tags were missing!
-	String[] otherTags = game.getModel().getHeaderModel().getOtherTags();
+	String[] otherTags = game.getOtherTags();
 	if (otherTags != null) {
 	    for (String otherTag : otherTags) {
 		if (otherTag.equals(TAG_FEN) || otherTag.equals(TAG_SET_UP)) {
@@ -157,9 +138,10 @@ public class PGNWriter extends PGN {
 
     private void writeMoves(Game game) {
 	if (game.getNumOfPlies() > 0) {
-	    game.traverse(new GameListener() {
+	    game.traverse(new TraverseListener() {
 		private boolean needsMoveNumber = true;
 
+		@Override
 		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment,
 			int plyNumber, int level) {
 		    if (preMoveComment != null)
@@ -183,11 +165,13 @@ public class PGNWriter extends PGN {
 		    needsMoveNumber = !move.isWhiteMove() || (postMoveComment != null);
 		}
 
+		@Override
 		public void notifyLineStart(int level) {
 		    print(String.valueOf(TOK_LINE_BEGIN), false);
 		    needsMoveNumber = true;
 		}
 
+		@Override
 		public void notifyLineEnd(int level) {
 		    print(String.valueOf(TOK_LINE_END), true);
 		    needsMoveNumber = true;

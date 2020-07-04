@@ -111,7 +111,7 @@ public class Move implements Serializable {
      * SPECIAL_MOVE + 2; made problems with Move::isValid(Move) and excluding it
      * there has unknown implications in Move::isSpecial(Move).
      * 
-     * (The choice CASTLE_MOVE +1 corresponds to Ka1-b1.)
+     * (The choice CASTLE_MOVE +1 would correspond to Ka1-b1.)
      */
     public static final short NULL_MOVE = CASTLE_MOVE | Chess.A1 << FROM_SHIFT | Chess.H1 << TO_SHIFT;
 
@@ -627,6 +627,7 @@ public class Move implements Serializable {
 	}
     }
 
+    @Override
     public String toString() {
 	return getSAN();
     }

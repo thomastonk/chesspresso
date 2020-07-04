@@ -35,7 +35,7 @@ import javax.swing.text.StyledEditorKit;
 
 //import chesspresso.*;
 import chesspresso.game.Game;
-import chesspresso.game.GameListener;
+import chesspresso.game.TraverseListener;
 import chesspresso.game.GameModelChangeListener;
 import chesspresso.move.Move;
 import chesspresso.position.ImmutablePosition;
@@ -50,7 +50,7 @@ import chesspresso.position.PositionChangeListener;
  */
 @SuppressWarnings("serial")
 public class GameTextViewer extends JEditorPane
-	implements GameListener, PositionChangeListener, GameModelChangeListener {
+	implements TraverseListener, PositionChangeListener, GameModelChangeListener {
 
     // attributes for main line
     private static SimpleAttributeSet MAIN = new SimpleAttributeSet();
@@ -68,7 +68,7 @@ public class GameTextViewer extends JEditorPane
     private static SimpleAttributeSet LINE = new SimpleAttributeSet();
 
     static {
-	// TODO take some parameters from actual editor pane instance (e.g. font, font
+	// IDEA: take some parameters from actual editor pane instance (e.g. font, font
 	// size)
 
 	StyleConstants.setForeground(MAIN, Color.black);
@@ -220,23 +220,20 @@ public class GameTextViewer extends JEditorPane
 
     void showCurrentGameNode() {
 	int node = m_game.getCurNode();
-	if (node <= 0) {
-	    setCaretPosition(getDocument().getStartPosition().getOffset());
-	} else {
-	    for (int i = 0; i < m_moveNode.length; i++) {
-		if (m_moveNode[i] >= node) {
-		    // setCaretPosition(m_moveBegin[i]); // Old code: highlighting via selection.
-		    // moveCaretPosition(m_moveEnd[i]); // Drawback: invisible, when focus is lost.
-
-		    setCaretPosition(m_moveBegin[i]); // Do not delete next two lines, because they scroll forward!
-		    setCaretPosition(m_moveEnd[i]);
-		    getHighlighter().removeAllHighlights();
-		    try {
-			getHighlighter().addHighlight(m_moveBegin[i], m_moveEnd[i], highlightPainter);
-		    } catch (BadLocationException ignore) {
-		    }
-		    break;
-		}
+	int index = -1;
+	for (int i = 0; i < m_moveNode.length; i++) {
+	    if (m_moveNode[i] >= node) {
+		index = i;
+		break;
+	    }
+	}
+	getHighlighter().removeAllHighlights();
+	if (index >= 0) {
+	    setCaretPosition(m_moveBegin[index]); // Do not delete next two lines, because they scroll forward!
+	    setCaretPosition(m_moveEnd[index]);
+	    try {
+		getHighlighter().addHighlight(m_moveBegin[index], m_moveEnd[index], highlightPainter);
+	    } catch (BadLocationException ignore) {
 	    }
 	}
     }
@@ -312,10 +309,10 @@ public class GameTextViewer extends JEditorPane
 	if (nags != null) {
 	    for (int i = 0; i < nags.length; i++) {
 		if (nags[i] < NAG.NAG_BOUND) {
-		    appendText(NAG.getShortString((short) nags[i], false) + " ", NAG_SET);
+		    appendText(NAG.getShortString(nags[i], false) + " ", NAG_SET);
 		} else {
 		    // all non-standard nags shall be highlighted!
-		    appendText(NAG.getShortString((short) nags[i], false) + " ", NAG_SET_EXTRA);
+		    appendText(NAG.getShortString(nags[i], false) + " ", NAG_SET_EXTRA);
 		}
 	    }
 	} else {

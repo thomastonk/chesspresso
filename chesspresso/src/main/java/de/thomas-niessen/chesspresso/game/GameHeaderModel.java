@@ -29,7 +29,7 @@ import chesspresso.pgn.PGN;
  * @author Bernhard Seybold
  * 
  */
-public class GameHeaderModel implements Serializable {
+class GameHeaderModel implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final int INDEX_EVENT = 0, INDEX_SITE = 1, INDEX_DATE = 2, INDEX_ROUND = 3, INDEX_WHITE = 4,
@@ -55,13 +55,13 @@ public class GameHeaderModel implements Serializable {
      * =============================================================================
      */
 
-    public GameHeaderModel() {
+    GameHeaderModel() {
 	m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 	m_otherTags = null;
 	m_variant = Variant.STANDARD;
     }
 
-    public GameHeaderModel(DataInput in, int mode) throws IOException {
+    GameHeaderModel(DataInput in, int mode) throws IOException {
 	m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 	m_otherTags = null;
 	m_variant = Variant.STANDARD;
@@ -69,7 +69,7 @@ public class GameHeaderModel implements Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public GameHeaderModel getDeepCopy() {
+    GameHeaderModel getDeepCopy() {
 	GameHeaderModel copy = new GameHeaderModel();
 	copy.m_standardTags = new String[this.m_standardTags.length];
 	System.arraycopy(this.m_standardTags, 0, copy.m_standardTags, 0, copy.m_standardTags.length);
@@ -98,7 +98,7 @@ public class GameHeaderModel implements Serializable {
 	return -1;
     }
 
-    public String getTag(String tagName) {
+    String getTag(String tagName) {
 	int index = getStandardTagIndex(tagName);
 	if (index != -1) {
 	    return m_standardTags[index];
@@ -110,7 +110,7 @@ public class GameHeaderModel implements Serializable {
 	}
     }
 
-    public void setTag(String tagName, String tagValue) {
+    void setTag(String tagName, String tagValue) {
 	// TN: the dependency between the tags SetUp and FEN is not solved here.
 	// So far, it is only treated in PGNWriter::writeHeader.
 	int index = getStandardTagIndex(tagName);
@@ -131,7 +131,7 @@ public class GameHeaderModel implements Serializable {
 	}
     }
 
-    public String[] getTags() {
+    String[] getTags() {
 	int numOfTags = (m_otherTags == null ? 0 : m_otherTags.size());
 	for (int i = 0; i < NUM_OF_STANDARD_TAGS; i++)
 	    if (m_standardTags[i] != null)
@@ -151,7 +151,7 @@ public class GameHeaderModel implements Serializable {
 	return tags;
     }
 
-    public String[] getOtherTags() {
+    String[] getOtherTags() {
 	int numOfTags = (m_otherTags == null ? 0 : m_otherTags.size());
 
 	if (numOfTags == 0) {
@@ -168,12 +168,12 @@ public class GameHeaderModel implements Serializable {
 	}
     }
 
-    public void clearTags() {
+    void clearTags() {
 	m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 	m_otherTags = null;
     }
 
-    public void removeTag(String tagName) {
+    void removeTag(String tagName) {
 	int standardIndex = getStandardTagIndex(tagName);
 	if (standardIndex != -1) {
 	    m_standardTags[standardIndex] = "";
@@ -197,52 +197,52 @@ public class GameHeaderModel implements Serializable {
 	return tag == null ? "" : tag;
     }
 
-    public String getEvent() {
+    String getEvent() {
 	return getStandardTag(INDEX_EVENT);
     }
 
-    public String getSite() {
+    String getSite() {
 	return getStandardTag(INDEX_SITE);
     }
 
-    public String getDate() {
+    String getDate() {
 	return getStandardTag(INDEX_DATE);
     }
 
-    public String getRound() {
+    String getRound() {
 	return getStandardTag(INDEX_ROUND);
     }
 
-    public String getWhite() {
+    String getWhite() {
 	return getStandardTag(INDEX_WHITE);
     }
 
-    public String getBlack() {
+    String getBlack() {
 	return getStandardTag(INDEX_BLACK);
     }
 
-    public String getResultStr() {
+    String getResultStr() {
 	return getStandardTag(INDEX_RESULT);
     }
 
-    public String getWhiteEloStr() {
+    String getWhiteEloStr() {
 	return getStandardTag(INDEX_WHITE_ELO);
     }
 
-    public String getBlackEloStr() {
+    String getBlackEloStr() {
 	return getStandardTag(INDEX_BLACK_ELO);
     }
 
-    public String getEventDate() {
+    String getEventDate() {
 	return getStandardTag(INDEX_EVENT_DATE);
     }
 
-    public String getECO() {
+    String getECO() {
 	return getStandardTag(INDEX_ECO);
     }
 
-    public int getResult() {
-	// TODO combine with PGNReader.isResultString
+    int getResult() {
+	// SEYBOLD: combine with PGNReader.isResultString
 	// TN: I assume PGNReader.getLastTokenAsResult is meant. Chess.java could
 	// get the code for string detection, e.g. the if/else below, and both methods
 	// could apply it. Not trivial.
@@ -259,7 +259,7 @@ public class GameHeaderModel implements Serializable {
 	    return Chess.NO_RES;
     }
 
-    public int getWhiteElo() {
+    int getWhiteElo() {
 	try {
 	    String whiteElo = getWhiteEloStr();
 	    if (whiteElo == null)
@@ -270,7 +270,7 @@ public class GameHeaderModel implements Serializable {
 	}
     }
 
-    public int getBlackElo() {
+    int getBlackElo() {
 	try {
 	    String blackElo = getBlackEloStr();
 	    if (blackElo == null)
@@ -285,11 +285,11 @@ public class GameHeaderModel implements Serializable {
      * =============================================================================
      */
 
-    public Variant getVariant() {
+    Variant getVariant() {
 	return m_variant;
     }
 
-    public void setVariant(Variant variant) {
+    void setVariant(Variant variant) {
 	m_variant = variant;
 	switch (variant) {
 	case CHESS960:
@@ -309,7 +309,7 @@ public class GameHeaderModel implements Serializable {
 	return s.equals("") ? null : s;
     }
 
-    public void load(DataInput in, int mode) throws IOException {
+    void load(DataInput in, int mode) throws IOException {
 	setTag(PGN.TAG_EVENT, readUTFNonNull(in));
 	setTag(PGN.TAG_SITE, readUTFNonNull(in));
 	setTag(PGN.TAG_DATE, readUTFNonNull(in));
@@ -336,7 +336,7 @@ public class GameHeaderModel implements Serializable {
 	out.writeUTF(s == null ? "" : s);
     }
 
-    public void save(DataOutput out, int mode) throws IOException {
+    void save(DataOutput out, int mode) throws IOException {
 	writeUTFNonNull(out, getEvent());
 	writeUTFNonNull(out, getSite());
 	writeUTFNonNull(out, getDate());
@@ -386,7 +386,7 @@ public class GameHeaderModel implements Serializable {
 	}
     }
 
-    public boolean isSimilar(GameHeaderModel headerModel) {
+    boolean isSimilar(GameHeaderModel headerModel) {
 	return isStringSimilar(getWhite(), headerModel.getWhite())
 		&& isStringSimilar(getBlack(), headerModel.getBlack());
     }
@@ -395,6 +395,7 @@ public class GameHeaderModel implements Serializable {
      * =============================================================================
      */
 
+    @Override
     public String toString() {
 	return getWhite() + " - " + getBlack() + " " + getResultStr() + " (" + getDate() + ")";
     }

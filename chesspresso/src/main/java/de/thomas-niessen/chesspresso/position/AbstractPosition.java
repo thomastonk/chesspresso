@@ -49,11 +49,11 @@ public abstract class AbstractPosition implements ImmutablePosition {
     // hash table to index with up to the lowest 22 or highest 32 bits
     // highest bits are used for sorted hash tables
     //
-    // TODO: add half move clock to hash code?
+    // IDEA: add half move clock to hash code?
     // + correctness in endgames
     // - cannot reuse hashed positions if half move clock doesn't matter
     //
-    // TODO: don't reserve special bits for ep and castles but xor them as well
+    // IDEA: don't reserve special bits for ep and castles but xor them as well
     protected static long
 //        HASH_ALL_MASK       = 0x7FFFFFFF007FFFFFL,
     HASH_ALL_MASK = 0x7FFFFFFFFF7FFFFFL, HASH_TOPLAY_MASK = 0x7FFFFFFFFF7FFFFFL, HASH_TOPLAY_MULT = 0x800000L;
@@ -125,6 +125,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
      * =============================================================================
      */
 
+    @Override
     public long getHashCode() {
 	/*---------- squares ----------*/
 	long hashCode = 0L;
@@ -165,14 +166,17 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	return hashCode;
     }
 
+    @Override
     public final int hashCode() {
 	return (int) getHashCode();
     }
 
+    @Override
     public final boolean isStartPosition() {
 	return getHashCode() == getStartPositionHashCode();
     }
 
+    @Override
     public boolean equals(Object obj) {
 	return (obj instanceof ImmutablePosition) && (((ImmutablePosition) obj).getHashCode() == getHashCode());
     }
@@ -181,6 +185,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
      * =============================================================================
      */
 
+    @Override
     public String getFEN() {
 	return FEN.getFEN(this);
     }
@@ -204,6 +209,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
 //	}
 //    }
 
+    @Override
     public Validity isValid() {
 	/*---------- check to play ----------*/
 	if (getToPlay() != Chess.WHITE && getToPlay() != Chess.BLACK) {
@@ -284,6 +290,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	return true;
     }
 
+    @Override
     public void internalValidate() throws IllegalPositionException {
 	int numOfWhiteKings = 0;
 	int numOfBlackKings = 0;
@@ -322,6 +329,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
      * =============================================================================
      */
 
+    @Override
     public String toString() {
 	return FEN.getFEN(this);
     }

@@ -41,7 +41,6 @@ import javax.swing.SwingUtilities;
 
 import chesspresso.Chess;
 import chesspresso.game.Game;
-import chesspresso.game.GameModel;
 import chesspresso.game.GameModelChangeListener;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
@@ -81,15 +80,6 @@ public class GameBrowser extends JPanel
     private InputDialog inputDialog = new DefaultInputDialog();
 
     // ======================================================================
-
-    /**
-     * Create a new game browser.
-     *
-     * @param gameModel the game model to be displayed
-     */
-    public GameBrowser(GameModel gameModel) {
-	this(new Game(gameModel), Chess.WHITE, false);
-    }
 
     /**
      * Create a new game browser.
@@ -199,6 +189,7 @@ public class GameBrowser extends JPanel
 
 	    setHeaderLines();
 	    highlightLastMove();
+	    m_textViewer.showCurrentGameNode();
 	}
     }
 
@@ -694,14 +685,12 @@ public class GameBrowser extends JPanel
 	    public void actionPerformed(ActionEvent event) {
 		short nag = NAG.ofString(event.getActionCommand());
 		int curNode = m_game.getCurNode();
-		if (curNode > 0) {
-		    if (m_game.currentMoveHasNag(nag)) {
-			m_game.removeNag(nag);
-		    } else {
-			m_game.addNag(nag);
-		    }
-		    m_game.gotoNode(curNode);
+		if (m_game.currentMoveHasNag(nag)) {
+		    m_game.removeNag(nag);
+		} else {
+		    m_game.addNag(nag);
 		}
+		m_game.gotoNode(curNode);
 	    }
 	};
 
@@ -899,25 +888,21 @@ public class GameBrowser extends JPanel
 		    public void actionPerformed(ActionEvent e) {
 			short nag = NAG.ofString(e.getActionCommand());
 			int curNode = m_game.getCurNode();
-			if (curNode > 0) {
-			    if (NAG.isEvaluation(nag)) {
-				m_game.removeEvaluationNags();
-			    }
-			    if (NAG.isPunctuationMark(nag)) {
-				m_game.removePunctuationNags();
-			    }
-			    m_game.addNag(nag);
-			    m_game.gotoNode(curNode);
+			if (NAG.isEvaluation(nag)) {
+			    m_game.removeEvaluationNags();
 			}
+			if (NAG.isPunctuationMark(nag)) {
+			    m_game.removePunctuationNags();
+			}
+			m_game.addNag(nag);
+			m_game.gotoNode(curNode);
 		    }
 		};
 		ActionListener removeEvaluation = new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
 			int curNode = m_game.getCurNode();
-			if (curNode > 0) {
-			    m_game.removeEvaluationNags();
-			}
+			m_game.removeEvaluationNags();
 			m_game.gotoNode(curNode);
 		    }
 		};
@@ -925,9 +910,7 @@ public class GameBrowser extends JPanel
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
 			int curNode = m_game.getCurNode();
-			if (curNode > 0) {
-			    m_game.removePunctuationNags();
-			}
+			m_game.removePunctuationNags();
 			m_game.gotoNode(curNode);
 		    }
 		};
@@ -961,14 +944,14 @@ public class GameBrowser extends JPanel
 		    popup.add(evaluationNagMenu);
 		}
 		{
-		    JMenuItem commentAfterMenuItem = new JMenuItem("Comment before move");
-		    commentAfterMenuItem.addActionListener(new ActionListener() {
+		    JMenuItem commentBeforeMenuItem = new JMenuItem("Comment before move");
+		    commentBeforeMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 			    m_buttPreCommentActionPerformed(e);
 			}
 		    });
-		    popup.add(commentAfterMenuItem);
+		    popup.add(commentBeforeMenuItem);
 		}
 		{
 		    JMenuItem commentAfterMenuItem = new JMenuItem("Comment after move");

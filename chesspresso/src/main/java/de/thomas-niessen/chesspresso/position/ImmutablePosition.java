@@ -119,7 +119,7 @@ public interface ImmutablePosition {
 
     /**
      * Returns a 64bit hash code of the current position. 64bit should be enough to
-     * distinguish positions with almost no collisions. TODO: add reference to paper
+     * distinguish positions with almost no collisions. IDEA: add reference to paper
      *
      * @return a 64bit hash code
      */
@@ -131,6 +131,7 @@ public interface ImmutablePosition {
      *
      * @return a 32bit hash code
      */
+    @Override
     int hashCode();
 
     // ======================================================================

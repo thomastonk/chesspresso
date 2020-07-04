@@ -40,12 +40,6 @@ import chesspresso.pgn.PGNWriter;
 
 /**
  * @author Thomas
- * 
- *         This class is build from the ActionListener of the PGN button in
- *         GameBrowser. That code can be replaced, as soon as this class is
- *         constructed with a GameSupplier and a ParentSupplier in the same way
- *         as FenToClipBorad is constructed with a PositionSupplier and a
- *         ParentSupplier. TODO
  */
 public class PgnToClipBoard implements ActionListener {
 
