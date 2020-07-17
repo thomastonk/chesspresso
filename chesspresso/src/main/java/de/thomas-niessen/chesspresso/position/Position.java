@@ -15,6 +15,8 @@
 package chesspresso.position;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import chesspresso.Chess;
 import chesspresso.Variant;
@@ -41,35 +43,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     private static long m_numUndoMove = 0;
     private static long m_numSet = 0;
     private static long m_numGetSquare = 0;
-
-    public static void printProfile() {
-	if (!PROFILE)
-	    return; // =====>
-
-	// NumberFormat nf = NumberFormat.getNumberInstance();
-	// nf.form
-
-	// System.out.println("Instances created:");
-	// System.out.println(" ChPosition: " + format(m_numPositions));
-	// System.out.println("Methods called:");
-	// System.out.println(" isAttacked: " + format(m_numIsAttacked));
-	// System.out.println(" directAttackers: " +
-	// format(m_numDirectAttackers));
-	// System.out.println(" getAllAttackers: " +
-	// format(m_numGetAllAttackers));
-	// System.out.println(" isCheck: " + format(m_numIsCheck));
-	// System.out.println(" isMate: " + format(m_numIsMate));
-	// System.out.println(" isStaleMate: " + format(m_numIsStaleMate));
-	// System.out.println(" getAllMoves: " + format(m_numGetAllMoves));
-	// System.out.println(" getPinnedDirection: " +
-	// format(m_numGetPinnedDirection));
-	// System.out.println(" doMove: " + format(m_numDoMove));
-	// System.out.println(" longs backuped " + format(m_numLongsBackuped) +
-	// " " + ((double)m_numLongsBackuped / m_numDoMove) + " per move");
-	// System.out.println(" undoMove: " + format(m_numUndoMove));
-	// System.out.println(" set: " + format(m_numSet));
-	// System.out.println(" getSquare: " + format(m_numGetSquare));
-    }
 
     /*
      * =========================================================================
@@ -395,8 +368,11 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     private short[] m_moveStack;
     private int m_moveStackIndex;
 
-    private short[] m_moves = new short[256]; // buffer for getAllMoves,
-					      // allocated once for efficiency
+    private final short[] m_moves = new short[256]; // buffer for getAllMoves,
+						    // allocated once for efficiency
+    // TN: Is 256 large enough? It is said that
+    // "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1"
+    // has the largest number of possible moves: 218! So, 256 should always work.
 
     private Variant m_variant = Variant.STANDARD;
 
@@ -451,7 +427,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	super.clear();
     }
 
-    // TN: Introduced for special purposes; could replace clear()?!
+    // TN: Introduced for special purposes; could it replace clear()?!
     public void clearAll() {
 	super.clear();
 	int index = 0;
@@ -1305,20 +1281,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	if (PROFILE)
 	    m_numDoMove++;
 
-//		/*TEST*/
-//		short[] moves = getAllMoves();
-//		boolean found = false;
-//		for (int i = 0; i < moves.length; ++i) {
-//			if (move==moves[i]) {
-//				found = true;
-//				break;
-//			}
-//		}
-//		if (!found) {
-//			throw new IllegalMoveException("Illegal move!");
-//		}
-//		/*TEST*/
-
 	boolean notify = m_notifyPositionChanged;
 	m_notifyPositionChanged = false;
 
@@ -1335,7 +1297,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	long bakBishops = m_bbBishops;
 	long bakRooks = m_bbRooks;
 	long bakFlags = (((m_flags << 6) | m_whiteKing) << 6) | m_blackKing;
-	// (((((long)m_whiteKing) << 6) | m_blackKing) << 47) | m_flags;
 
 	m_bakStack[m_bakIndex++] = m_hashCode;
 
@@ -1577,12 +1538,10 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    m_moveStackIndex++;
 
 	    if (DEBUG)
-		System.out.println("I redid the last move");
+		System.out.println("Last move redone.");
 
 	    /*---------- notify listeners ----------*/
 	    if (m_notifyListeners) {
-		// // enable this to be sure that changes are sent
-		// long squaresChanged = ~0L;
 		long squaresChanged = (bbWhites ^ m_bbWhites) | (bbBlacks ^ m_bbBlacks);
 		while (squaresChanged != 0L) {
 		    int sqi = getFirstSqi(squaresChanged);
@@ -1608,7 +1567,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 
     /*
      * =========================================================================
-     * =======
      */
 
     @Override
@@ -1751,12 +1709,7 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 		return new Move(move, Chess.PAWN, colFrom, rowFrom, isCheck(), isMate(), wasWhiteMove);
 	    } else {
 		try {
-		    boolean notify = m_notifyListeners;
-		    m_notifyListeners = false;
-		    undoMove();
-		    Move m = getPieceMoveAndDo(move);
-		    m_notifyListeners = notify;
-		    return m;
+		    return getLastMovePiece(move);
 		} catch (IllegalMoveException ex) {
 		    return null;
 		}
@@ -1767,22 +1720,15 @@ public final class Position extends AbstractMoveablePosition implements Serializ
     public String getLastMoveAsSanWithNumber() {
 	int plies = getPlyNumber();
 	if (plies > 0) {
-	    String s = String.valueOf((plies + 1) / 2);
-	    if (plies % 2 == 1) {
-		if (getLastMove() == null) { // this can happen, if the start
-					     // position is given by FEN
-		    s = "";
-		} else {
-		    s += ". " + getLastMove().getSAN();
-		}
-	    } else {
-		if (getLastMove() == null) { // see comment above
-		    s = "";
-		} else {
-		    s += "... " + getLastMove().getSAN();
-		}
+	    Move move = getLastMove();
+	    if (move == null) { // this can happen, if the start position is given by FEN
+		return "";
 	    }
-	    return s;
+	    if (plies % 2 == 1) {
+		return String.valueOf((plies + 1) / 2) + ". " + move.getSAN();
+	    } else {
+		return String.valueOf((plies + 1) / 2) + "... " + move.getSAN();
+	    }
 	} else {
 	    return "";
 	}
@@ -1830,9 +1776,24 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return Move.getRegularMove(getFromSqi(piece, colFrom, rowFrom, to), to, !isSquareEmpty(to));
     }
 
-    private Move getPieceMoveAndDo(short move) throws IllegalMoveException {
+    /*
+     * TN: The following method is a part of Position::getLastMove and it shall be
+     * used nowhere else. So far it is not clear why undoMove() and everything until
+     * redoMoveNoMoveListeners is necessary. However, if these operations are
+     * missing the build Move is invalid because of a NO_PIECE (and probably more
+     * problems).
+     * 
+     * One might think that this undo/redo is a performance issue, but even after
+     * more than one million calls within a real application, less than half a
+     * second was spend here.
+     */
+    private Move getLastMovePiece(short move) throws IllegalMoveException {
 	if (!Move.isValid(move))
 	    throw new IllegalMoveException(move);
+
+	boolean notify = m_notifyListeners;
+	m_notifyListeners = false;
+	undoMove();
 
 	int from = Move.getFromSqi(move);
 	int to = Move.getToSqi(move);
@@ -1843,18 +1804,8 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	int rowFrom = Chess.NO_ROW;
 
 	long bb = getBitBoard(stone) & getDirectAttackers(to, getToPlay(), false) & ~ofSquare(from);
-	if (!isCapturing)
+	if (!isCapturing) {
 	    bb &= (~m_bbPawns);
-	if (bb != 0L) {
-	    for (long bb2 = bb; bb2 != 0L; bb2 &= bb2 - 1) {
-		int tryFrom = getFirstSqi(bb2);
-		short tryMove = Move.getRegularMove(tryFrom, to, isCapturing);
-		doMoveNoMoveListeners(tryMove);
-		if (isValid() != Validity.IS_VALID) {
-		    bb = bb & (~ofSquare(tryFrom));
-		}
-		undoMoveNoMoveListeners();
-	    }
 	}
 	if (bb != 0L) {
 	    if ((bb & ofCol(Chess.sqiToCol(from))) == 0L) {
@@ -1867,11 +1818,10 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    }
 	}
 
-	doMoveNoMoveListeners(move);
+	redoMoveNoMoveListeners(); // TN: doMoveNoMoveListeners(move); is fine, too.
 	Move m = new Move(move, Chess.stoneToPiece(stone), colFrom, rowFrom, isCheck(), isMate(),
 		getToPlay() == Chess.BLACK);
-	if (m_notifyListeners)
-	    fireMoveDone(move);
+	m_notifyListeners = notify;
 	return m;
     }
 
@@ -2655,38 +2605,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	}
     }
 
-    @Override
-    public String getMovesAsString(short[] moves, boolean validateEachMove) {
-	StringBuilder sb = new StringBuilder();
-	Move.normalizeOrder(moves);
-
-	sb.append('{');
-	for (int i = 0; i < moves.length; i++) {
-	    if (i > 0)
-		sb.append(',');
-	    try {
-		doMove(moves[i]);
-		// sb.append(getLastMove(moves[i]));
-		sb.append(getLastMove());
-		if (validateEachMove) {
-		    try {
-			internalValidate();
-		    } catch (Throwable t) {
-			sb.append("EXCEPTION: after move ").append(Move.getString(moves[i])).append(": ")
-				.append(t.getMessage());
-		    }
-		}
-		undoMove();
-	    } catch (IllegalMoveException ex) {
-		sb.append("Position::getMovesAsString: Illegal Move ").append(Move.getString(moves[i])).append(": ")
-			.append(ex.getMessage());
-	    }
-	}
-	sb.append('}');
-
-	return sb.toString();
-    }
-
     /*
      * =========================================================================
      */
@@ -2885,5 +2803,115 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    sb.append("m_chess960KingsideRookFile differ").append(System.lineSeparator());
 	}
 	return sb.toString();
+    }
+
+    /*
+     * This class is made only for tests!
+     */
+
+    public class PosInternalState {
+	private int bakIndex;
+	private List<Long> bakStack = new ArrayList<>();
+	private long bbWhites, bbBlacks, bbPawns, bbKnights, bbBishops, bbRooks;
+	private int moveStackIndex;
+	private List<Short> moveStack = new ArrayList<>();
+
+	public PosInternalState() {
+	    bakIndex = m_bakIndex;
+	    for (long l : m_bakStack) {
+		if (l == 0L) {
+		    break;
+		} else {
+		    bakStack.add(l);
+		}
+	    }
+	    bbWhites = m_bbWhites;
+	    bbBlacks = m_bbBlacks;
+	    bbPawns = m_bbPawns;
+	    bbKnights = m_bbKnights;
+	    bbBishops = m_bbBishops;
+	    bbRooks = m_bbRooks;
+	    moveStackIndex = m_moveStackIndex;
+	    for (short s : m_moveStack) {
+		if (s == 0) {
+		    break;
+		} else {
+		    moveStack.add(s);
+		}
+	    }
+	}
+
+	@Override
+	public boolean equals(Object other) {
+	    if (other instanceof PosInternalState) {
+		PosInternalState otherState = (PosInternalState) other;
+		boolean retVal = true;
+		if (this.bakIndex != otherState.bakIndex) {
+		    System.err.println("bakindex: " + this.bakIndex + " / " + otherState.bakIndex);
+		    retVal = false;
+		}
+		if (!this.bakStack.equals(otherState.bakStack)) {
+		    System.err.println("bakStack!");
+		    if (this.bakStack.size() != otherState.bakStack.size()) {
+			System.err.println("   Sizes differ");
+		    }
+		    for (int index = 0; index < Math.min(this.bakStack.size(), otherState.bakStack.size()); ++index) {
+			if (!this.bakStack.get(index).equals(otherState.bakStack.get(index))) {
+			    System.err.println("   " + index + ": " + this.bakStack.get(index) + " / "
+				    + otherState.bakStack.get(index));
+			}
+		    }
+		    retVal = false;
+		}
+		if (this.bbWhites != otherState.bbWhites) {
+		    System.err.println("Whites: " + this.bbWhites + " / " + otherState.bbWhites);
+		    retVal = false;
+		}
+		if (this.bbBlacks != otherState.bbBlacks) {
+		    System.err.println("Blacks: " + this.bbBlacks + " / " + otherState.bbBlacks);
+		    retVal = false;
+		}
+		if (this.bbPawns != otherState.bbPawns) {
+		    System.err.println("Pawns: " + this.bbPawns + " / " + otherState.bbPawns);
+		    retVal = false;
+		}
+		if (this.bbKnights != otherState.bbKnights) {
+		    System.err.println("Knights: " + this.bbKnights + " / " + otherState.bbKnights);
+		    retVal = false;
+		}
+		if (this.bbBishops != otherState.bbBishops) {
+		    System.err.println("Bishops: " + this.bbBishops + " / " + otherState.bbBishops);
+		    retVal = false;
+		}
+		if (this.bbRooks != otherState.bbRooks) {
+		    System.err.println("Rooks: " + this.bbRooks + " / " + otherState.bbRooks);
+		    retVal = false;
+		}
+		if (this.moveStackIndex != otherState.moveStackIndex) {
+		    System.err.println("moveStackIndex: " + this.moveStackIndex + " / " + otherState.moveStackIndex);
+		    retVal = false;
+		}
+		if (!this.moveStack.equals(otherState.moveStack)) {
+		    System.err.println("moveStack!");
+		    if (this.moveStack.size() != otherState.moveStack.size()) {
+			System.err.println("   Sizes differ");
+		    }
+		    for (int index = 0; index < Math.min(this.moveStack.size(), otherState.moveStack.size()); ++index) {
+			if (!this.moveStack.get(index).equals(otherState.moveStack.get(index))) {
+			    System.err.println("   " + index + ": " + this.moveStack.get(index) + " / "
+				    + otherState.moveStack.get(index));
+			}
+		    }
+		    retVal = false;
+		}
+		return retVal;
+	    } else {
+		return false;
+	    }
+	}
+    }
+
+    public PosInternalState getInternalState() {
+	return new PosInternalState();
     }
 }

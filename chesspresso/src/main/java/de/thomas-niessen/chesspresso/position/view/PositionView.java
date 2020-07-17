@@ -113,6 +113,8 @@ public class PositionView extends java.awt.Component implements PositionListener
     final static private Color YELLOW_TRANSPARENT = new Color(1.f, 1.f, 0.f, 0.6f);
     final static private Color RED_TRANSPARENT = new Color(1.f, 0.f, 0.f, 0.6f);
 
+    final static private String DEFAULT_FONT_NAME = "CS Chess Merida Unicode";
+
     // ======================================================================
 
     /**
@@ -140,7 +142,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 	m_blackColor = Color.BLACK;
 	m_solidStones = true;
 
-	setFont(new Font("Arial Unicode MS", Font.PLAIN, 32));
+	setFont(new Font(DEFAULT_FONT_NAME, Font.PLAIN, 32));
 	// If this font is not available, "Dialog" will be chosen.
 
 	m_draggedStone = Chess.NO_STONE;
@@ -716,6 +718,10 @@ public class PositionView extends java.awt.Component implements PositionListener
 	}
 
 	return partsOfShape;
+    }
+
+    public static String getDefaultFontname() {
+	return DEFAULT_FONT_NAME;
     }
 
 }

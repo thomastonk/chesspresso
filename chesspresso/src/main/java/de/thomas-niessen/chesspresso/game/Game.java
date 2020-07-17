@@ -50,8 +50,8 @@ import chesspresso.position.PositionChangeListener;
  * <li>methods to append or delete lines of the move model
  * <li>methods to handle listeners for game changes
  * <li>methods to walk through the game, beginning with <code>go</code>
- * <li>a method to {@link #traverse(TraverseListener, boolean)} the game in postfix
- * order (the order used by {@link chesspresso.pgn.PGN})
+ * <li>a method to {@link #traverse(TraverseListener, boolean)} the game in
+ * postfix order (the order used by {@link chesspresso.pgn.PGN})
  * </ul>
  *
  * @author Bernhard Seybold
@@ -541,6 +541,7 @@ public class Game implements PositionChangeListener, Serializable {
 	    fireMoveModelChanged();
     }
 
+    // TODO: Could be done by means of traverse.
     public void removeAllComments() {
 	int index = m_cur;
 	gotoStart(true);
@@ -637,7 +638,7 @@ public class Game implements PositionChangeListener, Serializable {
     public Move getNextMove(int whichLine) {
 	short shortMove = m_moves.getMove(m_moves.goForward(m_cur, whichLine));
 	if (shortMove == GameMoveModel.NO_MOVE)
-	    return null; // =====>
+	    return null;
 	try {
 	    m_position.setNotifyListeners(false);
 	    m_position.doMove(shortMove);
@@ -688,28 +689,6 @@ public class Game implements PositionChangeListener, Serializable {
 	    }
 	}
 	m_position.setNotifyListeners(true);
-	return moves;
-    }
-
-    public Move[] getMainLine() {
-	int num = 0;
-	int index = m_cur;
-	while (m_moves.hasNextMove(index)) {
-	    index = m_moves.goForward(index);
-	    num++;
-	}
-
-	Move[] moves = new Move[num];
-	for (int i = 0; i < num; i++) {
-	    moves[i] = goForwardAndGetMove(true);
-	}
-
-	m_position.setNotifyListeners(false);
-	for (@SuppressWarnings("unused")
-	Move move : moves)
-	    m_position.undoMove();
-	m_position.setNotifyListeners(true);
-
 	return moves;
     }
 

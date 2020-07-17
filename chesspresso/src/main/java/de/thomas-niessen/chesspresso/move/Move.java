@@ -566,7 +566,8 @@ public class Move implements Serializable {
 	    } else {
 		int piece = getMovingPiece();
 		if (piece == Chess.NO_PIECE)
-		    System.out.println(m_move + " " + m_info + " " + Integer.toBinaryString(m_info));
+		    System.out.println("Move::getLAN: unexpected NO_PIECE for " + m_move + " " + m_info + " "
+			    + Integer.toBinaryString(m_info));
 		if (piece != Chess.PAWN) {
 		    sb.append(Chess.pieceToChar(piece));
 		}
@@ -604,7 +605,8 @@ public class Move implements Serializable {
 	    } else {
 		int piece = getMovingPiece();
 		if (piece == Chess.NO_PIECE)
-		    System.out.println(m_move + " " + m_info + " " + Integer.toBinaryString(m_info));
+		    System.out.println("Move::getSAN: unexpected NO_PIECE for " + m_move + " " + m_info + " "
+			    + Integer.toBinaryString(m_info));
 		if (piece != Chess.PAWN) {
 		    sb.append(Chess.pieceToChar(piece));
 		}

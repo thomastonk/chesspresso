@@ -77,6 +77,20 @@ public class PGNWriter extends PGN {
 	return sw.toString();
     }
 
+    public static String writeHeaderToString(Game game) {
+	StringWriter sw = new StringWriter();
+	PGNWriter pgnWriter = new PGNWriter(sw);
+	pgnWriter.writeHeader(game);
+	return sw.toString();
+    }
+
+    public static String writeMovesToString(Game game) {
+	StringWriter sw = new StringWriter();
+	PGNWriter pgnWriter = new PGNWriter(sw);
+	pgnWriter.writeMoves(game);
+	return sw.toString();
+    }
+
     /*
      * =============================================================================
      */
