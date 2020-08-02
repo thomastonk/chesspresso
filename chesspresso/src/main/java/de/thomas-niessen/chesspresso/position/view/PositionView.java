@@ -282,17 +282,20 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     @Override
     public Dimension getPreferredSize() {
-	return new Dimension(8 * (getFont().getSize() + squareOffset), 8 * (getFont().getSize() + squareOffset));
+	return new Dimension(Chess.NUM_OF_COLS * (getFont().getSize() + squareOffset),
+		Chess.NUM_OF_ROWS * (getFont().getSize() + squareOffset));
     }
 
     @Override
     public Dimension getMinimumSize() {
-	return new Dimension(8 * (getFont().getSize() + squareOffset), 8 * (getFont().getSize() + squareOffset));
+	return new Dimension(Chess.NUM_OF_COLS * (getFont().getSize() + squareOffset),
+		Chess.NUM_OF_ROWS * (getFont().getSize() + squareOffset));
     }
 
     @Override
     public Dimension getMaximumSize() {
-	return new Dimension(8 * (getFont().getSize() + squareOffset), 8 * (getFont().getSize() + squareOffset));
+	return new Dimension(Chess.NUM_OF_COLS * (getFont().getSize() + squareOffset),
+		Chess.NUM_OF_ROWS * (getFont().getSize() + squareOffset));
     }
 
     public int getSquareSize() {
@@ -304,13 +307,13 @@ public class PositionView extends java.awt.Component implements PositionListener
 	    return -1;
 	}
 	int squareSize = getSquareSize();
-	if (x >= 8 * squareSize || y >= 8 * squareSize) {
+	if (x >= Chess.NUM_OF_COLS * squareSize || y >= Chess.NUM_OF_ROWS * squareSize) {
 	    return -1;
 	}
 
 	int y0 = y / squareSize;
 	int x0 = x / squareSize;
-	return 8 * (7 - y0) + x0;
+	return Chess.NUM_OF_COLS * (Chess.NUM_OF_ROWS - 1 - y0) + x0;
     }
 
     public void setOrRemovePaint(int sqi, Paint paint) {

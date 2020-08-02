@@ -17,6 +17,8 @@ package chesspresso.pgn;
 import java.util.Calendar;
 import java.util.Date;
 
+import chesspresso.Chess;
+
 /**
  * General definitions for the PGN standard.
  *
@@ -83,4 +85,16 @@ public abstract class PGN {
     public final static String RESULT_WHITE_WINS = "1-0", RESULT_BLACK_WINS = "0-1", RESULT_DRAW = "1/2-1/2",
 	    RESULT_UNFINISHED = "*";
 
+    public final static String getResultStr(int result) {
+	switch (result) {
+	case Chess.RES_WHITE_WINS:
+	    return RESULT_WHITE_WINS;
+	case Chess.RES_BLACK_WINS:
+	    return RESULT_BLACK_WINS;
+	case Chess.RES_DRAW:
+	    return RESULT_DRAW;
+	default:
+	    return RESULT_UNFINISHED;
+	}
+    }
 }
