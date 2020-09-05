@@ -99,6 +99,48 @@ public class Game implements PositionChangeListener, Serializable {
 	return new Game(this.m_model.getDeepCopy());
     }
 
+    /*
+     * Return a game fragment starting at a certain ply and having a given number of
+     * plies. If numOfPlies < 0, then all remaining moves are added. If startPly <
+     * Position::getPlyOffset or startPly > Position::getPlyOffset +
+     * Game::getNumOfPlies, then null is returned.
+     */
+    public Game getFragment(int startPly, int numOfPlies) {
+	if (startPly <= m_position.getPlyOffset() || startPly > m_position.getPlyOffset() + getNumOfPlies()) {
+	    return null;
+	}
+	if (numOfPlies < 0) { // all moves starting with ply startPly
+	    numOfPlies = 32676;
+	}
+
+	Game copy = getDeepCopy();
+	copy.gotoPly(startPly - 1);
+	Game fragment = new Game(new GameModel(copy.m_header.getDeepCopy(), new GameMoveModel()));
+	String fen = copy.getPosition().getFEN();
+	fragment.setTag(PGN.TAG_FEN, fen);
+	FEN.initFromFEN(fragment.m_position, fen);
+	fragment.m_position.setPlyOffset(startPly);
+	while (copy.goForward() && numOfPlies > 0) {
+	    Move move = copy.getLastMove();
+	    try {
+		fragment.m_position.doMove(move);
+	    } catch (IllegalMoveException ignore) {
+		return null;
+	    }
+	    fragment.setPreMoveComment(copy.getPreMoveComment());
+	    fragment.setPostMoveComment(copy.getPostMoveComment());
+	    short[] nags = copy.getNags();
+	    if (nags != null) {
+		for (short nag : nags) {
+		    fragment.addNag(nag);
+		}
+	    }
+	    --numOfPlies;
+	}
+
+	return fragment;
+    }
+
     // ======================================================================
 
     public GameModel getModel() {
@@ -595,8 +637,8 @@ public class Game implements PositionChangeListener, Serializable {
 	return (m_position.getPlyNumber() + 2) / 2;
     }
 
-    public int getFirstPly() {
-	return m_position.getFirstPlyNumber();
+    public int getPlyOffset() {
+	return m_position.getPlyOffset();
     }
 
     public int getNumOfPlies() {
@@ -748,8 +790,14 @@ public class Game implements PositionChangeListener, Serializable {
 
     public void gotoPly(int ply) {
 	gotoStart();
-	for (int i = 0; i < ply; ++i) {
+	for (int i = 0; i < ply - getPlyOffset(); ++i) {
 	    goForward();
+	}
+	// for a while we check the value
+	if (ply < getPlyOffset() || ply > getPlyOffset() + getNumOfPlies()) {
+	    System.err.println("Suspicious value in Game::gotoPly: ");
+	    System.err
+		    .println("   Ply: " + ply + ", plyOffset: " + getPlyOffset() + ", numOfPlies: " + getNumOfPlies());
 	}
     }
 

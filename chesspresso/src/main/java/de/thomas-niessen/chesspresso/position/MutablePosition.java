@@ -36,7 +36,7 @@ public interface MutablePosition extends ImmutablePosition {
 
     void setPlyNumber(int plyNumber);
 
-    void setFirstPlyNumber(int plyNumber);
+    void setPlyOffset(int plyNumber);
 
     void setHalfMoveClock(int halfMoveClock);
 }

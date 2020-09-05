@@ -35,8 +35,8 @@ import javax.swing.text.StyledEditorKit;
 
 //import chesspresso.*;
 import chesspresso.game.Game;
-import chesspresso.game.TraverseListener;
 import chesspresso.game.GameModelChangeListener;
+import chesspresso.game.TraverseListener;
 import chesspresso.move.Move;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.NAG;
@@ -221,10 +221,12 @@ public class GameTextViewer extends JEditorPane
     void showCurrentGameNode() {
 	int node = m_game.getCurNode();
 	int index = -1;
-	for (int i = 0; i < m_moveNode.length; i++) {
-	    if (m_moveNode[i] >= node) {
-		index = i;
-		break;
+	if (node > 0) {
+	    for (int i = 0; i < m_moveNode.length; i++) {
+		if (m_moveNode[i] >= node) {
+		    index = i;
+		    break;
+		}
 	    }
 	}
 	getHighlighter().removeAllHighlights();
@@ -235,6 +237,16 @@ public class GameTextViewer extends JEditorPane
 		getHighlighter().addHighlight(m_moveBegin[index], m_moveEnd[index], highlightPainter);
 	    } catch (BadLocationException ignore) {
 	    }
+	} else if (node == 0 && m_moveBegin.length > 0) {
+	    // Highlight the triangle if and only if the start position is shown (node = 0)
+	    // and the triangle itself is shown (m_moveBegin.length > 0, see createText()).
+	    setCaretPosition(0); // Do not delete next two lines, because they scroll forward!
+	    setCaretPosition(1);
+	    try {
+		getHighlighter().addHighlight(0, 1, highlightPainter);
+	    } catch (BadLocationException ignore) {
+	    }
+
 	}
     }
 
@@ -356,6 +368,8 @@ public class GameTextViewer extends JEditorPane
 	    if (emptyGameComment != null && !emptyGameComment.isEmpty()) {
 		appendText(emptyGameComment + " ", COMMENT);
 	    }
+	} else {
+	    appendText("\u25BA ", MAIN);
 	}
 
 	m_needsMoveNumber = true;

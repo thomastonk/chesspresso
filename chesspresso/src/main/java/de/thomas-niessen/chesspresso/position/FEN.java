@@ -225,11 +225,11 @@ public class FEN {
 		ply = 2 * (moveNumber - 1) + 1;
 	    }
 	    pos.setPlyNumber(ply);
-	    pos.setFirstPlyNumber(ply);
+	    pos.setPlyOffset(ply);
 	} else { // default value
 	    int ply = pos.getToPlay() == Chess.WHITE ? 0 : 1;
 	    pos.setPlyNumber(ply);
-	    pos.setFirstPlyNumber(ply);
+	    pos.setPlyOffset(ply);
 	}
 
 	/* ============= check the resulting position ========== */

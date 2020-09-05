@@ -74,11 +74,13 @@ public interface ImmutablePosition {
     int getPlyNumber();
 
     /**
-     * Return the first ply number.
+     * Return the offset for the ply numbers. A standard game has offset 0; if the
+     * game is a fragment starting with White's 12th move, the offset is 22; if it
+     * starts with Black's 20th move, the offset is 39.
      *
-     * @return the first ply number
+     * @return the ply offset
      */
-    int getFirstPlyNumber();
+    int getPlyOffset();
 
     /**
      * Return the number of moves since the last capture and the last pawn move.

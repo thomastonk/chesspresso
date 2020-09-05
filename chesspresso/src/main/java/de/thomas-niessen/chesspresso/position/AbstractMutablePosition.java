@@ -31,7 +31,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
     protected boolean m_notifyListeners; // ... to check whether or not to fire
     protected boolean m_notifyPositionChanged;
 
-    protected int m_firstPly;
+    protected int m_plyOffset;
 
     /*
      * =========================================================================
@@ -418,12 +418,12 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
     }
 
     @Override
-    public void setFirstPlyNumber(int plyNumber) {
-	m_firstPly = plyNumber;
+    public void setPlyOffset(int plyNumber) {
+	m_plyOffset = plyNumber;
     }
 
     @Override
-    public int getFirstPlyNumber() {
-	return m_firstPly;
+    public int getPlyOffset() {
+	return m_plyOffset;
     }
 }

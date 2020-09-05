@@ -453,6 +453,18 @@ public final class Position extends AbstractMoveablePosition implements Serializ
      * =========================================================================
      */
 
+    public final int getWhitesKingSquare() {
+	return m_whiteKing;
+    }
+
+    public final int getBlacksKingSquare() {
+	return m_blackKing;
+    }
+
+    /*
+     * =========================================================================
+     */
+
     @Override
     public final int getToPlay() {
 	return ((m_flags >> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;

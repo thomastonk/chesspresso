@@ -17,6 +17,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
@@ -62,6 +63,22 @@ public class DecorationFactory {
 
     static public Decoration getGrayHazeDecoration(Collection<Integer> squares) {
 	return new GrayHaze(squares);
+    }
+
+    static public Decoration getTriangleInCornerDecoration(int square, Color color) {
+	return new TriangleInCorner(square, color);
+    }
+
+    static public Decoration getOneInCornerDecoration(int square, Color color) {
+	return new OneInCorner(square, color);
+    }
+
+    static public Decoration getZeroInCornerDecoration(int square, Color color) {
+	return new ZeroInCorner(square, color);
+    }
+
+    static public Decoration getBarInCornerDecoration(int square, Color color) {
+	return new BarInCorner(square, color);
     }
 
     static class Arrow implements Decoration {
@@ -319,8 +336,8 @@ public class DecorationFactory {
 	    for (Integer square : squares) {
 		int square_col = Chess.sqiToCol(square);
 		int square_row = Chess.NUM_OF_ROWS - 1 - Chess.sqiToRow(square);
-		area.add(new Area(new Rectangle2D.Double((double) (square_col * squareSize),
-			(double) (square_row * squareSize), (double) (squareSize), (double) (squareSize))));
+		area.add(new Area(new Rectangle2D.Double(square_col * squareSize, square_row * squareSize, (squareSize),
+			(squareSize))));
 	    }
 	    g2.draw(area);
 
@@ -444,6 +461,213 @@ public class DecorationFactory {
 	@Override
 	public DecorationType getType() {
 	    return DecorationType.GRAY_HAZE;
+	}
+    }
+
+    static class TriangleInCorner implements Decoration {
+	private final int square;
+	private final Color color;
+
+	TriangleInCorner(int square, Color color) {
+	    this.square = square;
+	    this.color = color;
+	}
+
+	@Override
+	public void paint(Graphics2D g, int squareSize, int bottomPlayer) {
+	    g.setColor(color);
+
+	    int square_col, square_row;
+	    if (bottomPlayer == Chess.WHITE) {
+		square_col = Chess.sqiToCol(square);
+		square_row = Chess.NUM_OF_ROWS - 1 - Chess.sqiToRow(square);
+	    } else {
+		square_col = Chess.NUM_OF_COLS - 1 - Chess.sqiToCol(square);
+		square_row = Chess.sqiToRow(square);
+	    }
+
+	    Polygon triangle = new Polygon();
+	    int x0 = squareSize * square_col + squareSize;
+	    int y0 = squareSize * square_row;
+	    triangle.addPoint(x0 - 15, y0 + 3);
+	    triangle.addPoint(x0 - 3, y0 + 3);
+	    triangle.addPoint(x0 - 9, y0 + 10);
+
+	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.fill(triangle);
+	    g2.dispose();
+	}
+
+	@Override
+	public Color getColor() {
+	    return color;
+	}
+
+	@Override
+	public DecorationType getType() {
+	    return DecorationType.TRIANGLE_IN_CORNER;
+	}
+    }
+
+    static class OneInCorner implements Decoration {
+	private final int square;
+	private final Color color;
+
+	OneInCorner(int square, Color color) {
+	    this.square = square;
+	    this.color = color;
+	}
+
+	@Override
+	public void paint(Graphics2D g, int squareSize, int bottomPlayer) {
+	    g.setColor(color);
+
+	    int square_col, square_row;
+	    if (bottomPlayer == Chess.WHITE) {
+		square_col = Chess.sqiToCol(square);
+		square_row = Chess.NUM_OF_ROWS - 1 - Chess.sqiToRow(square);
+	    } else {
+		square_col = Chess.NUM_OF_COLS - 1 - Chess.sqiToCol(square);
+		square_row = Chess.sqiToRow(square);
+	    }
+
+	    Polygon one = new Polygon();
+	    int x0 = squareSize * square_col + squareSize;
+	    int y0 = squareSize * square_row;
+	    one.addPoint(x0 - 7, y0 + 3);
+	    one.addPoint(x0 - 4, y0 + 3);
+	    one.addPoint(x0 - 4, y0 + 11);
+	    one.addPoint(x0 - 7, y0 + 11);
+	    one.addPoint(x0 - 7, y0 + 5);
+	    one.addPoint(x0 - 10, y0 + 5);
+
+	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setColor(color);
+	    g2.fill(one);
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setStroke(new BasicStroke(.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+	    g2.setColor(Color.black);
+	    g2.draw(one);
+	    g2.dispose();
+	}
+
+	@Override
+	public Color getColor() {
+	    return color;
+	}
+
+	@Override
+	public DecorationType getType() {
+	    return DecorationType.ONE_IN_CORNER;
+	}
+    }
+
+    static class ZeroInCorner implements Decoration {
+	private final int square;
+	private final Color color;
+
+	ZeroInCorner(int square, Color color) {
+	    this.square = square;
+	    this.color = color;
+	}
+
+	@Override
+	public void paint(Graphics2D g, int squareSize, int bottomPlayer) {
+	    g.setColor(color);
+
+	    int square_col, square_row;
+	    if (bottomPlayer == Chess.WHITE) {
+		square_col = Chess.sqiToCol(square);
+		square_row = Chess.NUM_OF_ROWS - 1 - Chess.sqiToRow(square);
+	    } else {
+		square_col = Chess.NUM_OF_COLS - 1 - Chess.sqiToCol(square);
+		square_row = Chess.sqiToRow(square);
+	    }
+
+	    Polygon zero = new Polygon();
+	    int x0 = squareSize * square_col + squareSize;
+	    int y0 = squareSize * square_row;
+	    zero.addPoint(x0 - 3, y0 + 3);
+	    zero.addPoint(x0 - 3, y0 + 11);
+	    zero.addPoint(x0 - 8, y0 + 11);
+	    zero.addPoint(x0 - 8, y0 + 3);
+	    zero.addPoint(x0 - 3, y0 + 3);
+
+	    zero.addPoint(x0 - 5, y0 + 5);
+	    zero.addPoint(x0 - 5, y0 + 9);
+	    zero.addPoint(x0 - 6, y0 + 9);
+	    zero.addPoint(x0 - 6, y0 + 5);
+	    zero.addPoint(x0 - 5, y0 + 5);
+
+	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setColor(color);
+	    g2.fill(zero);
+	    g2.setStroke(new BasicStroke(.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+	    g2.setColor(Color.black);
+	    g2.draw(zero);
+	    g2.dispose();
+	}
+
+	@Override
+	public Color getColor() {
+	    return color;
+	}
+
+	@Override
+	public DecorationType getType() {
+	    return DecorationType.ZERO_IN_CORNER;
+	}
+    }
+
+    static class BarInCorner implements Decoration {
+	private final int square;
+	private final Color color;
+
+	BarInCorner(int square, Color color) {
+	    this.square = square;
+	    this.color = color;
+	}
+
+	@Override
+	public void paint(Graphics2D g, int squareSize, int bottomPlayer) {
+	    g.setColor(color);
+
+	    int square_col, square_row;
+	    if (bottomPlayer == Chess.WHITE) {
+		square_col = Chess.sqiToCol(square);
+		square_row = Chess.NUM_OF_ROWS - 1 - Chess.sqiToRow(square);
+	    } else {
+		square_col = Chess.NUM_OF_COLS - 1 - Chess.sqiToCol(square);
+		square_row = Chess.sqiToRow(square);
+	    }
+
+	    Polygon bar = new Polygon();
+	    int x0 = squareSize * square_col + squareSize;
+	    int y0 = squareSize * square_row;
+	    bar.addPoint(x0 - 12, y0 + 4);
+	    bar.addPoint(x0 - 2, y0 + 4);
+	    bar.addPoint(x0 - 2, y0 + 7);
+	    bar.addPoint(x0 - 12, y0 + 7);
+
+	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setColor(color);
+	    g2.fill(bar);
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setStroke(new BasicStroke(.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+	    g2.setColor(Color.black);
+	    g2.draw(bar);
+	    g2.dispose();
+	}
+
+	@Override
+	public Color getColor() {
+	    return color;
+	}
+
+	@Override
+	public DecorationType getType() {
+	    return DecorationType.BAR_IN_CORNER;
 	}
     }
 }

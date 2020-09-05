@@ -19,7 +19,8 @@ import java.awt.Graphics2D;
 public interface Decoration {
 
     public enum DecorationType {
-	ARROW, BORDER, CIRCLE, CROSS_MARK, STROKE, FRAMED_AREA, GRAY_HAZE
+	ARROW, BORDER, CIRCLE, CROSS_MARK, STROKE, FRAMED_AREA, GRAY_HAZE, TRIANGLE_IN_CORNER, ONE_IN_CORNER,
+	ZERO_IN_CORNER, BAR_IN_CORNER
     };
 
     void paint(Graphics2D g, int squareSize, int bottomPlayer);

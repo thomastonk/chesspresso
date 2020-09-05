@@ -102,8 +102,8 @@ public class CompactPosition extends AbstractPosition {
     }
 
     @Override
-    public int getFirstPlyNumber() {
-	throw new RuntimeException("Unexpected use of method getFirstPlyNumber for CompactPosition");
+    public int getPlyOffset() {
+	throw new RuntimeException("Unexpected use of method getPlyOffset for CompactPosition");
     }
 
 }
