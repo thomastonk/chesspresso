@@ -44,9 +44,6 @@ public class CompactPosition extends AbstractPosition {
      * =============================================================================
      */
 
-    public CompactPosition() {
-    }
-
     public CompactPosition(ImmutablePosition position) {
 	m_stones = new int[Chess.NUM_OF_SQUARES / 8];
 	for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi += 8) {
@@ -105,5 +102,4 @@ public class CompactPosition extends AbstractPosition {
     public int getPlyOffset() {
 	throw new RuntimeException("Unexpected use of method getPlyOffset for CompactPosition");
     }
-
 }

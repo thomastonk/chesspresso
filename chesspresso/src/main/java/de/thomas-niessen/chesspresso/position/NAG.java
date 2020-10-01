@@ -168,7 +168,10 @@ public abstract class NAG {
 	    "Black has severe time control pressure", // 139
 	    "TN introduced this one: at", // 140
 	    "TN introduced this one: suit (Pik)", // 141
-	    "TN introduced this one: two rectangles" // 142
+	    "TN introduced this one: two rectangles", // 142
+	    "", // 143
+	    "", // 144
+	    "Editorial comment (ChessBase)" // 145
     };
 
     private static String[] SHORT_DESCRIPTION = { null, // 0
@@ -313,7 +316,10 @@ public abstract class NAG {
 	    null, // "Black has severe time control pressure"; // 139
 	    "\u0040", // "TN introduced this one"; // 140 @
 	    "\u2660", // "TN introduced this one"; // 141 Pik
-	    "\u26CB" // "TN introduced this one"; // 142 One rectangle within another
+	    "\u26CB", // "TN introduced this one"; // 142 One rectangle within another
+	    null, // 143
+	    null, // 144
+	    " RR " // Chessbase // 145
     };
 
     /*

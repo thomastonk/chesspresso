@@ -100,26 +100,29 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     /*
-     * Return a game fragment starting at a certain ply and having a given number of
-     * plies. If numOfPlies < 0, then all remaining moves are added. If startPly <
-     * Position::getPlyOffset or startPly > Position::getPlyOffset +
-     * Game::getNumOfPlies, then null is returned.
+     * Returns a game fragment starting with the given new ply offset and having a
+     * given number of plies. If argument numOfPlies < 0, then all remaining moves
+     * are added. If newPlyOffset < Position::getPlyOffset or newPlyOffset >
+     * Position::getPlyOffset + Game::getNumOfPlies, then null is returned. If
+     * numOfPlies >= 0 and newPlyOffset + numOfPlies > getPlyOffset() +
+     * getNumOfPlies(), then a fragment with less plies is returned.
      */
-    public Game getFragment(int startPly, int numOfPlies) {
-	if (startPly <= m_position.getPlyOffset() || startPly > m_position.getPlyOffset() + getNumOfPlies()) {
+    public Game getFragment(int newPlyOffset, int numOfPlies) {
+	if (newPlyOffset < m_position.getPlyOffset() || newPlyOffset > m_position.getPlyOffset() + getNumOfPlies()) {
 	    return null;
 	}
 	if (numOfPlies < 0) { // all moves starting with ply startPly
 	    numOfPlies = 32676;
 	}
-
 	Game copy = getDeepCopy();
-	copy.gotoPly(startPly - 1);
+	copy.gotoPly(newPlyOffset);
 	Game fragment = new Game(new GameModel(copy.m_header.getDeepCopy(), new GameMoveModel()));
 	String fen = copy.getPosition().getFEN();
-	fragment.setTag(PGN.TAG_FEN, fen);
+	if (!fen.equals(FEN.START_POSITION)) {
+	    fragment.setTag(PGN.TAG_FEN, fen);
+	}
 	FEN.initFromFEN(fragment.m_position, fen);
-	fragment.m_position.setPlyOffset(startPly);
+	fragment.m_position.setPlyOffset(newPlyOffset);
 	while (copy.goForward() && numOfPlies > 0) {
 	    Move move = copy.getLastMove();
 	    try {

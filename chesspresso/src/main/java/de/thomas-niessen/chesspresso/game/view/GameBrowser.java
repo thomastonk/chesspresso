@@ -515,7 +515,7 @@ public class GameBrowser extends JPanel
 	jToolBar1.add(m_buttBackward);
 
 	m_buttForward.setText(">");
-	m_buttForward.setToolTipText("Foward");
+	m_buttForward.setToolTipText("Forward");
 	m_buttForward.addActionListener(new ActionListener() {
 	    @Override
 	    public void actionPerformed(ActionEvent evt) {
@@ -1127,7 +1127,7 @@ public class GameBrowser extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e) {
 			    Object fen = JOptionPane.showInputDialog(GameBrowser.this, "FEN",
-				    "Set startposition by FEN", JOptionPane.OK_CANCEL_OPTION, null, null,
+				    "Set start position by FEN", JOptionPane.OK_CANCEL_OPTION, null, null,
 				    m_game.getTag(PGN.TAG_FEN));
 			    if (fen != null) {
 				m_game.setGameByFEN(fen.toString(), false);

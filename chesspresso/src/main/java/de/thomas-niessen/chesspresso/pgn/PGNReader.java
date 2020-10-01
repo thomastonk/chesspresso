@@ -426,6 +426,7 @@ public final class PGNReader extends PGN {
 	    variant = variant.toLowerCase();
 	    if (variant.contains("chess") && variant.contains("960")) {
 		m_curGame.setVariant(Variant.CHESS960);
+	    } else if (variant.contains("standard") || variant.contains("three-check")) { // as in lichess
 	    } else {
 		System.err.println("PGNReader::initForMovetext: unknown variant " + m_curGame.getTag(TAG_VARIANT));
 	    }

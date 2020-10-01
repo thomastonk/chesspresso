@@ -385,6 +385,18 @@ public final class Position extends AbstractMoveablePosition implements Serializ
      * =========================================================================
      */
 
+    public long getAllPawnsBB() {
+	return m_bbPawns;
+    }
+
+    public long getWhitePawnsBB() {
+	return m_bbPawns & m_bbWhites;
+    }
+
+    /*
+     * =========================================================================
+     */
+
     public static Position createInitialPosition() {
 	return new Position(FEN.START_POSITION, true);
     }
