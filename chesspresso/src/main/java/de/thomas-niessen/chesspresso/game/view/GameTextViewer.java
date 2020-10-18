@@ -55,10 +55,10 @@ public class GameTextViewer extends JEditorPane
     // attributes for main line
     private static SimpleAttributeSet MAIN = new SimpleAttributeSet();
 
-    // attributes for NAGSs
+    // attributes for NAGs
     private static SimpleAttributeSet NAG_SET = new SimpleAttributeSet();
 
-    // attributes for second NAGSs
+    // attributes for second NAGs
     private static SimpleAttributeSet NAG_SET_EXTRA = new SimpleAttributeSet();
 
     // attributes for comments
@@ -67,32 +67,40 @@ public class GameTextViewer extends JEditorPane
     // attributes for lines
     private static SimpleAttributeSet LINE = new SimpleAttributeSet();
 
-    static {
-	// IDEA: take some parameters from actual editor pane instance (e.g. font, font
-	// size)
+    private static String startSymbol;
 
+    static {
+	String fontFamily;
+	if (System.getProperty("os.name").toLowerCase().contains("win")) {
+	    fontFamily = "Arial";
+	    startSymbol = "\u25BA "; // This arrow and the triangle \u2586 don't work or don't look good with font
+	    // 'Dialog'. The upwards triangle \u25B2 is a better choice then.
+	} else {
+	    fontFamily = "Dialog";
+	    startSymbol = "\u25B2 ";
+	}
+	int fontSize = 12;
 	StyleConstants.setForeground(MAIN, Color.black);
 	StyleConstants.setBold(MAIN, true);
-	StyleConstants.setFontFamily(MAIN, "Arial");
-	StyleConstants.setFontSize(MAIN, 12);
+	StyleConstants.setFontFamily(MAIN, fontFamily); // war Arial
+	StyleConstants.setFontSize(MAIN, fontSize);
 
 	StyleConstants.setForeground(NAG_SET, Color.black);
-	StyleConstants.setFontFamily(NAG_SET, "Arial");
-	StyleConstants.setFontSize(NAG_SET, 12);
+	StyleConstants.setFontFamily(NAG_SET, fontFamily);
+	StyleConstants.setFontSize(NAG_SET, fontSize);
 
 	StyleConstants.setForeground(NAG_SET_EXTRA, Color.red);
-	StyleConstants.setFontFamily(NAG_SET_EXTRA, "Serif");
-	StyleConstants.setFontSize(NAG_SET_EXTRA, 12);
+	StyleConstants.setFontFamily(NAG_SET_EXTRA, fontFamily); // war Serif
+	StyleConstants.setFontSize(NAG_SET_EXTRA, fontSize);
 
 	StyleConstants.setForeground(COMMENT, Color.black);
-	StyleConstants.setFontFamily(COMMENT, "Serif");
-	StyleConstants.setFontSize(COMMENT, 12);
-	StyleConstants.setItalic(COMMENT, true);
+	StyleConstants.setFontFamily(COMMENT, fontFamily); // war Serif
+	StyleConstants.setFontSize(COMMENT, fontSize);
+//	StyleConstants.setItalic(COMMENT, true);
 
 	StyleConstants.setForeground(LINE, Color.black);
-	StyleConstants.setFontFamily(LINE, "Serif");
-	StyleConstants.setFontSize(LINE, 12);
-
+	StyleConstants.setFontFamily(LINE, fontFamily); // war Serif
+	StyleConstants.setFontSize(LINE, fontSize);
     }
 
     // ======================================================================
@@ -369,7 +377,7 @@ public class GameTextViewer extends JEditorPane
 		appendText(emptyGameComment + " ", COMMENT);
 	    }
 	} else {
-	    appendText("\u25BA ", MAIN);
+	    appendText(startSymbol, MAIN);
 	}
 
 	m_needsMoveNumber = true;
@@ -425,7 +433,7 @@ public class GameTextViewer extends JEditorPane
 
     private int getNodeForCaret() {
 	int caret = getCaretPosition();
-	if (caret == 0)
+	if (caret < 3)
 	    return m_game.getRootNode();
 	for (int i = 0; i < m_moveNode.length - 1; i++) {
 	    if (m_moveBegin[i + 1] > caret)

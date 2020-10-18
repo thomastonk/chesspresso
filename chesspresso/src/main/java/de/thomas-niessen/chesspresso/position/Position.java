@@ -385,6 +385,14 @@ public final class Position extends AbstractMoveablePosition implements Serializ
      * =========================================================================
      */
 
+    public final int getWhitesKingSquare() {
+	return m_whiteKing;
+    }
+
+    public final int getBlacksKingSquare() {
+	return m_blackKing;
+    }
+
     public long getAllPawnsBB() {
 	return m_bbPawns;
     }
@@ -459,18 +467,6 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	    m_moves[index] = 0;
 	    ++index;
 	}
-    }
-
-    /*
-     * =========================================================================
-     */
-
-    public final int getWhitesKingSquare() {
-	return m_whiteKing;
-    }
-
-    public final int getBlacksKingSquare() {
-	return m_blackKing;
     }
 
     /*

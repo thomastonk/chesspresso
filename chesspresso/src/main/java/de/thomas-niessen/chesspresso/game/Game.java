@@ -587,14 +587,22 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     // TODO: Could be done by means of traverse.
+    // TODO: This seems to be slow. Maybe one should remove all comments silently
+    // (i.e. without fireMoveModelChanged) and call this only once at the end of the
+    // method.
     public void removeAllComments() {
-	int index = m_cur;
-	gotoStart(true);
-	removeAllComments(0); // here fireMoveModelChanged is called, if necessary
-	if (index != 0) {
-	    gotoNode(index, true); // index is indeed correct!
+	if (getNumOfPlies() == 0) {
+	    m_moves.setEmptyGameComment(null);
+	    fireMoveModelChanged();
 	} else {
-	    gotoNode(index, false); // Workaround: here silent=true would not update the GameTextViewer
+	    int index = m_cur;
+	    gotoStart(true);
+	    removeAllComments(0); // here fireMoveModelChanged is called, if necessary
+	    if (index != 0) {
+		gotoNode(index, true); // index is indeed correct!
+	    } else {
+		gotoNode(index, false); // Workaround: here silent=true would not update the GameTextViewer
+	    }
 	}
     }
 

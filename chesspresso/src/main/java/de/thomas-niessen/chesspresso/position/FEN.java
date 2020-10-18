@@ -91,7 +91,8 @@ public class FEN {
 		}
 	    }
 	    if (colIndex != 8) {
-		throw new IllegalArgumentException("Faulty FEN: wrong number of pieces in row " + (rowIndex + 1));
+		throw new IllegalArgumentException("Faulty FEN: check information '" + row + "' for FEN row "
+			+ (rowIndex + 1) + " (board row " + (8 - rowIndex) + ")");
 	    }
 	}
 

@@ -15,6 +15,7 @@ package chesspresso.position.view;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
@@ -79,6 +80,10 @@ public class DecorationFactory {
 
     static public Decoration getBarInCornerDecoration(int square, Color color) {
 	return new BarInCorner(square, color);
+    }
+
+    static public Decoration getTextDecoration(int square, Color color, String text) {
+	return new Text(square, color, text);
     }
 
     static class Arrow implements Decoration {
@@ -669,5 +674,50 @@ public class DecorationFactory {
 	public DecorationType getType() {
 	    return DecorationType.BAR_IN_CORNER;
 	}
+    }
+
+    static class Text implements Decoration {
+	private final int square;
+	private final Color color;
+	private final String text;
+
+	Text(int square, Color color, String text) {
+	    this.square = square;
+	    this.color = color;
+	    this.text = text;
+	}
+
+	@Override
+	public void paint(Graphics2D g, int squareSize, int bottomPlayer) {
+	    g.setColor(color);
+
+	    int square_col, square_row;
+	    if (bottomPlayer == Chess.WHITE) {
+		square_col = Chess.sqiToCol(square);
+		square_row = Chess.NUM_OF_ROWS - 1 - Chess.sqiToRow(square);
+	    } else {
+		square_col = Chess.NUM_OF_COLS - 1 - Chess.sqiToCol(square);
+		square_row = Chess.sqiToRow(square);
+	    }
+
+	    int x0 = squareSize * square_col + squareSize;
+	    int y0 = squareSize * square_row;
+
+	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setFont(new Font(Font.DIALOG, Font.PLAIN, squareSize - 12));
+	    g2.drawString(text, x0, y0);
+	    g2.dispose();
+	}
+
+	@Override
+	public Color getColor() {
+	    return color;
+	}
+
+	@Override
+	public DecorationType getType() {
+	    return DecorationType.TEXT;
+	}
+
     }
 }
