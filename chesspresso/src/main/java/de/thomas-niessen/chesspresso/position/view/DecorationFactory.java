@@ -138,6 +138,8 @@ public class DecorationFactory {
 	    tx.translate(line.x2, line.y2);
 	    tx.rotate((angle - Math.PI / 2d));
 	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    g2.setTransform(tx);
 	    g2.fill(arrowHead);
 	    g2.draw(arrowBody);
@@ -331,6 +333,8 @@ public class DecorationFactory {
 	@Override
 	public void paint(Graphics2D g, int squareSize, int bottomPlayer) {
 	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    g2.setColor(color);
 	    g2.setStroke(new BasicStroke(squareSize / 8, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 	    if (bottomPlayer == Chess.BLACK) {
@@ -499,6 +503,8 @@ public class DecorationFactory {
 	    triangle.addPoint(x0 - 9, y0 + 10);
 
 	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    g2.fill(triangle);
 	    g2.dispose();
 	}
@@ -547,9 +553,10 @@ public class DecorationFactory {
 	    one.addPoint(x0 - 10, y0 + 5);
 
 	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    g2.setColor(color);
 	    g2.fill(one);
-	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	    g2.setStroke(new BasicStroke(.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 	    g2.setColor(Color.black);
 	    g2.draw(one);
@@ -606,6 +613,7 @@ public class DecorationFactory {
 
 	    Graphics2D g2 = (Graphics2D) g.create();
 	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    g2.setColor(color);
 	    g2.fill(zero);
 	    g2.setStroke(new BasicStroke(.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -656,9 +664,10 @@ public class DecorationFactory {
 	    bar.addPoint(x0 - 12, y0 + 7);
 
 	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    g2.setColor(color);
 	    g2.fill(bar);
-	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	    g2.setStroke(new BasicStroke(.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 	    g2.setColor(Color.black);
 	    g2.draw(bar);
@@ -704,6 +713,8 @@ public class DecorationFactory {
 	    int y0 = squareSize * square_row;
 
 	    Graphics2D g2 = (Graphics2D) g.create();
+	    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    g2.setFont(new Font(Font.DIALOG, Font.PLAIN, squareSize - 12));
 	    g2.drawString(text, x0, y0);
 	    g2.dispose();

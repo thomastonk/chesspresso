@@ -588,6 +588,7 @@ public class PositionView extends java.awt.Component implements PositionListener
     public void paint(Graphics graphics) {
 	super.paint(graphics);
 	Graphics2D g2 = (Graphics2D) graphics;
+	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	int squareSize = getFont().getSize() + squareOffset;
 
@@ -644,9 +645,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 		}
 		// draw the stone's image
 		g2.setColor(color);
-		graphics.drawString(getStringForStone(stone, stoneIsWhite), transX, transY + 1); // <- mystical
-		// I introduced text anti-aliasing, which improves the layout. But the mystical
-		// +1 is not understood.
+		graphics.drawString(getStringForStone(stone, stoneIsWhite), transX, transY);
 	    }
 	}
 	// Fourth step: draw the layer below the stones

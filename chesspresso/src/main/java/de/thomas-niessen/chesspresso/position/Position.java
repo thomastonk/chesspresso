@@ -401,6 +401,10 @@ public final class Position extends AbstractMoveablePosition implements Serializ
 	return m_bbPawns & m_bbWhites;
     }
 
+    public long getBlackPawnsBB() {
+	return m_bbPawns & m_bbBlacks;
+    }
+
     /*
      * =========================================================================
      */
