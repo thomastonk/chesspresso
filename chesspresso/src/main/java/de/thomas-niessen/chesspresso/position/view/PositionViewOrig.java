@@ -84,7 +84,7 @@ public class PositionViewOrig extends java.awt.Component
 	m_draggedFrom = Chess.NO_SQUARE;
 	m_draggedPartnerSqi = Chess.NO_SQUARE;
 	m_positionMotionListener = null;
-	m_position.addPositionListener(this); // TODO: when do we remove it?
+	m_position.addPositionListener(this); // TO_DO: when do we remove it?
 	addMouseListener(this);
 	addMouseMotionListener(this);
     }
@@ -272,7 +272,7 @@ public class PositionViewOrig extends java.awt.Component
 	    m_draggedX = e.getX();
 	    m_draggedY = e.getY();
 //	    m_draggedPartnerSqi = m_positionMotionListener.getPartnerSqi(m_position, m_draggedFrom);
-	    // TODO mark m_draggedPartnerSqi
+	    // TO_DO mark m_draggedPartnerSqi
 	    repaint();
 	} else {
 	    m_positionMotionListener.squareClicked(m_position, m_draggedFrom, e);
@@ -299,7 +299,7 @@ public class PositionViewOrig extends java.awt.Component
 	    }
 	    m_draggedFrom = Chess.NO_SQUARE;
 	    m_draggedStone = Chess.NO_STONE;
-	    // TODO unmark m_draggedPartnerSqi
+	    // TO_DO unmark m_draggedPartnerSqi
 	    repaint();
 	}
     }

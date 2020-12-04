@@ -571,58 +571,54 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     public void removePreMoveComment() {
+	removePreMoveComment(false);
+    }
+
+    private void removePreMoveComment(boolean silent) {
 	String preComment = getPreMoveComment();
 	if (preComment != null) {
 	    if (m_moves.removePreMoveComment(m_cur)) {
 		// this removePreMoveComment does not change m_cur because only the comment is
 		// overwritten
-		fireMoveModelChanged();
+		if (!silent) {
+		    fireMoveModelChanged();
+		}
 	    }
 	}
     }
 
     public void removePostMoveComment() {
-	if (m_moves.removePostMoveComment(m_cur))
-	    fireMoveModelChanged();
+	removePostMoveComment(false);
     }
 
-    // TODO: Could be done by means of traverse.
-    // TODO: This seems to be slow. Maybe one should remove all comments silently
-    // (i.e. without fireMoveModelChanged) and call this only once at the end of the
-    // method.
+    private void removePostMoveComment(boolean silent) {
+	if (m_moves.removePostMoveComment(m_cur) && !silent) {
+	    fireMoveModelChanged();
+	}
+    }
+
     public void removeAllComments() {
 	if (getNumOfPlies() == 0) {
 	    m_moves.setEmptyGameComment(null);
-	    fireMoveModelChanged();
 	} else {
-	    int index = m_cur;
-	    gotoStart(true);
-	    removeAllComments(0); // here fireMoveModelChanged is called, if necessary
-	    if (index != 0) {
-		gotoNode(index, true); // index is indeed correct!
-	    } else {
-		gotoNode(index, false); // Workaround: here silent=true would not update the GameTextViewer
-	    }
-	}
-    }
-
-    private void removeAllComments(int level) {
-	while (hasNextMove()) {
-	    int numOfNextMoves = getNumOfNextMoves();
-	    goForwardAndGetMove(true);
-	    removePreMoveComment();
-	    removePostMoveComment();
-	    if (numOfNextMoves > 1) {
-		for (int i = 1; i < numOfNextMoves; i++) {
-		    goBack(true);
-		    goForwardAndGetMove(i, true);
-		    removePreMoveComment();
-		    removePostMoveComment();
-		    removeAllComments(level + 1);
-		    goBackToMainLine(true);
+	    traverse(new TraverseListener() {
+		@Override
+		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment,
+			int plyNumber, int level) {
+		    removePreMoveComment(true);
+		    removePostMoveComment(true);
 		}
-	    }
+
+		@Override
+		public void notifyLineStart(int level) {
+		}
+
+		@Override
+		public void notifyLineEnd(int level) {
+		}
+	    }, true);
 	}
+	fireMoveModelChanged();
     }
 
     public String getEmptyGameComment() {

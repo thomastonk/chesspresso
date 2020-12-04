@@ -294,7 +294,7 @@ public class GameTextViewer extends JEditorPane
     }
 
     // ======================================================================
-    // Methods to implement GameListener
+    // Methods to implement TraverseListener
 
     // state to indicate whether a move number will be needed for the next move
     private boolean m_needsMoveNumber;
