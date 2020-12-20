@@ -70,6 +70,7 @@ public class GameBrowser extends JPanel
     private PositionView m_positionView;
     private GameTextViewer m_textViewer;
     private boolean m_editable;
+    private boolean m_oneClickMoves;
     private boolean m_extraButtons;
 
     private Component m_parent = null;
@@ -132,6 +133,7 @@ public class GameBrowser extends JPanel
 	m_textFrame.add(new JScrollPane(m_textViewer), BorderLayout.CENTER);
 
 	m_editable = editable;
+	m_oneClickMoves = false;
 	m_extraButtons = extraButtons;
 	if (!m_extraButtons) {
 	    m_buttNAG.setVisible(false);
@@ -309,6 +311,10 @@ public class GameBrowser extends JPanel
 	}
     }
 
+    public void allowOneClickMoves(boolean allow) {
+	m_oneClickMoves = allow;
+    }
+
     // ======================================================================
     // Methods to implement PositionMotionListener
 
@@ -323,6 +329,8 @@ public class GameBrowser extends JPanel
 	try {
 	    m_game.getPosition().doMove(m_game.getPosition().getMove(from, to, Chess.NO_PIECE));
 	    // TN: this code is not correct, because no promotion is possible.
+	    m_game.getPosition().firePositionChanged(); // TN: that's necessary, unfortunately
+	    // TODO see below!
 	} catch (IllegalMoveException ex) {
 	    ex.printStackTrace();
 	    return false;
@@ -332,6 +340,28 @@ public class GameBrowser extends JPanel
 
     @Override
     public void squareClicked(ImmutablePosition position, int sqi, MouseEvent e) {
+	if (m_editable && m_oneClickMoves) {
+	    short[] moves = m_game.getPosition().getAllMoves();
+	    short uniqueMove = Move.NO_MOVE;
+	    for (short move : moves) {
+		if (sqi == Move.getToSqi(move)) {
+		    if (uniqueMove != Move.NO_MOVE) { // not unique
+			return;
+		    }
+		    uniqueMove = move;
+		}
+	    }
+	    if (uniqueMove != Move.NO_MOVE) {
+		try {
+		    m_game.getPosition().doMove(uniqueMove);
+		    m_game.getPosition().firePositionChanged(); // TN: that's necessary, unfortunately
+		    // TODO Check this out! doMove calls fireMoveDone, which calls notifyMoveDone
+		    // for the listeners and that's not enough.
+		    // TODO: Compare notifyMoveDone and notifyPositionChanged.
+		} catch (IllegalMoveException ignore) {
+		}
+	    }
+	}
     }
 
     // ======================================================================
