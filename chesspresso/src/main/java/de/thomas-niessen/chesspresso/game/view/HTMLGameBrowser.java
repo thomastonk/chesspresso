@@ -24,7 +24,6 @@ import chesspresso.move.Move;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.NAG;
 import chesspresso.position.Position;
-//import java.util.Stack;
 
 /**
  * Producer for HTML pages displaying a game.

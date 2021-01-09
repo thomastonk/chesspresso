@@ -14,6 +14,8 @@
  ******************************************************************************/
 package chesspresso.position;
 
+import chesspresso.Variant;
+
 /**
  *
  * @author $Author: Bernhard Seybold $
@@ -34,9 +36,25 @@ public interface MutablePosition extends ImmutablePosition {
 
     void setToPlay(int toPlay);
 
+    void toggleToPlay();
+
     void setPlyNumber(int plyNumber);
 
-    void setPlyOffset(int plyNumber);
+    void setPlyOffset(int plyOffset);
 
     void setHalfMoveClock(int halfMoveClock);
+
+    void setVariant(Variant variant);
+
+    void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile);
+
+    void moveAllUp();
+
+    void moveAllDown();
+
+    void moveAllLeft();
+
+    void moveAllRight();
+
+    void invert();
 }

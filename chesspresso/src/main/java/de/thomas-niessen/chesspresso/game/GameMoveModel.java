@@ -743,25 +743,22 @@ class GameMoveModel implements Serializable {
 
     // TN added:
     /**
-     * Determines if current position is the main line.
+     * Determines if the node at the given index belongs to the main line.
      * 
-     * @return true, if main line
+     * @return true, if the node at the given index belongs to the main line, false
+     *         otherwise
      */
     boolean isMainLine(int index) {
 	int level = 0;
-	while (index >= 0) {
-	    short move = m_moves[index];
-	    if (move == LINE_START) {
+	for (int i = 0; i <= index; ++i) {
+	    short node = m_moves[i];
+	    if (node == LINE_START) {
 		++level;
-		if (level == 1) {
-		    return index == 0;
-		}
-	    } else if (move == LINE_END) {
+	    } else if (node == LINE_END) {
 		--level;
 	    }
-	    --index;
 	}
-	return true;
+	return level == 1;
     }
 
     /**
@@ -1244,7 +1241,8 @@ class GameMoveModel implements Serializable {
     }
 
     // TN added:
-    void deleteRemainingMoves(int index) {
+    // The return value indicates, whether some move was deleted.
+    boolean deleteRemainingMoves(int index) {
 	if (DEBUG) {
 	    System.out.println("deleteRemainingMoves " + index);
 	    write(System.out);
@@ -1252,6 +1250,12 @@ class GameMoveModel implements Serializable {
 
 	if (EXTRA_CHECKS)
 	    checkLegalCursor(index);
+
+	// go to the next move
+	index = goForward(index);
+	if (m_moves[index] == LINE_END) {
+	    return false;
+	}
 
 	int level = 0;
 	boolean deleteLineEnd = false;
@@ -1278,7 +1282,7 @@ class GameMoveModel implements Serializable {
 	changed();
 	if (DEBUG)
 	    write(System.out);
-
+	return true;
     }
 
     void deleteCurrentLine(int index) {

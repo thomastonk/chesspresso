@@ -112,7 +112,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	if (s_startPositionHashCode == 0L) {
 	    AbstractMutablePosition startPos = new LightWeightPosition();
 	    FEN.initFromFEN(startPos, FEN.START_POSITION);
-	    s_startPositionHashCode = new Position(startPos).getHashCode(); // do after bitBoard init
+	    s_startPositionHashCode = new PositionImpl(startPos).getHashCode(); // do after bitBoard init
 	}
 	return s_startPositionHashCode;
     }
@@ -190,6 +190,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	return FEN.getFEN(this);
     }
 
+    @Override
     public String getFEN(int numberOfParts) {
 	return FEN.getFEN(this, numberOfParts);
     }
@@ -210,7 +211,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
 //    }
 
     @Override
-    public Validity isValid() {
+    public Validity getValidity() {
 	/*---------- check to play ----------*/
 	if (getToPlay() != Chess.WHITE && getToPlay() != Chess.BLACK) {
 	    return Validity.NO_ONE_TO_PLAY;

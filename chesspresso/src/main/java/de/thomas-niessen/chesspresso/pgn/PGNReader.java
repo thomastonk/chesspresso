@@ -706,7 +706,7 @@ public final class PGNReader extends PGN {
 		commentsArePreMove = true;
 		comments.clear();
 		if (level >= 0) {
-		    m_curGame.goBackToMainLine();
+		    m_curGame.goBackToParentLine();
 		} else {
 		    syntaxError("Unexpected variation end");
 		}

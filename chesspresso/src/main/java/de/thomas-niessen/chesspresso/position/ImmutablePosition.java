@@ -14,6 +14,8 @@
  ******************************************************************************/
 package chesspresso.position;
 
+import chesspresso.Variant;
+
 /**
  *
  * @author Bernhard Seybold
@@ -44,6 +46,14 @@ public interface ImmutablePosition {
      * @return the stone of the given square
      */
     int getStone(int sqi);
+
+    /**
+     * Return the piece currently on the given square.
+     *
+     * @param sqi the square
+     * @return the piece of the given square
+     */
+    public int getPiece(int sqi);
 
     /**
      * Return the current en passant square.
@@ -95,7 +105,7 @@ public interface ImmutablePosition {
      *
      * @return whether the current position is valid or a error code
      */
-    Validity isValid();
+    Validity getValidity();
 
     // ======================================================================
     // FEN
@@ -106,6 +116,14 @@ public interface ImmutablePosition {
      * @return the FEN representation of the current position
      */
     String getFEN();
+
+    /**
+     * Return the first parts of the FEN representation of the current position
+     * {@link FEN}
+     *
+     * @return the first parts of the FEN representation of the current position
+     */
+    String getFEN(int numberOfParts);
 
     // ======================================================================
 
@@ -135,6 +153,66 @@ public interface ImmutablePosition {
      */
     @Override
     int hashCode();
+
+    /**
+     * @return the square of the White's king
+     */
+    int getWhitesKingSquare();
+
+    /**
+     * @return the square of the Black's king
+     */
+    int getBlacksKingSquare();
+
+    /**
+     * @return a bitboard for all pawns
+     */
+    long getAllPawnsBB();
+
+    /**
+     * @return a bitboard for White's pawns
+     */
+    long getWhitePawnsBB();
+
+    /**
+     * @return a bitboard for Black's pawns
+     */
+    long getBlackPawnsBB();
+
+    /**
+     * @return whether there is a check in the position
+     */
+    boolean isCheck();
+
+    /**
+     * @return whether the position a mate position
+     */
+    boolean isMate();
+
+    /**
+     * @return whether the position a stalemate position
+     */
+    boolean isStaleMate();
+
+    /**
+     * @return the chess variant
+     */
+    Variant getVariant();
+
+    /**
+     * @return the chess960 king file
+     */
+    int getChess960KingFile();
+
+    /**
+     * @return the chess960 queenside rook file
+     */
+    int getChess960QueensideRookFile();
+
+    /**
+     * @return the chess960 kingside rook file
+     */
+    int getChess960KingsideRookFile();
 
     // ======================================================================
 

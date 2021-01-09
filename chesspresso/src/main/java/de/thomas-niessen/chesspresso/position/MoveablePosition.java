@@ -42,4 +42,8 @@ public interface MoveablePosition extends MutablePosition {
     short getMove(int from, int to, int promoPiece);
 
     short[] getAllMoves();
+
+    short getPawnMove(int colFrom, int to, int promoPiece);
+
+    short getPieceMove(int piece, int colFrom, int rowFrom, int to);
 }

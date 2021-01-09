@@ -15,15 +15,9 @@
 package chesspresso.position;
 
 public interface PositionListener {
-	void squareChanged(int sqi, int stone);
+    public enum ChangeType {
+	SQUARE_CHANGED, MOVE_DONE, MOVE_UNDONE, OTHER
+    }
 
-	void toPlayChanged(int toPlay);
-
-	void castlesChanged(int castles);
-
-	void sqiEPChanged(int sqiEP);
-
-	void plyNumberChanged(int plyNumber);
-
-	void halfMoveClockChanged(int halfMoveClock);
+    void positionChanged(ChangeType type, ImmutablePosition position, short move);
 }

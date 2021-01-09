@@ -121,7 +121,7 @@ public class FEN {
 			    "Faulty FEN: expected castling information of length at most 4, found " + castleString);
 		}
 		if (castleString.matches("[kqKQ]+")) { // standard FEN encoding
-		    if (!(pos instanceof Position) || ((Position) pos).getVariant() == Variant.STANDARD) { // no-Chess960
+		    if (pos.getVariant() == Variant.STANDARD) { // no-Chess960
 			for (int i = 0; i < castleString.length(); ++i) {
 			    char ch = castleString.charAt(i);
 			    if (ch == 'K') {
@@ -146,8 +146,8 @@ public class FEN {
 		    } else {
 			setChess960Castling(pos, castleString);
 		    }
-		} else if (castleString.matches("[a-hA-HkqKQ]+") && pos instanceof Position) {
-		    ((Position) pos).setVariant(Variant.CHESS960);
+		} else if (castleString.matches("[a-hA-HkqKQ]+")) {
+		    pos.setVariant(Variant.CHESS960);
 		    setChess960Castling(pos, castleString);
 		} else {
 		    throw new IllegalArgumentException("Faulty castling options in FEN: " + castleString);
@@ -245,15 +245,11 @@ public class FEN {
     }
 
     private static void setChess960Castling(MutablePosition pos, String castleString) {
-	if (!(pos instanceof Position)) {
-	    throw new RuntimeException("Internal error in FEN.setChess960Castling.");
-	}
 	if (!castleString.matches("[a-hA-HkqKQ]+")) {
 	    throw new IllegalArgumentException("Faulty castling options in FEN: " + castleString);
 	}
 
-	Position position = (Position) pos;
-	position.setVariant(Variant.CHESS960);
+	pos.setVariant(Variant.CHESS960);
 
 	boolean whiteCanCastle = castleString.matches(".*[A-HKQ]+.*");
 	boolean blackCanCastle = castleString.matches(".*[a-hkq]+.*");
@@ -697,7 +693,7 @@ public class FEN {
 	}
 
 	pos.setCastles(castles);
-	position.setChess960CastlingFiles(whitesKingSquare, queensideRookSquare, kingsideRookSquare);
+	pos.setChess960CastlingFiles(whitesKingSquare, queensideRookSquare, kingsideRookSquare);
     }
 
     public static String getFEN(ImmutablePosition pos, int numberOfParts) {
@@ -747,7 +743,7 @@ public class FEN {
 	sb.append(' ');
 	int castles = pos.getCastles();
 	if (castles != ImmutablePosition.NO_CASTLES) {
-	    if (!(pos instanceof Position) || ((Position) pos).getVariant() == Variant.STANDARD) {
+	    if (pos.getVariant() == Variant.STANDARD) {
 		if ((castles & ImmutablePosition.WHITE_SHORT_CASTLE) != 0)
 		    sb.append('K');
 		if ((castles & ImmutablePosition.WHITE_LONG_CASTLE) != 0)
@@ -757,15 +753,14 @@ public class FEN {
 		if ((castles & ImmutablePosition.BLACK_LONG_CASTLE) != 0)
 		    sb.append('q');
 	    } else { // Chess960
-		Position position = (Position) pos;
 		if ((castles & ImmutablePosition.WHITE_LONG_CASTLE) != 0)
-		    sb.append(Character.toUpperCase(Chess.colToChar(position.getChess960QueensideRookFile())));
+		    sb.append(Character.toUpperCase(Chess.colToChar(pos.getChess960QueensideRookFile())));
 		if ((castles & ImmutablePosition.WHITE_SHORT_CASTLE) != 0)
-		    sb.append(Character.toUpperCase(Chess.colToChar(position.getChess960KingsideRookFile())));
+		    sb.append(Character.toUpperCase(Chess.colToChar(pos.getChess960KingsideRookFile())));
 		if ((castles & ImmutablePosition.BLACK_LONG_CASTLE) != 0)
-		    sb.append(Chess.colToChar(position.getChess960QueensideRookFile()));
+		    sb.append(Chess.colToChar(pos.getChess960QueensideRookFile()));
 		if ((castles & ImmutablePosition.BLACK_SHORT_CASTLE) != 0)
-		    sb.append(Chess.colToChar(position.getChess960KingsideRookFile()));
+		    sb.append(Chess.colToChar(pos.getChess960KingsideRookFile()));
 	    }
 	} else {
 	    sb.append('-');

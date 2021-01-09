@@ -48,7 +48,7 @@ import chesspresso.pgn.PGN;
 import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.NAG;
-import chesspresso.position.PositionChangeListener;
+import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
 import chesspresso.position.view.Decoration.DecorationType;
 import chesspresso.position.view.DecorationFactory;
@@ -63,8 +63,7 @@ import chesspresso.position.view.PositionViewProperties;
  * @author Bernhard Seybold
  */
 @SuppressWarnings("serial")
-public class GameBrowser extends JPanel
-	implements PositionMotionListener, PositionChangeListener, GameModelChangeListener {
+public class GameBrowser extends JPanel implements PositionMotionListener, PositionListener, GameModelChangeListener {
 
     private Game m_game;
     private PositionView m_positionView;
@@ -167,12 +166,12 @@ public class GameBrowser extends JPanel
     public void setGame(Game game, int bottomPlayer) {
 	if (game != null) {
 	    if (m_game != null) {
-		m_game.getPosition().removePositionChangeListener(this);
+		m_game.getPosition().removePositionListener(this);
 		m_game.removeChangeListener(this);
 	    }
 	    m_game = game;
 	    m_game.gotoStart();
-	    m_game.getPosition().addPositionChangeListener(this);
+	    m_game.getPosition().addPositionListener(this);
 	    m_game.addChangeListener(this);
 
 	    if (m_positionView == null) {
@@ -329,8 +328,6 @@ public class GameBrowser extends JPanel
 	try {
 	    m_game.getPosition().doMove(m_game.getPosition().getMove(from, to, Chess.NO_PIECE));
 	    // TN: this code is not correct, because no promotion is possible.
-	    m_game.getPosition().firePositionChanged(); // TN: that's necessary, unfortunately
-	    // TODO see below!
 	} catch (IllegalMoveException ex) {
 	    ex.printStackTrace();
 	    return false;
@@ -354,10 +351,6 @@ public class GameBrowser extends JPanel
 	    if (uniqueMove != Move.NO_MOVE) {
 		try {
 		    m_game.getPosition().doMove(uniqueMove);
-		    m_game.getPosition().firePositionChanged(); // TN: that's necessary, unfortunately
-		    // TODO Check this out! doMove calls fireMoveDone, which calls notifyMoveDone
-		    // for the listeners and that's not enough.
-		    // TODO: Compare notifyMoveDone and notifyPositionChanged.
 		} catch (IllegalMoveException ignore) {
 		}
 	    }
@@ -650,8 +643,6 @@ public class GameBrowser extends JPanel
 
     private void m_buttEndActionPerformed(ActionEvent evt) {
 	m_game.gotoEndOfLine();
-	// TN added:
-	m_game.getPosition().firePositionChanged();
     }
 
     private void m_buttDeleteActionPerformed(ActionEvent evt) {
@@ -738,17 +729,14 @@ public class GameBrowser extends JPanel
 
     private void m_buttForwardActionPerformed(ActionEvent evt) {
 	m_game.goForward();
-	m_game.getPosition().firePositionChanged();
     }
 
     private void m_buttBackwardActionPerformed(ActionEvent evt) {
 	m_game.goBack();
-	m_game.getPosition().firePositionChanged();
     }
 
     private void m_buttStartActionPerformed(ActionEvent evt) {
 	m_game.gotoStart();
-	m_game.getPosition().firePositionChanged();
     }
 
     private void m_buttFlipActionPerformed(ActionEvent evt) {
@@ -784,52 +772,15 @@ public class GameBrowser extends JPanel
 
     // End of variables declaration
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see chesspresso.position.PositionChangeListener#notifyPositionChanged(
-     * chesspresso.position.ImmutablePosition)
-     */
+    // PositionListner
+
     @Override
-    public void notifyPositionChanged(ImmutablePosition position) {
-	// it shall not be allowed to replace the position!
+    public void positionChanged(ChangeType type, ImmutablePosition pos, short move) {
 	updateMovePane();
 	highlightLastMove();
 	if (m_positionView != null) {
 	    m_positionView.removeChessbaseDecorations();
 	}
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see chesspresso.position.PositionChangeListener#notifyMoveDone(chesspresso.
-     * position.ImmutablePosition, short)
-     */
-    @Override
-    public void notifyMoveDone(ImmutablePosition position, short move) {
-	updateMovePane();
-	highlightLastMove();
-	if (m_positionView != null) {
-	    m_positionView.removeChessbaseDecorations();
-	}
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * chesspresso.position.PositionChangeListener#notifyMoveUndone(chesspresso.
-     * position.ImmutablePosition)
-     */
-    @Override
-    public void notifyMoveUndone(ImmutablePosition position) {
-	updateMovePane();
-	highlightLastMove();
-	if (m_positionView != null) {
-	    m_positionView.removeChessbaseDecorations();
-	}
-
     }
 
     private void updateMovePane() {
@@ -1241,7 +1192,6 @@ public class GameBrowser extends JPanel
 			    try {
 				if (!m_game.getPosition().isCheck()) {
 				    m_game.getPosition().doMove(Move.NULL_MOVE);
-				    m_game.getPosition().firePositionChanged();
 				} else {
 				    String message = (m_game.getPosition().getToPlay() == Chess.WHITE ? "White "
 					    : "Black ") + "is in check.";

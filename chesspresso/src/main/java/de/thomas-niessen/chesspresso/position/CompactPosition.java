@@ -15,6 +15,7 @@
 package chesspresso.position;
 
 import chesspresso.Chess;
+import chesspresso.Variant;
 
 /**
  * An implementation of the position interface.
@@ -74,6 +75,12 @@ public class CompactPosition extends AbstractPosition {
     }
 
     @Override
+    public int getPiece(int sqi) {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
+    @Override
     public int getSqiEP() {
 	return ((m_flags >> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
     }
@@ -101,5 +108,77 @@ public class CompactPosition extends AbstractPosition {
     @Override
     public int getPlyOffset() {
 	throw new RuntimeException("Unexpected use of method getPlyOffset for CompactPosition");
+    }
+
+    @Override
+    public int getWhitesKingSquare() {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
+    @Override
+    public int getBlacksKingSquare() {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
+    @Override
+    public long getAllPawnsBB() {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
+    @Override
+    public long getWhitePawnsBB() {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
+    @Override
+    public long getBlackPawnsBB() {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
+    @Override
+    public boolean isCheck() {
+	// TODO Auto-generated method stub
+	return false;
+    }
+
+    @Override
+    public boolean isMate() {
+	// TODO Auto-generated method stub
+	return false;
+    }
+
+    @Override
+    public boolean isStaleMate() {
+	// TODO Auto-generated method stub
+	return false;
+    }
+
+    @Override
+    public Variant getVariant() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public int getChess960KingFile() {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
+    @Override
+    public int getChess960QueensideRookFile() {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
+    @Override
+    public int getChess960KingsideRookFile() {
+	// TODO Auto-generated method stub
+	return 0;
     }
 }

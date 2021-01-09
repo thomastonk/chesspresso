@@ -44,7 +44,8 @@ import javax.swing.SwingUtilities;
 
 import chesspresso.Chess;
 import chesspresso.Mouse;
-import chesspresso.position.AbstractMutablePosition;
+import chesspresso.position.ImmutablePosition;
+import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
 import chesspresso.position.view.Decoration.DecorationType;
@@ -57,7 +58,7 @@ import chesspresso.position.view.Decoration.DecorationType;
 @SuppressWarnings("serial")
 public class PositionView extends java.awt.Component implements PositionListener, MouseListener, MouseMotionListener {
     private int m_bottom;
-    private AbstractMutablePosition m_position;
+    private Position m_position;
     @SuppressWarnings("unused")
     private boolean m_showSqiEP;
     private Color m_whiteSquareColor;
@@ -122,7 +123,7 @@ public class PositionView extends java.awt.Component implements PositionListener
      * 
      * @param position the position to display
      */
-    public PositionView(AbstractMutablePosition position) {
+    public PositionView(Position position) {
 	this(position, Chess.WHITE);
     }
 
@@ -132,7 +133,7 @@ public class PositionView extends java.awt.Component implements PositionListener
      * @param position     the position to display
      * @param bottomPlayer the player at the lower edge
      */
-    public PositionView(AbstractMutablePosition position, int bottomPlayer) {
+    public PositionView(Position position, int bottomPlayer) {
 	m_position = position;
 	m_bottom = bottomPlayer;
 	m_showSqiEP = false;
@@ -154,14 +155,14 @@ public class PositionView extends java.awt.Component implements PositionListener
     }
 
     // ======================================================================
-    public void setPosition(AbstractMutablePosition position) {
+    public void setPosition(Position position) {
 	m_position.removePositionListener(this);
 	m_position = position;
 	m_position.addPositionListener(this);
     }
 
     // ======================================================================
-    public void setImmutablePosition(AbstractMutablePosition position) {
+    public void setImmutablePosition(Position position) {
 	m_position = position;
     }
 
@@ -273,10 +274,9 @@ public class PositionView extends java.awt.Component implements PositionListener
      */
     public void setShowSqiEP(boolean showSqiEP) {
 	m_showSqiEP = showSqiEP;
-	sqiEPChanged(m_position.getSqiEP());
     }
 
-    public AbstractMutablePosition getPosition() {
+    public Position getPosition() {
 	return m_position;
     }
 
@@ -403,28 +403,10 @@ public class PositionView extends java.awt.Component implements PositionListener
     // interface PositionListener
 
     @Override
-    public void squareChanged(int sqi, int stone) {
-	repaint();
-    }
-
-    @Override
-    public void toPlayChanged(int toPlay) {
-    }
-
-    @Override
-    public void castlesChanged(int castles) {
-    }
-
-    @Override
-    public void sqiEPChanged(int sqiEP) {
-    }
-
-    @Override
-    public void plyNumberChanged(int plyNumber) {
-    }
-
-    @Override
-    public void halfMoveClockChanged(int halfMoveClock) {
+    public void positionChanged(ChangeType type, ImmutablePosition position, short move) {
+	if (type == ChangeType.SQUARE_CHANGED) {
+	    repaint();
+	}
     }
 
     // ======================================================================

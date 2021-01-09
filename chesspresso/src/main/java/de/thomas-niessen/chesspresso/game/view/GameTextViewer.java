@@ -40,7 +40,7 @@ import chesspresso.game.TraverseListener;
 import chesspresso.move.Move;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.NAG;
-import chesspresso.position.PositionChangeListener;
+import chesspresso.position.PositionListener;
 
 /**
  * Textual representation of a game on a panel.
@@ -49,8 +49,7 @@ import chesspresso.position.PositionChangeListener;
  * 
  */
 @SuppressWarnings("serial")
-public class GameTextViewer extends JEditorPane
-	implements TraverseListener, PositionChangeListener, GameModelChangeListener {
+public class GameTextViewer extends JEditorPane implements TraverseListener, PositionListener, GameModelChangeListener {
 
     // attributes for main line
     private static SimpleAttributeSet MAIN = new SimpleAttributeSet();
@@ -193,14 +192,14 @@ public class GameTextViewer extends JEditorPane
     public void setGame(Game game) {
 	if (game != null) {
 	    if (m_game != null) {
-		m_game.getPosition().removePositionChangeListener(this);
+		m_game.getPosition().removePositionListener(this);
 		m_game.removeChangeListener(this);
 	    }
 	    m_game = game;
 	    setText("");
 	    createText();
 	    setCaretPosition(getDocument().getStartPosition().getOffset());
-	    m_game.getPosition().addPositionChangeListener(this);
+	    m_game.getPosition().addPositionListener(this);
 	    m_game.addChangeListener(this);
 	}
     }
@@ -258,21 +257,10 @@ public class GameTextViewer extends JEditorPane
 	}
     }
 
-    // Methods to implement PositionChangeListener
+    // PositionListener
 
     @Override
-    public void notifyPositionChanged(ImmutablePosition position) {
-	// It shall not be allowed to replace the position!
-    }
-
-    @Override
-    public void notifyMoveDone(ImmutablePosition position, short move) {
-	requestFocus();
-	showCurrentGameNode();
-    }
-
-    @Override
-    public void notifyMoveUndone(ImmutablePosition position) {
+    public void positionChanged(ChangeType type, ImmutablePosition pos, short move) {
 	requestFocus();
 	showCurrentGameNode();
     }
@@ -390,23 +378,19 @@ public class GameTextViewer extends JEditorPane
 
     private boolean goBackward() {
 	boolean retVal = m_game.goBack();
-	m_game.getPosition().firePositionChanged();
 	return retVal;
     }
 
     private void goBackToLineBegin() {
 	m_game.goBackToLineBegin();
-	m_game.getPosition().firePositionChanged();
     }
 
     private void gotoEndOfLine() {
 	m_game.gotoEndOfLine();
-	m_game.getPosition().firePositionChanged();
     }
 
     private void goForwardMainLine() {
 	m_game.goForward(0);
-	m_game.getPosition().firePositionChanged();
     }
 
     private boolean goForward() {
@@ -417,18 +401,15 @@ public class GameTextViewer extends JEditorPane
 	} else if (num == 1) {
 	    retVal = m_game.goForward();
 	}
-	m_game.getPosition().firePositionChanged();
 	return retVal;
     }
 
     private void goStart() {
 	m_game.gotoStart();
-	m_game.getPosition().firePositionChanged();
     }
 
     private void goEnd() {
 	m_game.gotoEndOfLine();
-	m_game.getPosition().firePositionChanged();
     }
 
     private int getNodeForCaret() {
@@ -450,7 +431,6 @@ public class GameTextViewer extends JEditorPane
 	int newNode = getNodeForCaret();
 	if (m_game.getCurNode() != newNode) {
 	    m_game.gotoNode(newNode);
-	    m_game.getPosition().firePositionChanged();
 	}
     }
 

@@ -28,7 +28,7 @@ import chesspresso.pgn.PGN;
 import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.Position;
-import chesspresso.position.PositionChangeListener;
+import chesspresso.position.PositionListener;
 
 /**
  * Abstraction of a chess game.
@@ -57,7 +57,7 @@ import chesspresso.position.PositionChangeListener;
  * @author Bernhard Seybold
  * 
  */
-public class Game implements PositionChangeListener, Serializable {
+public class Game implements PositionListener, Serializable {
     private static final long serialVersionUID = 1L;
 
     private static boolean DEBUG = false;
@@ -170,14 +170,14 @@ public class Game implements PositionChangeListener, Serializable {
 	Variant oldVariant = null;
 	if (m_position != null) {
 	    oldVariant = m_position.getVariant();
-	    List<PositionChangeListener> listeners = m_position.getPositionChangeListeners();
+	    List<PositionListener> listeners = m_position.getPositionListeners();
 	    m_position = position;
-	    for (PositionChangeListener listener : listeners) {
-		m_position.addPositionChangeListener(listener);
+	    for (PositionListener listener : listeners) {
+		m_position.addPositionListener(listener);
 	    }
 	} else { // old code:
 	    m_position = position;
-	    m_position.addPositionChangeListener(this);
+	    m_position.addPositionListener(this);
 	}
 	m_cur = 0;
 	if (m_position.getVariant() == Variant.CHESS960) {
@@ -186,7 +186,6 @@ public class Game implements PositionChangeListener, Serializable {
 	if (oldVariant != null && oldVariant == Variant.CHESS960) {
 	    m_position.setVariant(oldVariant);
 	}
-	m_position.firePositionChanged();
     }
 
     public void setAlwaysAddLine(boolean alwaysAddLine) {
@@ -224,39 +223,34 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     // ======================================================================
-    // methods of PositionChangeListener
+    // method of PositionListener
 
     @Override
-    public void notifyPositionChanged(ImmutablePosition position) {
-    }
+    public void positionChanged(ChangeType type, ImmutablePosition pos, short move) {
+	if (type == ChangeType.MOVE_DONE) {
+	    if (DEBUG)
+		System.out.println("Game: move " + move + " made.");
 
-    @Override
-    public void notifyMoveDone(ImmutablePosition position, short move) {
-	if (DEBUG)
-	    System.out.println("ChGame: move made in position " + move);
-
-	if (!m_ignoreNotifications) {
-	    if (!m_alwaysAddLine) {
-		short[] moves = getNextShortMoves();
-		for (int i = 0; i < moves.length; i++) {
-		    if (moves[i] == move) {
-			m_cur = m_moves.goForward(m_cur, i);
-			return; // =====>
+	    if (!m_ignoreNotifications) {
+		if (!m_alwaysAddLine) {
+		    short[] moves = getNextShortMoves();
+		    for (int i = 0; i < moves.length; i++) {
+			if (moves[i] == move) {
+			    m_cur = m_moves.goForward(m_cur, i);
+			    return; // =====>
+			}
 		    }
 		}
+		m_cur = m_moves.appendAsRightMostLine(m_cur, move);
+		fireMoveModelChanged();
 	    }
-	    m_cur = m_moves.appendAsRightMostLine(m_cur, move);
-	    fireMoveModelChanged();
-	}
-    }
+	} else if (type == ChangeType.MOVE_UNDONE) {
+	    if (DEBUG)
+		System.out.println("Game: move undone.");
 
-    @Override
-    public void notifyMoveUndone(ImmutablePosition position) {
-	if (DEBUG)
-	    System.out.println("ChGame: move taken back in position");
-
-	if (!m_ignoreNotifications) {
-	    m_cur = m_moves.goBack(m_cur, true);
+	    if (!m_ignoreNotifications) {
+		m_cur = m_moves.goBack(m_cur, true);
+	    }
 	}
     }
 
@@ -393,31 +387,6 @@ public class Game implements PositionChangeListener, Serializable {
     public void setVariant(Variant variant) {
 	m_header.setVariant(variant);
 	m_position.setVariant(variant);
-    }
-
-    // ======================================================================
-
-    /**
-     * Returns whether the given position occurs in the main line of this game.
-     *
-     * @param position the position to look for, must not be null
-     * @return whether the given position occurs in the main line of this game
-     */
-    public boolean containsPosition(ImmutablePosition position) {
-	boolean res = false;
-	int index = getCurNode();
-	gotoStart(true);
-	for (;;) {
-	    if (m_position.getHashCode() == position.getHashCode()) {
-		res = true;
-		break;
-	    }
-	    if (!hasNextMove())
-		break;
-	    goForward(true);
-	}
-	gotoNode(index, true);
-	return res;
     }
 
     // ======================================================================
@@ -685,20 +654,10 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     public Move getNextMove(int whichLine) {
-	short shortMove = m_moves.getMove(m_moves.goForward(m_cur, whichLine));
-	if (shortMove == GameMoveModel.NO_MOVE)
+	short moveAsShort = m_moves.getMove(m_moves.goForward(m_cur, whichLine));
+	if (moveAsShort == GameMoveModel.NO_MOVE)
 	    return null;
-	try {
-	    m_position.setNotifyListeners(false);
-	    m_position.doMove(shortMove);
-	    Move move = m_position.getLastMove();
-	    m_position.undoMove();
-	    m_position.setNotifyListeners(true);
-	    return move;
-	} catch (IllegalMoveException ex) {
-	    ex.printStackTrace();
-	    return null;
-	}
+	return m_position.getNextMove(moveAsShort);
     }
 
     public short getNextShortMove(int whichLine) {
@@ -722,22 +681,11 @@ public class Game implements PositionChangeListener, Serializable {
     }
 
     public Move[] getNextMoves() {
-	m_position.setNotifyListeners(false);
 	Move[] moves = new Move[m_moves.getNumOfNextMoves(m_cur)];
 	for (int i = 0; i < moves.length; i++) {
-	    short move = m_moves.getMove(m_moves.goForward(m_cur, i));
-	    try {
-		m_position.doMove(move);
-		// moves[i] = m_position.getLastMove(move);
-		moves[i] = m_position.getLastMove();
-		m_position.undoMove();
-	    } catch (IllegalMoveException ex) {
-		m_moves.write(System.out);
-		System.out.println("cur = " + m_cur + " move=" + GameMoveModel.valueToString(move));
-		ex.printStackTrace();
-	    }
+	    short moveAsShort = m_moves.getMove(m_moves.goForward(m_cur, i));
+	    moves[i] = m_position.getNextMove(moveAsShort);
 	}
-	m_position.setNotifyListeners(true);
 	return moves;
     }
 
@@ -748,69 +696,6 @@ public class Game implements PositionChangeListener, Serializable {
     // ======================================================================
 
     public boolean goBack() {
-	return goBack(false);
-    }
-
-    public boolean goForward() {
-	return goForward(false);
-    }
-
-    public boolean goForward(int whichLine) {
-	return goForward(whichLine, false);
-    }
-
-    public void gotoStart() {
-	gotoStart(false);
-    }
-
-    public void gotoEndOfLine() {
-	gotoEndOfLine(false);
-    }
-
-    public void goBackToMainLine() {
-	goBackToMainLine(false);
-    }
-
-    public void goBackToLineBegin() {
-	goBackToLineBegin(false);
-    }
-
-    public void gotoNode(int node) {
-	gotoNode(node, false);
-    }
-
-    public void gotoPosition(ImmutablePosition pos) {
-	gotoPosition(pos, false);
-    }
-
-    public void deleteCurrentLine() {
-	deleteCurrentLine(false);
-    }
-
-    public void deleteAllLines() {
-	deleteAllLines(false);
-    }
-
-    public void deleteRemainingMoves() {
-	deleteRemainingMoves(false);
-    }
-
-    public void gotoPly(int ply) {
-	gotoStart();
-	for (int i = 0; i < ply - getPlyOffset(); ++i) {
-	    goForward();
-	}
-	// for a while we check the value
-	if (ply < getPlyOffset() || ply > getPlyOffset() + getNumOfPlies()) {
-	    System.err.println("Suspicious value in Game::gotoPly: ");
-	    System.err
-		    .println("   Ply: " + ply + ", plyOffset: " + getPlyOffset() + ", numOfPlies: " + getNumOfPlies());
-	}
-    }
-
-    // ======================================================================
-
-    private boolean goBack(boolean silent) {
 	if (DEBUG)
 	    System.out.println("goBack");
 
@@ -818,11 +703,7 @@ public class Game implements PositionChangeListener, Serializable {
 	if (index != -1) {
 	    m_cur = index;
 	    m_ignoreNotifications = true;
-	    if (silent)
-		m_position.setNotifyListeners(false);
 	    m_position.undoMove();
-	    if (silent)
-		m_position.setNotifyListeners(true);
 	    m_ignoreNotifications = false;
 	    return true;
 	} else {
@@ -830,42 +711,14 @@ public class Game implements PositionChangeListener, Serializable {
 	}
     }
 
-    private boolean goBackInLine(boolean silent) {
-	if (DEBUG)
-	    System.out.println("goBackInLine");
-
-	int index = m_moves.goBack(m_cur, false);
-	if (index != -1) {
-	    m_cur = index; // needs to be set before undoing the move to allow
-			   // listeners to check for curNode
-	    m_ignoreNotifications = true;
-	    if (silent)
-		m_position.setNotifyListeners(false);
-	    m_position.undoMove();
-	    if (silent)
-		m_position.setNotifyListeners(true);
-	    m_ignoreNotifications = false;
-	    return true;
-	} else {
-	    return false;
-	}
-    }
-
-    private boolean goForward(boolean silent) {
+    public boolean goForward() {
 	if (DEBUG)
 	    System.out.println("goForward");
 
-	return goForward(0, silent);
+	return goForward(0);
     }
 
-    private Move goForwardAndGetMove(boolean silent) {
-	if (DEBUG)
-	    System.out.println("goForwardAndGetMove");
-
-	return goForwardAndGetMove(0, silent);
-    }
-
-    private boolean goForward(int whichLine, boolean silent) {
+    public boolean goForward(int whichLine) {
 	if (DEBUG)
 	    System.out.println("goForward " + whichLine);
 
@@ -877,11 +730,7 @@ public class Game implements PositionChangeListener, Serializable {
 	    try {
 		m_cur = index;
 		m_ignoreNotifications = true;
-		if (silent)
-		    m_position.setNotifyListeners(false);
 		m_position.doMove(shortMove);
-		if (silent)
-		    m_position.setNotifyListeners(true);
 		m_ignoreNotifications = false;
 		return true;
 	    } catch (IllegalMoveException ex) {
@@ -892,7 +741,139 @@ public class Game implements PositionChangeListener, Serializable {
 	return false;
     }
 
-    private Move goForwardAndGetMove(int whichLine, boolean silent) {
+    public void gotoStart() {
+	m_position.increaseAlgorithmDepth();
+	while (goBack())
+	    ;
+	m_position.decreaseAlgorithmDepth();
+    }
+
+    public void gotoEndOfLine() {
+	m_position.increaseAlgorithmDepth();
+	while (goForward())
+	    ;
+	m_position.decreaseAlgorithmDepth();
+    }
+
+    public void goBackToParentLine() {
+	if (DEBUG)
+	    System.out.println("goBackToMainLine");
+
+	m_position.increaseAlgorithmDepth();
+	goBackToLineBegin();
+	goBack();
+	goForward();
+	m_position.decreaseAlgorithmDepth();
+    }
+
+    public void goBackToLineBegin() {
+	if (DEBUG)
+	    System.out.println("goBackToLineBegin");
+
+	m_position.increaseAlgorithmDepth();
+	while (goBackInLine()) {
+	    ;
+	}
+	m_position.decreaseAlgorithmDepth();
+
+    }
+
+    // Note: a node is not necessarily a move.
+    public void gotoNode(int node) {
+	int[] nodeNodes = getNodesToRoot(node);
+
+	m_position.increaseAlgorithmDepth();
+	gotoStart();
+	for (int i = nodeNodes.length - 2; i >= 0; i--) {
+	    int nextMoveIndex = 0;
+	    for (int j = 1; j < getNumOfNextMoves(); j++) {
+		if (m_moves.goForward(m_cur, j) == nodeNodes[i]) {
+		    nextMoveIndex = j;
+		    break;
+		}
+	    }
+	    goForward(nextMoveIndex);
+	}
+	m_cur = node; // now that we have made all the moves, set cur to node
+	m_position.decreaseAlgorithmDepth();
+    }
+
+    public void deleteCurrentLine() {
+	m_position.increaseAlgorithmDepth();
+	goBackToLineBegin();
+	int index = m_cur;
+	goBack();
+	if (0 == index) { // otherwise we get an exception in fireMoveModelChanged below
+	    m_moves.clear();
+	} else {
+	    m_moves.deleteCurrentLine(index);
+	}
+	fireMoveModelChanged();
+	m_position.decreaseAlgorithmDepth();
+    }
+
+    public void deleteAllLines() {
+	if (!isMainLine()) {
+	    m_position.increaseAlgorithmDepth();
+	    gotoStart();
+	    m_position.decreaseAlgorithmDepth();
+	}
+	if (m_moves.deleteAllLines()) {
+	    fireMoveModelChanged();
+	}
+    }
+
+    public void deleteRemainingMoves() {
+	if (m_moves.deleteRemainingMoves(m_cur)) {
+	    fireMoveModelChanged();
+	}
+    }
+
+    public void gotoPly(int ply) {
+	if (getCurrentPly() == ply) {
+	    return;
+	}
+	m_position.increaseAlgorithmDepth();
+	gotoStart();
+	for (int i = 0; i < ply - getPlyOffset(); ++i) {
+	    goForward();
+	}
+	m_position.decreaseAlgorithmDepth();
+	// for a while we check the value
+	if (ply < getPlyOffset() || ply > getPlyOffset() + getNumOfPlies()) {
+	    System.err.println("Suspicious value in Game::gotoPly: ");
+	    System.err
+		    .println("   Ply: " + ply + ", plyOffset: " + getPlyOffset() + ", numOfPlies: " + getNumOfPlies());
+	}
+    }
+
+    // ======================================================================
+
+    private boolean goBackInLine() {
+	if (DEBUG)
+	    System.out.println("goBackInLine");
+
+	int index = m_moves.goBack(m_cur, false);
+	if (index != -1) {
+	    m_cur = index; // needs to be set before undoing the move to allow
+			   // listeners to check for curNode
+	    m_ignoreNotifications = true;
+	    m_position.undoMove();
+	    m_ignoreNotifications = false;
+	    return true;
+	} else {
+	    return false;
+	}
+    }
+
+    private Move goForwardAndGetMove() {
+	if (DEBUG)
+	    System.out.println("goForwardAndGetMove");
+
+	return goForwardAndGetMove(0);
+    }
+
+    private Move goForwardAndGetMove(int whichLine) {
 	if (DEBUG)
 	    System.out.println("goForwardAndGetMove " + whichLine);
 
@@ -904,12 +885,8 @@ public class Game implements PositionChangeListener, Serializable {
 	    try {
 		m_cur = index;
 		m_ignoreNotifications = true;
-		if (silent)
-		    m_position.setNotifyListeners(false);
 		m_position.doMove(shortMove);
 		Move move = m_position.getLastMove();
-		if (silent)
-		    m_position.setNotifyListeners(true);
 		m_ignoreNotifications = false;
 		return move;
 	    } catch (IllegalMoveException ex) {
@@ -917,33 +894,6 @@ public class Game implements PositionChangeListener, Serializable {
 	    }
 	}
 	return null;
-    }
-
-    private void gotoStart(boolean silent) {
-	while (goBack(silent))
-	    ;
-    }
-
-    private void gotoEndOfLine(boolean silent) {
-	while (goForward(silent))
-	    ;
-    }
-
-    private void goBackToLineBegin(boolean silent) {
-	if (DEBUG)
-	    System.out.println("goBackToLineBegin");
-
-	while (goBackInLine(silent))
-	    ;
-    }
-
-    private void goBackToMainLine(boolean silent) {
-	if (DEBUG)
-	    System.out.println("goBackToMainLine");
-
-	goBackToLineBegin(silent);
-	goBack(silent);
-	goForward(silent);
     }
 
     private int getNumOfPliesToRoot(int node) {
@@ -973,40 +923,6 @@ public class Game implements PositionChangeListener, Serializable {
 	return nodes;
     }
 
-    // Note: a node is not necessarily a move
-    public void gotoNode(int node, boolean silent) {
-	int[] nodeNodes = getNodesToRoot(node);
-
-	gotoStart(silent);
-	for (int i = nodeNodes.length - 2; i >= 0; i--) {
-	    int nextMoveIndex = 0;
-	    for (int j = 1; j < getNumOfNextMoves(); j++) {
-		if (m_moves.goForward(m_cur, j) == nodeNodes[i]) {
-		    nextMoveIndex = j;
-		    break;
-		}
-	    }
-	    goForward(nextMoveIndex, silent);
-	}
-	m_cur = node; // now that we have made all the moves, set cur to node
-    }
-
-    public void gotoPosition(ImmutablePosition pos, boolean silent) {
-	if (m_position.equals(pos))
-	    return; // =====>
-
-	int curNode = getCurNode();
-	gotoStart(true);
-	do {
-	    if (m_position.equals(pos)) {
-		int posNode = getCurNode();
-		gotoNode(curNode, true);
-		gotoNode(posNode, silent);
-		return; // =====>
-	    }
-	} while (goForward(true));
-    }
-
     // ======================================================================
 
     public boolean promoteVariation() {
@@ -1025,77 +941,41 @@ public class Game implements PositionChangeListener, Serializable {
 
     // ======================================================================
 
-    public void deleteCurrentLine(boolean silent) {
-	goBackToLineBegin();
-	int index = m_cur;
-	goBack(silent);
-	if (0 == index) { // otherwise we get an exception in fireMoveModelChanged below
-	    m_moves.clear();
-	} else {
-	    m_moves.deleteCurrentLine(index);
-	}
-	fireMoveModelChanged();
-    }
-
-    // ======================================================================
-
-    public void deleteAllLines(boolean silent) {
-	int index = m_cur;
-	gotoStart();
-	if (m_moves.deleteAllLines()) {
-	    fireMoveModelChanged();
-	} else {
-	    gotoNode(index, silent);
-	}
-    }
-
-    // ======================================================================
-
-    public void deleteRemainingMoves(boolean silent) {
-	if (goForward()) {
-	    int index = m_cur;
-	    if (goBack(silent)) {
-		m_moves.deleteRemainingMoves(index);
-		fireMoveModelChanged();
-	    }
-	}
-    }
-
-    // ======================================================================
-
     /**
-     * Method to traverse the game in postfix order (first the lines, then the main
-     * line). This method is used by {@link chesspresso.pgn.PGN}.
+     * Method to traverse the game in natural order, i.e. as it is needed in the
+     * GameTextViewer.
      *
-     * @param listener  the listener to receive event when arriving at nodes
-     * @param withLines whether or not to include lines of the current main line.
+     * @param listener  the listener that receives events when arriving at nodes
+     * @param withLines whether or not to include sub-lines of the main line.
      */
     public void traverse(TraverseListener listener, boolean withLines) {
+	m_position.increaseAlgorithmDepth();
 	int index = getCurNode();
-	gotoStart(true);
+	gotoStart();
 	traverse(listener, withLines, m_position.getPlyNumber(), 0);
-	gotoNode(index, true);
+	gotoNode(index);
+	m_position.decreaseAlgorithmDepth();
     }
 
     private void traverse(TraverseListener listener, boolean withLines, int plyNumber, int level) {
 	while (hasNextMove()) {
 	    int numOfNextMoves = getNumOfNextMoves();
 
-	    Move move = goForwardAndGetMove(true);
+	    Move move = goForwardAndGetMove();
 	    listener.notifyMove(move, getNags(), getPreMoveComment(), getPostMoveComment(), plyNumber, level);
 
 	    if (withLines && numOfNextMoves > 1) {
 		for (int i = 1; i < numOfNextMoves; i++) {
-		    goBack(true);
+		    goBack();
 		    listener.notifyLineStart(level);
 
-		    move = goForwardAndGetMove(i, true);
+		    move = goForwardAndGetMove(i);
 		    listener.notifyMove(move, getNags(), getPreMoveComment(), getPostMoveComment(), plyNumber,
 			    level + 1);
 
 		    traverse(listener, withLines, plyNumber + 1, level + 1);
 
-		    goBackToMainLine(true);
+		    goBackToParentLine();
 		    if (i > 0)
 			listener.notifyLineEnd(level);
 		}
