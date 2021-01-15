@@ -13,6 +13,7 @@
  ******************************************************************************/
 package chesspresso.position;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,9 +42,11 @@ import chesspresso.position.PositionListener.ChangeType;
  * @author Thomas
  *
  */
-public final class Position implements MoveablePosition {
+public final class Position implements MoveablePosition, Serializable {
 
-    private PositionImpl impl;
+    private static final long serialVersionUID = 2L;
+
+    private final PositionImpl impl;
 
     private int algorithmDepth;
 
@@ -85,8 +88,8 @@ public final class Position implements MoveablePosition {
 	++algorithmDepth;
     }
 
-    public boolean isWithinAlgorithm() {
-	return algorithmDepth > 0;
+    public boolean isOutsideAlgorithm() {
+	return algorithmDepth <= 0;
     }
 
     public String getLastMoveAsSanWithNumber() {
@@ -451,32 +454,32 @@ public final class Position implements MoveablePosition {
 	return Collections.unmodifiableList(listeners);
     }
 
-    private final void fireSquareChanged() {
-	if (!isWithinAlgorithm()) {
+    private void fireSquareChanged() {
+	if (isOutsideAlgorithm()) {
 	    for (PositionListener listener : listeners) {
 		listener.positionChanged(ChangeType.SQUARE_CHANGED, this, Move.NO_MOVE);
 	    }
 	}
     }
 
-    private final void fireMoveDone(short move) {
-	if (!isWithinAlgorithm()) {
+    private void fireMoveDone(short move) {
+	if (isOutsideAlgorithm()) {
 	    for (PositionListener listener : listeners) {
 		listener.positionChanged(ChangeType.MOVE_DONE, this, move);
 	    }
 	}
     }
 
-    private final void fireMoveUndone() {
-	if (!isWithinAlgorithm()) {
+    private void fireMoveUndone() {
+	if (isOutsideAlgorithm()) {
 	    for (PositionListener listener : listeners) {
 		listener.positionChanged(ChangeType.MOVE_UNDONE, this, Move.NO_MOVE);
 	    }
 	}
     }
 
-    private final void firePositionChanged() {
-	if (!isWithinAlgorithm()) {
+    private void firePositionChanged() {
+	if (isOutsideAlgorithm()) {
 	    for (PositionListener listener : listeners) {
 		listener.positionChanged(ChangeType.OTHER, this, Move.NO_MOVE);
 	    }

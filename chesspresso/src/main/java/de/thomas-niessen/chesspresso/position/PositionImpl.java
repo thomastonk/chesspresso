@@ -25,7 +25,7 @@ import chesspresso.move.Move;
 
 public final class PositionImpl extends AbstractMoveablePosition implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private final static boolean DEBUG = false;
     private final static boolean PROFILE = false;
 
@@ -415,11 +415,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
      * =========================================================================
      */
 
-    static PositionImpl createInitialPosition() {
-	return new PositionImpl(FEN.START_POSITION, true);
-    }
-
-    PositionImpl() {
+	PositionImpl() {
 	this(60); // make room for 120 plies
     }
 
@@ -439,11 +435,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	setPosition(pos);
     }
 
-    PositionImpl(String fen) throws IllegalArgumentException {
-	this(fen, true);
-    }
-
-    PositionImpl(String fen, boolean strict) throws IllegalArgumentException {
+	PositionImpl(String fen, boolean strict) throws IllegalArgumentException {
 	this();
 	FEN.initFromFEN(this, fen, strict);
     }
@@ -1071,7 +1063,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			    m_bbRooks ^= bbTo;
 			    break;
 			default:
-			    System.out.println("Position::setMove: IllegalMoveException at " + this);
+			    System.out.println("PositionImpl::setMove: IllegalMoveException at " + this);
 			    String message = "Move " + ((getPlyNumber() + 1) / 2 + 1) + ": illegal promotion stone ("
 				    + promotionStone + ", " + Chess.stoneToChar(promotionStone) + ")";
 			    System.out.println(message);
@@ -1084,7 +1076,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		    int stone = getStone(Move.getFromSqi(move));
 		    switch (stone) {
 		    case Chess.NO_STONE: {
-			System.out.println("Position::setMove: IllegalMoveException at " + this);
+			System.out.println("PositionImpl::setMove: IllegalMoveException at " + this);
 			String message = "Move " + ((getPlyNumber() + 1) / 2 + 1) + "(" + Move.getString(move)
 				+ "): moving stone is non-existent";
 			System.out.println(message);
@@ -1544,8 +1536,8 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		    System.out.println("Diff is sqiEP " + i);
 		}
 	    }
-	    System.out.println("Position.validate: " + FEN.getFEN(this));
-	    System.out.println("Position.validate: " + FEN.getFEN(new LightWeightPosition(this)));
+	    System.out.println("PositionImpl.validate: " + FEN.getFEN(this));
+	    System.out.println("PositionImpl.validate: " + FEN.getFEN(new LightWeightPosition(this)));
 	    throw new IllegalPositionException("Wrong hash code " + getHashCode() + " should be " + super.getHashCode()
 		    + " difference " + (getHashCode() - super.getHashCode()));
 	}
@@ -1700,10 +1692,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
     }
 
     /*
-     * TN: The following method is a part of Position::getLastMove and it shall be
-     * used nowhere else. So far it is not clear why undoMove() and everything until
-     * redoMove is necessary. However, if these operations are missing the build
-     * Move is invalid because of a NO_PIECE (and probably more problems).
+     * TN: The following method is a part of PositionImpl::getLastMove and it shall
+     * be used nowhere else. So far it is not clear why undoMove() and everything
+     * until redoMove is necessary. However, if these operations are missing the
+     * build Move is invalid because of a NO_PIECE (and probably more problems).
      * 
      * One might think that this undo/redo is a performance issue, but even after
      * more than one million calls within a real application, less than half a

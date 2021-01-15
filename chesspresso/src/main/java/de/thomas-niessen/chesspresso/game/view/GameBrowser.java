@@ -339,21 +339,56 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
     public void squareClicked(ImmutablePosition position, int sqi, MouseEvent e) {
 	if (m_editable && m_oneClickMoves) {
 	    short[] moves = m_game.getPosition().getAllMoves();
-	    short uniqueMove = Move.NO_MOVE;
-	    for (short move : moves) {
-		if (sqi == Move.getToSqi(move)) {
-		    if (uniqueMove != Move.NO_MOVE) { // not unique
-			return;
-		    }
-		    uniqueMove = move;
-		}
-	    }
+	    // test for unique to-square
+	    short uniqueMove = getUniqueMove(sqi, moves, true);
 	    if (uniqueMove != Move.NO_MOVE) {
 		try {
 		    m_game.getPosition().doMove(uniqueMove);
+		    return;
 		} catch (IllegalMoveException ignore) {
+		    return;
 		}
 	    }
+	    // test for unique from-square
+	    uniqueMove = getUniqueMove(sqi, moves, false);
+	    if (uniqueMove != Move.NO_MOVE) {
+		try {
+		    m_game.getPosition().doMove(uniqueMove);
+		    return;
+		} catch (IllegalMoveException ignore) {
+		    return;
+		}
+	    }
+	}
+    }
+
+    private short getUniqueMove(int sqi, short[] moves, boolean to) {
+	short uniqueMove = Move.NO_MOVE;
+	boolean isPromotion = false;
+	short proCounter = 0;
+	for (short move : moves) {
+	    if ((to && (sqi == Move.getToSqi(move))) || (!to && (sqi == Move.getFromSqi(move)))) {
+		if (uniqueMove != Move.NO_MOVE) { // not unique
+		    if (isPromotion && Move.isPromotion(move)) { // both are promotions
+			++proCounter;
+			if (Move.getPromotionPiece(move) == Chess.QUEEN) {
+			    uniqueMove = move;
+			}
+			continue;
+		    } else {
+			return Move.NO_MOVE;
+		    }
+		}
+		uniqueMove = move;
+		isPromotion = Move.isPromotion(uniqueMove);
+	    }
+	}
+	if (!isPromotion || proCounter == 3) {
+	    // If isPromotion is true and there are exactly three other promotion moves,
+	    // then we return the promotion to a queen (see above).
+	    return uniqueMove;
+	} else {
+	    return Move.NO_MOVE;
 	}
     }
 

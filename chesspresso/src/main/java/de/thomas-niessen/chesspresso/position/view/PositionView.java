@@ -404,9 +404,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 
     @Override
     public void positionChanged(ChangeType type, ImmutablePosition position, short move) {
-	if (type == ChangeType.SQUARE_CHANGED) {
-	    repaint();
-	}
+	repaint();
     }
 
     // ======================================================================

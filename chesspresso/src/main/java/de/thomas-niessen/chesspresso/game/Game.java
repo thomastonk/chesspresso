@@ -17,6 +17,10 @@ package chesspresso.game;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +29,9 @@ import chesspresso.Variant;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
+import chesspresso.pgn.PGNReader;
+import chesspresso.pgn.PGNSyntaxError;
+import chesspresso.pgn.PGNWriter;
 import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.Position;
@@ -58,21 +65,21 @@ import chesspresso.position.PositionListener;
  * 
  */
 public class Game implements PositionListener, Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
-    private static boolean DEBUG = false;
+    private static final boolean DEBUG = false;
 
     // ======================================================================
 
-    // finals, because of the dependence of the three variables!
     private final GameModel m_model;
-    private final GameHeaderModel m_header;
-    private final GameMoveModel m_moves;
     private Position m_position;
     private int m_cur;
     private boolean m_ignoreNotifications;
     private boolean m_alwaysAddLine; // during pgn parsing, always add new lines
     private List<GameModelChangeListener> m_changeListeners;
+
+    // NOTE: Don't forget to check readObject and copyByReflection, when changing
+    // fields!
 
     // ======================================================================
 
@@ -82,10 +89,8 @@ public class Game implements PositionListener, Serializable {
 
     public Game(GameModel gameModel) {
 	m_model = gameModel;
-	m_header = gameModel.getHeaderModel();
-	m_moves = gameModel.getMoveModel();
 
-	String fen = m_header.getTag(PGN.TAG_FEN);
+	String fen = m_model.getHeaderModel().getTag(PGN.TAG_FEN);
 	if (fen != null) {
 	    setPosition(new Position(fen, false));
 	} else {
@@ -116,7 +121,7 @@ public class Game implements PositionListener, Serializable {
 	}
 	Game copy = getDeepCopy();
 	copy.gotoPly(newPlyOffset);
-	Game fragment = new Game(new GameModel(copy.m_header.getDeepCopy(), new GameMoveModel()));
+	Game fragment = new Game(new GameModel(copy.m_model.getHeaderModel().getDeepCopy(), new GameMoveModel()));
 	String fen = copy.getPosition().getFEN();
 	if (!fen.equals(FEN.START_POSITION)) {
 	    fragment.setTag(PGN.TAG_FEN, fen);
@@ -163,7 +168,7 @@ public class Game implements PositionListener, Serializable {
     }
 
     public void pack() {
-	m_cur = m_moves.pack(m_cur);
+	m_cur = m_model.getMoveModel().pack(m_cur);
     }
 
     private void setPosition(Position position) {
@@ -183,7 +188,7 @@ public class Game implements PositionListener, Serializable {
 	if (m_position.getVariant() == Variant.CHESS960) {
 	    setVariant(m_position.getVariant());
 	}
-	if (oldVariant != null && oldVariant == Variant.CHESS960) {
+	if (oldVariant == Variant.CHESS960) {
 	    m_position.setVariant(oldVariant);
 	}
     }
@@ -196,7 +201,7 @@ public class Game implements PositionListener, Serializable {
 
     public void addChangeListener(GameModelChangeListener listener) {
 	if (m_changeListeners == null)
-	    m_changeListeners = new ArrayList<GameModelChangeListener>();
+	    m_changeListeners = new ArrayList<>();
 	m_changeListeners.add(listener);
     }
 
@@ -236,12 +241,12 @@ public class Game implements PositionListener, Serializable {
 		    short[] moves = getNextShortMoves();
 		    for (int i = 0; i < moves.length; i++) {
 			if (moves[i] == move) {
-			    m_cur = m_moves.goForward(m_cur, i);
+			    m_cur = m_model.getMoveModel().goForward(m_cur, i);
 			    return; // =====>
 			}
 		    }
 		}
-		m_cur = m_moves.appendAsRightMostLine(m_cur, move);
+		m_cur = m_model.getMoveModel().appendAsRightMostLine(m_cur, move);
 		fireMoveModelChanged();
 	    }
 	} else if (type == ChangeType.MOVE_UNDONE) {
@@ -249,7 +254,7 @@ public class Game implements PositionListener, Serializable {
 		System.out.println("Game: move undone.");
 
 	    if (!m_ignoreNotifications) {
-		m_cur = m_moves.goBack(m_cur, true);
+		m_cur = m_model.getMoveModel().goBack(m_cur, true);
 	    }
 	}
     }
@@ -258,96 +263,96 @@ public class Game implements PositionListener, Serializable {
     // header methods
 
     public String getTag(String tagName) {
-	return m_header.getTag(tagName);
+	return m_model.getHeaderModel().getTag(tagName);
     }
 
     public String[] getTags() {
-	return m_header.getTags();
+	return m_model.getHeaderModel().getTags();
     }
 
     public String[] getOtherTags() {
-	return m_header.getOtherTags();
+	return m_model.getHeaderModel().getOtherTags();
     }
 
     public void setTag(String tagName, String tagValue) {
-	m_header.setTag(tagName, tagValue);
+	m_model.getHeaderModel().setTag(tagName, tagValue);
 	fireHeaderModelChanged();
     }
 
     public void setGameByFEN(String fen, boolean overwriteTags) throws IllegalArgumentException {
 	if (overwriteTags) {
-	    m_header.clearTags();
-	    m_header.setTag(PGN.TAG_DATE, "????.??.??");
-	    m_header.setTag(PGN.TAG_ROUND, "?");
-	    m_header.setTag(PGN.TAG_ECO, "");
-	    m_header.setTag(PGN.TAG_RESULT, "*");
+	    m_model.getHeaderModel().clearTags();
+	    m_model.getHeaderModel().setTag(PGN.TAG_DATE, "????.??.??");
+	    m_model.getHeaderModel().setTag(PGN.TAG_ROUND, "?");
+	    m_model.getHeaderModel().setTag(PGN.TAG_ECO, "");
+	    m_model.getHeaderModel().setTag(PGN.TAG_RESULT, "*");
 	}
-	m_header.setTag(PGN.TAG_FEN, fen);
+	m_model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
 	setPosition(new Position(fen, false));
-	m_moves.clear();
+	m_model.getMoveModel().clear();
 	setVariant(FEN.isShredderFEN(fen) ? Variant.CHESS960 : Variant.STANDARD);
 	fireMoveModelChanged();
 	fireHeaderModelChanged();
     }
 
     public String getEvent() {
-	return m_header.getEvent();
+	return m_model.getHeaderModel().getEvent();
     }
 
     public String getSite() {
-	return m_header.getSite();
+	return m_model.getHeaderModel().getSite();
     }
 
     public String getDate() {
-	return m_header.getDate();
+	return m_model.getHeaderModel().getDate();
     }
 
     public String getRound() {
-	return m_header.getRound();
+	return m_model.getHeaderModel().getRound();
     }
 
     public String getWhite() {
-	return m_header.getWhite();
+	return m_model.getHeaderModel().getWhite();
     }
 
     public String getBlack() {
-	return m_header.getBlack();
+	return m_model.getHeaderModel().getBlack();
     }
 
     public String getResultStr() {
-	return m_header.getResultStr();
+	return m_model.getHeaderModel().getResultStr();
     }
 
     public String getWhiteEloStr() {
-	return m_header.getWhiteEloStr();
+	return m_model.getHeaderModel().getWhiteEloStr();
     }
 
     public String getBlackEloStr() {
-	return m_header.getBlackEloStr();
+	return m_model.getHeaderModel().getBlackEloStr();
     }
 
     public String getEventDate() {
-	return m_header.getEventDate();
+	return m_model.getHeaderModel().getEventDate();
     }
 
     public String getECO() {
-	return m_header.getECO();
+	return m_model.getHeaderModel().getECO();
     }
 
     public int getResult() {
-	return m_header.getResult();
+	return m_model.getHeaderModel().getResult();
     }
 
     public int getWhiteElo() {
-	return m_header.getWhiteElo();
+	return m_model.getHeaderModel().getWhiteElo();
     }
 
     public int getBlackElo() {
-	return m_header.getBlackElo();
+	return m_model.getHeaderModel().getBlackElo();
     }
 
     public String getDateWithoutQuestionMarks() {
-	String s = m_header.getDate();
+	String s = m_model.getHeaderModel().getDate();
 	if (s.startsWith("?")) {
 	    return "";
 	}
@@ -358,10 +363,10 @@ public class Game implements PositionListener, Serializable {
     }
 
     public String getRoundWithoutQuestionmark() {
-	if (m_header.getRound() == null || m_header.getRound().equals("?")) {
+	if (m_model.getHeaderModel().getRound() == null || m_model.getHeaderModel().getRound().equals("?")) {
 	    return "";
 	}
-	return m_header.getRound();
+	return m_model.getHeaderModel().getRound();
     }
 
     public String getSingleLineDescription() {
@@ -381,11 +386,11 @@ public class Game implements PositionListener, Serializable {
     }
 
     public Variant getVariant() {
-	return m_header.getVariant();
+	return m_model.getHeaderModel().getVariant();
     }
 
     public void setVariant(Variant variant) {
-	m_header.setVariant(variant);
+	m_model.getHeaderModel().setVariant(variant);
 	m_position.setVariant(variant);
     }
 
@@ -408,7 +413,7 @@ public class Game implements PositionListener, Serializable {
      * @return the info string
      */
     public String getLongInfoString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(getWhite()).append(" - ").append(getBlack()).append(", ").append(getEvent());
 	if (getRound() != null && !getRound().equals("?")) {
 	    sb.append(" (").append(getRound()).append(") ");
@@ -440,7 +445,7 @@ public class Game implements PositionListener, Serializable {
      */
     public String getHeaderString(int line) {
 	if (line == 0) {
-	    StringBuffer sb = new StringBuffer();
+	    StringBuilder sb = new StringBuilder();
 	    if (getWhite() == null) { // an empty game
 		return sb.toString();
 	    }
@@ -453,7 +458,7 @@ public class Game implements PositionListener, Serializable {
 	    sb.append("  ").append(getResultStr()).append("  (").append(getNumOfMoves()).append(" moves)");
 	    return sb.toString();
 	} else if (line == 1) {
-	    StringBuffer sb = new StringBuffer();
+	    StringBuilder sb = new StringBuilder();
 	    if (getEvent() == null) { // an empty game
 		return sb.toString();
 	    }
@@ -481,25 +486,25 @@ public class Game implements PositionListener, Serializable {
     // moves methods
 
     public boolean currentMoveHasNag(short nag) {
-	return m_moves.hasNag(m_cur, nag);
+	return m_model.getMoveModel().hasNag(m_cur, nag);
     }
 
     public short[] getNags() {
-	return m_moves.getNags(m_cur);
+	return m_model.getMoveModel().getNags(m_cur);
     }
 
     public void addNag(short nag) {
-	m_moves.addNag(m_cur, nag);
+	m_model.getMoveModel().addNag(m_cur, nag);
 	fireMoveModelChanged();
     }
 
     public void removeNag(short nag) {
-	if (m_moves.removeNag(m_cur, nag))
+	if (m_model.getMoveModel().removeNag(m_cur, nag))
 	    fireMoveModelChanged();
     }
 
     public void removeAllNags() {
-	if (m_moves.removeAllNags()) {
+	if (m_model.getMoveModel().removeAllNags()) {
 	    fireMoveModelChanged();
 	}
     }
@@ -514,20 +519,20 @@ public class Game implements PositionListener, Serializable {
 
     // Comments:
     public boolean hasComment() {
-	return m_moves.hasComment();
+	return m_model.getMoveModel().hasComment();
     }
 
     public String getPreMoveComment() {
-	return m_moves.getPreMoveComment(m_cur);
+	return m_model.getMoveModel().getPreMoveComment(m_cur);
     }
 
     public String getPostMoveComment() {
-	return m_moves.getPostMoveComment(m_cur);
+	return m_model.getMoveModel().getPostMoveComment(m_cur);
     }
 
     public void setPreMoveComment(String comment) {
-	if (m_moves.setPreMoveComment(m_cur, comment)) {
-	    while (Move.isSpecial(m_moves.getMove(m_cur))) {
+	if (m_model.getMoveModel().setPreMoveComment(m_cur, comment)) {
+	    while (Move.isSpecial(m_model.getMoveModel().getMove(m_cur))) {
 		++m_cur;
 	    }
 	}
@@ -535,7 +540,7 @@ public class Game implements PositionListener, Serializable {
     }
 
     public void setPostMoveComment(String comment) {
-	m_moves.setPostMoveComment(m_cur, comment);
+	m_model.getMoveModel().setPostMoveComment(m_cur, comment);
 	fireMoveModelChanged();
     }
 
@@ -546,7 +551,7 @@ public class Game implements PositionListener, Serializable {
     private void removePreMoveComment(boolean silent) {
 	String preComment = getPreMoveComment();
 	if (preComment != null) {
-	    if (m_moves.removePreMoveComment(m_cur)) {
+	    if (m_model.getMoveModel().removePreMoveComment(m_cur)) {
 		// this removePreMoveComment does not change m_cur because only the comment is
 		// overwritten
 		if (!silent) {
@@ -561,14 +566,14 @@ public class Game implements PositionListener, Serializable {
     }
 
     private void removePostMoveComment(boolean silent) {
-	if (m_moves.removePostMoveComment(m_cur) && !silent) {
+	if (m_model.getMoveModel().removePostMoveComment(m_cur) && !silent) {
 	    fireMoveModelChanged();
 	}
     }
 
     public void removeAllComments() {
 	if (getNumOfPlies() == 0) {
-	    m_moves.setEmptyGameComment(null);
+	    m_model.getMoveModel().setEmptyGameComment(null);
 	} else {
 	    traverse(new TraverseListener() {
 		@Override
@@ -591,11 +596,11 @@ public class Game implements PositionListener, Serializable {
     }
 
     public String getEmptyGameComment() {
-	return m_moves.getEmptyGameComment();
+	return m_model.getMoveModel().getEmptyGameComment();
     }
 
     public void setEmptyGameComment(String comment) {
-	m_moves.setEmptyGameComment(comment.trim());
+	m_model.getMoveModel().setEmptyGameComment(comment.trim());
 	fireMoveModelChanged();
     }
 
@@ -620,8 +625,8 @@ public class Game implements PositionListener, Serializable {
     public int getNumOfPlies() {
 	int num = 0;
 	int index = 0;
-	while (m_moves.hasNextMove(index)) {
-	    index = m_moves.goForward(index);
+	while (m_model.getMoveModel().hasNextMove(index)) {
+	    index = m_model.getMoveModel().goForward(index);
 	    num++;
 	}
 	return num;
@@ -632,7 +637,7 @@ public class Game implements PositionListener, Serializable {
     }
 
     public int getTotalNumOfPlies() {
-	return m_moves.getTotalNumOfPlies();
+	return m_model.getMoveModel().getTotalNumOfPlies();
     }
 
     // ======================================================================
@@ -654,43 +659,43 @@ public class Game implements PositionListener, Serializable {
     }
 
     public Move getNextMove(int whichLine) {
-	short moveAsShort = m_moves.getMove(m_moves.goForward(m_cur, whichLine));
+	short moveAsShort = m_model.getMoveModel().getMove(m_model.getMoveModel().goForward(m_cur, whichLine));
 	if (moveAsShort == GameMoveModel.NO_MOVE)
 	    return null;
 	return m_position.getNextMove(moveAsShort);
     }
 
     public short getNextShortMove(int whichLine) {
-	return m_moves.getMove(m_moves.goForward(m_cur, whichLine));
+	return m_model.getMoveModel().getMove(m_model.getMoveModel().goForward(m_cur, whichLine));
     }
 
     public boolean hasNextMove() {
-	return m_moves.hasNextMove(m_cur);
+	return m_model.getMoveModel().hasNextMove(m_cur);
     }
 
     public int getNumOfNextMoves() {
-	return m_moves.getNumOfNextMoves(m_cur);
+	return m_model.getMoveModel().getNumOfNextMoves(m_cur);
     }
 
     public short[] getNextShortMoves() {
-	short[] moves = new short[m_moves.getNumOfNextMoves(m_cur)];
+	short[] moves = new short[m_model.getMoveModel().getNumOfNextMoves(m_cur)];
 	for (int i = 0; i < moves.length; i++) {
-	    moves[i] = m_moves.getMove(m_moves.goForward(m_cur, i));
+	    moves[i] = m_model.getMoveModel().getMove(m_model.getMoveModel().goForward(m_cur, i));
 	}
 	return moves;
     }
 
     public Move[] getNextMoves() {
-	Move[] moves = new Move[m_moves.getNumOfNextMoves(m_cur)];
+	Move[] moves = new Move[m_model.getMoveModel().getNumOfNextMoves(m_cur)];
 	for (int i = 0; i < moves.length; i++) {
-	    short moveAsShort = m_moves.getMove(m_moves.goForward(m_cur, i));
+	    short moveAsShort = m_model.getMoveModel().getMove(m_model.getMoveModel().goForward(m_cur, i));
 	    moves[i] = m_position.getNextMove(moveAsShort);
 	}
 	return moves;
     }
 
     public boolean isMainLine() {
-	return m_moves.isMainLine(m_cur);
+	return m_model.getMoveModel().isMainLine(m_cur);
     }
 
     // ======================================================================
@@ -699,7 +704,7 @@ public class Game implements PositionListener, Serializable {
 	if (DEBUG)
 	    System.out.println("goBack");
 
-	int index = m_moves.goBack(m_cur, true);
+	int index = m_model.getMoveModel().goBack(m_cur, true);
 	if (index != -1) {
 	    m_cur = index;
 	    m_ignoreNotifications = true;
@@ -722,8 +727,8 @@ public class Game implements PositionListener, Serializable {
 	if (DEBUG)
 	    System.out.println("goForward " + whichLine);
 
-	int index = m_moves.goForward(m_cur, whichLine);
-	short shortMove = m_moves.getMove(index);
+	int index = m_model.getMoveModel().goForward(m_cur, whichLine);
+	short shortMove = m_model.getMoveModel().getMove(index);
 	if (DEBUG)
 	    System.out.println("  move = " + Move.getString(shortMove));
 	if (shortMove != GameMoveModel.NO_MOVE) {
@@ -787,7 +792,7 @@ public class Game implements PositionListener, Serializable {
 	for (int i = nodeNodes.length - 2; i >= 0; i--) {
 	    int nextMoveIndex = 0;
 	    for (int j = 1; j < getNumOfNextMoves(); j++) {
-		if (m_moves.goForward(m_cur, j) == nodeNodes[i]) {
+		if (m_model.getMoveModel().goForward(m_cur, j) == nodeNodes[i]) {
 		    nextMoveIndex = j;
 		    break;
 		}
@@ -804,9 +809,9 @@ public class Game implements PositionListener, Serializable {
 	int index = m_cur;
 	goBack();
 	if (0 == index) { // otherwise we get an exception in fireMoveModelChanged below
-	    m_moves.clear();
+	    m_model.getMoveModel().clear();
 	} else {
-	    m_moves.deleteCurrentLine(index);
+	    m_model.getMoveModel().deleteCurrentLine(index);
 	}
 	fireMoveModelChanged();
 	m_position.decreaseAlgorithmDepth();
@@ -818,13 +823,13 @@ public class Game implements PositionListener, Serializable {
 	    gotoStart();
 	    m_position.decreaseAlgorithmDepth();
 	}
-	if (m_moves.deleteAllLines()) {
+	if (m_model.getMoveModel().deleteAllLines()) {
 	    fireMoveModelChanged();
 	}
     }
 
     public void deleteRemainingMoves() {
-	if (m_moves.deleteRemainingMoves(m_cur)) {
+	if (m_model.getMoveModel().deleteRemainingMoves(m_cur)) {
 	    fireMoveModelChanged();
 	}
     }
@@ -853,7 +858,7 @@ public class Game implements PositionListener, Serializable {
 	if (DEBUG)
 	    System.out.println("goBackInLine");
 
-	int index = m_moves.goBack(m_cur, false);
+	int index = m_model.getMoveModel().goBack(m_cur, false);
 	if (index != -1) {
 	    m_cur = index; // needs to be set before undoing the move to allow
 			   // listeners to check for curNode
@@ -877,8 +882,8 @@ public class Game implements PositionListener, Serializable {
 	if (DEBUG)
 	    System.out.println("goForwardAndGetMove " + whichLine);
 
-	int index = m_moves.goForward(m_cur, whichLine);
-	short shortMove = m_moves.getMove(index);
+	int index = m_model.getMoveModel().goForward(m_cur, whichLine);
+	short shortMove = m_model.getMoveModel().getMove(index);
 	if (DEBUG)
 	    System.out.println("  move = " + Move.getString(shortMove));
 	if (shortMove != GameMoveModel.NO_MOVE) {
@@ -899,7 +904,7 @@ public class Game implements PositionListener, Serializable {
     private int getNumOfPliesToRoot(int node) {
 	int plies = 0;
 	while (node > 0) {
-	    node = m_moves.goBack(node, true);
+	    node = m_model.getMoveModel().goBack(node, true);
 	    plies++;
 	}
 	return plies;
@@ -908,7 +913,7 @@ public class Game implements PositionListener, Serializable {
     private int[] getNodesToRoot(int node) {
 	int[] nodes;
 	int i = 0;
-	if (m_moves.getMove(node) != GameMoveModel.NO_MOVE) {
+	if (m_model.getMoveModel().getMove(node) != GameMoveModel.NO_MOVE) {
 	    nodes = new int[getNumOfPliesToRoot(node) + 1];
 	    nodes[0] = node;
 	    i = 1;
@@ -917,7 +922,7 @@ public class Game implements PositionListener, Serializable {
 	    i = 0;
 	}
 	for (; i < nodes.length; i++) {
-	    node = m_moves.goBack(node, true);
+	    node = m_model.getMoveModel().goBack(node, true);
 	    nodes[i] = node;
 	}
 	return nodes;
@@ -929,7 +934,7 @@ public class Game implements PositionListener, Serializable {
 	if (isMainLine()) {
 	    return true;
 	}
-	int val = m_moves.promoteVariation(m_cur);
+	int val = m_model.getMoveModel().promoteVariation(m_cur);
 	if (val != -1) {
 	    m_cur = val;
 	    fireMoveModelChanged();
@@ -1037,14 +1042,54 @@ public class Game implements PositionListener, Serializable {
     // ======================================================================
 
     public void removeEvaluationNags() {
-	if (m_moves.removeEvaluationNags(m_cur)) {
+	if (m_model.getMoveModel().removeEvaluationNags(m_cur)) {
 	    fireMoveModelChanged();
 	}
     }
 
     public void removePunctuationNags() {
-	if (m_moves.removePunctuationNags(m_cur)) {
+	if (m_model.getMoveModel().removePunctuationNags(m_cur)) {
 	    fireMoveModelChanged();
 	}
+    }
+
+    // ======================================================================
+
+    private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
+	String str = s.readUTF();
+	StringReader strReader = new StringReader(str);
+	PGNReader pgnRreader = new PGNReader(strReader, "no file");
+	Game game;
+	try {
+	    game = pgnRreader.parseGame();
+	} catch (PGNSyntaxError e) {
+	    throw new IOException(e.getMessage());
+	}
+	copyByReflection(game);
+    }
+
+    private void copyByReflection(Game game) throws IOException {
+	Class<? extends Game> c = this.getClass();
+	Field[] fields = c.getDeclaredFields();
+	for (Field f : fields) {
+	    if (Modifier.isStatic(f.getModifiers())) { // ignore statics
+		continue;
+	    }
+	    try {
+		f.setAccessible(true); // for finals
+		f.set(this, f.get(game));
+	    } catch (IllegalArgumentException | IllegalAccessException e) {
+		throw new IOException(e.getMessage());
+	    }
+	}
+	m_position.removePositionListener(game);
+	m_position.addPositionListener(this);
+    }
+
+    private synchronized void writeObject(java.io.ObjectOutputStream s) throws IOException {
+	StringWriter buf = new StringWriter();
+	PGNWriter writer = new PGNWriter(buf);
+	writer.write(this);
+	s.writeUTF(buf.toString());
     }
 }
