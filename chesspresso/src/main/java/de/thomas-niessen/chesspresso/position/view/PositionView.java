@@ -444,7 +444,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 	if (m_positionMotionListener == null)
 	    return;
 	m_draggedFrom = getSquareForEvent(e);
-	if (m_positionMotionListener.allowDrag(m_position, m_draggedFrom)) {
+	if (m_positionMotionListener.isDragAllowed(m_position, m_draggedFrom)) {
 	    m_draggedStone = m_position.getStone(m_draggedFrom);
 	    m_draggedX = e.getX();
 	    m_draggedY = e.getY();

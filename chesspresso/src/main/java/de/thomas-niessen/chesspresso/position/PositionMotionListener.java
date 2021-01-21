@@ -17,10 +17,10 @@ package chesspresso.position;
 import java.awt.event.MouseEvent;
 
 public interface PositionMotionListener {
-    boolean allowDrag(ImmutablePosition position, int from);
+    boolean isDragAllowed(ImmutablePosition position, int from);
 
     boolean dragged(ImmutablePosition position, int from, int to, MouseEvent e);
-    // the return value can be used to indicate success, for example
+    // the return value can be used to indicate success
 
     void squareClicked(ImmutablePosition position, int sqi, MouseEvent e);
 }

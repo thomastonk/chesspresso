@@ -48,6 +48,7 @@ import chesspresso.pgn.PGN;
 import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.NAG;
+import chesspresso.position.OneClickMove;
 import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
 import chesspresso.position.view.Decoration.DecorationType;
@@ -318,7 +319,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
     // Methods to implement PositionMotionListener
 
     @Override
-    public boolean allowDrag(ImmutablePosition position, int from) {
+    public boolean isDragAllowed(ImmutablePosition position, int from) {
 	// allow dragging only if editable and there is a stone on the square
 	return m_editable && m_game.getPosition().getStone(from) != Chess.NO_STONE;
     }
@@ -337,58 +338,8 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
     @Override
     public void squareClicked(ImmutablePosition position, int sqi, MouseEvent e) {
-	if (m_editable && m_oneClickMoves) {
-	    short[] moves = m_game.getPosition().getAllMoves();
-	    // test for unique to-square
-	    short uniqueMove = getUniqueMove(sqi, moves, true);
-	    if (uniqueMove != Move.NO_MOVE) {
-		try {
-		    m_game.getPosition().doMove(uniqueMove);
-		    return;
-		} catch (IllegalMoveException ignore) {
-		    return;
-		}
-	    }
-	    // test for unique from-square
-	    uniqueMove = getUniqueMove(sqi, moves, false);
-	    if (uniqueMove != Move.NO_MOVE) {
-		try {
-		    m_game.getPosition().doMove(uniqueMove);
-		    return;
-		} catch (IllegalMoveException ignore) {
-		    return;
-		}
-	    }
-	}
-    }
-
-    private short getUniqueMove(int sqi, short[] moves, boolean to) {
-	short uniqueMove = Move.NO_MOVE;
-	boolean isPromotion = false;
-	short proCounter = 0;
-	for (short move : moves) {
-	    if ((to && (sqi == Move.getToSqi(move))) || (!to && (sqi == Move.getFromSqi(move)))) {
-		if (uniqueMove != Move.NO_MOVE) { // not unique
-		    if (isPromotion && Move.isPromotion(move)) { // both are promotions
-			++proCounter;
-			if (Move.getPromotionPiece(move) == Chess.QUEEN) {
-			    uniqueMove = move;
-			}
-			continue;
-		    } else {
-			return Move.NO_MOVE;
-		    }
-		}
-		uniqueMove = move;
-		isPromotion = Move.isPromotion(uniqueMove);
-	    }
-	}
-	if (!isPromotion || proCounter == 3) {
-	    // If isPromotion is true and there are exactly three other promotion moves,
-	    // then we return the promotion to a queen (see above).
-	    return uniqueMove;
-	} else {
-	    return Move.NO_MOVE;
+	if (m_editable && m_oneClickMoves && m_game.getPosition() == position) {
+	    OneClickMove.squareClicked(m_game.getPosition(), sqi, e);
 	}
     }
 
