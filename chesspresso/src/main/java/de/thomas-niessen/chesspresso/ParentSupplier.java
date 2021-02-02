@@ -17,5 +17,5 @@ package chesspresso;
 import java.awt.Component;
 
 public interface ParentSupplier {
-    Component getCurrentParent();
+	Component getCurrentParent();
 }

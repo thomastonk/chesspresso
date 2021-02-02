@@ -22,10 +22,9 @@ import chesspresso.move.Move;
  * @author Bernhard Seybold
  */
 public interface TraverseListener {
-    public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber,
-	    int level);
+	public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level);
 
-    public void notifyLineStart(int level);
+	public void notifyLineStart(int level);
 
-    public void notifyLineEnd(int level);
+	public void notifyLineEnd(int level);
 }

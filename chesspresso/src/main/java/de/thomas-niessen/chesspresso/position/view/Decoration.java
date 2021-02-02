@@ -18,15 +18,15 @@ import java.awt.Graphics2D;
 
 public interface Decoration {
 
-    public enum DecorationType {
-	ARROW, BORDER, CIRCLE, CROSS_MARK, STROKE, FRAMED_AREA, GRAY_HAZE, TRIANGLE_IN_CORNER, ONE_IN_CORNER,
-	ZERO_IN_CORNER, BAR_IN_CORNER, TEXT
-    };
+	public enum DecorationType {
+		ARROW, BORDER, CIRCLE, CROSS_MARK, STROKE, FRAMED_AREA, GRAY_HAZE, TRIANGLE_IN_CORNER, ONE_IN_CORNER, ZERO_IN_CORNER,
+		BAR_IN_CORNER, TEXT
+	};
 
-    void paint(Graphics2D g, int squareSize, int bottomPlayer);
+	void paint(Graphics2D g, int squareSize, int bottomPlayer);
 
-    Color getColor();
+	Color getColor();
 
-    DecorationType getType();
+	DecorationType getType();
 
 }

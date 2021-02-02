@@ -20,18 +20,18 @@ import javax.swing.JOptionPane;
 
 public class DefaultInputDialog implements InputDialog {
 
-    DefaultInputDialog() {
-    }
-
-    @Override
-    public String showInputDialog(Component parentComponent, String title, String message, String startInput) {
-	Object obj = JOptionPane.showInputDialog(parentComponent, message, title, JOptionPane.OK_CANCEL_OPTION, null,
-		null, startInput);
-	if (obj != null && obj instanceof String) {
-	    return (String) obj;
-	} else {
-	    return null;
+	DefaultInputDialog() {
 	}
-    }
+
+	@Override
+	public String showInputDialog(Component parentComponent, String title, String message, String startInput) {
+		Object obj = JOptionPane.showInputDialog(parentComponent, message, title, JOptionPane.OK_CANCEL_OPTION, null, null,
+				startInput);
+		if (obj != null && obj instanceof String) {
+			return (String) obj;
+		} else {
+			return null;
+		}
+	}
 
 }

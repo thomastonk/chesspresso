@@ -15,7 +15,7 @@ package chesspresso;
 
 public enum Variant {
 
-    STANDARD, // normal chess
-    CHESS960;
+	STANDARD, // normal chess
+	CHESS960;
 
 }

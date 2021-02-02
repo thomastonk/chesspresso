@@ -28,157 +28,153 @@ import chesspresso.Variant;
  */
 public class CompactPosition extends AbstractPosition {
 
-    private final static int SQI_EP_SHIFT = 0, SQI_EP_MASK = 0x07F, // [0, 128[
-	    CASTLES_SHIFT = 7, CASTLES_MASK = 0x00F, // [0, 15]
-	    TO_PLAY_SHIFT = 11, TO_PLAY_MASK = 0x001, // [0 | 1]
-	    PLY_NUMBER_SHIFT = 12, PLY_NUMBER_MASK = 0x3FF, // [0, 1024[
-	    HALF_MOVE_CLOCK_SHIFT = 22, HALF_MOVE_CLOCK_MASK = 0xFF; // [0, 128[
+	private final static int SQI_EP_SHIFT = 0, SQI_EP_MASK = 0x07F, // [0, 128[
+			CASTLES_SHIFT = 7, CASTLES_MASK = 0x00F, // [0, 15]
+			TO_PLAY_SHIFT = 11, TO_PLAY_MASK = 0x001, // [0 | 1]
+			PLY_NUMBER_SHIFT = 12, PLY_NUMBER_MASK = 0x3FF, // [0, 1024[
+			HALF_MOVE_CLOCK_SHIFT = 22, HALF_MOVE_CLOCK_MASK = 0xFF; // [0, 128[
 
-    /*
-     * =============================================================================
-     */
+	/*
+	 * =============================================================================
+	 */
 
-    private int[] m_stones; // 32 bytes
-    private int m_flags; // 4 bytes
+	private int[] m_stones; // 32 bytes
+	private int m_flags; // 4 bytes
 
-    /*
-     * =============================================================================
-     */
+	/*
+	 * =============================================================================
+	 */
 
-    public CompactPosition(ImmutablePosition position) {
-	m_stones = new int[Chess.NUM_OF_SQUARES / 8];
-	for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi += 8) {
-	    m_stones[sqi / 8] = (position.getStone(sqi) - Chess.NO_STONE)
-		    + (position.getStone(sqi + 1) - Chess.NO_STONE) << 4
-			    + (position.getStone(sqi + 2) - Chess.NO_STONE) << 8
-				    + (position.getStone(sqi + 3) - Chess.NO_STONE) << 12
-					    + (position.getStone(sqi + 4) - Chess.NO_STONE) << 16
-						    + (position.getStone(sqi + 5) - Chess.NO_STONE) << 20
-							    + (position.getStone(sqi + 6) - Chess.NO_STONE) << 24
-								    + (position.getStone(sqi + 7)
-									    - Chess.NO_STONE) << 28;
+	public CompactPosition(ImmutablePosition position) {
+		m_stones = new int[Chess.NUM_OF_SQUARES / 8];
+		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi += 8) {
+			m_stones[sqi / 8] = (position.getStone(sqi) - Chess.NO_STONE) + (position.getStone(sqi + 1) - Chess.NO_STONE) << 4
+					+ (position.getStone(sqi + 2) - Chess.NO_STONE) << 8 + (position.getStone(sqi + 3) - Chess.NO_STONE) << 12
+							+ (position.getStone(sqi + 4) - Chess.NO_STONE) << 16
+									+ (position.getStone(sqi + 5) - Chess.NO_STONE) << 20
+											+ (position.getStone(sqi + 6) - Chess.NO_STONE) << 24
+													+ (position.getStone(sqi + 7) - Chess.NO_STONE) << 28;
+		}
+
+		m_flags = ((position.getSqiEP() - Chess.NO_SQUARE) << SQI_EP_SHIFT) + (position.getCastles() << CASTLES_SHIFT)
+				+ ((position.getToPlay() == Chess.WHITE ? 0 : 1) << TO_PLAY_SHIFT) + (position.getPlyNumber() << PLY_NUMBER_SHIFT)
+				+ (position.getHalfMoveClock() << HALF_MOVE_CLOCK_SHIFT);
 	}
 
-	m_flags = ((position.getSqiEP() - Chess.NO_SQUARE) << SQI_EP_SHIFT) + (position.getCastles() << CASTLES_SHIFT)
-		+ ((position.getToPlay() == Chess.WHITE ? 0 : 1) << TO_PLAY_SHIFT)
-		+ (position.getPlyNumber() << PLY_NUMBER_SHIFT)
-		+ (position.getHalfMoveClock() << HALF_MOVE_CLOCK_SHIFT);
-    }
+	/*
+	 * =============================================================================
+	 */
 
-    /*
-     * =============================================================================
-     */
+	@Override
+	public int getStone(int sqi) {
+		return ((m_stones[sqi / 8] >> (4 * (sqi & 0x7))) & 0xF) + Chess.NO_STONE;
+	}
 
-    @Override
-    public int getStone(int sqi) {
-	return ((m_stones[sqi / 8] >> (4 * (sqi & 0x7))) & 0xF) + Chess.NO_STONE;
-    }
+	@Override
+	public int getPiece(int sqi) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public int getPiece(int sqi) {
-	// TODO Auto-generated method stub
-	return 0;
-    }
+	@Override
+	public int getSqiEP() {
+		return ((m_flags >> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
+	}
 
-    @Override
-    public int getSqiEP() {
-	return ((m_flags >> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
-    }
+	@Override
+	public int getCastles() {
+		return ((m_flags >> CASTLES_SHIFT) & CASTLES_MASK);
+	}
 
-    @Override
-    public int getCastles() {
-	return ((m_flags >> CASTLES_SHIFT) & CASTLES_MASK);
-    }
+	@Override
+	public int getToPlay() {
+		return ((m_flags >> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
+	}
 
-    @Override
-    public int getToPlay() {
-	return ((m_flags >> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
-    }
+	@Override
+	public int getPlyNumber() {
+		return ((m_flags >> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
+	}
 
-    @Override
-    public int getPlyNumber() {
-	return ((m_flags >> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
-    }
+	@Override
+	public int getHalfMoveClock() {
+		return ((m_flags >> HALF_MOVE_CLOCK_SHIFT) & HALF_MOVE_CLOCK_MASK);
+	}
 
-    @Override
-    public int getHalfMoveClock() {
-	return ((m_flags >> HALF_MOVE_CLOCK_SHIFT) & HALF_MOVE_CLOCK_MASK);
-    }
+	@Override
+	public int getPlyOffset() {
+		throw new RuntimeException("Unexpected use of method getPlyOffset for CompactPosition");
+	}
 
-    @Override
-    public int getPlyOffset() {
-	throw new RuntimeException("Unexpected use of method getPlyOffset for CompactPosition");
-    }
+	@Override
+	public int getWhitesKingSquare() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public int getWhitesKingSquare() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
+	@Override
+	public int getBlacksKingSquare() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public int getBlacksKingSquare() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
+	@Override
+	public long getAllPawnsBB() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public long getAllPawnsBB() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
+	@Override
+	public long getWhitePawnsBB() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public long getWhitePawnsBB() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
+	@Override
+	public long getBlackPawnsBB() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public long getBlackPawnsBB() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
+	@Override
+	public boolean isCheck() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-    @Override
-    public boolean isCheck() {
-	// TODO Auto-generated method stub
-	return false;
-    }
+	@Override
+	public boolean isMate() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-    @Override
-    public boolean isMate() {
-	// TODO Auto-generated method stub
-	return false;
-    }
+	@Override
+	public boolean isStaleMate() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-    @Override
-    public boolean isStaleMate() {
-	// TODO Auto-generated method stub
-	return false;
-    }
+	@Override
+	public Variant getVariant() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public Variant getVariant() {
-	// TODO Auto-generated method stub
-	return null;
-    }
+	@Override
+	public int getChess960KingFile() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public int getChess960KingFile() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
+	@Override
+	public int getChess960QueensideRookFile() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public int getChess960QueensideRookFile() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    @Override
-    public int getChess960KingsideRookFile() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
+	@Override
+	public int getChess960KingsideRookFile() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

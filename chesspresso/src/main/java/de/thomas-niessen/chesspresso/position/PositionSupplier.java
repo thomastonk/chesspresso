@@ -16,5 +16,5 @@ package chesspresso.position;
 
 public interface PositionSupplier {
 
-    Position getCurrentPosition();
+	Position getCurrentPosition();
 }

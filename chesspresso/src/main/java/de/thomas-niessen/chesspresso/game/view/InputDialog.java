@@ -17,5 +17,5 @@ package chesspresso.game.view;
 import java.awt.Component;
 
 public interface InputDialog {
-    String showInputDialog(Component parentComponent, String title, String message, String startInput);
+	String showInputDialog(Component parentComponent, String title, String message, String startInput);
 }

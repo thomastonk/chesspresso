@@ -32,249 +32,248 @@ import chesspresso.position.Position;
 @SuppressWarnings("serial")
 public class PositionViewProperties extends javax.swing.JDialog {
 
-    private static class FontListRenderer extends javax.swing.plaf.basic.BasicComboBoxRenderer {
-	@Override
+	private static class FontListRenderer extends javax.swing.plaf.basic.BasicComboBoxRenderer {
+		@Override
+		@SuppressWarnings("rawtypes")
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+				boolean cellHasFocus) {
+			if (value instanceof Font) {
+				return super.getListCellRendererComponent(list, ((Font) value).getName(), index, isSelected, cellHasFocus);
+			} else {
+				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			}
+		}
+	}
+
+	// ======================================================================
+
+	private PositionView m_positionView;
+
+	@SuppressWarnings("unchecked")
+	public PositionViewProperties(java.awt.Frame parent, boolean modal) {
+		super(parent, modal);
+		initComponents();
+
+		m_positionView = new PositionView(Position.createInitialPosition());
+		m_positionFrame.add(m_positionView, BorderLayout.CENTER);
+
+		Font font = m_positionView.getFont();
+		teFontSize.setText(Integer.toString(font.getSize()));
+		cbSolid.setSelected(m_positionView.getSolidStones());
+
+		Font[] allFonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
+		for (int i = 0; i < allFonts.length; i++) {
+			cbFonts.addItem(allFonts[i]);
+			cbFonts.setRenderer(new FontListRenderer());
+			if (allFonts[i].getName().equals(font.getName())) {
+				cbFonts.setSelectedIndex(i);
+			}
+		}
+
+		pack();
+	}
+
+	private void close() {
+		setVisible(false);
+		dispose();
+	}
+
+	// ======================================================================
+
+	private void setFont() {
+		try {
+			Font font = (Font) cbFonts.getSelectedItem();
+			if (font != null) {
+				int fontSize = Integer.parseInt(teFontSize.getText());
+				m_positionView.setFont(font.deriveFont(Font.PLAIN, fontSize));
+			}
+			m_positionView.setSolidStones(cbSolid.isSelected());
+		} catch (NumberFormatException ex) {
+			// nothing
+		}
+	}
+
+	public PositionView getPositionView() {
+		return m_positionView;
+	}
+
+	// ======================================================================
 	@SuppressWarnings("rawtypes")
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
-		boolean cellHasFocus) {
-	    if (value instanceof Font) {
-		return super.getListCellRendererComponent(list, ((Font) value).getName(), index, isSelected,
-			cellHasFocus);
-	    } else {
-		return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-	    }
-	}
-    }
+	private void initComponents() {// GEN-BEGIN:initComponents
+		jPanel1 = new javax.swing.JPanel();
+		jPanel6 = new javax.swing.JPanel();
+		jPanel3 = new javax.swing.JPanel();
+		butWhiteSquare = new javax.swing.JButton();
+		butBlackSquare = new javax.swing.JButton();
+		jPanel2 = new javax.swing.JPanel();
+		butWhite = new javax.swing.JButton();
+		butBlack = new javax.swing.JButton();
+		jPanel4 = new javax.swing.JPanel();
+		cbFonts = new javax.swing.JComboBox();
+		teFontSize = new javax.swing.JTextField();
+		cbSolid = new javax.swing.JCheckBox();
+		m_positionFrame = new javax.swing.JPanel();
 
-    // ======================================================================
+		setTitle("Position View Properties");
+		addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent evt) {
+				closeDialog(evt);
+			}
+		});
 
-    private PositionView m_positionView;
+		jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.Y_AXIS));
 
-    @SuppressWarnings("unchecked")
-    public PositionViewProperties(java.awt.Frame parent, boolean modal) {
-	super(parent, modal);
-	initComponents();
+		jPanel6.setLayout(new javax.swing.BoxLayout(jPanel6, javax.swing.BoxLayout.X_AXIS));
 
-	m_positionView = new PositionView(Position.createInitialPosition());
-	m_positionFrame.add(m_positionView, BorderLayout.CENTER);
+		jPanel3.setBorder(new javax.swing.border.TitledBorder("Square Color"));
+		butWhiteSquare.setText("white");
+		butWhiteSquare.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				butWhiteSquareActionPerformed(evt);
+			}
+		});
 
-	Font font = m_positionView.getFont();
-	teFontSize.setText(Integer.toString(font.getSize()));
-	cbSolid.setSelected(m_positionView.getSolidStones());
+		jPanel3.add(butWhiteSquare);
 
-	Font[] allFonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-	for (int i = 0; i < allFonts.length; i++) {
-	    cbFonts.addItem(allFonts[i]);
-	    cbFonts.setRenderer(new FontListRenderer());
-	    if (allFonts[i].getName().equals(font.getName())) {
-		cbFonts.setSelectedIndex(i);
-	    }
-	}
+		butBlackSquare.setText("black");
+		butBlackSquare.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				butBlackSquareActionPerformed(evt);
+			}
+		});
 
-	pack();
-    }
+		jPanel3.add(butBlackSquare);
 
-    private void close() {
-	setVisible(false);
-	dispose();
-    }
+		jPanel6.add(jPanel3);
 
-    // ======================================================================
+		jPanel2.setBorder(new javax.swing.border.TitledBorder("Piece Color"));
+		butWhite.setText("white");
+		butWhite.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				butWhiteActionPerformed(evt);
+			}
+		});
 
-    private void setFont() {
-	try {
-	    Font font = (Font) cbFonts.getSelectedItem();
-	    if (font != null) {
-		int fontSize = Integer.parseInt(teFontSize.getText());
-		m_positionView.setFont(font.deriveFont(Font.PLAIN, fontSize));
-	    }
-	    m_positionView.setSolidStones(cbSolid.isSelected());
-	} catch (NumberFormatException ex) {
-	    // nothing
-	}
-    }
+		jPanel2.add(butWhite);
 
-    public PositionView getPositionView() {
-	return m_positionView;
-    }
+		butBlack.setText("black");
+		butBlack.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				butBlackActionPerformed(evt);
+			}
+		});
 
-    // ======================================================================
-    @SuppressWarnings("rawtypes")
-    private void initComponents() {// GEN-BEGIN:initComponents
-	jPanel1 = new javax.swing.JPanel();
-	jPanel6 = new javax.swing.JPanel();
-	jPanel3 = new javax.swing.JPanel();
-	butWhiteSquare = new javax.swing.JButton();
-	butBlackSquare = new javax.swing.JButton();
-	jPanel2 = new javax.swing.JPanel();
-	butWhite = new javax.swing.JButton();
-	butBlack = new javax.swing.JButton();
-	jPanel4 = new javax.swing.JPanel();
-	cbFonts = new javax.swing.JComboBox();
-	teFontSize = new javax.swing.JTextField();
-	cbSolid = new javax.swing.JCheckBox();
-	m_positionFrame = new javax.swing.JPanel();
+		jPanel2.add(butBlack);
 
-	setTitle("Position View Properties");
-	addWindowListener(new java.awt.event.WindowAdapter() {
-	    @Override
-	    public void windowClosing(java.awt.event.WindowEvent evt) {
-		closeDialog(evt);
-	    }
-	});
+		jPanel6.add(jPanel2);
 
-	jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.Y_AXIS));
+		jPanel1.add(jPanel6);
 
-	jPanel6.setLayout(new javax.swing.BoxLayout(jPanel6, javax.swing.BoxLayout.X_AXIS));
+		jPanel4.setBorder(new javax.swing.border.TitledBorder("Font"));
+		jPanel4.setToolTipText("null");
+		cbFonts.addItemListener(new java.awt.event.ItemListener() {
+			@Override
+			public void itemStateChanged(java.awt.event.ItemEvent evt) {
+				cbFontsItemStateChanged(evt);
+			}
+		});
 
-	jPanel3.setBorder(new javax.swing.border.TitledBorder("Square Color"));
-	butWhiteSquare.setText("white");
-	butWhiteSquare.addActionListener(new java.awt.event.ActionListener() {
-	    @Override
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		butWhiteSquareActionPerformed(evt);
-	    }
-	});
+		jPanel4.add(cbFonts);
 
-	jPanel3.add(butWhiteSquare);
+		teFontSize.setText("12");
+		teFontSize.addKeyListener(new java.awt.event.KeyAdapter() {
+			@Override
+			public void keyTyped(java.awt.event.KeyEvent evt) {
+				teFontSizeKeyTyped(evt);
+			}
+		});
 
-	butBlackSquare.setText("black");
-	butBlackSquare.addActionListener(new java.awt.event.ActionListener() {
-	    @Override
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		butBlackSquareActionPerformed(evt);
-	    }
-	});
+		jPanel4.add(teFontSize);
 
-	jPanel3.add(butBlackSquare);
+		cbSolid.setText("solid");
+		cbSolid.addItemListener(new java.awt.event.ItemListener() {
+			@Override
+			public void itemStateChanged(java.awt.event.ItemEvent evt) {
+				cbSolidItemStateChanged(evt);
+			}
+		});
 
-	jPanel6.add(jPanel3);
+		jPanel4.add(cbSolid);
 
-	jPanel2.setBorder(new javax.swing.border.TitledBorder("Piece Color"));
-	butWhite.setText("white");
-	butWhite.addActionListener(new java.awt.event.ActionListener() {
-	    @Override
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		butWhiteActionPerformed(evt);
-	    }
-	});
+		jPanel1.add(jPanel4);
 
-	jPanel2.add(butWhite);
+		getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
 
-	butBlack.setText("black");
-	butBlack.addActionListener(new java.awt.event.ActionListener() {
-	    @Override
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		butBlackActionPerformed(evt);
-	    }
-	});
+		m_positionFrame.setLayout(new java.awt.BorderLayout());
 
-	jPanel2.add(butBlack);
+		getContentPane().add(m_positionFrame, java.awt.BorderLayout.CENTER);
 
-	jPanel6.add(jPanel2);
+	}// GEN-END:initComponents
 
-	jPanel1.add(jPanel6);
+	private void cbSolidItemStateChanged(java.awt.event.ItemEvent evt) {// GEN-FIRST:event_cbSolidItemStateChanged
+		setFont();
+	}// GEN-LAST:event_cbSolidItemStateChanged
 
-	jPanel4.setBorder(new javax.swing.border.TitledBorder("Font"));
-	jPanel4.setToolTipText("null");
-	cbFonts.addItemListener(new java.awt.event.ItemListener() {
-	    @Override
-	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
-		cbFontsItemStateChanged(evt);
-	    }
-	});
+	private void teFontSizeKeyTyped(java.awt.event.KeyEvent evt) {// GEN-FIRST:event_teFontSizeKeyTyped
+		setFont();
+	}// GEN-LAST:event_teFontSizeKeyTyped
 
-	jPanel4.add(cbFonts);
+	private void cbFontsItemStateChanged(java.awt.event.ItemEvent evt) {// GEN-FIRST:event_cbFontsItemStateChanged
+		setFont();
+	}// GEN-LAST:event_cbFontsItemStateChanged
 
-	teFontSize.setText("12");
-	teFontSize.addKeyListener(new java.awt.event.KeyAdapter() {
-	    @Override
-	    public void keyTyped(java.awt.event.KeyEvent evt) {
-		teFontSizeKeyTyped(evt);
-	    }
-	});
+	private void butBlackSquareActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butBlackSquareActionPerformed
+		JColorChooser colorChooser = new JColorChooser(m_positionView.getBlackSquareColor());
+		JDialog dialog = JColorChooser.createDialog(this, "Black Square Color", true, colorChooser, null, null);
+		dialog.setVisible(true);
+		m_positionView.setBlackSquareColor(colorChooser.getColor());
+	}// GEN-LAST:event_butBlackSquareActionPerformed
 
-	jPanel4.add(teFontSize);
+	private void butWhiteSquareActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWhiteSquareActionPerformed
+		JColorChooser colorChooser = new JColorChooser(m_positionView.getWhiteSquareColor());
+		JDialog dialog = JColorChooser.createDialog(this, "White Square Color", true, colorChooser, null, null);
+		dialog.setVisible(true);
+		m_positionView.setWhiteSquareColor(colorChooser.getColor());
+	}// GEN-LAST:event_butWhiteSquareActionPerformed
 
-	cbSolid.setText("solid");
-	cbSolid.addItemListener(new java.awt.event.ItemListener() {
-	    @Override
-	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
-		cbSolidItemStateChanged(evt);
-	    }
-	});
+	private void butBlackActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butBlackActionPerformed
+		JColorChooser colorChooser = new JColorChooser(m_positionView.getBlackColor());
+		JDialog dialog = JColorChooser.createDialog(this, "Black Color", true, colorChooser, null, null);
+		dialog.setVisible(true);
+		m_positionView.setBlackColor(colorChooser.getColor());
+	}// GEN-LAST:event_butBlackActionPerformed
 
-	jPanel4.add(cbSolid);
+	private void butWhiteActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWhiteActionPerformed
+		JColorChooser colorChooser = new JColorChooser(m_positionView.getWhiteColor());
+		JDialog dialog = JColorChooser.createDialog(this, "White Color", true, colorChooser, null, null);
+		dialog.setVisible(true);
+		m_positionView.setWhiteColor(colorChooser.getColor());
+	}// GEN-LAST:event_butWhiteActionPerformed
 
-	jPanel1.add(jPanel4);
+	private void closeDialog(java.awt.event.WindowEvent evt) {// GEN-FIRST:event_closeDialog
+		close();
+	}// GEN-LAST:event_closeDialog
 
-	getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
-
-	m_positionFrame.setLayout(new java.awt.BorderLayout());
-
-	getContentPane().add(m_positionFrame, java.awt.BorderLayout.CENTER);
-
-    }// GEN-END:initComponents
-
-    private void cbSolidItemStateChanged(java.awt.event.ItemEvent evt) {// GEN-FIRST:event_cbSolidItemStateChanged
-	setFont();
-    }// GEN-LAST:event_cbSolidItemStateChanged
-
-    private void teFontSizeKeyTyped(java.awt.event.KeyEvent evt) {// GEN-FIRST:event_teFontSizeKeyTyped
-	setFont();
-    }// GEN-LAST:event_teFontSizeKeyTyped
-
-    private void cbFontsItemStateChanged(java.awt.event.ItemEvent evt) {// GEN-FIRST:event_cbFontsItemStateChanged
-	setFont();
-    }// GEN-LAST:event_cbFontsItemStateChanged
-
-    private void butBlackSquareActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butBlackSquareActionPerformed
-	JColorChooser colorChooser = new JColorChooser(m_positionView.getBlackSquareColor());
-	JDialog dialog = JColorChooser.createDialog(this, "Black Square Color", true, colorChooser, null, null);
-	dialog.setVisible(true);
-	m_positionView.setBlackSquareColor(colorChooser.getColor());
-    }// GEN-LAST:event_butBlackSquareActionPerformed
-
-    private void butWhiteSquareActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWhiteSquareActionPerformed
-	JColorChooser colorChooser = new JColorChooser(m_positionView.getWhiteSquareColor());
-	JDialog dialog = JColorChooser.createDialog(this, "White Square Color", true, colorChooser, null, null);
-	dialog.setVisible(true);
-	m_positionView.setWhiteSquareColor(colorChooser.getColor());
-    }// GEN-LAST:event_butWhiteSquareActionPerformed
-
-    private void butBlackActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butBlackActionPerformed
-	JColorChooser colorChooser = new JColorChooser(m_positionView.getBlackColor());
-	JDialog dialog = JColorChooser.createDialog(this, "Black Color", true, colorChooser, null, null);
-	dialog.setVisible(true);
-	m_positionView.setBlackColor(colorChooser.getColor());
-    }// GEN-LAST:event_butBlackActionPerformed
-
-    private void butWhiteActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_butWhiteActionPerformed
-	JColorChooser colorChooser = new JColorChooser(m_positionView.getWhiteColor());
-	JDialog dialog = JColorChooser.createDialog(this, "White Color", true, colorChooser, null, null);
-	dialog.setVisible(true);
-	m_positionView.setWhiteColor(colorChooser.getColor());
-    }// GEN-LAST:event_butWhiteActionPerformed
-
-    private void closeDialog(java.awt.event.WindowEvent evt) {// GEN-FIRST:event_closeDialog
-	close();
-    }// GEN-LAST:event_closeDialog
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JButton butBlackSquare;
-    private javax.swing.JButton butBlack;
-    private javax.swing.JButton butWhite;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JButton butWhiteSquare;
-    @SuppressWarnings("rawtypes")
-    private javax.swing.JComboBox cbFonts;
-    private javax.swing.JPanel m_positionFrame;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel6;
-    private javax.swing.JCheckBox cbSolid;
-    private javax.swing.JTextField teFontSize;
-    // End of variables declaration//GEN-END:variables
+	// Variables declaration - do not modify//GEN-BEGIN:variables
+	private javax.swing.JPanel jPanel4;
+	private javax.swing.JPanel jPanel3;
+	private javax.swing.JButton butBlackSquare;
+	private javax.swing.JButton butBlack;
+	private javax.swing.JButton butWhite;
+	private javax.swing.JPanel jPanel2;
+	private javax.swing.JButton butWhiteSquare;
+	@SuppressWarnings("rawtypes")
+	private javax.swing.JComboBox cbFonts;
+	private javax.swing.JPanel m_positionFrame;
+	private javax.swing.JPanel jPanel1;
+	private javax.swing.JPanel jPanel6;
+	private javax.swing.JCheckBox cbSolid;
+	private javax.swing.JTextField teFontSize;
+	// End of variables declaration//GEN-END:variables
 
 }

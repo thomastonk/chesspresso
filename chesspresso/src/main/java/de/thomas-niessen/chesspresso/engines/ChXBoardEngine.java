@@ -54,12 +54,12 @@ public class ChXBoardEngine {
 				for (;;) {
 					if (m_process == null)
 						return; // =====>
-//                    if (m_listen) {
+					//                    if (m_listen) {
 					String line = waitForAnswer(50, 1);
 					if (line != null) {
 						dispatch(line);
 					}
-//                    }
+					//                    }
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -84,7 +84,7 @@ public class ChXBoardEngine {
 		m_features = new Hashtable<String, String>();
 		m_process = Runtime.getRuntime().exec(command, null, new File(dir));
 		m_in = new BufferedReader(new InputStreamReader(m_process.getInputStream()));
-//        m_out = new BufferedWriter(new OutputStreamWriter(m_process.getOutputStream()));
+		//        m_out = new BufferedWriter(new OutputStreamWriter(m_process.getOutputStream()));
 		m_out = new OutputStreamWriter(m_process.getOutputStream());
 		m_inAnalyzeMode = false;
 		m_analysisListener = null;
@@ -108,7 +108,7 @@ public class ChXBoardEngine {
 	}
 
 	private void fireInputMessage(String msg) {
-//        System.out.println("> " + msg);
+		//        System.out.println("> " + msg);
 		if (m_listeners != null) {
 			for (Enumeration<Listener> e = m_listeners.elements(); e.hasMoreElements();) {
 				((Listener) e.nextElement()).notifyInputMessage(msg);
@@ -117,7 +117,7 @@ public class ChXBoardEngine {
 	}
 
 	private void fireEngineMessage(String msg) {
-//        System.out.println("< " + msg);
+		//        System.out.println("< " + msg);
 		if (m_listeners != null) {
 			for (Enumeration<Listener> e = m_listeners.elements(); e.hasMoreElements();) {
 				((Listener) e.nextElement()).notifyEngineMessage(msg);
@@ -128,7 +128,7 @@ public class ChXBoardEngine {
 	/* ================================================================================ */
 
 	private void addFeature(String name, String value) {
-//        System.out.println("feature " + name + " = " + value);
+		//        System.out.println("feature " + name + " = " + value);
 		m_features.put(name, value);
 	}
 
@@ -188,7 +188,7 @@ public class ChXBoardEngine {
 	public synchronized void init() {
 		final int WAIT = 2000; // wait two seconds for features like xboard
 
-//        sendMessage("xboard");
+		//        sendMessage("xboard");
 		sendMessage("log off"); // is this only crafty?
 		sendMessage("protover 2");
 
@@ -244,7 +244,7 @@ public class ChXBoardEngine {
 	}
 
 	public synchronized void setPosition(ImmutablePosition pos) {
-//        System.out.println(getFeature("setboard"));
+		//        System.out.println(getFeature("setboard"));
 		if ("1".equals(getFeature("setboard"))) {
 			sendMessage("setboard " + FEN.getFEN(pos));
 		}

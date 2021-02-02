@@ -43,83 +43,81 @@ import chesspresso.pgn.PGNWriter;
  */
 public class PgnToClipBoard implements ActionListener {
 
-    private final GameSupplier gameSupplier;
-    private final ParentSupplier parentSupplier;
+	private final GameSupplier gameSupplier;
+	private final ParentSupplier parentSupplier;
 
-    public PgnToClipBoard(GameSupplier gameSupplier, ParentSupplier parentSupplier) {
-	this.gameSupplier = gameSupplier;
-	this.parentSupplier = parentSupplier;
-    }
+	public PgnToClipBoard(GameSupplier gameSupplier, ParentSupplier parentSupplier) {
+		this.gameSupplier = gameSupplier;
+		this.parentSupplier = parentSupplier;
+	}
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
+	@Override
+	public void actionPerformed(ActionEvent e) {
 
-	String s;
-	Game game = gameSupplier.getCurrentGame();
-	if (game == null) {
-	    JOptionPane.showMessageDialog(parentSupplier.getCurrentParent(),
-		    "Unable to generate PGN:" + System.lineSeparator() + "no game available", "Error",
-		    JOptionPane.ERROR_MESSAGE);
-	    return;
-	}
-	try {
-	    s = PGNWriter.writeToString(game.getDeepCopy());
-	} catch (IllegalArgumentException ex) {
-	    JOptionPane.showMessageDialog(parentSupplier.getCurrentParent(),
-		    "Unable to generate PGN:" + System.lineSeparator() + ex.getMessage(), "Error",
-		    JOptionPane.ERROR_MESSAGE);
-	    return;
-	}
-	JDialog pgnDialog;
-	Component parent = parentSupplier.getCurrentParent();
-	if (parent != null) {
-	    if (parent instanceof Frame) {
-		pgnDialog = new JDialog((Frame) parent);
-	    } else if (parent instanceof Window) {
-		pgnDialog = new JDialog((Window) parent);
-	    } else if (parent instanceof Dialog) {
-		pgnDialog = new JDialog((Dialog) parent);
-	    } else {
-		pgnDialog = new JDialog();
-	    }
-	} else {
-	    pgnDialog = new JDialog();
-	}
-	pgnDialog.setTitle("PGN");
-	JPanel textPanel = new JPanel();
-	textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-	JTextPane textPane = new JTextPane();
-	textPane.setContentType("text/plain");
-	textPanel.add(new JScrollPane(textPane));
-	textPane.setText(s);
-	textPane.setCaretPosition(0);
-	textPane.setEditable(false);
-	JPanel buttonPanel = new JPanel();
-	buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-	JButton copyButton = new JButton("Copy to clipboard");
-	copyButton.addActionListener(f -> {
-	    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(s), null);
-	    pgnDialog.setVisible(false);
-	    pgnDialog.dispose();
-	});
-	buttonPanel.add(copyButton);
-	buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-	textPanel.add(buttonPanel);
-	pgnDialog.setModal(true);
-	pgnDialog.add(textPanel);
-	pgnDialog.pack();
-	if (pgnDialog.getSize().width > 600) {
-	    pgnDialog.setSize(new Dimension(600, pgnDialog.getSize().height));
-	}
-	if (pgnDialog.getSize().height > 600) {
-	    pgnDialog.setSize(new Dimension(pgnDialog.getSize().width, 600));
-	}
-	// and only now:
-	if (parent != null) {
-	    pgnDialog.setLocationRelativeTo(parent);
-	}
-	pgnDialog.setVisible(true);
+		String s;
+		Game game = gameSupplier.getCurrentGame();
+		if (game == null) {
+			JOptionPane.showMessageDialog(parentSupplier.getCurrentParent(),
+					"Unable to generate PGN:" + System.lineSeparator() + "no game available", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		try {
+			s = PGNWriter.writeToString(game.getDeepCopy());
+		} catch (IllegalArgumentException ex) {
+			JOptionPane.showMessageDialog(parentSupplier.getCurrentParent(),
+					"Unable to generate PGN:" + System.lineSeparator() + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		JDialog pgnDialog;
+		Component parent = parentSupplier.getCurrentParent();
+		if (parent != null) {
+			if (parent instanceof Frame) {
+				pgnDialog = new JDialog((Frame) parent);
+			} else if (parent instanceof Window) {
+				pgnDialog = new JDialog((Window) parent);
+			} else if (parent instanceof Dialog) {
+				pgnDialog = new JDialog((Dialog) parent);
+			} else {
+				pgnDialog = new JDialog();
+			}
+		} else {
+			pgnDialog = new JDialog();
+		}
+		pgnDialog.setTitle("PGN");
+		JPanel textPanel = new JPanel();
+		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+		JTextPane textPane = new JTextPane();
+		textPane.setContentType("text/plain");
+		textPanel.add(new JScrollPane(textPane));
+		textPane.setText(s);
+		textPane.setCaretPosition(0);
+		textPane.setEditable(false);
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		JButton copyButton = new JButton("Copy to clipboard");
+		copyButton.addActionListener(f -> {
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(s), null);
+			pgnDialog.setVisible(false);
+			pgnDialog.dispose();
+		});
+		buttonPanel.add(copyButton);
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		textPanel.add(buttonPanel);
+		pgnDialog.setModal(true);
+		pgnDialog.add(textPanel);
+		pgnDialog.pack();
+		if (pgnDialog.getSize().width > 600) {
+			pgnDialog.setSize(new Dimension(600, pgnDialog.getSize().height));
+		}
+		if (pgnDialog.getSize().height > 600) {
+			pgnDialog.setSize(new Dimension(pgnDialog.getSize().width, 600));
+		}
+		// and only now:
+		if (parent != null) {
+			pgnDialog.setLocationRelativeTo(parent);
+		}
+		pgnDialog.setVisible(true);
 
-    }
+	}
 
 }

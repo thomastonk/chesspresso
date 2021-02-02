@@ -23,27 +23,27 @@ import chesspresso.move.Move;
  * 
  */
 public interface MoveablePosition extends MutablePosition {
-    void doMove(short move) throws IllegalMoveException;
+	void doMove(short move) throws IllegalMoveException;
 
-    void doMove(Move move) throws IllegalMoveException;
+	void doMove(Move move) throws IllegalMoveException;
 
-    short getLastShortMove() throws IllegalMoveException;
+	short getLastShortMove() throws IllegalMoveException;
 
-    Move getLastMove() throws IllegalMoveException;
+	Move getLastMove() throws IllegalMoveException;
 
-    boolean canUndoMove();
+	boolean canUndoMove();
 
-    boolean undoMove();
+	boolean undoMove();
 
-    boolean canRedoMove();
+	boolean canRedoMove();
 
-    boolean redoMove();
+	boolean redoMove();
 
-    short getMove(int from, int to, int promoPiece);
+	short getMove(int from, int to, int promoPiece);
 
-    short[] getAllMoves();
+	short[] getAllMoves();
 
-    short getPawnMove(int colFrom, int to, int promoPiece);
+	short getPawnMove(int colFrom, int to, int promoPiece);
 
-    short getPieceMove(int piece, int colFrom, int rowFrom, int to);
+	short getPieceMove(int piece, int colFrom, int rowFrom, int to);
 }

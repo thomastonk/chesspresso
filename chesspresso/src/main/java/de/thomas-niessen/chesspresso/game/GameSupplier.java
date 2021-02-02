@@ -15,5 +15,5 @@
 package chesspresso.game;
 
 public interface GameSupplier {
-    Game getCurrentGame();
+	Game getCurrentGame();
 }

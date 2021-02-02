@@ -18,11 +18,11 @@ import java.awt.event.MouseEvent;
 
 public class Mouse {
 
-    public static boolean isSpecial(MouseEvent e) {
-	// META excluded, because isMetaDown returns true, if right mouse button is
-	// pressed.
-	// POPUP_TRIGGER excluded, because isPopupTrigger returns false in mousePressed
-	// and mouseDragged, but true in mouseReleased!
-	return e.isAltDown() || e.isAltGraphDown() || e.isControlDown() || e.isShiftDown();
-    }
+	public static boolean isSpecial(MouseEvent e) {
+		// META excluded, because isMetaDown returns true, if right mouse button is
+		// pressed.
+		// POPUP_TRIGGER excluded, because isPopupTrigger returns false in mousePressed
+		// and mouseDragged, but true in mouseReleased!
+		return e.isAltDown() || e.isAltGraphDown() || e.isControlDown() || e.isShiftDown();
+	}
 }

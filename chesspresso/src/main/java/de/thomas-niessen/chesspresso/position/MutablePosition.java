@@ -22,39 +22,39 @@ import chesspresso.Variant;
  * 
  */
 public interface MutablePosition extends ImmutablePosition {
-    void clear();
+	void clear();
 
-    void setPosition(ImmutablePosition position);
+	void setPosition(ImmutablePosition position);
 
-    void setStart();
+	void setStart();
 
-    void setStone(int sqi, int stone);
+	void setStone(int sqi, int stone);
 
-    void setCastles(int castles);
+	void setCastles(int castles);
 
-    void setSqiEP(int sqiEP);
+	void setSqiEP(int sqiEP);
 
-    void setToPlay(int toPlay);
+	void setToPlay(int toPlay);
 
-    void toggleToPlay();
+	void toggleToPlay();
 
-    void setPlyNumber(int plyNumber);
+	void setPlyNumber(int plyNumber);
 
-    void setPlyOffset(int plyOffset);
+	void setPlyOffset(int plyOffset);
 
-    void setHalfMoveClock(int halfMoveClock);
+	void setHalfMoveClock(int halfMoveClock);
 
-    void setVariant(Variant variant);
+	void setVariant(Variant variant);
 
-    void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile);
+	void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile);
 
-    void moveAllUp();
+	void moveAllUp();
 
-    void moveAllDown();
+	void moveAllDown();
 
-    void moveAllLeft();
+	void moveAllLeft();
 
-    void moveAllRight();
+	void moveAllRight();
 
-    void invert();
+	void invert();
 }

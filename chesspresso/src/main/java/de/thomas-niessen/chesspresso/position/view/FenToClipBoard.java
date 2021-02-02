@@ -34,57 +34,57 @@ import chesspresso.position.PositionSupplier;
 
 @SuppressWarnings("serial")
 public class FenToClipBoard extends AbstractAction {
-    private final PositionSupplier positionSupplier;
-    private final ParentSupplier parentSupplier;
+	private final PositionSupplier positionSupplier;
+	private final ParentSupplier parentSupplier;
 
-    public FenToClipBoard(PositionSupplier positionSupplier, ParentSupplier parentSupplier) {
-	super("FEN");
-	this.positionSupplier = positionSupplier;
-	this.parentSupplier = parentSupplier;
-    }
+	public FenToClipBoard(PositionSupplier positionSupplier, ParentSupplier parentSupplier) {
+		super("FEN");
+		this.positionSupplier = positionSupplier;
+		this.parentSupplier = parentSupplier;
+	}
 
-    @Override
-    public void actionPerformed(ActionEvent ae) {
-	String fen = FEN.getFEN(positionSupplier.getCurrentPosition());
-	JDialog fenDialog;
-	if (parentSupplier != null) {
-	    Component parent = parentSupplier.getCurrentParent();
-	    if (parent != null) {
-		if (parent instanceof Frame) {
-		    fenDialog = new JDialog((Frame) parent);
-		} else if (parent instanceof Window) {
-		    fenDialog = new JDialog((Window) parent);
-		} else if (parent instanceof Dialog) {
-		    fenDialog = new JDialog((Dialog) parent);
+	@Override
+	public void actionPerformed(ActionEvent ae) {
+		String fen = FEN.getFEN(positionSupplier.getCurrentPosition());
+		JDialog fenDialog;
+		if (parentSupplier != null) {
+			Component parent = parentSupplier.getCurrentParent();
+			if (parent != null) {
+				if (parent instanceof Frame) {
+					fenDialog = new JDialog((Frame) parent);
+				} else if (parent instanceof Window) {
+					fenDialog = new JDialog((Window) parent);
+				} else if (parent instanceof Dialog) {
+					fenDialog = new JDialog((Dialog) parent);
+				} else {
+					fenDialog = new JDialog();
+				}
+			} else {
+				fenDialog = new JDialog();
+			}
 		} else {
-		    fenDialog = new JDialog();
+			fenDialog = new JDialog();
 		}
-	    } else {
-		fenDialog = new JDialog();
-	    }
-	} else {
-	    fenDialog = new JDialog();
+		fenDialog.setTitle("FEN");
+		JPanel textPanel = new JPanel();
+		JTextPane textPane = new JTextPane();
+		textPane.setContentType("text/plain");
+		textPanel.add(textPane);
+		textPane.setText(fen);
+		textPane.setEditable(false);
+		JButton copyButton = new JButton("Copy to clipboard");
+		copyButton.addActionListener(e -> {
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(fen), null);
+			fenDialog.setVisible(false);
+			fenDialog.dispose();
+		});
+		textPanel.add(copyButton);
+		fenDialog.setModal(true);
+		fenDialog.add(textPanel);
+		fenDialog.pack();
+		if (parentSupplier != null && parentSupplier.getCurrentParent() != null) {
+			fenDialog.setLocationRelativeTo(parentSupplier.getCurrentParent());
+		}
+		fenDialog.setVisible(true);
 	}
-	fenDialog.setTitle("FEN");
-	JPanel textPanel = new JPanel();
-	JTextPane textPane = new JTextPane();
-	textPane.setContentType("text/plain");
-	textPanel.add(textPane);
-	textPane.setText(fen);
-	textPane.setEditable(false);
-	JButton copyButton = new JButton("Copy to clipboard");
-	copyButton.addActionListener(e -> {
-	    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(fen), null);
-	    fenDialog.setVisible(false);
-	    fenDialog.dispose();
-	});
-	textPanel.add(copyButton);
-	fenDialog.setModal(true);
-	fenDialog.add(textPanel);
-	fenDialog.pack();
-	if (parentSupplier != null && parentSupplier.getCurrentParent() != null) {
-	    fenDialog.setLocationRelativeTo(parentSupplier.getCurrentParent());
-	}
-	fenDialog.setVisible(true);
-    }
 }
