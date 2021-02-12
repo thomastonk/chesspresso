@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
+import chesspresso.position.ImmutablePosition.Validity;
 
 public class OneClickMove {
 
@@ -12,6 +13,9 @@ public class OneClickMove {
 	}
 
 	public static boolean squareClicked(Position position, int sqi, MouseEvent e) {
+		if (position.getValidity() != Validity.IS_VALID) {
+			return false;
+		}
 		short[] moves = position.getAllMoves();
 		// test for unique to-square
 		short uniqueMove = getUniqueMove(sqi, moves, true);

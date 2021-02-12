@@ -28,12 +28,9 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -44,10 +41,8 @@ import chesspresso.game.Game;
 import chesspresso.game.GameModelChangeListener;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
-import chesspresso.pgn.PGN;
 import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
-import chesspresso.position.NAG;
 import chesspresso.position.OneClickMove;
 import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
@@ -71,14 +66,11 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	private GameTextViewer m_textViewer;
 	private boolean m_editable;
 	private boolean m_oneClickMoves;
-	private boolean m_extraButtons;
 
 	private Component m_parent = null;
 	private JLabel m_moveLabel = null;
 
 	private boolean m_highlightLastMove;
-
-	private InputDialog inputDialog = new DefaultInputDialog();
 
 	// ======================================================================
 
@@ -88,7 +80,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	 * @param game the game to be displayed
 	 */
 	public GameBrowser(Game game) {
-		this(game, Chess.WHITE, false, false, false);
+		this(game, Chess.WHITE, false, false);
 	}
 
 	/**
@@ -98,7 +90,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	 * @param boardOnTheRight instead board on the left-hand side
 	 */
 	public GameBrowser(Game game, boolean boardOnTheRight) {
-		this(game, Chess.WHITE, false, boardOnTheRight, false);
+		this(game, Chess.WHITE, false, boardOnTheRight);
 	}
 
 	/**
@@ -109,7 +101,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	 * @param boardOnTheRight instead board on the left-hand side
 	 */
 	public GameBrowser(Game game, int bottomPlayer, boolean boardOnTheRight) {
-		this(game, bottomPlayer, false, boardOnTheRight, false);
+		this(game, bottomPlayer, false, boardOnTheRight);
 	}
 
 	/**
@@ -119,9 +111,8 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	 * @param bottomPlayer    the player on the lower edge
 	 * @param editable        whether the game can be edited by the view
 	 * @param boardOnTheRight instead board on the left-hand side
-	 * @param extraButtons    show NAG, comment and delete button
 	 */
-	public GameBrowser(Game game, int bottomPlayer, boolean editable, boolean boardOnTheRight, boolean extraButtons) {
+	public GameBrowser(Game game, int bottomPlayer, boolean editable, boolean boardOnTheRight) {
 		super();
 		initComponents(boardOnTheRight);
 		setGame(game, bottomPlayer);
@@ -134,15 +125,8 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 		m_editable = editable;
 		m_oneClickMoves = false;
-		m_extraButtons = extraButtons;
-		if (!m_extraButtons) {
-			m_buttNAG.setVisible(false);
-			m_buttPreComment.setVisible(false);
-			m_buttPostComment.setVisible(false);
-			m_buttDelete.setVisible(false);
-			addPopupToPositionView();
-			addPopupToTextViewer();
-		}
+		addPopupToPositionView();
+		addPopupToTextViewer();
 
 		addComponentListener(new ComponentAdapter() {
 			@Override
@@ -305,12 +289,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_textViewer.setFocusRequesting(request);
 	}
 
-	public void setInputDialog(InputDialog inputDialog) {
-		if (inputDialog != null) {
-			this.inputDialog = inputDialog;
-		}
-	}
-
 	public void allowOneClickMoves(boolean allow) {
 		m_oneClickMoves = allow;
 	}
@@ -433,10 +411,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_buttBackward = new javax.swing.JButton();
 		m_buttForward = new javax.swing.JButton();
 		m_buttEnd = new javax.swing.JButton();
-		m_buttNAG = new javax.swing.JButton();
-		m_buttPreComment = new javax.swing.JButton();
-		m_buttPostComment = new javax.swing.JButton();
-		m_buttDelete = new javax.swing.JButton();
 
 		setLayout(new java.awt.BorderLayout());
 
@@ -543,49 +517,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 		jToolBar1.add(m_buttEnd);
 
-		m_buttNAG.setText("NAG");
-		m_buttNAG.setToolTipText("NAG");
-		m_buttNAG.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				m_buttNAGActionPerformed(evt);
-			}
-		});
-
-		jToolBar1.add(m_buttNAG);
-
-		m_buttPreComment.setText("comment before move");
-		m_buttPreComment.setToolTipText("Comment before move");
-		m_buttPreComment.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				m_buttPreCommentActionPerformed(evt);
-			}
-		});
-
-		jToolBar1.add(m_buttPreComment);
-
-		m_buttPostComment.setText("comment after move");
-		m_buttPostComment.setToolTipText("Comment after move");
-		m_buttPostComment.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				m_buttPostCommentActionPerformed(evt);
-			}
-		});
-
-		jToolBar1.add(m_buttPostComment);
-
-		m_buttDelete.setText("del");
-		m_buttDelete.setToolTipText("Delete line");
-		m_buttDelete.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				m_buttDeleteActionPerformed(evt);
-			}
-		});
-
-		jToolBar1.add(m_buttDelete);
 		jToolBar1.setAlignmentX(LEFT_ALIGNMENT);
 		toolBarPanel.add(jToolBar1, BorderLayout.WEST);
 
@@ -629,88 +560,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_game.gotoEndOfLine();
 	}
 
-	private void m_buttDeleteActionPerformed(ActionEvent evt) {
-		m_game.deleteCurrentLine();
-		m_textViewer.moveModelChanged(null);
-	}
-
-	private void m_buttPostCommentActionPerformed(ActionEvent evt) {
-		String currentComment = m_game.getPostMoveComment();
-		String move = m_game.getLastMoveAsSanWithNumber();
-		String message;
-		if (move == null || move.isEmpty()) {
-			message = "Your comment:";
-		} else {
-			message = "Your comment after " + move + ":";
-		}
-		Object comment = inputDialog.showInputDialog(this, "Edit a comment", message, currentComment);
-		if (comment != null) {
-			String newComment = comment.toString().replaceAll(System.lineSeparator(), " ").replaceAll("\\n", " ")
-					.replaceAll("\\{", "(").replaceAll("\\}", ")");
-			if (!newComment.equals(currentComment)) {
-				if (m_game.getNumOfPlies() > 0) {
-					m_game.setPostMoveComment(newComment);
-				} else {
-					m_game.setEmptyGameComment(newComment);
-				}
-				m_textViewer.moveModelChanged(null);
-			}
-		}
-	}
-
-	private void m_buttPreCommentActionPerformed(ActionEvent evt) {
-		String currentComment = m_game.getPreMoveComment();
-		String move = m_game.getLastMoveAsSanWithNumber();
-		String message;
-		if (move == null || move.isEmpty()) {
-			message = "Your comment:";
-		} else {
-			message = "Your comment before " + move + ":";
-		}
-		Object comment = inputDialog.showInputDialog(this, "Edit a comment", message, currentComment);
-		if (comment != null) {
-			String newComment = comment.toString().replaceAll(System.lineSeparator(), " ").replaceAll("\\n", " ")
-					.replaceAll("\\{", "(").replaceAll("\\}", ")");
-			if (!newComment.equals(currentComment)) {
-				if (m_game.getNumOfPlies() > 0) {
-					m_game.setPreMoveComment(newComment);
-				} else {
-					m_game.setEmptyGameComment(newComment);
-				}
-				m_textViewer.moveModelChanged(null);
-			}
-		}
-	}
-
-	private void m_buttNAGActionPerformed(ActionEvent evt) {
-		javax.swing.JPopupMenu popup = new javax.swing.JPopupMenu();
-
-		ActionListener actionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				short nag = NAG.ofString(event.getActionCommand());
-				int curNode = m_game.getCurNode();
-				if (m_game.currentMoveHasNag(nag)) {
-					m_game.removeNag(nag);
-				} else {
-					m_game.addNag(nag);
-				}
-				m_game.gotoNode(curNode);
-			}
-		};
-
-		String[] nags = NAG.getDefinedShortNags();
-		for (int i = 0; i < nags.length; i++) {
-			boolean isChecked = m_game.currentMoveHasNag(NAG.ofString(nags[i]));
-			JMenuItem item = new JCheckBoxMenuItem(nags[i], isChecked);
-			popup.add(item);
-			item.addActionListener(actionListener);
-			item.setActionCommand(nags[i]);
-		}
-
-		popup.show(m_buttNAG, 0, 0);
-	}
-
 	private void m_buttForwardActionPerformed(ActionEvent evt) {
 		m_game.goForward();
 	}
@@ -741,12 +590,8 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	private javax.swing.JToolBar jToolBar1;
 	private javax.swing.JToolBar jToolBar2;
 	private javax.swing.JPanel m_positionFrame;
-	private javax.swing.JButton m_buttNAG;
 	private javax.swing.JLabel m_lbHeader0;
 	private javax.swing.JPanel jPanel1;
-	private javax.swing.JButton m_buttDelete;
-	private javax.swing.JButton m_buttPreComment;
-	private javax.swing.JButton m_buttPostComment;
 	private javax.swing.JButton m_buttForward;
 
 	private javax.swing.JButton m_pgnButton;
@@ -846,412 +691,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 					return;
 				}
 
-				JPopupMenu popup = new JPopupMenu();
-
-				ActionListener actionListener = new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						short nag = NAG.ofString(e.getActionCommand());
-						int curNode = m_game.getCurNode();
-						if (NAG.isEvaluation(nag)) {
-							m_game.removeEvaluationNags();
-						}
-						if (NAG.isPunctuationMark(nag)) {
-							m_game.removePunctuationNags();
-						}
-						m_game.addNag(nag);
-						m_game.gotoNode(curNode);
-					}
-				};
-				ActionListener removeEvaluation = new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						int curNode = m_game.getCurNode();
-						m_game.removeEvaluationNags();
-						m_game.gotoNode(curNode);
-					}
-				};
-				ActionListener removePunctuation = new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						int curNode = m_game.getCurNode();
-						m_game.removePunctuationNags();
-						m_game.gotoNode(curNode);
-					}
-				};
-
-				{
-					JMenu punctuationNagMenu = new JMenu("!, ?, ...");
-					String[] nags2 = NAG.getDefinedShortNags(NAG.PUNCTUATION_NAG_BEGIN, NAG.PUNCTUATION_NAG_END);
-					for (int i = 0; i < nags2.length; i++) {
-						JMenuItem item = new JMenuItem(nags2[i]);
-						punctuationNagMenu.add(item);
-						item.addActionListener(actionListener);
-						item.setActionCommand(nags2[i]);
-					}
-					JMenuItem noneItem = new JMenuItem("none");
-					punctuationNagMenu.add(noneItem);
-					noneItem.addActionListener(removePunctuation);
-					popup.add(punctuationNagMenu);
-				}
-				{
-					JMenu evaluationNagMenu = new JMenu("+-, =, ...");
-					String[] nags1 = NAG.getDefinedShortNags(NAG.EVALUATION_NAG_BEGIN, NAG.EVALUATION_NAG_END);
-					for (int i = 0; i < nags1.length; i++) {
-						JMenuItem item = new JMenuItem(nags1[i]);
-						evaluationNagMenu.add(item);
-						item.addActionListener(actionListener);
-						item.setActionCommand(nags1[i]);
-					}
-					JMenuItem noneItem = new JMenuItem("none");
-					evaluationNagMenu.add(noneItem);
-					noneItem.addActionListener(removeEvaluation);
-					popup.add(evaluationNagMenu);
-				}
-				{
-					JMenuItem commentBeforeMenuItem = new JMenuItem("Comment before move");
-					commentBeforeMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_buttPreCommentActionPerformed(e);
-						}
-					});
-					popup.add(commentBeforeMenuItem);
-				}
-				{
-					JMenuItem commentAfterMenuItem = new JMenuItem("Comment after move");
-					commentAfterMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_buttPostCommentActionPerformed(e);
-						}
-					});
-					commentAfterMenuItem.setEnabled(m_game.getNumOfPlies() > 0);
-					popup.add(commentAfterMenuItem);
-				}
-				popup.addSeparator();
-				// result
-				{
-					JMenu setResultMenu = new JMenu("Set result");
-					JMenuItem whiteWinsItem = new JMenuItem("1-0");
-					JMenuItem blackWinsItem = new JMenuItem("0-1");
-					JMenuItem drawItem = new JMenuItem("1/2-1/2");
-					JMenuItem unknownItem = new JMenuItem("*");
-					setResultMenu.add(whiteWinsItem);
-					setResultMenu.add(blackWinsItem);
-					setResultMenu.add(drawItem);
-					setResultMenu.add(unknownItem);
-					whiteWinsItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.setTag(PGN.TAG_RESULT, PGN.RESULT_WHITE_WINS);
-							setHeaderLines();
-							m_textViewer.moveModelChanged(m_game);
-						}
-					});
-					blackWinsItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.setTag(PGN.TAG_RESULT, PGN.RESULT_BLACK_WINS);
-							setHeaderLines();
-							m_textViewer.moveModelChanged(m_game);
-						}
-					});
-					drawItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.setTag(PGN.TAG_RESULT, PGN.RESULT_DRAW);
-							setHeaderLines();
-							m_textViewer.moveModelChanged(m_game);
-						}
-					});
-					unknownItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.setTag(PGN.TAG_RESULT, PGN.RESULT_UNFINISHED);
-							setHeaderLines();
-							m_textViewer.moveModelChanged(m_game);
-						}
-					});
-					popup.add(setResultMenu);
-				}
-				// PGN tags
-				JMenu pgnTagsMenu = new JMenu("PGN tags");
-				{
-					JMenuItem setEventMenuItem = new JMenuItem("Set event");
-					setEventMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object evnt = JOptionPane.showInputDialog(GameBrowser.this, "Event", "Set event",
-									JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getEvent());
-							if (evnt != null) {
-								m_game.setTag(PGN.TAG_EVENT, evnt.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setEventMenuItem);
-				}
-				{
-					JMenuItem setSiteMenuItem = new JMenuItem("Set site");
-					setSiteMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object site = JOptionPane.showInputDialog(GameBrowser.this, "Site", "Set site",
-									JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getSite());
-							if (site != null) {
-								m_game.setTag(PGN.TAG_SITE, site.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setSiteMenuItem);
-				}
-				{
-					JMenuItem setDateMenuItem = new JMenuItem("Set date");
-					setDateMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object date = JOptionPane.showInputDialog(GameBrowser.this,
-									"Date (yyyy.mm.dd, with ? for missing information)", "Set date", JOptionPane.OK_CANCEL_OPTION,
-									null, null, m_game.getDate());
-							if (date != null) {
-								m_game.setTag(PGN.TAG_DATE, date.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setDateMenuItem);
-				}
-				{
-					JMenuItem setRoundMenuItem = new JMenuItem("Set round");
-					setRoundMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object round = JOptionPane.showInputDialog(GameBrowser.this, "Round (please use PGN format)",
-									"Set round", JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getRound());
-							if (round != null) {
-								m_game.setTag(PGN.TAG_ROUND, round.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setRoundMenuItem);
-				}
-				{
-					JMenuItem setWhiteMenuItem = new JMenuItem("Set white player");
-					setWhiteMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object white = JOptionPane.showInputDialog(GameBrowser.this,
-									"White (family name, forenames (or initials)", "Set white player",
-									JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getWhite());
-							if (white != null) {
-								m_game.setTag(PGN.TAG_WHITE, white.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setWhiteMenuItem);
-				}
-				{
-					JMenuItem setBlackMenuItem = new JMenuItem("Set black player");
-					setBlackMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object black = JOptionPane.showInputDialog(GameBrowser.this,
-									"Black (family name, forenames (or initials)", "Set black player",
-									JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getBlack());
-							if (black != null) {
-								m_game.setTag(PGN.TAG_BLACK, black.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setBlackMenuItem);
-				}
-				{
-					JMenuItem setEcoMenuItem = new JMenuItem("Set ECO code");
-					setEcoMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object eco = JOptionPane.showInputDialog(GameBrowser.this, "ECO", "Set ECO code",
-									JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getECO());
-							if (eco != null) {
-								m_game.setTag(PGN.TAG_ECO, eco.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setEcoMenuItem);
-				}
-				{
-					JMenuItem setFenMenuItem = new JMenuItem("Set FEN");
-					setFenMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object fen = JOptionPane.showInputDialog(GameBrowser.this, "FEN", "Set start position by FEN",
-									JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getTag(PGN.TAG_FEN));
-							if (fen != null) {
-								m_game.setGameByFEN(fen.toString(), false);
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setFenMenuItem);
-				}
-				{
-					JMenuItem setEventDateMenuItem = new JMenuItem("Set event date");
-					setEventDateMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object eventDate = JOptionPane.showInputDialog(GameBrowser.this, "Event date", "Set the event date",
-									JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getTag(PGN.TAG_EVENT_DATE));
-							if (eventDate != null) {
-								m_game.setTag(PGN.TAG_EVENT_DATE, eventDate.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setEventDateMenuItem);
-				}
-				{
-					JMenuItem setWhiteEloMenuItem = new JMenuItem("Set White's ELO");
-					setWhiteEloMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object whiteElo = JOptionPane.showInputDialog(GameBrowser.this, "White's ELO", "Set the White's ELO",
-									JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getTag(PGN.TAG_WHITE_ELO));
-							if (whiteElo != null) {
-								m_game.setTag(PGN.TAG_WHITE_ELO, whiteElo.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setWhiteEloMenuItem);
-				}
-				{
-					JMenuItem setBlackEloMenuItem = new JMenuItem("Set Black's ELO");
-					setBlackEloMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							Object blackElo = JOptionPane.showInputDialog(GameBrowser.this, "Black's ELO", "Set the Black's ELO",
-									JOptionPane.OK_CANCEL_OPTION, null, null, m_game.getTag(PGN.TAG_BLACK_ELO));
-							if (blackElo != null) {
-								m_game.setTag(PGN.TAG_BLACK_ELO, blackElo.toString());
-								setHeaderLines();
-							}
-						}
-					});
-					pgnTagsMenu.add(setBlackEloMenuItem);
-				}
-				popup.add(pgnTagsMenu);
-				popup.addSeparator();
-				{
-					JMenuItem promoteVariationItem = new JMenuItem("Promote variation");
-					promoteVariationItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent arg0) {
-							if (!m_game.promoteVariation()) {
-								String message = "Ooops. A malfuction happened. Please report the game and move to the program's author.";
-								JOptionPane.showMessageDialog(m_parent, message, "Error", JOptionPane.ERROR_MESSAGE);
-								return;
-							}
-							m_textViewer.moveModelChanged(null);
-						}
-					});
-					popup.add(promoteVariationItem);
-				}
-				popup.addSeparator();
-				{
-					JMenuItem addNullMoveItem = new JMenuItem("Add null move");
-					addNullMoveItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent arg0) {
-							try {
-								if (!m_game.getPosition().isCheck()) {
-									m_game.getPosition().doMove(Move.NULL_MOVE);
-								} else {
-									String message = (m_game.getPosition().getToPlay() == Chess.WHITE ? "White " : "Black ")
-											+ "is in check.";
-									JOptionPane.showMessageDialog(m_parent, message, "Null move is illegal",
-											JOptionPane.ERROR_MESSAGE);
-								}
-							} catch (IllegalMoveException e) {
-								e.printStackTrace();
-							}
-						}
-					});
-					popup.add(addNullMoveItem);
-				}
-				popup.addSeparator();
-				{
-					JMenuItem deleteRemainingMovesMenuItem = new JMenuItem("Delete remaining moves");
-					deleteRemainingMovesMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.deleteRemainingMoves();
-							m_textViewer.showCurrentGameNode();
-						}
-					});
-					popup.add(deleteRemainingMovesMenuItem);
-				}
-				{
-					JMenuItem deleteVariationMenuItem = new JMenuItem("Delete this variation");
-					deleteVariationMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.deleteCurrentLine();
-							m_textViewer.showCurrentGameNode();
-						}
-					});
-					popup.add(deleteVariationMenuItem);
-				}
-				popup.addSeparator();
-				{
-					JMenuItem deleteAllCommentsMenuItem = new JMenuItem("Strip all comments");
-					deleteAllCommentsMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.removeAllComments();
-							m_textViewer.showCurrentGameNode();
-						}
-					});
-					popup.add(deleteAllCommentsMenuItem);
-				}
-				{
-					JMenuItem deleteAllVariationsMenuItem = new JMenuItem("Strip all variations");
-					deleteAllVariationsMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.deleteAllLines();
-							m_textViewer.showCurrentGameNode();
-						}
-					});
-					popup.add(deleteAllVariationsMenuItem);
-				}
-				{
-					JMenuItem deleteAllNagsMenuItem = new JMenuItem("Strip all NAGs (!?, +-, etc)");
-					deleteAllNagsMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.removeAllNags();
-							m_textViewer.showCurrentGameNode();
-						}
-					});
-					popup.add(deleteAllNagsMenuItem);
-				}
-				{
-					JMenuItem stripAllMenuItem = new JMenuItem("Strip all");
-					stripAllMenuItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							m_game.stripAll();
-							m_textViewer.showCurrentGameNode();
-						}
-					});
-					popup.add(stripAllMenuItem);
-				}
+				TextViewerPopup popup = new TextViewerPopup(m_game, m_textViewer, GameBrowser.this);
 				popup.show(m_textViewer, event.getX(), event.getY());
 			}
 		});

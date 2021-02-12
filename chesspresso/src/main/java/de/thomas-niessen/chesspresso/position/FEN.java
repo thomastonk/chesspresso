@@ -55,7 +55,7 @@ public class FEN {
 	public static void initFromFEN(MutablePosition pos, String fen, boolean validate) throws IllegalArgumentException {
 		pos.clear();
 
-		String[] fenParts = fen.split(" +");
+		String[] fenParts = fen.trim().split(" +");
 		if (fenParts.length == 0) {
 			throw new IllegalArgumentException("Faulty FEN: empty string or only white spaces.");
 		}
@@ -787,7 +787,7 @@ public class FEN {
 	}
 
 	public static boolean isShredderFEN(String fen) {
-		String[] fenParts = fen.split(" +");
+		String[] fenParts = fen.trim().split(" +");
 		if (fenParts.length < 3) {
 			return false;
 		}
@@ -795,7 +795,7 @@ public class FEN {
 	}
 
 	public static String switchColors(String fen) {
-		String[] fenParts = fen.split(" +");
+		String[] fenParts = fen.trim().split(" +");
 
 		if (fenParts.length == 0) {
 			throw new IllegalArgumentException("FEN::switchColors: Faulty FEN: empty string or only white spaces.");
@@ -899,7 +899,7 @@ public class FEN {
 	}
 
 	public static String switchLeftAndRight(String fen) {
-		String[] fenParts = fen.split(" +");
+		String[] fenParts = fen.trim().split(" +");
 
 		if (fenParts.length == 0) {
 			throw new IllegalArgumentException("FEN::switchLeftAndRight: Faulty FEN: empty string or only white spaces.");
@@ -1025,7 +1025,7 @@ public class FEN {
 	}
 
 	public static String removePieces(String fen, int piece) {
-		String[] fenParts = fen.split(" +");
+		String[] fenParts = fen.trim().split(" +");
 
 		if (fenParts.length == 0) {
 			throw new IllegalArgumentException("FEN::switchLeftAndRight: Faulty FEN: empty string or only white spaces.");

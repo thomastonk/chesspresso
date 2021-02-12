@@ -210,7 +210,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	@Override
 	public void headerModelChanged(Game game) {
 		setDocument(new DefaultStyledDocument());
-		createText();
+		createText(); // TN: Is this really necessary, if the header model is changed?
 	}
 
 	@Override

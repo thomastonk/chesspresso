@@ -447,9 +447,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		super.clear();
 	}
 
-	// TN: Introduced for special purposes; could it replace clear()?!
-	public void clearAll() {
-		super.clear();
+	private void clearStacks() {
 		int index = 0;
 		while (index < m_bakStack.length && m_bakStack[index] != 0L) {
 			m_bakStack[index] = 0L;
@@ -764,8 +762,9 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			if (stone != Chess.NO_STONE)
 				m_hashCode ^= s_hashMod[sqi][stone - Chess.MIN_STONE];
 			// System.out.println("hash code set: " + m_hashCode);
-		}
 
+			clearStacks();
+		}
 	}
 
 	@Override
@@ -1510,9 +1509,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			throw new IllegalPositionException("King " + Chess.sqiToStr(kingSquare) + " is in check without having the move.");
 
 		if (super.getHashCode() != getHashCode()) {
-			System.out.println("Wrong hash code " + getHashCode() + " should be " + super.getHashCode());
-			// ChBitBoard.printBoard(getHashCode()); System.out.println();
-			// ChBitBoard.printBoard(super.getHashCode());
+			System.out.println("Wrong hash code: " + getHashCode() + ". Should be: " + super.getHashCode() + ".");
+			//			printBoard(getHashCode());
+			//			System.out.println();
+			//			printBoard(super.getHashCode());
 			long diff = getHashCode() - super.getHashCode();
 			System.out.println("Difference " + diff);
 			for (int i = 0; i < Chess.NUM_OF_SQUARES; i++) {
@@ -1532,8 +1532,8 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 					System.out.println("Diff is sqiEP " + i);
 				}
 			}
-			System.out.println("PositionImpl.validate: " + FEN.getFEN(this));
-			System.out.println("PositionImpl.validate: " + FEN.getFEN(new LightWeightPosition(this)));
+			System.out.println("PositionImpl.internalValidate: " + FEN.getFEN(this));
+			System.out.println("PositionImpl.internalValidate: " + FEN.getFEN(new LightWeightPosition(this)));
 			throw new IllegalPositionException("Wrong hash code " + getHashCode() + " should be " + super.getHashCode()
 					+ " difference " + (getHashCode() - super.getHashCode()));
 		}

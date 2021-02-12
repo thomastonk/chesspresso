@@ -108,12 +108,6 @@ public final class Position implements MoveablePosition, Serializable {
 		return move;
 	}
 
-	// TN: Introduced for special purposes; could it replace clear()?!
-	public void clearAll() {
-		impl.clearAll();
-		firePositionChanged();
-	}
-
 	@Override
 	public void clear() {
 		impl.clear();
