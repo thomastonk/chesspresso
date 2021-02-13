@@ -52,21 +52,21 @@ import chesspresso.position.PositionListener;
 public class GameTextViewer extends JEditorPane implements TraverseListener, PositionListener, GameModelChangeListener {
 
 	// attributes for main line
-	private static SimpleAttributeSet MAIN = new SimpleAttributeSet();
+	private static final SimpleAttributeSet MAIN = new SimpleAttributeSet();
 
 	// attributes for NAGs
-	private static SimpleAttributeSet NAG_SET = new SimpleAttributeSet();
+	private static final SimpleAttributeSet NAG_SET = new SimpleAttributeSet();
 
 	// attributes for second NAGs
-	private static SimpleAttributeSet NAG_SET_EXTRA = new SimpleAttributeSet();
+	private static final SimpleAttributeSet NAG_SET_EXTRA = new SimpleAttributeSet();
 
 	// attributes for comments
-	private static SimpleAttributeSet COMMENT = new SimpleAttributeSet();
+	private static final SimpleAttributeSet COMMENT = new SimpleAttributeSet();
 
 	// attributes for lines
-	private static SimpleAttributeSet LINE = new SimpleAttributeSet();
+	private static final SimpleAttributeSet LINE = new SimpleAttributeSet();
 
-	private static String startSymbol;
+	private static final String startSymbol;
 
 	static {
 		String fontFamily;
@@ -314,12 +314,12 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 
 		/*---------- nags ----------*/
 		if (nags != null) {
-			for (int i = 0; i < nags.length; i++) {
-				if (nags[i] < NAG.NAG_BOUND) {
-					appendText(NAG.getShortString(nags[i], false) + " ", NAG_SET);
+			for (short nag : nags) {
+				if (nag < NAG.NAG_BOUND) {
+					appendText(NAG.getShortString(nag, false) + " ", NAG_SET);
 				} else {
 					// all non-standard nags shall be highlighted!
-					appendText(NAG.getShortString(nags[i], false) + " ", NAG_SET_EXTRA);
+					appendText(NAG.getShortString(nag, false) + " ", NAG_SET_EXTRA);
 				}
 			}
 		} else {
@@ -376,8 +376,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	// Methods to walk through the game
 
 	private boolean goBackward() {
-		boolean retVal = m_game.goBack();
-		return retVal;
+		return m_game.goBack();
 	}
 
 	private void goBackToLineBegin() {
@@ -436,7 +435,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	private class FocusRequester implements FocusListener {
 		@Override
 		public void focusLost(FocusEvent e) {
-			SwingUtilities.invokeLater(() -> requestFocusInWindow());
+			SwingUtilities.invokeLater(GameTextViewer.this::requestFocusInWindow);
 		}
 
 		@Override
@@ -446,9 +445,9 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 
 	void setFocusRequesting(boolean request) {
 		FocusListener[] listeners = getFocusListeners();
-		for (int i = 0; i < listeners.length; ++i) {
-			if (listeners[i] != null && listeners[i] instanceof FocusRequester) {
-				removeFocusListener(listeners[i]);
+		for (FocusListener listener : listeners) {
+			if (listener instanceof FocusRequester) {
+				removeFocusListener(listener);
 			}
 		}
 		if (request) {

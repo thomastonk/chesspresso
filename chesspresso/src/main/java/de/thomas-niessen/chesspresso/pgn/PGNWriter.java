@@ -32,7 +32,7 @@ import chesspresso.position.FEN;
  */
 public class PGNWriter extends PGN {
 
-	private PrintWriter m_out;
+	private final PrintWriter m_out;
 	private int m_charactersPerLine;
 	private int m_curCol;
 
@@ -165,8 +165,8 @@ public class PGNWriter extends PGN {
 					print(move.toString(), true);
 
 					if (nags != null) {
-						for (int i = 0; i < nags.length; i++) {
-							print(String.valueOf(TOK_NAG_BEGIN) + String.valueOf(nags[i]), true);
+						for (short nag : nags) {
+							print(TOK_NAG_BEGIN + String.valueOf(nag), true);
 						}
 					}
 					if (postMoveComment != null)

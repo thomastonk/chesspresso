@@ -26,12 +26,12 @@ public interface ImmutablePosition {
 	// ======================================================================
 	// constants for castle mask
 
-	public final int NO_CASTLES = 0, WHITE_LONG_CASTLE = 1, WHITE_SHORT_CASTLE = 2, BLACK_LONG_CASTLE = 4, BLACK_SHORT_CASTLE = 8,
+	int NO_CASTLES = 0, WHITE_LONG_CASTLE = 1, WHITE_SHORT_CASTLE = 2, BLACK_LONG_CASTLE = 4, BLACK_SHORT_CASTLE = 8,
 			WHITE_CASTLE = WHITE_LONG_CASTLE + WHITE_SHORT_CASTLE, BLACK_CASTLE = BLACK_LONG_CASTLE + BLACK_SHORT_CASTLE,
 			ALL_CASTLES = WHITE_CASTLE + BLACK_CASTLE;
 
 	// validity
-	public static enum Validity {
+	enum Validity {
 		IS_VALID, NO_ONE_TO_PLAY, NEGATIVE_PLY_NUMBER, NEGATIVE_HALF_MOVE_CLOCK, INVALID_HALF_MOVE_CLOCK,
 		INVALID_EN_PASSANT_SQUARE, INVALID_NUMBER_OF_KINGS, WRONG_KING_ATTACKED, PAWN_ON_BACK_RANK
 	}
@@ -53,7 +53,7 @@ public interface ImmutablePosition {
 	 * @param sqi the square
 	 * @return the piece of the given square
 	 */
-	public int getPiece(int sqi);
+	int getPiece(int sqi);
 
 	/**
 	 * Return the current en passant square.

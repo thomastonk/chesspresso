@@ -25,9 +25,9 @@ public class DefaultInputDialog implements InputDialog {
 
 	@Override
 	public String showInputDialog(Component parentComponent, String title, String message, String startInput) {
-		Object obj = JOptionPane.showInputDialog(parentComponent, message, title, JOptionPane.OK_CANCEL_OPTION, null, null,
+		Object obj = JOptionPane.showInputDialog(parentComponent, message, title, JOptionPane.PLAIN_MESSAGE, null, null,
 				startInput);
-		if (obj != null && obj instanceof String) {
+		if (obj instanceof String) {
 			return (String) obj;
 		} else {
 			return null;

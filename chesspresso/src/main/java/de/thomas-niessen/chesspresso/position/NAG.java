@@ -23,10 +23,10 @@ package chesspresso.position;
 public abstract class NAG {
 
 	// allow higher nags
-	public static short NUM_OF_NAGS = 256;
-	public static short NAG_BOUND = 140; // marks the beginning of extra nags
+	public static final short NUM_OF_NAGS = 256;
+	public static final short NAG_BOUND = 140; // marks the beginning of extra nags
 
-	private static String[] LONG_DESCRIPTION = { "null annotation", // 0
+	private static final String[] LONG_DESCRIPTION = { "null annotation", // 0
 			"good move", // 1
 			"poor move", // 2
 			"very good move", // 3
@@ -174,7 +174,7 @@ public abstract class NAG {
 			"Editorial comment (ChessBase)" // 145
 	};
 
-	private static String[] SHORT_DESCRIPTION = { null, // 0
+	private static final String[] SHORT_DESCRIPTION = { null, // 0
 			"!", // 1
 			"?", // 2
 			"!!", // 3
@@ -409,10 +409,10 @@ public abstract class NAG {
 	}
 
 	// TN added:
-	public static short PUNCTUATION_NAG_BEGIN = 0;
-	public static short PUNCTUATION_NAG_END = 8;
-	public static short EVALUATION_NAG_BEGIN = 11;
-	public static short EVALUATION_NAG_END = 21;
+	public static final short PUNCTUATION_NAG_BEGIN = 0;
+	public static final short PUNCTUATION_NAG_END = 8;
+	public static final short EVALUATION_NAG_BEGIN = 11;
+	public static final short EVALUATION_NAG_END = 21;
 
 	// TN added:
 	public static short[] getPunctuationNags() {

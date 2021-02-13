@@ -58,7 +58,7 @@ public class HTMLGameBrowser implements TraverseListener {
 	}
 
 	private void addPosData(ImmutablePosition pos) {
-		m_posData.append("  sq[" + m_moveNumber + "] = new Array(");
+		m_posData.append("  sq[").append(m_moveNumber).append("] = new Array(");
 		for (int row = Chess.NUM_OF_ROWS - 1; row >= 0; row--) {
 			for (int col = 0; col < Chess.NUM_OF_COLS; col++) {
 				int sqi = Chess.coorToSqi(col, row);
@@ -81,16 +81,16 @@ public class HTMLGameBrowser implements TraverseListener {
 			m_moves.append("<span class=\"comment\">").append(preMoveComment).append("</span> ");
 		}
 
-		m_moves.append("<a name=\"" + m_moveNumber + "\" class=\"" + type + "\" href=\"javascript:go(" + m_moveNumber + ")\">");
+		m_moves.append("<a name=\"").append(m_moveNumber).append("\" class=\"").append(type).append("\" href=\"javascript:go(").append(m_moveNumber).append(")\">");
 		if (m_showMoveNumber) {
-			m_moves.append((plyNumber / 2 + 1) + ".");
+			m_moves.append(plyNumber / 2 + 1).append(".");
 		}
 		m_showMoveNumber = Chess.isWhitePly(plyNumber + 1);
 
 		m_moves.append(move.toString());
 		if (nags != null) {
-			for (int i = 0; i < nags.length; i++) {
-				m_moves.append(NAG.getShortString(nags[i]));
+			for (short nag : nags) {
+				m_moves.append(NAG.getShortString(nag));
 			}
 			m_showMoveNumber = true;
 		}
@@ -108,8 +108,8 @@ public class HTMLGameBrowser implements TraverseListener {
 
 	// ======================================================================
 
-	private String[] m_wimgs;
-	private String[] m_bimgs;
+	private final String[] m_wimgs;
+	private final String[] m_bimgs;
 	private String m_imagePrefix;
 	private String m_styleFilename;
 
@@ -183,7 +183,7 @@ public class HTMLGameBrowser implements TraverseListener {
 	 * Returns the name of the image.
 	 *
 	 * @param stone       the stone displayed
-	 * @param whiteSquare whether or not the square is white
+	 * @param isWhite whether or not the square is white
 	 */
 	private String getImageForStone(int stone, boolean isWhite) {
 		return m_imagePrefix + (isWhite ? m_wimgs[stone - Chess.MIN_STONE] : m_bimgs[stone - Chess.MIN_STONE]);
@@ -221,18 +221,18 @@ public class HTMLGameBrowser implements TraverseListener {
 		m_lasts = new int[100];
 		m_lasts[0] = 0;
 
-		m_posData.append("  sq = new Array(" + game.getNumOfPlies() + "); ");
+		m_posData.append("  sq = new Array(").append(game.getNumOfPlies()).append("); ");
 		m_lastData.append("  last=new Array(0");
 
 		m_game.gotoStart();
 		addPosData(m_game.getPosition());
 		m_moveNumber++;
 
-		m_moves.append("<h4>" + m_game + "</h4>");
+		m_moves.append("<h4>").append(m_game).append("</h4>");
 
 		game.traverse(this, true);
 
-		m_moves.append(" " + game.getResultStr());
+		m_moves.append(" ").append(game.getResultStr());
 		m_lastData.append(");");
 
 		if (!contentOnly) {

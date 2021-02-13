@@ -49,11 +49,12 @@ class GameMoveModel implements Serializable {
 			POST_COMMENT_START = Move.OTHER_SPECIALS + 4, POST_COMMENT_END = Move.OTHER_SPECIALS + 5,
 			NAG_BASE = Move.OTHER_SPECIALS + 16, LAST_SPECIAL = (short) (NAG_BASE + NAG.NUM_OF_NAGS);
 
-	static {
-		if (LAST_SPECIAL > Move.SPECIAL_MOVE + Move.NUM_OF_SPECIAL_MOVES) {
-			throw new RuntimeException("Not enough space to define special moves for game move model");
-		}
-	}
+	// Currently, this would be dead code, but is LAST_SPECIAL is changed:
+	//	static {
+	//		if (LAST_SPECIAL > Move.SPECIAL_MOVE + Move.NUM_OF_SPECIAL_MOVES) {
+	//			throw new RuntimeException("Not enough space to define special moves for game move model");
+	//		}
+	//	}
 
 	// ======================================================================
 
@@ -81,9 +82,7 @@ class GameMoveModel implements Serializable {
 
 	// TN added:
 	void clear() {
-		for (int index = 0; index < m_moves.length; ++index) {
-			m_moves[index] = 0;
-		}
+		Arrays.fill(m_moves, (short) 0);
 		m_moves[0] = LINE_START;
 		m_moves[1] = LINE_END;
 		m_size = 2;
@@ -353,7 +352,7 @@ class GameMoveModel implements Serializable {
 				throw new RuntimeException("No move at index " + index + " move=" + valueToString(m_moves[index]));
 		if (index - 1 >= 0 && m_moves[index - 1] == PRE_COMMENT_END) {
 			index -= 2;
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			while (m_moves[index] != PRE_COMMENT_START) {
 				sb.insert(0, (char) m_moves[index]);
 				--index;
@@ -366,7 +365,7 @@ class GameMoveModel implements Serializable {
 			}
 			if (m_moves[index] == PRE_COMMENT_START) {
 				++index;
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				while (m_moves[index] != PRE_COMMENT_END) {
 					sb.append((char) m_moves[index]);
 					++index;
@@ -395,7 +394,7 @@ class GameMoveModel implements Serializable {
 
 		if (m_moves[index + 1] == POST_COMMENT_START) {
 			index += 2;
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			while (m_moves[index] != POST_COMMENT_END) {
 				sb.append((char) m_moves[index]);
 				index++;
@@ -640,7 +639,7 @@ class GameMoveModel implements Serializable {
 		if (getTotalNumOfPlies() == 0) {
 			if (m_moves[1] == PRE_COMMENT_START) {
 				int index = 2;
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				while (m_moves[index] != PRE_COMMENT_END) {
 					sb.append((char) m_moves[index]);
 					++index;
@@ -783,12 +782,11 @@ class GameMoveModel implements Serializable {
 				if (level == -1) {
 					if (!gotoMainLine) {
 						index = -1;
-						break;
 					} else {
 						index = goBack(index, false); // now at main line's move
 						index = goBack(index, false); // now one move back
-						break;
 					}
+					break;
 				}
 			} else if (move == LINE_END)
 				level++;

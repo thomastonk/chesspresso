@@ -684,7 +684,9 @@ public class FEN {
 		}
 
 		pos.setCastles(castles);
-		pos.setChess960CastlingFiles(whitesKingSquare, queensideRookSquare, kingsideRookSquare);
+		if (pos.getVariant() == Variant.CHESS960) {
+			pos.setChess960CastlingFiles(whitesKingSquare, queensideRookSquare, kingsideRookSquare);
+		}
 	}
 
 	public static String getFEN(ImmutablePosition pos, int numberOfParts) {
@@ -1068,14 +1070,14 @@ public class FEN {
 					sum += ch - '0';
 				} else {
 					if (sum > 0) {
-						newFen.append(Integer.toString(sum));
+						newFen.append(sum);
 						sum = 0;
 					}
 					newFen.append(ch);
 				}
 			}
 			if (sum > 0) {
-				newFen.append(Integer.toString(sum));
+				newFen.append(sum);
 			}
 			newFen.append(' ');
 

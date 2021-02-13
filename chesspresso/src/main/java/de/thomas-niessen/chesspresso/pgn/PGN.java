@@ -84,7 +84,7 @@ public abstract class PGN {
 	public final static String RESULT_WHITE_WINS = "1-0", RESULT_BLACK_WINS = "0-1", RESULT_DRAW = "1/2-1/2",
 			RESULT_UNFINISHED = "*";
 
-	public final static String getResultStr(int result) {
+	public static String getResultStr(int result) {
 		switch (result) {
 		case Chess.RES_WHITE_WINS:
 			return RESULT_WHITE_WINS;

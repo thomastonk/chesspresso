@@ -47,7 +47,7 @@ public class PositionViewProperties extends javax.swing.JDialog {
 
 	// ======================================================================
 
-	private PositionView m_positionView;
+	private final PositionView m_positionView;
 
 	@SuppressWarnings("unchecked")
 	public PositionViewProperties(java.awt.Frame parent, boolean modal) {
@@ -128,22 +128,12 @@ public class PositionViewProperties extends javax.swing.JDialog {
 
 		jPanel3.setBorder(new javax.swing.border.TitledBorder("Square Color"));
 		butWhiteSquare.setText("white");
-		butWhiteSquare.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butWhiteSquareActionPerformed(evt);
-			}
-		});
+		butWhiteSquare.addActionListener(evt -> butWhiteSquareActionPerformed(evt));
 
 		jPanel3.add(butWhiteSquare);
 
 		butBlackSquare.setText("black");
-		butBlackSquare.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butBlackSquareActionPerformed(evt);
-			}
-		});
+		butBlackSquare.addActionListener(evt -> butBlackSquareActionPerformed(evt));
 
 		jPanel3.add(butBlackSquare);
 
@@ -151,22 +141,12 @@ public class PositionViewProperties extends javax.swing.JDialog {
 
 		jPanel2.setBorder(new javax.swing.border.TitledBorder("Piece Color"));
 		butWhite.setText("white");
-		butWhite.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butWhiteActionPerformed(evt);
-			}
-		});
+		butWhite.addActionListener(evt -> butWhiteActionPerformed(evt));
 
 		jPanel2.add(butWhite);
 
 		butBlack.setText("black");
-		butBlack.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				butBlackActionPerformed(evt);
-			}
-		});
+		butBlack.addActionListener(evt -> butBlackActionPerformed(evt));
 
 		jPanel2.add(butBlack);
 
@@ -176,12 +156,7 @@ public class PositionViewProperties extends javax.swing.JDialog {
 
 		jPanel4.setBorder(new javax.swing.border.TitledBorder("Font"));
 		jPanel4.setToolTipText("null");
-		cbFonts.addItemListener(new java.awt.event.ItemListener() {
-			@Override
-			public void itemStateChanged(java.awt.event.ItemEvent evt) {
-				cbFontsItemStateChanged(evt);
-			}
-		});
+		cbFonts.addItemListener(evt -> cbFontsItemStateChanged(evt));
 
 		jPanel4.add(cbFonts);
 
@@ -196,12 +171,7 @@ public class PositionViewProperties extends javax.swing.JDialog {
 		jPanel4.add(teFontSize);
 
 		cbSolid.setText("solid");
-		cbSolid.addItemListener(new java.awt.event.ItemListener() {
-			@Override
-			public void itemStateChanged(java.awt.event.ItemEvent evt) {
-				cbSolidItemStateChanged(evt);
-			}
-		});
+		cbSolid.addItemListener(evt -> cbSolidItemStateChanged(evt));
 
 		jPanel4.add(cbSolid);
 

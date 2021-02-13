@@ -184,9 +184,6 @@ public class Chess960 {
 			char ch = pattern.charAt(index);
 			if (ch == 'R') {
 				if (firstRook == -1) {
-					if (king != -1) {
-						return false;
-					}
 					firstRook = index;
 				} else {
 					if (secondRook != -1 || king == -1) {

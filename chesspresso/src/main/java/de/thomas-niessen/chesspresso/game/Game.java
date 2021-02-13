@@ -777,7 +777,6 @@ public class Game implements PositionListener, Serializable {
 
 		m_position.increaseAlgorithmDepth();
 		while (goBackInLine()) {
-			;
 		}
 		m_position.decreaseAlgorithmDepth();
 

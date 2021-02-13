@@ -14,44 +14,18 @@
  ******************************************************************************/
 package chesspresso.game.view;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
-
 import chesspresso.Chess;
 import chesspresso.game.Game;
 import chesspresso.game.GameModelChangeListener;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
-import chesspresso.position.FEN;
-import chesspresso.position.ImmutablePosition;
-import chesspresso.position.OneClickMove;
-import chesspresso.position.PositionListener;
-import chesspresso.position.PositionMotionListener;
+import chesspresso.position.*;
 import chesspresso.position.view.Decoration.DecorationType;
-import chesspresso.position.view.DecorationFactory;
-import chesspresso.position.view.FenToClipBoard;
-import chesspresso.position.view.PgnToClipBoard;
-import chesspresso.position.view.PositionView;
-import chesspresso.position.view.PositionViewProperties;
+import chesspresso.position.view.*;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 /**
  * Game browser.
@@ -464,56 +438,31 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 		m_buttFlip.setText("^");
 		m_buttFlip.setToolTipText("Flip");
-		m_buttFlip.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				m_buttFlipActionPerformed(evt);
-			}
-		});
+		m_buttFlip.addActionListener(this::m_buttFlipActionPerformed);
 
 		jToolBar1.add(m_buttFlip);
 
 		m_buttStart.setText("|<");
 		m_buttStart.setToolTipText("Start");
-		m_buttStart.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				m_buttStartActionPerformed(evt);
-			}
-		});
+		m_buttStart.addActionListener(this::m_buttStartActionPerformed);
 
 		jToolBar1.add(m_buttStart);
 
 		m_buttBackward.setText("<");
 		m_buttBackward.setToolTipText("Backward");
-		m_buttBackward.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				m_buttBackwardActionPerformed(evt);
-			}
-		});
+		m_buttBackward.addActionListener(this::m_buttBackwardActionPerformed);
 
 		jToolBar1.add(m_buttBackward);
 
 		m_buttForward.setText(">");
 		m_buttForward.setToolTipText("Forward");
-		m_buttForward.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				m_buttForwardActionPerformed(evt);
-			}
-		});
+		m_buttForward.addActionListener(this::m_buttForwardActionPerformed);
 
 		jToolBar1.add(m_buttForward);
 
 		m_buttEnd.setText(">|");
 		m_buttEnd.setToolTipText("End");
-		m_buttEnd.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				m_buttEndActionPerformed(evt);
-			}
-		});
+		m_buttEnd.addActionListener(this::m_buttEndActionPerformed);
 
 		jToolBar1.add(m_buttEnd);
 

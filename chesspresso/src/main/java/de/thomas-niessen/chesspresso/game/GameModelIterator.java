@@ -24,5 +24,5 @@ import java.io.Serializable;
  */
 
 public interface GameModelIterator extends java.util.Iterator<GameModel>, Serializable {
-	public GameModel nextGameModel();
+	GameModel nextGameModel();
 }

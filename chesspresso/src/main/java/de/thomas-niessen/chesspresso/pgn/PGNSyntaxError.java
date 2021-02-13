@@ -26,10 +26,10 @@ public class PGNSyntaxError extends java.lang.Exception {
 
 	// ======================================================================
 
-	private int m_severity;
-	private String m_filename;
-	private int m_lineNumber;
-	private String m_lastToken;
+	private final int m_severity;
+	private final String m_filename;
+	private final int m_lineNumber;
+	private final String m_lastToken;
 
 	// ======================================================================
 

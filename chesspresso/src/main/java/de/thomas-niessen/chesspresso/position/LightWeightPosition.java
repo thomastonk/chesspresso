@@ -35,7 +35,7 @@ import chesspresso.position.PositionListener.ChangeType;
  * 
  */
 public class LightWeightPosition extends AbstractMutablePosition {
-	private int[] m_stone;
+	private final int[] m_stone;
 	private int m_sqiEP;
 	private int m_castles;
 	private int m_toPlay;
@@ -178,86 +178,72 @@ public class LightWeightPosition extends AbstractMutablePosition {
 
 	@Override
 	public void setVariant(Variant variant) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("LightweightPosition::setVariant: method has not been implemented yet.");
 	}
 
 	@Override
 	public void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile) {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("LightweightPosition::getWhitesKingSquare: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getWhitesKingSquare() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("LightweightPosition::getWhitesKingSquare: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getBlacksKingSquare() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("LightweightPosition::getBlacksKingSquare: method has not been implemented yet.");
 	}
 
 	@Override
 	public long getAllPawnsBB() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("LightweightPosition::getAllPawnsBB: method has not been implemented yet.");
 	}
 
 	@Override
 	public long getWhitePawnsBB() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("LightweightPosition::getWhitePawnsBB: method has not been implemented yet.");
 	}
 
 	@Override
 	public long getBlackPawnsBB() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("LightweightPosition::getBlackPawnsBB: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isCheck() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("LightweightPosition::isCheck: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isMate() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("LightweightPosition::isMate: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isStaleMate() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("LightweightPosition::isStaleMate: method has not been implemented yet.");
 	}
 
 	@Override
 	public Variant getVariant() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("LightweightPosition::getVariant: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getChess960KingFile() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("LightweightPosition::getChess960KingFile: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getChess960QueensideRookFile() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("LightweightPosition::getChess960QueensideRookFile: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getChess960KingsideRookFile() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("LightweightPosition::getChess960KingsideRookFile: method has not been implemented yet.");
 	}
 
 	// everything for PositionListeners
@@ -278,14 +264,14 @@ public class LightWeightPosition extends AbstractMutablePosition {
 		return Collections.unmodifiableList(listeners);
 	}
 
-	private final void fireSquareChanged() {
+	private void fireSquareChanged() {
 		for (PositionListener listener : listeners) {
 			listener.positionChanged(ChangeType.SQUARE_CHANGED, this, Move.NO_MOVE);
 		}
 		firePositionChanged();
 	}
 
-	private final void firePositionChanged() {
+	private void firePositionChanged() {
 		for (PositionListener listener : listeners) {
 			listener.positionChanged(ChangeType.OTHER, this, Move.NO_MOVE);
 		}

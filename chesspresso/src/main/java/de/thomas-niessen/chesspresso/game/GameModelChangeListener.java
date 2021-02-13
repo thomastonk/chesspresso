@@ -21,7 +21,7 @@ package chesspresso.game;
  * 
  */
 public interface GameModelChangeListener {
-	public void headerModelChanged(Game game);
+	void headerModelChanged(Game game);
 
-	public void moveModelChanged(Game game);
+	void moveModelChanged(Game game);
 }

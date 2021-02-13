@@ -15,7 +15,7 @@
 package chesspresso.position;
 
 public interface PositionListener {
-	public enum ChangeType {
+	enum ChangeType {
 		SQUARE_CHANGED, MOVE_DONE, MOVE_UNDONE, OTHER
 	}
 

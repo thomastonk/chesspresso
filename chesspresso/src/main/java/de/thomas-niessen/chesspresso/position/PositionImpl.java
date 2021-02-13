@@ -1489,10 +1489,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private boolean checkKingOfToPlay() {
 		int kingSquare = (getToPlay() == Chess.WHITE ? m_blackKing : m_whiteKing);
-		if (isAttacked(kingSquare, getToPlay(), 0L))
-			return false; // =====>
-
-		return true;
+		return !isAttacked(kingSquare, getToPlay(), 0L); // =====>
 	}
 
 	@Override
@@ -1634,9 +1631,9 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				return "";
 			}
 			if (plies % 2 == 1) {
-				return String.valueOf((plies + 1) / 2) + ". " + move.getSAN();
+				return (plies + 1) / 2 + ". " + move.getSAN();
 			} else {
-				return String.valueOf((plies + 1) / 2) + "... " + move.getSAN();
+				return (plies + 1) / 2 + "... " + move.getSAN();
 			}
 		} else {
 			return "";
@@ -1727,8 +1724,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		}
 
 		redoMove(); // TN: doMove(move); is fine, too.
-		Move m = new Move(move, Chess.stoneToPiece(stone), colFrom, rowFrom, isCheck(), isMate(), getToPlay() == Chess.BLACK);
-		return m;
+		return new Move(move, Chess.stoneToPiece(stone), colFrom, rowFrom, isCheck(), isMate(), getToPlay() == Chess.BLACK);
 	}
 
 	/*
@@ -2712,11 +2708,16 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 
 	public class PosInternalState {
-		private int bakIndex;
-		private List<Long> bakStack = new ArrayList<>();
-		private long bbWhites, bbBlacks, bbPawns, bbKnights, bbBishops, bbRooks;
-		private int moveStackIndex;
-		private List<Short> moveStack = new ArrayList<>();
+		private final int bakIndex;
+		private final List<Long> bakStack = new ArrayList<>();
+		private final long bbWhites;
+		private final long bbBlacks;
+		private final long bbPawns;
+		private final long bbKnights;
+		private final long bbBishops;
+		private final long bbRooks;
+		private final int moveStackIndex;
+		private final List<Short> moveStack = new ArrayList<>();
 
 		public PosInternalState() {
 			bakIndex = m_bakIndex;

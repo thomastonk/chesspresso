@@ -144,7 +144,7 @@ public class Move implements Serializable {
 
 	private static final String NULL_MOVE_STRING = "--";
 
-	private static int[] s_promo = new int[Chess.MAX_PIECE + 1];
+	private static final int[] s_promo = new int[Chess.MAX_PIECE + 1];
 
 	static {
 		for (int i = 0; i <= Chess.MAX_PIECE; i++)
@@ -404,8 +404,8 @@ public class Move implements Serializable {
 	private static final int MOVING_MUL = 0x00010000;
 	private static final int MOVING_MASK = 0x00070000;
 
-	private short m_move;
-	private int m_info;
+	private final short m_move;
+	private final int m_info;
 
 	/*
 	 * =============================================================================

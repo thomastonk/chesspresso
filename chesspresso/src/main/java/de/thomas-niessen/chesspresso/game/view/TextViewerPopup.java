@@ -42,8 +42,8 @@ public class TextViewerPopup extends JPopupMenu {
 		{
 			JMenu punctuationNagMenu = new JMenu("!, ?, ...");
 			String[] nags = NAG.getDefinedShortNags(NAG.PUNCTUATION_NAG_BEGIN, NAG.PUNCTUATION_NAG_END);
-			for (int i = 0; i < nags.length; i++) {
-				JMenuItem item = new JMenuItem(ActionFactory.getNagAction(game, nags[i]));
+			for (String nag : nags) {
+				JMenuItem item = new JMenuItem(ActionFactory.getNagAction(game, nag));
 				punctuationNagMenu.add(item);
 			}
 			JMenuItem noneItem = new JMenuItem(ActionFactory.getRemovePunctuationAction(game));
@@ -54,8 +54,8 @@ public class TextViewerPopup extends JPopupMenu {
 		{
 			JMenu evaluationNagMenu = new JMenu("+-, =, ...");
 			String[] nags = NAG.getDefinedShortNags(NAG.EVALUATION_NAG_BEGIN, NAG.EVALUATION_NAG_END);
-			for (int i = 0; i < nags.length; i++) {
-				JMenuItem item = new JMenuItem(ActionFactory.getNagAction(game, nags[i]));
+			for (String nag : nags) {
+				JMenuItem item = new JMenuItem(ActionFactory.getNagAction(game, nag));
 				evaluationNagMenu.add(item);
 			}
 			JMenuItem noneItem = new JMenuItem(ActionFactory.getRemoveEvaluationAction(game));

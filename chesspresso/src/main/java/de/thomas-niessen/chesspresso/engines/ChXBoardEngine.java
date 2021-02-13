@@ -37,15 +37,15 @@ import chesspresso.position.ImmutablePosition;
  */
 public class ChXBoardEngine {
 	public interface Listener {
-		public void notifyInputMessage(String msg);
+		void notifyInputMessage(String msg);
 
-		public void notifyEngineMessage(String msg);
+		void notifyEngineMessage(String msg);
 	}
 
 	public interface AnalysisListener {
-		public void notifyPeriodicUpdate(int time, int nodes, int ply, int mvleft, int mvtot, String mvname);
+		void notifyPeriodicUpdate(int time, int nodes, int ply, int mvleft, int mvtot, String mvname);
 
-		public void notifyPost(int ply, int score, int time, int nodesSearched, String bestLine);
+		void notifyPost(int ply, int score, int time, int nodesSearched, String bestLine);
 	}
 
 	private class EngineMessageListener implements Runnable {
@@ -70,18 +70,17 @@ public class ChXBoardEngine {
 	/* ================================================================================ */
 
 	private Process m_process;
-	private BufferedReader m_in;
-	private Writer m_out;
+	private final BufferedReader m_in;
+	private final Writer m_out;
 	private Vector<Listener> m_listeners;
-	private Thread m_thread;
-	private Hashtable<String, String> m_features;
+	private final Hashtable<String, String> m_features;
 	private boolean m_inAnalyzeMode;
 	private AnalysisListener m_analysisListener;
 
 	/* ================================================================================ */
 
 	public ChXBoardEngine(String command, String dir) throws IOException {
-		m_features = new Hashtable<String, String>();
+		m_features = new Hashtable<>();
 		m_process = Runtime.getRuntime().exec(command, null, new File(dir));
 		m_in = new BufferedReader(new InputStreamReader(m_process.getInputStream()));
 		//        m_out = new BufferedWriter(new OutputStreamWriter(m_process.getOutputStream()));
@@ -89,7 +88,7 @@ public class ChXBoardEngine {
 		m_inAnalyzeMode = false;
 		m_analysisListener = null;
 
-		m_thread = new Thread(new EngineMessageListener());
+		Thread m_thread = new Thread(new EngineMessageListener());
 		m_thread.start();
 	}
 
@@ -97,7 +96,7 @@ public class ChXBoardEngine {
 
 	public void addListener(Listener listener) {
 		if (m_listeners == null)
-			m_listeners = new Vector<Listener>();
+			m_listeners = new Vector<>();
 		m_listeners.add(listener);
 	}
 
@@ -111,7 +110,7 @@ public class ChXBoardEngine {
 		//        System.out.println("> " + msg);
 		if (m_listeners != null) {
 			for (Enumeration<Listener> e = m_listeners.elements(); e.hasMoreElements();) {
-				((Listener) e.nextElement()).notifyInputMessage(msg);
+				e.nextElement().notifyInputMessage(msg);
 			}
 		}
 	}
@@ -120,7 +119,7 @@ public class ChXBoardEngine {
 		//        System.out.println("< " + msg);
 		if (m_listeners != null) {
 			for (Enumeration<Listener> e = m_listeners.elements(); e.hasMoreElements();) {
-				((Listener) e.nextElement()).notifyEngineMessage(msg);
+				e.nextElement().notifyEngineMessage(msg);
 			}
 		}
 	}
@@ -133,7 +132,7 @@ public class ChXBoardEngine {
 	}
 
 	private String getFeature(String name) {
-		return (String) m_features.get(name);
+		return m_features.get(name);
 	}
 
 	/* ================================================================================ */
@@ -159,19 +158,18 @@ public class ChXBoardEngine {
 			parseFeatureMessage(line);
 		} else {
 			if (m_analysisListener != null) {
-				if (line.startsWith("stat01:")) {
-				} else {
+				if (!line.startsWith("stat01:")) {
 					StringTokenizer tokenizer = new StringTokenizer(line);
 					try {
 						int ply = Integer.parseInt(tokenizer.nextToken());
 						int score = Integer.parseInt(tokenizer.nextToken());
 						int time = Integer.parseInt(tokenizer.nextToken());
 						int nodesSearched = Integer.parseInt(tokenizer.nextToken());
-						StringBuffer bestLine = new StringBuffer(tokenizer.nextToken());
+						StringBuilder bestLine = new StringBuilder(tokenizer.nextToken());
 						while (tokenizer.hasMoreTokens())
 							bestLine.append(" ").append(tokenizer.nextToken());
 						m_analysisListener.notifyPost(ply, score, time, nodesSearched, bestLine.toString());
-					} catch (Exception ex) {
+					} catch (Exception ignored) {
 					}
 				}
 			}
@@ -197,7 +195,7 @@ public class ChXBoardEngine {
 		while (System.currentTimeMillis() < time + WAIT && !"1".equals(getFeature("done"))) {
 			try {
 				wait(100);
-			} catch (InterruptedException ex) {
+			} catch (InterruptedException ignored) {
 			}
 		}
 
@@ -223,8 +221,6 @@ public class ChXBoardEngine {
 			if (post)
 				sendMessage("post");
 			sendMessage("analyze");
-			if (periodicUpdateInterval > 0) {
-			}
 		}
 	}
 
@@ -269,7 +265,7 @@ public class ChXBoardEngine {
 				synchronized (m_in) {
 					try {
 						m_in.wait(waitTime);
-					} catch (InterruptedException ex) {
+					} catch (InterruptedException ignored) {
 					}
 				}
 			}

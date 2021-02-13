@@ -54,17 +54,19 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	// - cannot reuse hashed positions if half move clock doesn't matter
 	//
 	// IDEA: don't reserve special bits for ep and castles but xor them as well
-	protected static long
+	protected static final long
 	//        HASH_ALL_MASK       = 0x7FFFFFFF007FFFFFL,
-	HASH_ALL_MASK = 0x7FFFFFFFFF7FFFFFL, HASH_TOPLAY_MASK = 0x7FFFFFFFFF7FFFFFL, HASH_TOPLAY_MULT = 0x800000L;
+	HASH_ALL_MASK = 0x7FFFFFFFFF7FFFFFL;
+	protected static long HASH_TOPLAY_MASK = 0x7FFFFFFFFF7FFFFFL;
+	protected static final long HASH_TOPLAY_MULT = 0x800000L;
 	//        HASH_CASTLE_MASK    = 0x7FFFFFFFF0FFFFFFL,
 	//        HASH_CASTLE_MULT    =          0x1000000L,
 	//        HASH_ENPASSANT_MASK = 0x7FFFFFFF0FFFFFFFL,
 	//        HASH_ENPASSANT_MULT =         0x10000000L;
 
-	protected static long[][] s_hashMod;
-	protected static long[] s_hashCastleMod;
-	protected static long[] s_hashEPMod;
+	protected static final long[][] s_hashMod;
+	protected static final long[] s_hashCastleMod;
+	protected static final long[] s_hashEPMod;
 
 	static {
 		//        Random random = new Random(100);
@@ -110,8 +112,10 @@ public abstract class AbstractPosition implements ImmutablePosition {
 		// must be done after the bitboards are initialized in ChPosition -> cannot
 		// be done static of ChAbstractPosition
 		if (s_startPositionHashCode == 0L) {
-			AbstractMutablePosition startPos = new LightWeightPosition();
-			FEN.initFromFEN(startPos, FEN.START_POSITION);
+			// TN: this is the old version, which cannot be applied, since LightWeightPosition's implementation is not complete.
+			//			AbstractMutablePosition startPos = new LightWeightPosition();
+			// 			FEN.initFromFEN(startPos, FEN.START_POSITION);
+			AbstractMutablePosition startPos = new PositionImpl(FEN.START_POSITION, false);
 			s_startPositionHashCode = new PositionImpl(startPos).getHashCode(); // do after bitBoard init
 		}
 		return s_startPositionHashCode;

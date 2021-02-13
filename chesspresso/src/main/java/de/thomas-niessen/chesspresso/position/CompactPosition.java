@@ -38,8 +38,8 @@ public class CompactPosition extends AbstractPosition {
 	 * =============================================================================
 	 */
 
-	private int[] m_stones; // 32 bytes
-	private int m_flags; // 4 bytes
+	private final int[] m_stones; // 32 bytes
+	private final int m_flags; // 4 bytes
 
 	/*
 	 * =============================================================================
@@ -72,8 +72,7 @@ public class CompactPosition extends AbstractPosition {
 
 	@Override
 	public int getPiece(int sqi) {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("CompactPosition::getPiece: method has not been implemented yet.");
 	}
 
 	@Override
@@ -103,78 +102,66 @@ public class CompactPosition extends AbstractPosition {
 
 	@Override
 	public int getPlyOffset() {
-		throw new RuntimeException("Unexpected use of method getPlyOffset for CompactPosition");
+		throw new RuntimeException("CompactPosition::getPlyOffset: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getWhitesKingSquare() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("CompactPosition::getWhitesKingSquare: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getBlacksKingSquare() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("CompactPosition::getBlacksKingSquare: method has not been implemented yet.");
 	}
 
 	@Override
 	public long getAllPawnsBB() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("CompactPosition::getAllPawnsBB: method has not been implemented yet.");
 	}
 
 	@Override
 	public long getWhitePawnsBB() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("CompactPosition::getWhitePawnsBB: method has not been implemented yet.");
 	}
 
 	@Override
 	public long getBlackPawnsBB() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("CompactPosition::getBlackPawnsBB: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isCheck() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("CompactPosition::isCheck: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isMate() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("CompactPosition::isMate: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isStaleMate() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new RuntimeException("CompactPosition::isStaleMate: method has not been implemented yet.");
 	}
 
 	@Override
 	public Variant getVariant() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("CompactPosition::getVariant: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getChess960KingFile() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("CompactPosition::getChess960KingFile: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getChess960QueensideRookFile() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("CompactPosition::getChess960QueensideRookFile: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getChess960KingsideRookFile() {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("CompactPosition::getChess960KingsideRookFile: method has not been implemented yet.");
 	}
 }

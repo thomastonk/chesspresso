@@ -31,8 +31,8 @@ import java.util.TreeMap;
  */
 public class VariationsModel {
 
-	private static short VAR_BEGIN = GameMoveModel.LINE_START;
-	private static short VAR_END = GameMoveModel.LINE_END;
+	private static final short VAR_BEGIN = GameMoveModel.LINE_START;
+	private static final short VAR_END = GameMoveModel.LINE_END;
 
 	private final short[] nodes;
 	private final int size;

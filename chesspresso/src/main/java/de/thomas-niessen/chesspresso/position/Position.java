@@ -24,7 +24,7 @@ import chesspresso.move.Move;
 import chesspresso.position.PositionImpl.PosInternalState;
 import chesspresso.position.PositionListener.ChangeType;
 
-/**
+/**5
  * Position is the public part of the whole position hierarchy. It handles the
  * PositionListners and delegates all functionality to a PositionImpl object.
  * 

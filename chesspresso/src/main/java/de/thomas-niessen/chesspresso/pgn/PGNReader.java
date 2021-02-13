@@ -22,8 +22,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -79,12 +80,11 @@ public final class PGNReader extends PGN {
 
 	private static final int MAX_TOKEN_SIZE = 8192;
 
-	private static boolean[] s_isToken;
+	private static final boolean[] s_isToken;
 
 	static {
 		s_isToken = new boolean[128];
-		for (int i = 0; i < s_isToken.length; i++)
-			s_isToken[i] = false;
+		Arrays.fill(s_isToken, false);
 
 		for (int i = 0; i <= 32; i++)
 			s_isToken[i] = true;
@@ -125,7 +125,7 @@ public final class PGNReader extends PGN {
 
 	public PGNReader(InputStream in, String name) {
 		init();
-		setInput(new InputStreamReader(in, Charset.forName("ISO-8859-1")), name);
+		setInput(new InputStreamReader(in, StandardCharsets.ISO_8859_1), name);
 		// TN: charset added; ISO-8859-1 according to PGN specification
 	}
 
@@ -139,12 +139,12 @@ public final class PGNReader extends PGN {
 	public PGNReader(String filename) throws IOException {
 		init();
 		if (filename.toLowerCase().endsWith(".gz")) {
-			setInput(new InputStreamReader(new GZIPInputStream(new FileInputStream(filename)), Charset.forName("ISO-8859-1")),
+			setInput(new InputStreamReader(new GZIPInputStream(new FileInputStream(filename)), StandardCharsets.ISO_8859_1),
 					filename);
 			// TN: was: setInput(new InputStreamReader(new GZIPInputStream(new
 			// FileInputStream(filename))), filename);
 		} else {
-			setInput(new InputStreamReader(new FileInputStream(filename), Charset.forName("ISO-8859-1")), filename);
+			setInput(new InputStreamReader(new FileInputStream(filename), StandardCharsets.ISO_8859_1), filename);
 			// TN: was: setInput(new FileReader(filename), filename);
 		}
 	}
@@ -163,7 +163,7 @@ public final class PGNReader extends PGN {
 		init();
 		InputStream iStrm = null;
 		iStrm = new FileInputStream(fn);
-		setInput(new InputStreamReader(iStrm, Charset.forName("ISO-8859-1")), fn);
+		setInput(new InputStreamReader(iStrm, StandardCharsets.ISO_8859_1), fn);
 	}
 
 	// ======================================================================
@@ -231,11 +231,11 @@ public final class PGNReader extends PGN {
 
 	// ======================================================================
 
-	private final int get() throws IOException {
+	private int get() throws IOException {
 		return m_in.read();
 	}
 
-	private final int getChar() throws IOException {
+	private int getChar() throws IOException {
 		if (m_pushedBack) {
 			m_pushedBack = false;
 			return m_lastChar;
@@ -601,7 +601,6 @@ public final class PGNReader extends PGN {
 					int r = Chess.charToRow(rowColChar);
 					if (r != Chess.NO_ROW) {
 						row = r;
-						last--;
 					} else {
 						int c = Chess.charToCol(rowColChar);
 						if (c != Chess.NO_COL) {
@@ -609,8 +608,8 @@ public final class PGNReader extends PGN {
 						} else {
 							warning("Unknown char '" + rowColChar + "', row / column expected");
 						}
-						last--;
 					}
+					last--;
 				}
 				move = m_curGame.getPosition().getPieceMove(piece, col, row, toSqi);
 			}
@@ -636,7 +635,7 @@ public final class PGNReader extends PGN {
 			}
 			getNextToken();
 		} else if (getLastToken() == '!' || getLastToken() == '?') {
-			StringBuffer nagSB = new StringBuffer();
+			StringBuilder nagSB = new StringBuilder();
 			do {
 				nagSB.append((char) getLastToken());
 				getNextToken();
@@ -803,21 +802,17 @@ public final class PGNReader extends PGN {
 			System.out.println("===> new game");
 		if (m_in == null)
 			return null;
-		try {
-			m_curGame = null;
-			if (!findNextGameStart()) {
-				return null;
-			}
-			m_curGame = new Game();
-			m_curGame.setAlwaysAddLine(true);
-			initForHeader();
-			parseTagPairSection();
-			initForMovetext();
-			parseMovetextSection();
-			m_curGame.pack();
-		} catch (PGNSyntaxError ex) {
-			throw ex;
+		m_curGame = null;
+		if (!findNextGameStart()) {
+			return null;
 		}
+		m_curGame = new Game();
+		m_curGame.setAlwaysAddLine(true);
+		initForHeader();
+		parseTagPairSection();
+		initForMovetext();
+		parseMovetextSection();
+		m_curGame.pack();
 		return m_curGame;
 	}
 

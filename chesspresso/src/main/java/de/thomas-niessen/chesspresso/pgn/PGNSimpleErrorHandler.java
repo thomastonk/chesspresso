@@ -24,7 +24,7 @@ import java.io.PrintStream;
  */
 public class PGNSimpleErrorHandler implements PGNErrorHandler {
 
-	private PrintStream m_out;
+	private final PrintStream m_out;
 
 	/* ================================================================================ */
 

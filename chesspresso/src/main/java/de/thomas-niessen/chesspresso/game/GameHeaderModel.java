@@ -74,11 +74,11 @@ class GameHeaderModel implements Serializable {
 		copy.m_standardTags = new String[this.m_standardTags.length];
 		System.arraycopy(this.m_standardTags, 0, copy.m_standardTags, 0, copy.m_standardTags.length);
 		if (this.m_otherTags != null) {
-			copy.m_otherTags = new LinkedList<String>();
+			copy.m_otherTags = new LinkedList<>();
 			copy.m_otherTags = (LinkedList<String>) this.m_otherTags.clone();
 		}
 		if (this.m_otherTagValues != null) {
-			copy.m_otherTagValues = new LinkedList<String>();
+			copy.m_otherTagValues = new LinkedList<>();
 			copy.m_otherTagValues = (LinkedList<String>) this.m_otherTagValues.clone();
 		}
 		copy.m_variant = this.m_variant;
@@ -104,7 +104,7 @@ class GameHeaderModel implements Serializable {
 			return m_standardTags[index];
 		} else if (m_otherTags != null) {
 			index = m_otherTags.indexOf(tagName);
-			return (index == -1 ? null : (String) m_otherTagValues.get(index));
+			return (index == -1 ? null : m_otherTagValues.get(index));
 		} else {
 			return null;
 		}
@@ -118,8 +118,8 @@ class GameHeaderModel implements Serializable {
 			m_standardTags[index] = tagValue;
 		} else if (!"PlyCount".equals(tagName)) {
 			if (m_otherTags == null) {
-				m_otherTags = new LinkedList<String>();
-				m_otherTagValues = new LinkedList<String>();
+				m_otherTags = new LinkedList<>();
+				m_otherTagValues = new LinkedList<>();
 			}
 			index = m_otherTags.indexOf(tagName);
 			if (index == -1) {
@@ -182,6 +182,7 @@ class GameHeaderModel implements Serializable {
 				if (tagName.equals(m_otherTags.get(index))) {
 					m_otherTags.remove(index);
 					m_otherTagValues.remove(index);
+					--index; // since removeIf is no choice here
 				}
 			}
 		}
@@ -291,11 +292,9 @@ class GameHeaderModel implements Serializable {
 
 	void setVariant(Variant variant) {
 		m_variant = variant;
-		switch (variant) {
-		case CHESS960:
+		if (variant == Variant.CHESS960) {
 			setTag(PGN.TAG_VARIANT, "Chess960");
-			break;
-		default:
+		} else {
 			removeTag(PGN.TAG_VARIANT);
 		}
 	}

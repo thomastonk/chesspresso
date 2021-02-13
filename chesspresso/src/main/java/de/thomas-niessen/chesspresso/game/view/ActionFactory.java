@@ -339,7 +339,7 @@ public class ActionFactory {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Object evnt = JOptionPane.showInputDialog(parent, "Event", "Set event", JOptionPane.OK_CANCEL_OPTION, null, null,
+			Object evnt = JOptionPane.showInputDialog(parent, "Event", "Set event", JOptionPane.PLAIN_MESSAGE, null, null,
 					game.getEvent());
 			if (evnt != null) {
 				game.setTag(PGN.TAG_EVENT, evnt.toString());
@@ -361,7 +361,7 @@ public class ActionFactory {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Object site = JOptionPane.showInputDialog(parent, "Site", "Set site", JOptionPane.OK_CANCEL_OPTION, null, null,
+			Object site = JOptionPane.showInputDialog(parent, "Site", "Set site", JOptionPane.PLAIN_MESSAGE, null, null,
 					game.getSite());
 			if (site != null) {
 				game.setTag(PGN.TAG_SITE, site.toString());
@@ -384,7 +384,7 @@ public class ActionFactory {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object date = JOptionPane.showInputDialog(parent, "Date (yyyy.mm.dd, with ? for missing information)", "Set date",
-					JOptionPane.OK_CANCEL_OPTION, null, null, game.getDate());
+					JOptionPane.PLAIN_MESSAGE, null, null, game.getDate());
 			if (date != null) {
 				game.setTag(PGN.TAG_DATE, date.toString());
 			}
@@ -406,7 +406,7 @@ public class ActionFactory {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object round = JOptionPane.showInputDialog(parent, "Round (please use PGN format)", "Set round",
-					JOptionPane.OK_CANCEL_OPTION, null, null, game.getRound());
+					JOptionPane.PLAIN_MESSAGE, null, null, game.getRound());
 			if (round != null) {
 				game.setTag(PGN.TAG_ROUND, round.toString());
 			}
@@ -428,7 +428,7 @@ public class ActionFactory {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object white = JOptionPane.showInputDialog(parent, "White (family name, forenames (or initials)", "Set white player",
-					JOptionPane.OK_CANCEL_OPTION, null, null, game.getWhite());
+					JOptionPane.PLAIN_MESSAGE, null, null, game.getWhite());
 			if (white != null) {
 				game.setTag(PGN.TAG_WHITE, white.toString());
 			}
@@ -450,7 +450,7 @@ public class ActionFactory {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object black = JOptionPane.showInputDialog(parent, "Black (family name, forenames (or initials)", "Set black player",
-					JOptionPane.OK_CANCEL_OPTION, null, null, game.getBlack());
+					JOptionPane.PLAIN_MESSAGE, null, null, game.getBlack());
 			if (black != null) {
 				game.setTag(PGN.TAG_BLACK, black.toString());
 			}
@@ -471,7 +471,7 @@ public class ActionFactory {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Object eco = JOptionPane.showInputDialog(parent, "ECO", "Set ECO code", JOptionPane.OK_CANCEL_OPTION, null, null,
+			Object eco = JOptionPane.showInputDialog(parent, "ECO", "Set ECO code", JOptionPane.PLAIN_MESSAGE, null, null,
 					game.getECO());
 			if (eco != null) {
 				game.setTag(PGN.TAG_ECO, eco.toString());
@@ -493,7 +493,7 @@ public class ActionFactory {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Object fen = JOptionPane.showInputDialog(parent, "FEN", "Set start position by FEN", JOptionPane.OK_CANCEL_OPTION,
+			Object fen = JOptionPane.showInputDialog(parent, "FEN", "Set start position by FEN", JOptionPane.PLAIN_MESSAGE,
 					null, null, game.getTag(PGN.TAG_FEN));
 			if (fen != null) {
 				game.setGameByFEN(fen.toString(), false);
@@ -516,7 +516,7 @@ public class ActionFactory {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object eventDate = JOptionPane.showInputDialog(parent, "Event date", "Set the event date",
-					JOptionPane.OK_CANCEL_OPTION, null, null, game.getTag(PGN.TAG_EVENT_DATE));
+					JOptionPane.PLAIN_MESSAGE, null, null, game.getTag(PGN.TAG_EVENT_DATE));
 			if (eventDate != null) {
 				game.setTag(PGN.TAG_EVENT_DATE, eventDate.toString());
 			}
@@ -538,7 +538,7 @@ public class ActionFactory {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object whiteElo = JOptionPane.showInputDialog(parent, "White's ELO", "Set the White's ELO",
-					JOptionPane.OK_CANCEL_OPTION, null, null, game.getTag(PGN.TAG_WHITE_ELO));
+					JOptionPane.PLAIN_MESSAGE, null, null, game.getTag(PGN.TAG_WHITE_ELO));
 			if (whiteElo != null) {
 				game.setTag(PGN.TAG_WHITE_ELO, whiteElo.toString());
 			}
@@ -560,7 +560,7 @@ public class ActionFactory {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object blackElo = JOptionPane.showInputDialog(parent, "Black's ELO", "Set the Black's ELO",
-					JOptionPane.OK_CANCEL_OPTION, null, null, game.getTag(PGN.TAG_BLACK_ELO));
+					JOptionPane.PLAIN_MESSAGE, null, null, game.getTag(PGN.TAG_BLACK_ELO));
 			if (blackElo != null) {
 				game.setTag(PGN.TAG_BLACK_ELO, blackElo.toString());
 			}
@@ -584,7 +584,6 @@ public class ActionFactory {
 			if (!game.promoteVariation()) {
 				String message = "Ooops. A malfuction happened. Please report the game and move to the program's author.";
 				JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
-				return;
 			}
 		}
 	}

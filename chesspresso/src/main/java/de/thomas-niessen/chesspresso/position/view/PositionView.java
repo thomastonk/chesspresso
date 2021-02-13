@@ -390,7 +390,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 					lowerLevel.removeIf(d -> d.getType().equals(type));
 					upperLevel.removeIf(d -> d.getType().equals(type));
 				} catch (NullPointerException ex) {
-					System.err.println(ex);
+					ex.printStackTrace();
 				}
 			}
 		}
@@ -550,8 +550,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 					"\u265B", "\u265F", "\u265A" };
 
 	private static String getStringForStone(int stone, boolean isWhite) {
-		String s = isWhite ? whiteStoneStrings[stone - Chess.MIN_STONE] : blackStoneStrings[stone - Chess.MIN_STONE];
-		return s;
+		return isWhite ? whiteStoneStrings[stone - Chess.MIN_STONE] : blackStoneStrings[stone - Chess.MIN_STONE];
 	}
 
 	public static String getStringForStone(int stone) {

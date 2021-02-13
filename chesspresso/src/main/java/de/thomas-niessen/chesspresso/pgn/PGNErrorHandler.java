@@ -26,12 +26,12 @@ public interface PGNErrorHandler {
 	 *
 	 * @return the error
 	 */
-	public void handleError(PGNSyntaxError error);
+	void handleError(PGNSyntaxError error);
 
 	/**
 	 * Called in case of a warning.
 	 *
 	 * @return the warning
 	 */
-	public void handleWarning(PGNSyntaxError warning);
+	void handleWarning(PGNSyntaxError warning);
 }

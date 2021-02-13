@@ -22,5 +22,5 @@ package chesspresso.game;
  * 
  */
 public interface GameScorer {
-	public int getScore(GameModel gameModel);
+	int getScore(GameModel gameModel);
 }
