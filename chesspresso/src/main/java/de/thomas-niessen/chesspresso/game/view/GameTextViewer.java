@@ -21,6 +21,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
@@ -136,8 +137,18 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 					return;
 				}
 				if (e.getPoint().y < 3) {
-					// clicks at the upper boundary move the game to first ply
+					// clicks at the upper boundary move otherwise the game to first ply
 					return;
+				}
+				try {
+					// ignore clicks into the empty space at the bottom
+					Rectangle2D rect = modelToView2D(getDocument().getLength());
+					if (rect != null) {
+						if ((rect.getY() + rect.getHeight() < e.getY()) || (rect.getY() < e.getY() && rect.getX() < e.getX())) {
+							return;
+						}
+					}
+				} catch (BadLocationException ignore) {
 				}
 				getCaret().setMagicCaretPosition(e.getPoint()); // TN: Isn't this useless?
 				gotoPlyForCaret();
@@ -370,6 +381,20 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		m_needsMoveNumber = true;
 		m_game.traverse(this, true);
 		appendText(m_game.getResultStr(), MAIN);
+		// TN:
+		// Unfortunately, there appears sometimes a line-break within the result. This could be
+		// avoided by replacing the above line by the following line. But this looks more often
+		// weird, too. So, a perfect solution would be to decide, when the new line is 
+		// necessary. Can this be done somehow? It should work, if the component is resized, too. 
+		//		appendText(System.lineSeparator() + m_game.getResultStr(), MAIN);
+
+		// One possible solution:
+		// 1. determine the number of lines before the result string
+		//    (see https://stackoverflow.com/questions/13807575/how-to-get-the-number-of-lines-from-a-jtextpane)
+		// 2. add the result string without line separator and check whether the number of lines has changed,
+		// 3. if so, then create the text again and this time add the line separator.
+
+		// Okay, this does not avoid split castling strings. Have I ever seen such?
 	}
 
 	// ======================================================================
