@@ -14,18 +14,43 @@
  ******************************************************************************/
 package chesspresso.game.view;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+
 import chesspresso.Chess;
 import chesspresso.game.Game;
 import chesspresso.game.GameModelChangeListener;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
-import chesspresso.position.*;
+import chesspresso.position.FEN;
+import chesspresso.position.ImmutablePosition;
+import chesspresso.position.OneClickMove;
+import chesspresso.position.PositionListener;
+import chesspresso.position.PositionMotionListener;
 import chesspresso.position.view.Decoration.DecorationType;
-import chesspresso.position.view.*;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import chesspresso.position.view.DecorationFactory;
+import chesspresso.position.view.FenToClipBoard;
+import chesspresso.position.view.PgnToClipBoard;
+import chesspresso.position.view.PositionView;
+import chesspresso.position.view.PositionViewProperties;
 
 /**
  * Game browser.

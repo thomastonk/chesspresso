@@ -107,6 +107,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 
 	private Game m_game;
 	private int[] m_moveBegin, m_moveEnd;
+	private int[] m_moveNrBegin;
 	private int[] m_moveNode;
 
 	// ======================================================================
@@ -309,6 +310,9 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		if (preMoveComment != null)
 			appendText(preMoveComment + " ", COMMENT);
 
+		/*---------- begin of move number or move -----*/
+		m_moveNrBegin[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
+
 		/*---------- move number ----------*/
 		if (m_needsMoveNumber) {
 			if (move.isWhiteMove()) {
@@ -366,6 +370,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		int totalPlies = m_game.getTotalNumOfPlies();
 		m_moveBegin = new int[totalPlies];
 		m_moveEnd = new int[totalPlies];
+		m_moveNrBegin = new int[totalPlies];
 		m_moveNode = new int[totalPlies];
 		m_notifyIndex = 0;
 
@@ -440,7 +445,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		if (caret < 3)
 			return m_game.getRootNode();
 		for (int i = 0; i < m_moveNode.length - 1; i++) {
-			if (m_moveBegin[i + 1] > caret)
+			if (m_moveNrBegin[i + 1] > caret)
 				return m_moveNode[i];
 		}
 		if (m_moveNode.length == 0) {
@@ -450,7 +455,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		}
 	}
 
-	void gotoPlyForCaret() {
+	private void gotoPlyForCaret() {
 		int newNode = getNodeForCaret();
 		if (m_game.getCurNode() != newNode) {
 			m_game.gotoNode(newNode);
