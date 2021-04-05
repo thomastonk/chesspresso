@@ -793,20 +793,31 @@ public final class PGNReader extends PGN {
 	// ======================================================================
 
 	/**
-	 * Returns the next game in the current pgn file.
+	 * Returns the next PGN game.
 	 *
 	 * @return the next game
 	 */
 	public Game parseGame() throws PGNSyntaxError, IOException {
+		return parseGame(new Game());
+	}
+
+	/**
+	 * Parse the next PGN game into the argument and returns a reference.
+	 *
+	 * @return the next game
+	 */
+	public Game parseGame(Game game) throws PGNSyntaxError, IOException {
 		if (DEBUG)
 			System.out.println("===> new game");
 		if (m_in == null)
+			return null;
+		if (game == null)
 			return null;
 		m_curGame = null;
 		if (!findNextGameStart()) {
 			return null;
 		}
-		m_curGame = new Game();
+		m_curGame = game;
 		m_curGame.setAlwaysAddLine(true);
 		initForHeader();
 		parseTagPairSection();

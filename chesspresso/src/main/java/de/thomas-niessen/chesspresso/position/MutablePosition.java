@@ -17,12 +17,12 @@ package chesspresso.position;
 import chesspresso.Variant;
 
 /**
- *
- * @author $Author: Bernhard Seybold $
- * 
+ * @author $Author: Bernhard Seybold$
  */
 public interface MutablePosition extends ImmutablePosition {
 	void clear();
+
+	void initFromFEN(String fen, boolean validate);
 
 	void setPosition(ImmutablePosition position);
 

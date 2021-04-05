@@ -398,10 +398,10 @@ public class PositionView extends java.awt.Component implements PositionListener
 	}
 
 	// ======================================================================
-	// interface PositionListener
+	// PositionListener
 
 	@Override
-	public void positionChanged(ChangeType type, ImmutablePosition position, short move) {
+	public void positionChanged(ImmutablePosition position) {
 		repaint();
 	}
 

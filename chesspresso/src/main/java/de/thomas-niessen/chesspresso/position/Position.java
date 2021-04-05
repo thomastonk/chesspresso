@@ -19,12 +19,13 @@ import java.util.Collections;
 import java.util.List;
 
 import chesspresso.Variant;
+import chesspresso.game.RelatedGame;
+import chesspresso.game.RelatedGame.ChangeType;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.position.PositionImpl.PosInternalState;
-import chesspresso.position.PositionListener.ChangeType;
 
-/**5
+/**
  * Position is the public part of the whole position hierarchy. It handles the
  * PositionListners and delegates all functionality to a PositionImpl object.
  * 
@@ -52,14 +53,16 @@ public final class Position implements MoveablePosition, Serializable {
 
 	private final List<PositionListener> listeners = new ArrayList<>();
 
+	private RelatedGame relatedGame = null;
+
 	public Position() {
 		impl = new PositionImpl();
 		algorithmDepth = 0;
 	}
 
-	public Position(String fen, boolean strict) throws IllegalArgumentException {
+	public Position(String fen, boolean validate) throws IllegalArgumentException {
 		this();
-		FEN.initFromFEN(this, fen, strict);
+		impl.initFromFEN(fen, validate);
 	}
 
 	public Position(String fen) throws IllegalArgumentException {
@@ -69,6 +72,25 @@ public final class Position implements MoveablePosition, Serializable {
 	public Position(ImmutablePosition pos) {
 		this();
 		setPosition(pos);
+	}
+
+	/**
+	 * This is a public method, but please don't use it! It shall only be used in the implementation of Game.
+	 * 
+	 * Note: A non-null related game can only be set once.
+	 */
+	public void setRelatedGame(RelatedGame relatedGame) {
+		if (this.relatedGame != null) {
+			throw new IllegalStateException("Position::setRelatedGame: the related game is already set!");
+		}
+		if (relatedGame == null) {
+			return;
+		}
+		if (relatedGame.checkCompatibility(this)) {
+			this.relatedGame = relatedGame;
+		} else {
+			throw new RuntimeException("Position::setRelatedGame: the compatibility check failed!");
+		}
 	}
 
 	public static Position createInitialPosition() {
@@ -81,6 +103,7 @@ public final class Position implements MoveablePosition, Serializable {
 			firePositionChanged();
 		} else {
 			algorithmDepth = Math.max(0, algorithmDepth - 1);
+			// Let algorithmDepth never fall below 0!
 		}
 	}
 
@@ -115,6 +138,13 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
+	public void initFromFEN(String fen, boolean validate) {
+		impl.initFromFEN(fen, validate);
+		firePositionChanged();
+		notifyRelatedGame(ChangeType.START_POS_CHANGED, Move.NO_MOVE, fen);
+	}
+
+	@Override
 	public void setPosition(ImmutablePosition position) {
 		impl.setPosition(position);
 	}
@@ -129,7 +159,7 @@ public final class Position implements MoveablePosition, Serializable {
 	public void setStone(int sqi, int stone) {
 		if (getStone(sqi) != stone) {
 			impl.setStone(sqi, stone);
-			fireSquareChanged();
+			firePositionChanged();
 		}
 	}
 
@@ -367,13 +397,15 @@ public final class Position implements MoveablePosition, Serializable {
 	@Override
 	public void doMove(short move) throws IllegalMoveException {
 		impl.doMove(move);
-		fireMoveDone(move);
+		firePositionChanged();
+		notifyRelatedGame(ChangeType.MOVE_DONE, move, null);
 	}
 
 	@Override
 	public void doMove(Move move) throws IllegalMoveException {
 		impl.doMove(move);
-		fireMoveDone(move.getShortMoveDesc());
+		firePositionChanged();
+		notifyRelatedGame(ChangeType.MOVE_DONE, move.getShortMoveDesc(), null);
 	}
 
 	@Override
@@ -395,7 +427,8 @@ public final class Position implements MoveablePosition, Serializable {
 	public boolean undoMove() {
 		boolean retVal = impl.undoMove();
 		if (retVal) {
-			fireMoveUndone();
+			firePositionChanged();
+			notifyRelatedGame(ChangeType.MOVE_UNDONE, Move.NO_MOVE, null);
 		}
 		return retVal;
 	}
@@ -409,7 +442,7 @@ public final class Position implements MoveablePosition, Serializable {
 	public boolean redoMove() {
 		boolean retVal = impl.redoMove();
 		if (retVal) {
-			fireMoveDone(impl.getLastShortMove());
+			firePositionChanged();
 		}
 		return retVal;
 	}
@@ -441,7 +474,7 @@ public final class Position implements MoveablePosition, Serializable {
 			listeners.add(listener);
 		}
 		// for initialization
-		listener.positionChanged(ChangeType.OTHER, this, Move.NO_MOVE);
+		listener.positionChanged(this);
 	}
 
 	public final void removePositionListener(PositionListener listener) {
@@ -452,35 +485,17 @@ public final class Position implements MoveablePosition, Serializable {
 		return Collections.unmodifiableList(listeners);
 	}
 
-	private void fireSquareChanged() {
-		if (isOutsideAlgorithm()) {
-			for (PositionListener listener : listeners) {
-				listener.positionChanged(ChangeType.SQUARE_CHANGED, this, Move.NO_MOVE);
-			}
-		}
-	}
-
-	private void fireMoveDone(short move) {
-		if (isOutsideAlgorithm()) {
-			for (PositionListener listener : listeners) {
-				listener.positionChanged(ChangeType.MOVE_DONE, this, move);
-			}
-		}
-	}
-
-	private void fireMoveUndone() {
-		if (isOutsideAlgorithm()) {
-			for (PositionListener listener : listeners) {
-				listener.positionChanged(ChangeType.MOVE_UNDONE, this, Move.NO_MOVE);
-			}
-		}
-	}
-
 	private void firePositionChanged() {
 		if (isOutsideAlgorithm()) {
 			for (PositionListener listener : listeners) {
-				listener.positionChanged(ChangeType.OTHER, this, Move.NO_MOVE);
+				listener.positionChanged(this);
 			}
+		}
+	}
+
+	private void notifyRelatedGame(ChangeType type, short move, String fen) {
+		if (relatedGame != null) {
+			relatedGame.positionChanged(type, move, fen);
 		}
 	}
 

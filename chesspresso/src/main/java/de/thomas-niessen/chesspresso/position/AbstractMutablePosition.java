@@ -51,6 +51,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	 * =========================================================================
 	 */
 
+	@Override
 	public void toggleToPlay() {
 		setToPlay(Chess.otherPlayer(getToPlay()));
 	}
@@ -73,7 +74,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
 	@Override
 	public void setStart() {
-		FEN.initFromFEN(this, FEN.START_POSITION);
+		initFromFEN(FEN.START_POSITION, true);
 	}
 
 	@Override

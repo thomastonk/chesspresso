@@ -272,7 +272,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	// PositionListener
 
 	@Override
-	public void positionChanged(ChangeType type, ImmutablePosition pos, short move) {
+	public void positionChanged(ImmutablePosition pos) {
 		requestFocus();
 		showCurrentGameNode();
 	}
@@ -399,7 +399,14 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		// 2. add the result string without line separator and check whether the number of lines has changed,
 		// 3. if so, then create the text again and this time add the line separator.
 
-		// Okay, this does not avoid split castling strings. Have I ever seen such?
+		// Okay, this does not avoid split castling strings. Have I ever seen such? YES! This happens
+		// with long and short castles.
+
+		// Alternative JTextArea:
+		// Pros: has wrap-style word. Cons: Does not support setEditorKit and hence looks poor. (HTML?)
+
+		// Alternative JTextPane:
+		// Looks like JeditorPane, but does not support wrap-style word.
 	}
 
 	// ======================================================================

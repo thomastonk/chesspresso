@@ -578,7 +578,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	// PositionListner
 
 	@Override
-	public void positionChanged(ChangeType type, ImmutablePosition pos, short move) {
+	public void positionChanged(ImmutablePosition pos) {
 		updateMovePane();
 		highlightLastMove();
 		if (m_positionView != null) {

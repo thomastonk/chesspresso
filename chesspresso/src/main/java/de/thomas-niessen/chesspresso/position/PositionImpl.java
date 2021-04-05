@@ -472,6 +472,15 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 
 	@Override
+	public void initFromFEN(String fen, boolean validate) {
+		FEN.initFromFEN(this, fen, validate);
+	}
+
+	/*
+	 * =========================================================================
+	 */
+
+	@Override
 	public final int getToPlay() {
 		return ((m_flags >> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
 	}

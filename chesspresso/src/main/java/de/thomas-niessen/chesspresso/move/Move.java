@@ -28,7 +28,7 @@ import chesspresso.Chess;
  * information: from square, to square, capturing, promotion piece.
  * <li>Based on this class containing full information of the move such that a
  * SAN (and LAN) of the move can be printed without further assistance. Contains
- * all information of the short move plus information whether to to skip rank
+ * all information of the short move plus information whether to skip rank
  * and file of the from square, check and mate information, the moving piece and
  * whether or not is is a white move.<br>
  * Internal representation is based on two shorts.

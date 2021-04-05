@@ -22,7 +22,6 @@ import chesspresso.Chess;
 import chesspresso.Variant;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
-import chesspresso.position.PositionListener.ChangeType;
 
 /**
  * A light-weight implementation of the position interface.
@@ -97,10 +96,20 @@ public class LightWeightPosition extends AbstractMutablePosition {
 	 */
 
 	@Override
+	public void initFromFEN(String fen, boolean validate) {
+		FEN.initFromFEN(this, fen, validate);
+		firePositionChanged();
+	}
+
+	/*
+	 * =============================================================================
+	 */
+
+	@Override
 	public void setStone(int sqi, int stone) {
 		if (m_stone[sqi] != stone) {
 			m_stone[sqi] = stone;
-			fireSquareChanged();
+			firePositionChanged();
 		}
 	}
 
@@ -253,7 +262,7 @@ public class LightWeightPosition extends AbstractMutablePosition {
 			listeners.add(listener);
 		}
 		// for initialization
-		listener.positionChanged(ChangeType.SQUARE_CHANGED, this, Move.NO_MOVE);
+		listener.positionChanged(this);
 	}
 
 	public final void removePositionListener(PositionListener listener) {
@@ -264,16 +273,9 @@ public class LightWeightPosition extends AbstractMutablePosition {
 		return Collections.unmodifiableList(listeners);
 	}
 
-	private void fireSquareChanged() {
-		for (PositionListener listener : listeners) {
-			listener.positionChanged(ChangeType.SQUARE_CHANGED, this, Move.NO_MOVE);
-		}
-		firePositionChanged();
-	}
-
 	private void firePositionChanged() {
 		for (PositionListener listener : listeners) {
-			listener.positionChanged(ChangeType.OTHER, this, Move.NO_MOVE);
+			listener.positionChanged(this);
 		}
 	}
 

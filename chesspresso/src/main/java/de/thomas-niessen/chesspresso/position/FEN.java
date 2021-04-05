@@ -48,11 +48,7 @@ public class FEN {
 
 	private static final Pattern SQUARE_PATTERN = Pattern.compile("[a-h][1-8]");
 
-	public static void initFromFEN(MutablePosition pos, String fen) throws IllegalArgumentException {
-		initFromFEN(pos, fen, true);
-	}
-
-	public static void initFromFEN(MutablePosition pos, String fen, boolean validate) throws IllegalArgumentException {
+	static void initFromFEN(MutablePosition pos, String fen, boolean validate) throws IllegalArgumentException {
 		pos.clear();
 
 		String[] fenParts = fen.trim().split(" +");

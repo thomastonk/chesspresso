@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,6 @@ import chesspresso.pgn.PGNReader;
 import chesspresso.pgn.PGNSyntaxError;
 import chesspresso.pgn.PGNWriter;
 import chesspresso.position.FEN;
-import chesspresso.position.ImmutablePosition;
 import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
 
@@ -64,7 +62,7 @@ import chesspresso.position.PositionListener;
  * @author Bernhard Seybold
  * 
  */
-public class Game implements PositionListener, Serializable {
+public class Game implements RelatedGame, Serializable {
 	private static final long serialVersionUID = 2L;
 
 	private static final boolean DEBUG = false;
@@ -78,8 +76,7 @@ public class Game implements PositionListener, Serializable {
 	private boolean m_alwaysAddLine; // during pgn parsing, always add new lines
 	private List<GameModelChangeListener> m_changeListeners;
 
-	// NOTE: Don't forget to check readObject and copyByReflection, when changing
-	// fields!
+	// NOTE: Don't forget to check readObject, when changing fields!
 
 	// ======================================================================
 
@@ -126,7 +123,7 @@ public class Game implements PositionListener, Serializable {
 		if (!fen.equals(FEN.START_POSITION)) {
 			fragment.setTag(PGN.TAG_FEN, fen);
 		}
-		FEN.initFromFEN(fragment.m_position, fen);
+		fragment.m_position.initFromFEN(fen, true);
 		fragment.m_position.setPlyOffset(newPlyOffset);
 		while (copy.goForward() && numOfPlies > 0) {
 			Move move = copy.getLastMove();
@@ -180,10 +177,10 @@ public class Game implements PositionListener, Serializable {
 			for (PositionListener listener : listeners) {
 				m_position.addPositionListener(listener);
 			}
-		} else { // old code:
+		} else {
 			m_position = position;
-			m_position.addPositionListener(this);
 		}
+		m_position.setRelatedGame(this);
 		m_cur = 0;
 		if (m_position.getVariant() == Variant.CHESS960) {
 			setVariant(m_position.getVariant());
@@ -223,38 +220,6 @@ public class Game implements PositionListener, Serializable {
 		if (m_changeListeners != null) {
 			for (GameModelChangeListener m_changeListener : m_changeListeners) {
 				m_changeListener.headerModelChanged(this);
-			}
-		}
-	}
-
-	// ======================================================================
-	// method of PositionListener
-
-	@Override
-	public void positionChanged(ChangeType type, ImmutablePosition pos, short move) {
-		if (type == ChangeType.MOVE_DONE) {
-			if (DEBUG)
-				System.out.println("Game: move " + move + " made.");
-
-			if (!m_ignoreNotifications) {
-				if (!m_alwaysAddLine) {
-					short[] moves = getNextShortMoves();
-					for (int i = 0; i < moves.length; i++) {
-						if (moves[i] == move) {
-							m_cur = m_model.getMoveModel().goForward(m_cur, i);
-							return; // =====>
-						}
-					}
-				}
-				m_cur = m_model.getMoveModel().appendAsRightMostLine(m_cur, move);
-				fireMoveModelChanged();
-			}
-		} else if (type == ChangeType.MOVE_UNDONE) {
-			if (DEBUG)
-				System.out.println("Game: move undone.");
-
-			if (!m_ignoreNotifications) {
-				m_cur = m_model.getMoveModel().goBack(m_cur, true);
 			}
 		}
 	}
@@ -910,7 +875,7 @@ public class Game implements PositionListener, Serializable {
 
 	private int[] getNodesToRoot(int node) {
 		int[] nodes;
-		int i = 0;
+		int i;
 		if (m_model.getMoveModel().getMove(node) != GameMoveModel.NO_MOVE) {
 			nodes = new int[getNumOfPliesToRoot(node) + 1];
 			nodes[0] = node;
@@ -1051,36 +1016,71 @@ public class Game implements PositionListener, Serializable {
 	}
 
 	// ======================================================================
+	// RelatedGame:
 
-	private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
+	@Override
+	public boolean checkCompatibility(Position pos) {
+		return m_position == pos;
+	}
+
+	@Override
+	public void positionChanged(ChangeType type, short move, String fen) {
+		if (m_ignoreNotifications) {
+			return;
+		}
+		if (type == ChangeType.MOVE_DONE) {
+			if (!m_alwaysAddLine) {
+				short[] moves = getNextShortMoves();
+				for (int i = 0; i < moves.length; i++) {
+					if (moves[i] == move) {
+						m_cur = m_model.getMoveModel().goForward(m_cur, i);
+						return; // =====>
+					}
+				}
+			}
+			m_cur = m_model.getMoveModel().appendAsRightMostLine(m_cur, move);
+			fireMoveModelChanged();
+		} else if (type == ChangeType.MOVE_UNDONE) {
+			m_cur = m_model.getMoveModel().goBack(m_cur, true);
+		} else if (type == ChangeType.START_POS_CHANGED) {
+			if (fen == null) {
+				System.err.println("Game::positionChanged: ChangeType START_POS_CHANGED, but no FEN string.");
+				m_model.getHeaderModel().removeTag(PGN.TAG_FEN);
+				return;
+			}
+			m_cur = 0;
+			m_model.getMoveModel().clear();
+			if (fen.equals(FEN.START_POSITION)) {
+				m_model.getHeaderModel().removeTag(PGN.TAG_FEN);
+			} else {
+				m_model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
+			}
+		}
+	}
+
+	// ======================================================================
+
+	private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException, NoSuchFieldException,
+			SecurityException, IllegalArgumentException, IllegalAccessException {
 		String str = s.readUTF();
 		StringReader strReader = new StringReader(str);
 		PGNReader pgnRreader = new PGNReader(strReader, "no file");
-		Game game;
+
+		// Before we can parse PGN data into this, we need to prepare it as if a standard constructor 
+		// had been called! (Reflection allows to use constructors, but not for this.)
+		Class<Game> c = Game.class;
+		Field f = c.getDeclaredField("m_model");
+		f.setAccessible(true);
+		f.set(this, new GameModel());
+		f.setAccessible(false);
+		m_position = Position.createInitialPosition();
+		m_position.setRelatedGame(this);
+
 		try {
-			game = pgnRreader.parseGame();
+			pgnRreader.parseGame(this);
 		} catch (PGNSyntaxError e) {
 			throw new IOException(e.getMessage());
 		}
-		copyByReflection(game);
-	}
-
-	private void copyByReflection(Game game) throws IOException {
-		Class<? extends Game> c = this.getClass();
-		Field[] fields = c.getDeclaredFields();
-		for (Field f : fields) {
-			if (Modifier.isStatic(f.getModifiers())) { // ignore statics
-				continue;
-			}
-			try {
-				f.setAccessible(true); // for finals
-				f.set(this, f.get(game));
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new IOException(e.getMessage());
-			}
-		}
-		m_position.removePositionListener(game);
-		m_position.addPositionListener(this);
 	}
 
 	private synchronized void writeObject(java.io.ObjectOutputStream s) throws IOException {
