@@ -22,7 +22,7 @@ import chesspresso.Variant;
 public interface MutablePosition extends ImmutablePosition {
 	void clear();
 
-	void initFromFEN(String fen, boolean validate);
+	void initFromFEN(String fen, boolean validate) throws InvalidFenException;
 
 	void setPosition(ImmutablePosition position);
 

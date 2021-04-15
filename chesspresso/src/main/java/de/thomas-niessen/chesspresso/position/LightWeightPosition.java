@@ -96,7 +96,7 @@ public class LightWeightPosition extends AbstractMutablePosition {
 	 */
 
 	@Override
-	public void initFromFEN(String fen, boolean validate) {
+	public void initFromFEN(String fen, boolean validate) throws InvalidFenException {
 		FEN.initFromFEN(this, fen, validate);
 		firePositionChanged();
 	}

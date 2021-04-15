@@ -74,7 +74,10 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
 	@Override
 	public void setStart() {
-		initFromFEN(FEN.START_POSITION, true);
+		try {
+			initFromFEN(FEN.START_POSITION, true);
+		} catch (InvalidFenException ignore) {
+		}
 	}
 
 	@Override

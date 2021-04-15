@@ -128,12 +128,12 @@ public class PositionViewProperties extends javax.swing.JDialog {
 
 		jPanel3.setBorder(new javax.swing.border.TitledBorder("Square Color"));
 		butWhiteSquare.setText("white");
-		butWhiteSquare.addActionListener(evt -> butWhiteSquareActionPerformed(evt));
+		butWhiteSquare.addActionListener(this::butWhiteSquareActionPerformed);
 
 		jPanel3.add(butWhiteSquare);
 
 		butBlackSquare.setText("black");
-		butBlackSquare.addActionListener(evt -> butBlackSquareActionPerformed(evt));
+		butBlackSquare.addActionListener(this::butBlackSquareActionPerformed);
 
 		jPanel3.add(butBlackSquare);
 
@@ -141,12 +141,12 @@ public class PositionViewProperties extends javax.swing.JDialog {
 
 		jPanel2.setBorder(new javax.swing.border.TitledBorder("Piece Color"));
 		butWhite.setText("white");
-		butWhite.addActionListener(evt -> butWhiteActionPerformed(evt));
+		butWhite.addActionListener(this::butWhiteActionPerformed);
 
 		jPanel2.add(butWhite);
 
 		butBlack.setText("black");
-		butBlack.addActionListener(evt -> butBlackActionPerformed(evt));
+		butBlack.addActionListener(this::butBlackActionPerformed);
 
 		jPanel2.add(butBlack);
 
@@ -156,7 +156,7 @@ public class PositionViewProperties extends javax.swing.JDialog {
 
 		jPanel4.setBorder(new javax.swing.border.TitledBorder("Font"));
 		jPanel4.setToolTipText("null");
-		cbFonts.addItemListener(evt -> cbFontsItemStateChanged(evt));
+		cbFonts.addItemListener(this::cbFontsItemStateChanged);
 
 		jPanel4.add(cbFonts);
 
@@ -171,7 +171,7 @@ public class PositionViewProperties extends javax.swing.JDialog {
 		jPanel4.add(teFontSize);
 
 		cbSolid.setText("solid");
-		cbSolid.addItemListener(evt -> cbSolidItemStateChanged(evt));
+		cbSolid.addItemListener(this::cbSolidItemStateChanged);
 
 		jPanel4.add(cbSolid);
 

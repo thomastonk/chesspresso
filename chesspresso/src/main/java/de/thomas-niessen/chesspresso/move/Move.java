@@ -14,6 +14,7 @@
  ******************************************************************************/
 package chesspresso.move;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import chesspresso.Chess;
@@ -43,6 +44,7 @@ public class Move implements Serializable {
 
 	// ======================================================================
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	/**

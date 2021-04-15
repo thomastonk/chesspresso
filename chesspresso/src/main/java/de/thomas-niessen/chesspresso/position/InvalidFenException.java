@@ -15,11 +15,14 @@
 package chesspresso.position;
 
 /**
+ * Exception to indicate an illegal FEN string.
  *
  * @author Thomas Niessen
  * 
  */
-public interface PositionSupplier {
-
-	Position getCurrentPosition();
+@SuppressWarnings("serial")
+public class InvalidFenException extends java.lang.Exception {
+	public InvalidFenException(String msg) {
+		super(msg);
+	}
 }

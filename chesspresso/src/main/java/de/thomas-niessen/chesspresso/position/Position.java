@@ -13,6 +13,7 @@
  ******************************************************************************/
 package chesspresso.position;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,11 +41,12 @@ import chesspresso.position.PositionImpl.PosInternalState;
  * 
  * This class is not thread-safe.
  * 
- * @author Thomas
+ * @author Thomas Niessen
  *
  */
 public final class Position implements MoveablePosition, Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 2L;
 
 	private final PositionImpl impl;
@@ -60,12 +62,12 @@ public final class Position implements MoveablePosition, Serializable {
 		algorithmDepth = 0;
 	}
 
-	public Position(String fen, boolean validate) throws IllegalArgumentException {
+	public Position(String fen, boolean validate) throws InvalidFenException {
 		this();
 		impl.initFromFEN(fen, validate);
 	}
 
-	public Position(String fen) throws IllegalArgumentException {
+	public Position(String fen) throws InvalidFenException {
 		this(fen, true);
 	}
 
@@ -94,7 +96,11 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	public static Position createInitialPosition() {
-		return new Position(FEN.START_POSITION, true);
+		try {
+			return new Position(FEN.START_POSITION, true);
+		} catch (InvalidFenException ignore) {
+			return null;
+		}
 	}
 
 	public void decreaseAlgorithmDepth() {
@@ -138,10 +144,9 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
-	public void initFromFEN(String fen, boolean validate) {
+	public void initFromFEN(String fen, boolean validate) throws InvalidFenException {
 		impl.initFromFEN(fen, validate);
-		firePositionChanged();
-		notifyRelatedGame(ChangeType.START_POS_CHANGED, Move.NO_MOVE, fen);
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, fen);
 	}
 
 	@Override
@@ -397,15 +402,13 @@ public final class Position implements MoveablePosition, Serializable {
 	@Override
 	public void doMove(short move) throws IllegalMoveException {
 		impl.doMove(move);
-		firePositionChanged();
-		notifyRelatedGame(ChangeType.MOVE_DONE, move, null);
+		firePositionChanged(ChangeType.MOVE_DONE, move, null);
 	}
 
 	@Override
 	public void doMove(Move move) throws IllegalMoveException {
 		impl.doMove(move);
-		firePositionChanged();
-		notifyRelatedGame(ChangeType.MOVE_DONE, move.getShortMoveDesc(), null);
+		firePositionChanged(ChangeType.MOVE_DONE, move.getShortMoveDesc(), null);
 	}
 
 	@Override
@@ -427,8 +430,7 @@ public final class Position implements MoveablePosition, Serializable {
 	public boolean undoMove() {
 		boolean retVal = impl.undoMove();
 		if (retVal) {
-			firePositionChanged();
-			notifyRelatedGame(ChangeType.MOVE_UNDONE, Move.NO_MOVE, null);
+			firePositionChanged(ChangeType.MOVE_UNDONE, Move.NO_MOVE, null);
 		}
 		return retVal;
 	}
@@ -485,6 +487,9 @@ public final class Position implements MoveablePosition, Serializable {
 		return Collections.unmodifiableList(listeners);
 	}
 
+	/*
+	 * This is the fire method for all changes NOT relevant to RelatedGame.
+	 */
 	private void firePositionChanged() {
 		if (isOutsideAlgorithm()) {
 			for (PositionListener listener : listeners) {
@@ -493,9 +498,20 @@ public final class Position implements MoveablePosition, Serializable {
 		}
 	}
 
-	private void notifyRelatedGame(ChangeType type, short move, String fen) {
+	/*
+	 * This is the fire method for all changes relevant to RelatedGame.
+	 */
+	private void firePositionChanged(ChangeType type, short move, String fen) {
+		// First: The order here is important, since PositionListeners may depend on relatedGame.
+		// Second: The relatedGame is notified during algorithms. (Otherwise it would be
+		// necessary to inform RelatedGame about the algorithm end, which so far is not possible.)
 		if (relatedGame != null) {
 			relatedGame.positionChanged(type, move, fen);
+		}
+		if (isOutsideAlgorithm()) {
+			for (PositionListener listener : listeners) {
+				listener.positionChanged(this);
+			}
 		}
 	}
 

@@ -24,6 +24,9 @@ import chesspresso.game.Game;
 import chesspresso.pgn.PGN;
 import chesspresso.position.NAG;
 
+/**
+ * @author Thomas Niessen
+ */
 @SuppressWarnings("serial")
 public class TextViewerPopup extends JPopupMenu {
 

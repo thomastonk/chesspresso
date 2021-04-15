@@ -16,6 +16,7 @@ package chesspresso.game;
 
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -32,6 +33,7 @@ import chesspresso.pgn.PGNReader;
 import chesspresso.pgn.PGNSyntaxError;
 import chesspresso.pgn.PGNWriter;
 import chesspresso.position.FEN;
+import chesspresso.position.InvalidFenException;
 import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
 
@@ -62,7 +64,9 @@ import chesspresso.position.PositionListener;
  * @author Bernhard Seybold
  * 
  */
-public class Game implements RelatedGame, Serializable {
+@SuppressWarnings("preview")
+public non-sealed class Game implements RelatedGame, Serializable {
+	@Serial
 	private static final long serialVersionUID = 2L;
 
 	private static final boolean DEBUG = false;
@@ -89,7 +93,11 @@ public class Game implements RelatedGame, Serializable {
 
 		String fen = m_model.getHeaderModel().getTag(PGN.TAG_FEN);
 		if (fen != null) {
-			setPosition(new Position(fen, false));
+			try {
+				setPosition(new Position(fen, false));
+			} catch (InvalidFenException e) {
+				setPosition(Position.createInitialPosition());
+			}
 		} else {
 			setPosition(Position.createInitialPosition());
 		}
@@ -123,7 +131,10 @@ public class Game implements RelatedGame, Serializable {
 		if (!fen.equals(FEN.START_POSITION)) {
 			fragment.setTag(PGN.TAG_FEN, fen);
 		}
-		fragment.m_position.initFromFEN(fen, true);
+		try {
+			fragment.m_position.initFromFEN(fen, true);
+		} catch (InvalidFenException ignore) {
+		}
 		fragment.m_position.setPlyOffset(newPlyOffset);
 		while (copy.goForward() && numOfPlies > 0) {
 			Move move = copy.getLastMove();
@@ -244,7 +255,8 @@ public class Game implements RelatedGame, Serializable {
 		fireHeaderModelChanged();
 	}
 
-	public void setGameByFEN(String fen, boolean overwriteTags) throws IllegalArgumentException {
+	public void setGameByFEN(String fen, boolean overwriteTags) throws InvalidFenException {
+		Position newPos = new Position(fen, false); // If this throws, this is unchanged!
 		if (overwriteTags) {
 			m_model.getHeaderModel().clearTags();
 			m_model.getHeaderModel().setTag(PGN.TAG_DATE, "????.??.??");
@@ -253,7 +265,7 @@ public class Game implements RelatedGame, Serializable {
 			m_model.getHeaderModel().setTag(PGN.TAG_RESULT, "*");
 		}
 		m_model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
-		setPosition(new Position(fen, false));
+		setPosition(newPos);
 		m_model.getMoveModel().clear();
 		setVariant(FEN.isShredderFEN(fen) ? Variant.CHESS960 : Variant.STANDARD);
 		fireMoveModelChanged();
@@ -982,9 +994,8 @@ public class Game implements RelatedGame, Serializable {
 	public boolean equals(Object obj) {
 		if (obj == this)
 			return true; // =====>
-		if (!(obj instanceof Game))
+		if (!(obj instanceof Game game))
 			return false; // =====>
-		Game game = (Game) obj;
 		return game.getModel().equals(getModel());
 	}
 
@@ -1060,6 +1071,7 @@ public class Game implements RelatedGame, Serializable {
 
 	// ======================================================================
 
+	@Serial
 	private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException, NoSuchFieldException,
 			SecurityException, IllegalArgumentException, IllegalAccessException {
 		String str = s.readUTF();
@@ -1083,6 +1095,7 @@ public class Game implements RelatedGame, Serializable {
 		}
 	}
 
+	@Serial
 	private synchronized void writeObject(java.io.ObjectOutputStream s) throws IOException {
 		StringWriter buf = new StringWriter();
 		PGNWriter writer = new PGNWriter(buf);

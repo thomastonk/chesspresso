@@ -14,10 +14,7 @@
  ******************************************************************************/
 package chesspresso.game;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 
 /**
  *
@@ -25,6 +22,7 @@ import java.io.Serializable;
  * 
  */
 class GameModel implements Serializable {
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	private GameHeaderModel m_headerModel;
@@ -93,9 +91,8 @@ class GameModel implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj == this)
 			return true; // =====>
-		if (!(obj instanceof GameModel))
+		if (!(obj instanceof GameModel gameModel))
 			return false; // =====>
-		GameModel gameModel = (GameModel) obj;
 		return gameModel.getMoveModel().equals(getMoveModel());
 	}
 

@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import chesspresso.Chess;
 import chesspresso.Variant;
+import chesspresso.position.ImmutablePosition.Validity;
 
 public class FEN {
 
@@ -48,18 +49,26 @@ public class FEN {
 
 	private static final Pattern SQUARE_PATTERN = Pattern.compile("[a-h][1-8]");
 
-	static void initFromFEN(MutablePosition pos, String fen, boolean validate) throws IllegalArgumentException {
+	static void initFromFEN(MutablePosition pos, String fen, boolean validate) throws InvalidFenException {
 		pos.clear();
 
 		String[] fenParts = fen.trim().split(" +");
 		if (fenParts.length == 0) {
-			throw new IllegalArgumentException("Faulty FEN: empty string or only white spaces.");
+			throw new InvalidFenException("Invalid FEN: empty string or only white spaces.");
 		}
 
 		/* ========== 1st field : pieces ========== */
 		String[] rows = fenParts[0].split("/");
 		if (rows.length != 8) {
-			throw new IllegalArgumentException("Faulty FEN: invalid piece description, only " + rows.length + " rows found.");
+			String msg;
+			if (rows.length == 1) {
+				msg = "Invalid FEN: invalid piece description, only " + rows.length + " row found.";
+			} else if (rows.length < 8) {
+				msg = "Invalid FEN: invalid piece description, only " + rows.length + " row(s) found.";
+			} else {
+				msg = "Invalid FEN: invalid piece description, " + rows.length + " row(s) found.";
+			}
+			throw new InvalidFenException(msg);
 		}
 		for (int rowIndex = 0; rowIndex < 8; ++rowIndex) {
 			char ch;
@@ -70,7 +79,7 @@ public class FEN {
 				if (ch >= '1' && ch <= '8') {
 					int num = ch - '0';
 					if (colIndex + num > 8) {
-						throw new IllegalArgumentException("Faulty FEN: too many pieces in row " + (rowIndex + 1));
+						throw new InvalidFenException("Invalid FEN: too many pieces in row " + (rowIndex + 1));
 					}
 					for (int j = 0; j < num; ++j) {
 						pos.setStone(Chess.coorToSqi(colIndex, 7 - rowIndex), Chess.NO_STONE);
@@ -79,14 +88,14 @@ public class FEN {
 				} else {
 					int stone = FEN.fenCharToStone(ch);
 					if (stone == Chess.NO_STONE) {
-						throw new IllegalArgumentException("Faulty FEN: illegal piece char: " + ch);
+						throw new InvalidFenException("Invalid FEN: illegal piece char: " + ch);
 					}
 					pos.setStone(Chess.coorToSqi(colIndex, 7 - rowIndex), stone);
 					++colIndex;
 				}
 			}
 			if (colIndex != 8) {
-				throw new IllegalArgumentException("Faulty FEN: check information '" + row + "' for FEN row " + (rowIndex + 1)
+				throw new InvalidFenException("Invalid FEN: check information '" + row + "' for FEN row " + (rowIndex + 1)
 						+ " (board row " + (8 - rowIndex) + ")");
 			}
 		}
@@ -99,7 +108,7 @@ public class FEN {
 			} else if (toPlay.equals("b")) {
 				pos.setToPlay(Chess.BLACK);
 			} else {
-				throw new IllegalArgumentException("Faulty FEN: expected 'w' or 'b' as second field, but found " + fenParts[1]);
+				throw new InvalidFenException("Invalid FEN: expected 'w' or 'b' as second field, but found " + fenParts[1]);
 			}
 		} else { // default value
 			pos.setToPlay(Chess.WHITE);
@@ -111,8 +120,8 @@ public class FEN {
 			int castles = ImmutablePosition.NO_CASTLES;
 			if (!castleString.equals("-")) {
 				if (castleString.length() > 4) {
-					throw new IllegalArgumentException(
-							"Faulty FEN: expected castling information of length at most 4, found " + castleString);
+					throw new InvalidFenException(
+							"Invalid FEN: expected castling information of length at most 4, found " + castleString);
 				}
 				if (castleString.matches("[kqKQ]+")) { // standard FEN encoding
 					if (pos.getVariant() == Variant.STANDARD) { // no-Chess960
@@ -140,7 +149,7 @@ public class FEN {
 					pos.setVariant(Variant.CHESS960);
 					setChess960Castling(pos, castleString);
 				} else {
-					throw new IllegalArgumentException("Faulty castling options in FEN: " + castleString);
+					throw new InvalidFenException("Invalid castling options in FEN: " + castleString);
 				}
 			}
 		} else { // determine castling possibilities from position
@@ -173,7 +182,7 @@ public class FEN {
 				if (SQUARE_PATTERN.matcher(epSquare).matches()) {
 					pos.setSqiEP(Chess.strToSqi(epSquare));
 				} else {
-					throw new IllegalArgumentException("Faulty FEN: expected en passant square, found " + epSquare);
+					throw new InvalidFenException("Invalid FEN: expected en passant square, found " + epSquare);
 				}
 			}
 		} else { // default value
@@ -186,7 +195,7 @@ public class FEN {
 			try {
 				pos.setHalfMoveClock(Integer.parseInt(hmClock));
 			} catch (NumberFormatException e) {
-				throw new IllegalArgumentException("Faulty FEN: tried to evaluate the half-move clock, found " + hmClock);
+				throw new InvalidFenException("Invalid FEN: tried to evaluate the half-move clock, found " + hmClock);
 			}
 		} else { // default value
 			pos.setHalfMoveClock(0);
@@ -198,10 +207,10 @@ public class FEN {
 			try {
 				moveNumber = Integer.parseInt(fenParts[5]);
 			} catch (NumberFormatException e) {
-				throw new IllegalArgumentException("Faulty FEN: tried to evaluate the move number, found " + fenParts[5]);
+				throw new InvalidFenException("Invalid FEN: tried to evaluate the move number, found " + fenParts[5]);
 			}
 			if (moveNumber < 0) {
-				throw new IllegalArgumentException("Faulty FEN: tried to evaluate the move number, found " + fenParts[5]);
+				throw new InvalidFenException("Invalid FEN: tried to evaluate the move number, found " + fenParts[5]);
 			}
 			if (moveNumber == 0) {
 				moveNumber = 1;
@@ -222,18 +231,21 @@ public class FEN {
 
 		/* ============= check the resulting position ========== */
 		if (validate) {
+			if (pos.getValidity() != Validity.IS_VALID) {
+				throw new InvalidFenException("Invalid FEN: " + pos.getValidity());
+			}
 			try {
 				pos.internalValidate();
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new IllegalArgumentException("Faulty FEN: " + e.getMessage());
+				throw new InvalidFenException("Invalid FEN: " + e.getMessage());
 			}
 		}
 	}
 
 	private static void setChess960Castling(MutablePosition pos, String castleString) {
 		if (!castleString.matches("[a-hA-HkqKQ]+")) {
-			throw new IllegalArgumentException("Faulty castling options in FEN: " + castleString);
+			throw new IllegalArgumentException("Invalid castling options in FEN: " + castleString);
 		}
 
 		pos.setVariant(Variant.CHESS960);
@@ -254,15 +266,15 @@ public class FEN {
 			}
 			if (whitesKingSquare == -1) {
 				throw new IllegalArgumentException(
-						"Faulty castling options in FEN: " + castleString + ", White's king is not on the first rank.");
+						"Invalid castling options in FEN: " + castleString + ", White's king is not on the first rank.");
 			}
 			if (whitesKingSquare == Chess.A1) {
 				throw new IllegalArgumentException(
-						"Faulty castling options in FEN: " + castleString + ", but White's king is on A1.");
+						"Invalid castling options in FEN: " + castleString + ", but White's king is on A1.");
 			}
 			if (whitesKingSquare == Chess.H1) {
 				throw new IllegalArgumentException(
-						"Faulty castling options in FEN: " + castleString + ", but White's king is on H1.");
+						"Invalid castling options in FEN: " + castleString + ", but White's king is on H1.");
 			}
 		}
 
@@ -275,22 +287,22 @@ public class FEN {
 			}
 			if (blacksKingSquare == -1) {
 				throw new IllegalArgumentException(
-						"Faulty castling options in FEN: " + castleString + ", Black's king is not on the eighth rank.");
+						"Invalid castling options in FEN: " + castleString + ", Black's king is not on the eighth rank.");
 			}
 			if (blacksKingSquare == Chess.A8) {
 				throw new IllegalArgumentException(
-						"Faulty castling options in FEN: " + castleString + ", but Black's king is on A8.");
+						"Invalid castling options in FEN: " + castleString + ", but Black's king is on A8.");
 			}
 			if (blacksKingSquare == Chess.H8) {
 				throw new IllegalArgumentException(
-						"Faulty castling options in FEN: " + castleString + ", but Black's king is on H8.");
+						"Invalid castling options in FEN: " + castleString + ", but Black's king is on H8.");
 			}
 		}
 
 		if (whitesKingSquare != -1 && blacksKingSquare != -1) {
 			if (whitesKingSquare % 8 != blacksKingSquare % 8) {
 				throw new IllegalArgumentException(
-						"Faulty castling options in FEN: " + castleString + ", while kings are on different files.");
+						"Invalid castling options in FEN: " + castleString + ", while kings are on different files.");
 			}
 		}
 
@@ -336,7 +348,7 @@ public class FEN {
 					if ((castleString.contains(s) || castleString.contains("q"))
 							&& (castleString.contains(s.toUpperCase()) || castleString.contains("Q"))) {
 						throw new IllegalArgumentException(
-								"Faulty castling options in FEN: " + castleString + ", but queenside rooks on different files.");
+								"Invalid castling options in FEN: " + castleString + ", but queenside rooks on different files.");
 					}
 				}
 				{
@@ -344,7 +356,7 @@ public class FEN {
 					if ((castleString.contains(t) || castleString.contains("q"))
 							&& (castleString.contains(t.toUpperCase()) || castleString.contains("Q"))) {
 						throw new IllegalArgumentException(
-								"Faulty castling options in FEN: " + castleString + ", but queenside rooks on different files.");
+								"Invalid castling options in FEN: " + castleString + ", but queenside rooks on different files.");
 					}
 				}
 			}
@@ -354,7 +366,7 @@ public class FEN {
 					if ((castleString.contains(s) || castleString.contains("k"))
 							&& (castleString.contains(s.toUpperCase()) || castleString.contains("K"))) {
 						throw new IllegalArgumentException(
-								"Faulty castling options in FEN: " + castleString + ", but kingside rooks on different files.");
+								"Invalid castling options in FEN: " + castleString + ", but kingside rooks on different files.");
 					}
 				}
 				{
@@ -362,7 +374,7 @@ public class FEN {
 					if ((castleString.contains(t) || castleString.contains("k"))
 							&& (castleString.contains(t.toUpperCase()) || castleString.contains("K"))) {
 						throw new IllegalArgumentException(
-								"Faulty castling options in FEN: " + castleString + ", but kingside rooks on different files.");
+								"Invalid castling options in FEN: " + castleString + ", but kingside rooks on different files.");
 					}
 				}
 			}
@@ -387,7 +399,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'A' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'A' does not match a rook position.");
 				}
 				break;
 			case 'B':
@@ -399,7 +411,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'B' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'B' does not match a rook position.");
 				}
 				break;
 			case 'C':
@@ -422,7 +434,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'C' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'C' does not match a rook position.");
 				}
 				break;
 			case 'D':
@@ -445,7 +457,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'D' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'D' does not match a rook position.");
 				}
 				break;
 			case 'E':
@@ -468,7 +480,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'E' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'E' does not match a rook position.");
 				}
 				break;
 			case 'F':
@@ -491,7 +503,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'F' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'F' does not match a rook position.");
 				}
 				break;
 			case 'G':
@@ -503,7 +515,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'G' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'G' does not match a rook position.");
 				}
 				break;
 			case 'H':
@@ -515,7 +527,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'H' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'H' does not match a rook position.");
 				}
 				break;
 			case 'a':
@@ -527,7 +539,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'a' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'a' does not match a rook position.");
 				}
 				break;
 			case 'b':
@@ -539,7 +551,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'b' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'b' does not match a rook position.");
 				}
 				break;
 			case 'c':
@@ -562,7 +574,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'c' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'c' does not match a rook position.");
 				}
 				break;
 			case 'd':
@@ -585,7 +597,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'd' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'd' does not match a rook position.");
 				}
 				break;
 			case 'e':
@@ -608,7 +620,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'e' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'e' does not match a rook position.");
 				}
 				break;
 			case 'f':
@@ -631,7 +643,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'f' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'f' does not match a rook position.");
 				}
 				break;
 			case 'g':
@@ -643,7 +655,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'g' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'g' does not match a rook position.");
 				}
 				break;
 			case 'h':
@@ -655,7 +667,7 @@ public class FEN {
 				}
 				if (needsException) {
 					throw new IllegalArgumentException(
-							"Faulty castling options in FEN: " + castleString + ", but 'h' does not match a rook position.");
+							"Invalid castling options in FEN: " + castleString + ", but 'h' does not match a rook position.");
 				}
 				break;
 			case 'K':
@@ -796,7 +808,7 @@ public class FEN {
 		String[] fenParts = fen.trim().split(" +");
 
 		if (fenParts.length == 0) {
-			throw new IllegalArgumentException("FEN::switchColors: Faulty FEN: empty string or only white spaces.");
+			throw new IllegalArgumentException("FEN::switchColors: Invalid FEN: empty string or only white spaces.");
 		}
 
 		StringBuilder newFen = new StringBuilder();
@@ -805,7 +817,8 @@ public class FEN {
 		if (fenParts.length > 0) {
 			String[] rows = fenParts[0].split("/");
 			if (rows.length != 8) {
-				throw new IllegalArgumentException("Faulty FEN: invalid piece description, only " + rows.length + " rows found.");
+				throw new IllegalArgumentException(
+						"Invalid FEN: invalid piece description, only " + rows.length + " rows found.");
 			}
 
 			for (int rowIndex = 7; rowIndex >= 0; --rowIndex) {
@@ -900,7 +913,7 @@ public class FEN {
 		String[] fenParts = fen.trim().split(" +");
 
 		if (fenParts.length == 0) {
-			throw new IllegalArgumentException("FEN::switchLeftAndRight: Faulty FEN: empty string or only white spaces.");
+			throw new IllegalArgumentException("FEN::switchLeftAndRight: Invalid FEN: empty string or only white spaces.");
 		}
 
 		StringBuilder newFen = new StringBuilder();
@@ -909,7 +922,8 @@ public class FEN {
 		if (fenParts.length > 0) {
 			String[] rows = fenParts[0].split("/");
 			if (rows.length != 8) {
-				throw new IllegalArgumentException("Faulty FEN: invalid piece description, only " + rows.length + " rows found.");
+				throw new IllegalArgumentException(
+						"Invalid FEN: invalid piece description, only " + rows.length + " rows found.");
 			}
 
 			for (int rowIndex = 0; rowIndex < 8; ++rowIndex) {
@@ -974,59 +988,38 @@ public class FEN {
 	}
 
 	private static char switchCharsLeftAndRight(char ch) {
-		switch (ch) {
-		case 'a':
-			return 'h';
-		case 'b':
-			return 'g';
-		case 'c':
-			return 'f';
-		case 'd':
-			return 'e';
-		case 'e':
-			return 'd';
-		case 'f':
-			return 'c';
-		case 'g':
-			return 'b';
-		case 'h':
-			return 'a';
-		case 'A':
-			return 'H';
-		case 'B':
-			return 'G';
-		case 'C':
-			return 'F';
-		case 'D':
-			return 'E';
-		case 'E':
-			return 'D';
-		case 'F':
-			return 'C';
-		case 'G':
-			return 'B';
-		case 'H':
-			return 'A';
-		// The following four cases are for Chess960 castling options;
-		// they make no sense for standard chess.
-		case 'k':
-			return 'q';
-		case 'q':
-			return 'k';
-		case 'K':
-			return 'Q';
-		case 'Q':
-			return 'K';
-		default:
-			return ch;
-		}
+		return switch (ch) {
+			case 'a' -> 'h';
+			case 'b' -> 'g';
+			case 'c' -> 'f';
+			case 'd' -> 'e';
+			case 'e' -> 'd';
+			case 'f' -> 'c';
+			case 'g' -> 'b';
+			case 'h' -> 'a';
+			case 'A' -> 'H';
+			case 'B' -> 'G';
+			case 'C' -> 'F';
+			case 'D' -> 'E';
+			case 'E' -> 'D';
+			case 'F' -> 'C';
+			case 'G' -> 'B';
+			case 'H' -> 'A';
+			// The following four cases are for Chess960 castling options;
+			// they make no sense for standard chess.
+			case 'k' -> 'q';
+			case 'q' -> 'k';
+			case 'K' -> 'Q';
+			case 'Q' -> 'K';
+			default -> ch;
+		};
 	}
 
 	public static String removePieces(String fen, int piece) {
 		String[] fenParts = fen.trim().split(" +");
 
 		if (fenParts.length == 0) {
-			throw new IllegalArgumentException("FEN::switchLeftAndRight: Faulty FEN: empty string or only white spaces.");
+			throw new IllegalArgumentException("FEN::switchLeftAndRight: Invalid FEN: empty string or only white spaces.");
 		}
 
 		StringBuilder newFen = new StringBuilder();

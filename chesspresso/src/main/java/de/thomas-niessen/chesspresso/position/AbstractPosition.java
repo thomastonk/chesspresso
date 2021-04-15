@@ -115,7 +115,12 @@ public abstract class AbstractPosition implements ImmutablePosition {
 			// TN: this is the old version, which cannot be applied, since LightWeightPosition's implementation is not complete.
 			//			AbstractMutablePosition startPos = new LightWeightPosition();
 			// 			FEN.initFromFEN(startPos, FEN.START_POSITION);
-			AbstractMutablePosition startPos = new PositionImpl(FEN.START_POSITION, false);
+			AbstractMutablePosition startPos;
+			try {
+				startPos = new PositionImpl(FEN.START_POSITION, false);
+			} catch (InvalidFenException e) {
+				return 0L;
+			}
 			s_startPositionHashCode = new PositionImpl(startPos).getHashCode(); // do after bitBoard init
 		}
 		return s_startPositionHashCode;
@@ -202,17 +207,6 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	/*
 	 * =============================================================================
 	 */
-
-	//    public boolean isSquarePossibleEPSquare(int sqi) {
-	//	if (getToPlay() == Chess.WHITE) {
-	//	    // white to play -> sqi ep caused by black pawn
-	//	    return Chess.sqiToRow(sqi) == 5 && getStone(sqi + Chess.NUM_OF_COLS) == Chess.NO_STONE
-	//		    && getStone(sqi) == Chess.NO_STONE && getStone(sqi - Chess.NUM_OF_COLS) == Chess.BLACK_PAWN;
-	//	} else {
-	//	    return Chess.sqiToRow(sqi) == 2 && getStone(sqi - Chess.NUM_OF_COLS) == Chess.NO_STONE
-	//		    && getStone(sqi) == Chess.NO_STONE && getStone(sqi + Chess.NUM_OF_COLS) == Chess.WHITE_PAWN;
-	//	}
-	//    }
 
 	@Override
 	public Validity getValidity() {

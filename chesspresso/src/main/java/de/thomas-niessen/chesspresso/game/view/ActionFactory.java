@@ -27,8 +27,12 @@ import chesspresso.game.Game;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
+import chesspresso.position.InvalidFenException;
 import chesspresso.position.NAG;
 
+/**
+ * @author Thomas Niessen
+ */
 public class ActionFactory {
 
 	private static String inputDialogClass = null;
@@ -493,10 +497,14 @@ public class ActionFactory {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Object fen = JOptionPane.showInputDialog(parent, "FEN", "Set start position by FEN", JOptionPane.PLAIN_MESSAGE,
-					null, null, game.getTag(PGN.TAG_FEN));
+			Object fen = JOptionPane.showInputDialog(parent, "FEN", "Set start position by FEN", JOptionPane.PLAIN_MESSAGE, null,
+					null, game.getTag(PGN.TAG_FEN));
 			if (fen != null) {
-				game.setGameByFEN(fen.toString(), false);
+				try {
+					game.setGameByFEN(fen.toString(), false);
+				} catch (InvalidFenException ex) {
+					JOptionPane.showMessageDialog(parent, ex.getMessage(), "Invalid FEN", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		}
 	}
@@ -515,8 +523,8 @@ public class ActionFactory {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Object eventDate = JOptionPane.showInputDialog(parent, "Event date", "Set the event date",
-					JOptionPane.PLAIN_MESSAGE, null, null, game.getTag(PGN.TAG_EVENT_DATE));
+			Object eventDate = JOptionPane.showInputDialog(parent, "Event date", "Set the event date", JOptionPane.PLAIN_MESSAGE,
+					null, null, game.getTag(PGN.TAG_EVENT_DATE));
 			if (eventDate != null) {
 				game.setTag(PGN.TAG_EVENT_DATE, eventDate.toString());
 			}
@@ -537,8 +545,8 @@ public class ActionFactory {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Object whiteElo = JOptionPane.showInputDialog(parent, "White's ELO", "Set the White's ELO",
-					JOptionPane.PLAIN_MESSAGE, null, null, game.getTag(PGN.TAG_WHITE_ELO));
+			Object whiteElo = JOptionPane.showInputDialog(parent, "White's ELO", "Set the White's ELO", JOptionPane.PLAIN_MESSAGE,
+					null, null, game.getTag(PGN.TAG_WHITE_ELO));
 			if (whiteElo != null) {
 				game.setTag(PGN.TAG_WHITE_ELO, whiteElo.toString());
 			}
@@ -559,8 +567,8 @@ public class ActionFactory {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Object blackElo = JOptionPane.showInputDialog(parent, "Black's ELO", "Set the Black's ELO",
-					JOptionPane.PLAIN_MESSAGE, null, null, game.getTag(PGN.TAG_BLACK_ELO));
+			Object blackElo = JOptionPane.showInputDialog(parent, "Black's ELO", "Set the Black's ELO", JOptionPane.PLAIN_MESSAGE,
+					null, null, game.getTag(PGN.TAG_BLACK_ELO));
 			if (blackElo != null) {
 				game.setTag(PGN.TAG_BLACK_ELO, blackElo.toString());
 			}

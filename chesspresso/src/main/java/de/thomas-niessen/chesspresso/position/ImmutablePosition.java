@@ -32,8 +32,24 @@ public interface ImmutablePosition {
 
 	// validity
 	enum Validity {
-		IS_VALID, NO_ONE_TO_PLAY, NEGATIVE_PLY_NUMBER, NEGATIVE_HALF_MOVE_CLOCK, INVALID_HALF_MOVE_CLOCK,
-		INVALID_EN_PASSANT_SQUARE, INVALID_NUMBER_OF_KINGS, WRONG_KING_ATTACKED, PAWN_ON_BACK_RANK
+		IS_VALID("The position is valid."), NO_ONE_TO_PLAY("It is not known who has the move."),
+		NEGATIVE_PLY_NUMBER("The number of plies is negative."), NEGATIVE_HALF_MOVE_CLOCK("The half-move clock is negative."),
+		INVALID_HALF_MOVE_CLOCK("The half-move clock is invalid."),
+		INVALID_EN_PASSANT_SQUARE("The en passant square is invalid."),
+		INVALID_NUMBER_OF_KINGS("The number of kings is invalid."),
+		WRONG_KING_ATTACKED("A king is attacked, but the opponent has the move."),
+		PAWN_ON_BACK_RANK("There is a pawn on the back rank.");
+
+		private final String description;
+
+		Validity(String desc) {
+			description = desc;
+		}
+
+		@Override
+		public String toString() {
+			return description;
+		}
 	}
 
 	// ======================================================================

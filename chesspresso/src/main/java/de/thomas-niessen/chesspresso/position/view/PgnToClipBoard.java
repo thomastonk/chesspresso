@@ -39,7 +39,7 @@ import chesspresso.game.GameSupplier;
 import chesspresso.pgn.PGNWriter;
 
 /**
- * @author Thomas
+ * @author Thomas Niessen
  */
 public class PgnToClipBoard implements ActionListener {
 

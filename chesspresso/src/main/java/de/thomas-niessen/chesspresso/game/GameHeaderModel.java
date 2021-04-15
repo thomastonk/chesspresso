@@ -14,10 +14,7 @@
  ******************************************************************************/
 package chesspresso.game;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.util.LinkedList;
 
 import chesspresso.Chess;
@@ -30,6 +27,7 @@ import chesspresso.pgn.PGN;
  * 
  */
 class GameHeaderModel implements Serializable {
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	private static final int INDEX_EVENT = 0, INDEX_SITE = 1, INDEX_DATE = 2, INDEX_ROUND = 3, INDEX_WHITE = 4, INDEX_BLACK = 5,

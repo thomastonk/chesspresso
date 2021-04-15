@@ -156,6 +156,7 @@ public class Chess960 {
 		if ((secondBishop - firstBishop) % 2 == 0) {
 			return false;
 		}
+		//noinspection RedundantIfStatement
 		if (firstRook > king || secondRook < king) {
 			return false;
 		}

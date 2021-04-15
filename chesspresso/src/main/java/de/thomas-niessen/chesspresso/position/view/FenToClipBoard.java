@@ -32,6 +32,9 @@ import chesspresso.ParentSupplier;
 import chesspresso.position.FEN;
 import chesspresso.position.PositionSupplier;
 
+/**
+ * @author Thomas Niessen
+ */
 @SuppressWarnings("serial")
 public class FenToClipBoard extends AbstractAction {
 	private final PositionSupplier positionSupplier;

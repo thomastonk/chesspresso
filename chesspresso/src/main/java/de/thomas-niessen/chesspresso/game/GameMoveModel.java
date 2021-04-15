@@ -14,11 +14,7 @@
  ******************************************************************************/
 package chesspresso.game;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +31,7 @@ import chesspresso.position.NAG;
  * 
  */
 class GameMoveModel implements Serializable {
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	private final static boolean DEBUG = false;
@@ -1444,7 +1441,7 @@ class GameMoveModel implements Serializable {
 			short m = m_moves[i];
 			// copied from RandomAccesFile.writeShort
 			data[2 * i - 2] = (byte) ((m >>> 8) & 0xFF);
-			data[2 * i - 1] = (byte) ((m >>> 0) & 0xFF);
+			data[2 * i - 1] = (byte) ((m) & 0xFF);
 			// out.writeShort(m_moves[i]);
 		}
 		out.write(data);
@@ -1534,9 +1531,8 @@ class GameMoveModel implements Serializable {
 		// s_equals++;
 		if (obj == this)
 			return true; // =====>
-		if (!(obj instanceof GameMoveModel))
+		if (!(obj instanceof GameMoveModel gameMoveModel))
 			return false; // =====>
-		GameMoveModel gameMoveModel = (GameMoveModel) obj;
 
 		if (gameMoveModel.getHashCode() != getHashCode())
 			return false; // =====>

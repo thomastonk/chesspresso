@@ -442,11 +442,11 @@ public final class PGNReader extends PGN {
 		}
 	}
 
-	private boolean isLastTokenResult() throws PGNSyntaxError {
+	private boolean isLastTokenResult() {
 		return getLastTokenAsResult() != Chess.NO_RES;
 	}
 
-	private int getLastTokenAsResult() throws PGNSyntaxError {
+	private int getLastTokenAsResult() {
 		// System.out.println("CheckResult: " + getLastTokenAsString());
 		if (getLastToken() == TOK_ASTERISK)
 			return Chess.RES_NOT_FINISHED;
@@ -474,7 +474,7 @@ public final class PGNReader extends PGN {
 	}
 
 	@SuppressWarnings("unused")
-	private boolean isLastTokenMoveNumber(int moveNumber) throws PGNSyntaxError, IOException {
+	private boolean isLastTokenMoveNumber(int moveNumber) throws PGNSyntaxError {
 		return isLastTokenMoveNumber() && getLastTokenAsInt() == moveNumber;
 	}
 
@@ -689,63 +689,63 @@ public final class PGNReader extends PGN {
 		while (!isLastTokenResult()) {
 			boolean nextTokenNeeded = true;
 			switch (getLastToken()) {
-			case TOK_LINE_BEGIN: {
-				if (!comments.isEmpty()) {
-					m_curGame.setPostMoveComment(aggregateComments(comments));
-				}
-				++level;
-				commentsArePreMove = true;
-				comments.clear();
-				m_curGame.getPosition().undoMove();
-				break;
-			}
-			case TOK_LINE_END: {
-				m_curGame.setPostMoveComment(aggregateComments(comments));
-				--level;
-				commentsArePreMove = true;
-				comments.clear();
-				if (level >= 0) {
-					m_curGame.goBackToParentLine();
-				} else {
-					syntaxError("Unexpected variation end");
-				}
-				break;
-			}
-			case TOK_COMMENT_BEGIN: {
-				String comment = getLastTokenAsString().trim();
-				if (!comment.isEmpty()) {
-					comments.add(comment);
-				}
-				break;
-			}
-			default: {
-				if (isNAGStart(getLastToken())) {
-					parseNAG();
-					nextTokenNeeded = false;
-				} else {
-					if (commentsArePreMove) {
-						if (comments.isEmpty()) {
-							parseHalfMove(null);
-						} else {
-							parseHalfMove(aggregateComments(comments));
-							comments.clear();
-						}
-					} else {
-						String preMoveComment = null;
-						if (comments.size() > 1) {
-							preMoveComment = comments.get(comments.size() - 1);
-							comments.remove(comments.size() - 1);
-						}
-						if (!comments.isEmpty()) {
-							m_curGame.setPostMoveComment(aggregateComments(comments));
-						}
-						comments.clear();
-						parseHalfMove(preMoveComment);
+				case TOK_LINE_BEGIN -> {
+					if (!comments.isEmpty()) {
+						m_curGame.setPostMoveComment(aggregateComments(comments));
 					}
-					commentsArePreMove = false;
+					++level;
+					commentsArePreMove = true;
+					comments.clear();
+					m_curGame.getPosition().undoMove();
+					break;
 				}
-				break;
-			}
+				case TOK_LINE_END -> {
+					m_curGame.setPostMoveComment(aggregateComments(comments));
+					--level;
+					commentsArePreMove = true;
+					comments.clear();
+					if (level >= 0) {
+						m_curGame.goBackToParentLine();
+					} else {
+						syntaxError("Unexpected variation end");
+					}
+					break;
+				}
+				case TOK_COMMENT_BEGIN -> {
+					String comment = getLastTokenAsString().trim();
+					if (!comment.isEmpty()) {
+						comments.add(comment);
+					}
+					break;
+				}
+				default -> {
+					if (isNAGStart(getLastToken())) {
+						parseNAG();
+						nextTokenNeeded = false;
+					} else {
+						if (commentsArePreMove) {
+							if (comments.isEmpty()) {
+								parseHalfMove(null);
+							} else {
+								parseHalfMove(aggregateComments(comments));
+								comments.clear();
+							}
+						} else {
+							String preMoveComment = null;
+							if (comments.size() > 1) {
+								preMoveComment = comments.get(comments.size() - 1);
+								comments.remove(comments.size() - 1);
+							}
+							if (!comments.isEmpty()) {
+								m_curGame.setPostMoveComment(aggregateComments(comments));
+							}
+							comments.clear();
+							parseHalfMove(preMoveComment);
+						}
+						commentsArePreMove = false;
+					}
+					break;
+				}
 			}
 			if (nextTokenNeeded) {
 				getNextToken();
