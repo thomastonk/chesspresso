@@ -10,8 +10,7 @@ import chesspresso.position.Position;
  * inform the Game object about certain changes (see ChangeType) which are induced at the 
  * Position object, and this is done by positionChanged(ChangeType type, short move, String fen).
  */
-@SuppressWarnings("preview")
-public sealed interface RelatedGame permits Game {
+public interface RelatedGame {
 
 	enum ChangeType {
 		MOVE_DONE, MOVE_UNDONE, START_POS_CHANGED

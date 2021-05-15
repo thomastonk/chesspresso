@@ -435,6 +435,7 @@ public abstract class Chess {
 	/**
 	 * Returns the inverted square in the following sense: A1 becomes A8, .., H1
 	 * becomes H8, A2 becomes A7, .., .., A8 becomes A1, .., H8 becomes H1.
+	 * In other words: a horizontal flip is performed.
 	 */
 	public static int getInvertedSquare(int square) {
 		return (7 - sqiToRow(square)) * 8 + sqiToCol(square);
