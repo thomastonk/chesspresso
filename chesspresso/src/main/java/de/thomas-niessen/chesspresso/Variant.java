@@ -13,7 +13,9 @@
  ******************************************************************************/
 package chesspresso;
 
-public enum Variant {
+import java.io.Serializable;
+
+public enum Variant implements Serializable {
 
 	STANDARD, // normal chess
 	CHESS960
