@@ -411,27 +411,44 @@ public final class PGNReader extends PGN {
 		}
 	}
 
+	private Variant getVariantFromTag() throws PGNSyntaxError {
+		String variant = m_curGame.getTag(TAG_VARIANT);
+		if (variant != null) {
+			variant = variant.toLowerCase();
+			if ((variant.contains("chess") && variant.contains("960"))
+					|| (variant.contains("fischer") && variant.contains("random"))) {
+				return Variant.CHESS960;
+			} else if (variant.contains("standard") || variant.contains("three-check")) { // as in lichess
+				return Variant.STANDARD;
+			} else {
+				throw new PGNSyntaxError(PGNSyntaxError.ERROR, "Unknown variant: " + m_curGame.getTag(TAG_VARIANT), m_filename,
+						getLineNumber(), getLastTokenAsDebugString());
+			}
+		} else { // no variant tag
+			return Variant.STANDARD;
+		}
+	}
+
 	private void parseTagPairSection() throws PGNSyntaxError, IOException {
 		findNextGameStart();
-		while (parseTag())
+		while (parseTag()) {
 			getNextToken();
+		}
+		if (getVariantFromTag() == Variant.CHESS960) { // Chess960 needs a FEN
+			if (m_curGame.getTag(TAG_FEN) == null) {
+				throw new PGNSyntaxError(PGNSyntaxError.ERROR, "Chess960 variant detected, but without FEN.", m_filename,
+						getLineNumber(), "");
+			}
+		}
 	}
 
 	// ======================================================================
 	// routines for parsing move text sections
 
 	private void initForMovetext() throws PGNSyntaxError {
-		String variant = m_curGame.getTag(TAG_VARIANT);
-		if (variant != null) {
-			variant = variant.toLowerCase();
-			if (variant.contains("chess") && variant.contains("960")) {
-				m_curGame.setVariant(Variant.CHESS960);
-			} else if (variant.contains("standard") || variant.contains("three-check")) { // as in lichess
-			} else {
-				System.err.println("PGNReader::initForMovetext: unknown variant " + m_curGame.getTag(TAG_VARIANT));
-			}
+		if (getVariantFromTag() == Variant.CHESS960) {
+			m_curGame.setVariant(Variant.CHESS960);
 		}
-
 		String fen = m_curGame.getTag(TAG_FEN);
 		if (fen != null) {
 			try {
@@ -689,63 +706,63 @@ public final class PGNReader extends PGN {
 		while (!isLastTokenResult()) {
 			boolean nextTokenNeeded = true;
 			switch (getLastToken()) {
-				case TOK_LINE_BEGIN -> {
-					if (!comments.isEmpty()) {
-						m_curGame.setPostMoveComment(aggregateComments(comments));
-					}
-					++level;
-					commentsArePreMove = true;
-					comments.clear();
-					m_curGame.getPosition().undoMove();
-					break;
-				}
-				case TOK_LINE_END -> {
+			case TOK_LINE_BEGIN -> {
+				if (!comments.isEmpty()) {
 					m_curGame.setPostMoveComment(aggregateComments(comments));
-					--level;
-					commentsArePreMove = true;
-					comments.clear();
-					if (level >= 0) {
-						m_curGame.goBackToParentLine();
-					} else {
-						syntaxError("Unexpected variation end");
-					}
-					break;
 				}
-				case TOK_COMMENT_BEGIN -> {
-					String comment = getLastTokenAsString().trim();
-					if (!comment.isEmpty()) {
-						comments.add(comment);
-					}
-					break;
+				++level;
+				commentsArePreMove = true;
+				comments.clear();
+				m_curGame.getPosition().undoMove();
+				break;
+			}
+			case TOK_LINE_END -> {
+				m_curGame.setPostMoveComment(aggregateComments(comments));
+				--level;
+				commentsArePreMove = true;
+				comments.clear();
+				if (level >= 0) {
+					m_curGame.goBackToParentLine();
+				} else {
+					syntaxError("Unexpected variation end");
 				}
-				default -> {
-					if (isNAGStart(getLastToken())) {
-						parseNAG();
-						nextTokenNeeded = false;
-					} else {
-						if (commentsArePreMove) {
-							if (comments.isEmpty()) {
-								parseHalfMove(null);
-							} else {
-								parseHalfMove(aggregateComments(comments));
-								comments.clear();
-							}
+				break;
+			}
+			case TOK_COMMENT_BEGIN -> {
+				String comment = getLastTokenAsString().trim();
+				if (!comment.isEmpty()) {
+					comments.add(comment);
+				}
+				break;
+			}
+			default -> {
+				if (isNAGStart(getLastToken())) {
+					parseNAG();
+					nextTokenNeeded = false;
+				} else {
+					if (commentsArePreMove) {
+						if (comments.isEmpty()) {
+							parseHalfMove(null);
 						} else {
-							String preMoveComment = null;
-							if (comments.size() > 1) {
-								preMoveComment = comments.get(comments.size() - 1);
-								comments.remove(comments.size() - 1);
-							}
-							if (!comments.isEmpty()) {
-								m_curGame.setPostMoveComment(aggregateComments(comments));
-							}
+							parseHalfMove(aggregateComments(comments));
 							comments.clear();
-							parseHalfMove(preMoveComment);
 						}
-						commentsArePreMove = false;
+					} else {
+						String preMoveComment = null;
+						if (comments.size() > 1) {
+							preMoveComment = comments.get(comments.size() - 1);
+							comments.remove(comments.size() - 1);
+						}
+						if (!comments.isEmpty()) {
+							m_curGame.setPostMoveComment(aggregateComments(comments));
+						}
+						comments.clear();
+						parseHalfMove(preMoveComment);
 					}
-					break;
+					commentsArePreMove = false;
 				}
+				break;
+			}
 			}
 			if (nextTokenNeeded) {
 				getNextToken();

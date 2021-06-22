@@ -601,20 +601,20 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private long getBitBoard(int stone) {
 		return switch (stone) {
-			case Chess.NO_STONE -> 0L;
-			case Chess.WHITE_KING -> ofSquare(m_whiteKing);
-			case Chess.WHITE_PAWN -> m_bbPawns & m_bbWhites;
-			case Chess.WHITE_KNIGHT -> m_bbKnights & m_bbWhites;
-			case Chess.WHITE_BISHOP -> m_bbBishops & (~m_bbRooks) & m_bbWhites;
-			case Chess.WHITE_ROOK -> m_bbRooks & (~m_bbBishops) & m_bbWhites;
-			case Chess.WHITE_QUEEN -> m_bbBishops & m_bbRooks & m_bbWhites;
-			case Chess.BLACK_KING -> ofSquare(m_blackKing);
-			case Chess.BLACK_PAWN -> m_bbPawns & m_bbBlacks;
-			case Chess.BLACK_KNIGHT -> m_bbKnights & m_bbBlacks;
-			case Chess.BLACK_BISHOP -> m_bbBishops & (~m_bbRooks) & m_bbBlacks;
-			case Chess.BLACK_ROOK -> m_bbRooks & (~m_bbBishops) & m_bbBlacks;
-			case Chess.BLACK_QUEEN -> m_bbBishops & m_bbRooks & m_bbBlacks;
-			default -> throw new RuntimeException("Unknown stone: " + stone);
+		case Chess.NO_STONE -> 0L;
+		case Chess.WHITE_KING -> ofSquare(m_whiteKing);
+		case Chess.WHITE_PAWN -> m_bbPawns & m_bbWhites;
+		case Chess.WHITE_KNIGHT -> m_bbKnights & m_bbWhites;
+		case Chess.WHITE_BISHOP -> m_bbBishops & (~m_bbRooks) & m_bbWhites;
+		case Chess.WHITE_ROOK -> m_bbRooks & (~m_bbBishops) & m_bbWhites;
+		case Chess.WHITE_QUEEN -> m_bbBishops & m_bbRooks & m_bbWhites;
+		case Chess.BLACK_KING -> ofSquare(m_blackKing);
+		case Chess.BLACK_PAWN -> m_bbPawns & m_bbBlacks;
+		case Chess.BLACK_KNIGHT -> m_bbKnights & m_bbBlacks;
+		case Chess.BLACK_BISHOP -> m_bbBishops & (~m_bbRooks) & m_bbBlacks;
+		case Chess.BLACK_ROOK -> m_bbRooks & (~m_bbBishops) & m_bbBlacks;
+		case Chess.BLACK_QUEEN -> m_bbBishops & m_bbRooks & m_bbBlacks;
+		default -> throw new RuntimeException("Unknown stone: " + stone);
 		};
 	}
 
@@ -624,6 +624,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public final void setStone(int sqi, int stone) {
+		setStone(sqi, stone, true);
+	}
+
+	private final void setStone(int sqi, int stone, boolean clearStacks) {
 		if (PROFILE)
 			m_numSet++;
 
@@ -760,7 +764,9 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				m_hashCode ^= s_hashMod[sqi][stone - Chess.MIN_STONE];
 			// System.out.println("hash code set: " + m_hashCode);
 
-			clearStacks();
+			if (clearStacks) {
+				clearStacks();
+			}
 		}
 	}
 
@@ -931,28 +937,28 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				int rookSquare = Move.getToSqi(move);
 				if (getToPlay() == Chess.WHITE) {
 					if (kingSquare < rookSquare) { // a white short castle
-						setStone(kingSquare, Chess.NO_STONE);
-						setStone(rookSquare, Chess.NO_STONE);
-						setStone(Chess.G1, Chess.WHITE_KING);
-						setStone(Chess.F1, Chess.WHITE_ROOK);
+						setStone(kingSquare, Chess.NO_STONE, false);
+						setStone(rookSquare, Chess.NO_STONE, false);
+						setStone(Chess.G1, Chess.WHITE_KING, false);
+						setStone(Chess.F1, Chess.WHITE_ROOK, false);
 					} else { // a white long castle
-						setStone(kingSquare, Chess.NO_STONE);
-						setStone(rookSquare, Chess.NO_STONE);
-						setStone(Chess.C1, Chess.WHITE_KING);
-						setStone(Chess.D1, Chess.WHITE_ROOK);
+						setStone(kingSquare, Chess.NO_STONE, false);
+						setStone(rookSquare, Chess.NO_STONE, false);
+						setStone(Chess.C1, Chess.WHITE_KING, false);
+						setStone(Chess.D1, Chess.WHITE_ROOK, false);
 					}
 					excludeCastles(WHITE_CASTLE);
 				} else { // Black's castling
 					if (kingSquare < rookSquare) { // a black short castle
-						setStone(kingSquare, Chess.NO_STONE);
-						setStone(rookSquare, Chess.NO_STONE);
-						setStone(Chess.G8, Chess.BLACK_KING);
-						setStone(Chess.F8, Chess.BLACK_ROOK);
+						setStone(kingSquare, Chess.NO_STONE, false);
+						setStone(rookSquare, Chess.NO_STONE, false);
+						setStone(Chess.G8, Chess.BLACK_KING, false);
+						setStone(Chess.F8, Chess.BLACK_ROOK, false);
 					} else { // a black long castle
-						setStone(kingSquare, Chess.NO_STONE);
-						setStone(rookSquare, Chess.NO_STONE);
-						setStone(Chess.C8, Chess.BLACK_KING);
-						setStone(Chess.D8, Chess.BLACK_ROOK);
+						setStone(kingSquare, Chess.NO_STONE, false);
+						setStone(rookSquare, Chess.NO_STONE, false);
+						setStone(Chess.C8, Chess.BLACK_KING, false);
+						setStone(Chess.D8, Chess.BLACK_ROOK, false);
 					}
 					excludeCastles(BLACK_CASTLE);
 				}
@@ -1019,36 +1025,36 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						m_bbPawns ^= bbFrom;
 						m_hashCode ^= s_hashMod[sqiFrom][Chess.WHITE_PAWN - Chess.MIN_STONE];
 						switch (promotionStone) {
-							case Chess.WHITE_KNIGHT -> m_bbKnights ^= bbTo;
-							case Chess.WHITE_BISHOP -> m_bbBishops ^= bbTo;
-							case Chess.WHITE_ROOK -> m_bbRooks ^= bbTo;
-							case Chess.WHITE_QUEEN -> {
-								m_bbBishops ^= bbTo;
-								m_bbRooks ^= bbTo;
-							}
-							default -> throw new IllegalMoveException(
-									"Move " + ((getPlyNumber() + 1) / 2 + 1) + ": illegal promotion stone (" + promotionStone
-											+ ", " + Chess.stoneToChar(promotionStone) + ")");
+						case Chess.WHITE_KNIGHT -> m_bbKnights ^= bbTo;
+						case Chess.WHITE_BISHOP -> m_bbBishops ^= bbTo;
+						case Chess.WHITE_ROOK -> m_bbRooks ^= bbTo;
+						case Chess.WHITE_QUEEN -> {
+							m_bbBishops ^= bbTo;
+							m_bbRooks ^= bbTo;
+						}
+						default -> throw new IllegalMoveException(
+								"Move " + ((getPlyNumber() + 1) / 2 + 1) + ": illegal promotion stone (" + promotionStone + ", "
+										+ Chess.stoneToChar(promotionStone) + ")");
 						}
 					} else {
 						m_bbBlacks ^= bbFromTo;
 						m_bbPawns ^= bbFrom;
 						m_hashCode ^= s_hashMod[sqiFrom][Chess.BLACK_PAWN - Chess.MIN_STONE];
 						switch (promotionStone) {
-							case Chess.BLACK_KNIGHT -> m_bbKnights ^= bbTo;
-							case Chess.BLACK_BISHOP -> m_bbBishops ^= bbTo;
-							case Chess.BLACK_ROOK -> m_bbRooks ^= bbTo;
-							case Chess.BLACK_QUEEN -> {
-								m_bbBishops ^= bbTo;
-								m_bbRooks ^= bbTo;
-							}
-							default -> {
-								System.out.println("PositionImpl::setMove: IllegalMoveException at " + this);
-								String message = "Move " + ((getPlyNumber() + 1) / 2 + 1) + ": illegal promotion stone ("
-										+ promotionStone + ", " + Chess.stoneToChar(promotionStone) + ")";
-								System.out.println(message);
-								throw new IllegalMoveException(message);
-							}
+						case Chess.BLACK_KNIGHT -> m_bbKnights ^= bbTo;
+						case Chess.BLACK_BISHOP -> m_bbBishops ^= bbTo;
+						case Chess.BLACK_ROOK -> m_bbRooks ^= bbTo;
+						case Chess.BLACK_QUEEN -> {
+							m_bbBishops ^= bbTo;
+							m_bbRooks ^= bbTo;
+						}
+						default -> {
+							System.out.println("PositionImpl::setMove: IllegalMoveException at " + this);
+							String message = "Move " + ((getPlyNumber() + 1) / 2 + 1) + ": illegal promotion stone ("
+									+ promotionStone + ", " + Chess.stoneToChar(promotionStone) + ")";
+							System.out.println(message);
+							throw new IllegalMoveException(message);
+						}
 						}
 					}
 					m_hashCode ^= s_hashMod[sqiTo][promotionStone - Chess.MIN_STONE];
@@ -1056,69 +1062,69 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				} else {
 					int stone = getStone(Move.getFromSqi(move));
 					switch (stone) {
-						case Chess.NO_STONE -> {
-							System.out.println("PositionImpl::setMove: IllegalMoveException at " + this);
-							String message = "Move " + ((getPlyNumber() + 1) / 2 + 1) + "(" + Move.getString(move)
-									+ "): moving stone is non-existent";
-							System.out.println(message);
-							throw new IllegalMoveException(message);
-						}
-						case Chess.WHITE_KING -> {
-							m_bbWhites ^= bbFromTo;
-							m_whiteKing = sqiTo;
-						}
-						case Chess.WHITE_PAWN -> {
-							m_bbWhites ^= bbFromTo;
-							m_bbPawns ^= bbFromTo;
-							increaseHalfMoveClock = false;
-							if (sqiTo - sqiFrom == 2 * Chess.NUM_OF_COLS)
-								sqiEP = sqiTo - Chess.NUM_OF_COLS;
-						}
-						case Chess.WHITE_KNIGHT -> {
-							m_bbWhites ^= bbFromTo;
-							m_bbKnights ^= bbFromTo;
-						}
-						case Chess.WHITE_BISHOP -> {
-							m_bbWhites ^= bbFromTo;
-							m_bbBishops ^= bbFromTo;
-						}
-						case Chess.WHITE_ROOK -> {
-							m_bbWhites ^= bbFromTo;
-							m_bbRooks ^= bbFromTo;
-						}
-						case Chess.WHITE_QUEEN -> {
-							m_bbWhites ^= bbFromTo;
-							m_bbBishops ^= bbFromTo;
-							m_bbRooks ^= bbFromTo;
-						}
-						case Chess.BLACK_KING -> {
-							m_bbBlacks ^= bbFromTo;
-							m_blackKing = sqiTo;
-						}
-						case Chess.BLACK_PAWN -> {
-							m_bbBlacks ^= bbFromTo;
-							m_bbPawns ^= bbFromTo;
-							increaseHalfMoveClock = false;
-							if (sqiFrom - sqiTo == 2 * Chess.NUM_OF_COLS)
-								sqiEP = sqiTo + Chess.NUM_OF_COLS;
-						}
-						case Chess.BLACK_KNIGHT -> {
-							m_bbBlacks ^= bbFromTo;
-							m_bbKnights ^= bbFromTo;
-						}
-						case Chess.BLACK_BISHOP -> {
-							m_bbBlacks ^= bbFromTo;
-							m_bbBishops ^= bbFromTo;
-						}
-						case Chess.BLACK_ROOK -> {
-							m_bbBlacks ^= bbFromTo;
-							m_bbRooks ^= bbFromTo;
-						}
-						case Chess.BLACK_QUEEN -> {
-							m_bbBlacks ^= bbFromTo;
-							m_bbBishops ^= bbFromTo;
-							m_bbRooks ^= bbFromTo;
-						}
+					case Chess.NO_STONE -> {
+						System.out.println("PositionImpl::setMove: IllegalMoveException at " + this);
+						String message = "Move " + ((getPlyNumber() + 1) / 2 + 1) + "(" + Move.getString(move)
+								+ "): moving stone is non-existent";
+						System.out.println(message);
+						throw new IllegalMoveException(message);
+					}
+					case Chess.WHITE_KING -> {
+						m_bbWhites ^= bbFromTo;
+						m_whiteKing = sqiTo;
+					}
+					case Chess.WHITE_PAWN -> {
+						m_bbWhites ^= bbFromTo;
+						m_bbPawns ^= bbFromTo;
+						increaseHalfMoveClock = false;
+						if (sqiTo - sqiFrom == 2 * Chess.NUM_OF_COLS)
+							sqiEP = sqiTo - Chess.NUM_OF_COLS;
+					}
+					case Chess.WHITE_KNIGHT -> {
+						m_bbWhites ^= bbFromTo;
+						m_bbKnights ^= bbFromTo;
+					}
+					case Chess.WHITE_BISHOP -> {
+						m_bbWhites ^= bbFromTo;
+						m_bbBishops ^= bbFromTo;
+					}
+					case Chess.WHITE_ROOK -> {
+						m_bbWhites ^= bbFromTo;
+						m_bbRooks ^= bbFromTo;
+					}
+					case Chess.WHITE_QUEEN -> {
+						m_bbWhites ^= bbFromTo;
+						m_bbBishops ^= bbFromTo;
+						m_bbRooks ^= bbFromTo;
+					}
+					case Chess.BLACK_KING -> {
+						m_bbBlacks ^= bbFromTo;
+						m_blackKing = sqiTo;
+					}
+					case Chess.BLACK_PAWN -> {
+						m_bbBlacks ^= bbFromTo;
+						m_bbPawns ^= bbFromTo;
+						increaseHalfMoveClock = false;
+						if (sqiFrom - sqiTo == 2 * Chess.NUM_OF_COLS)
+							sqiEP = sqiTo + Chess.NUM_OF_COLS;
+					}
+					case Chess.BLACK_KNIGHT -> {
+						m_bbBlacks ^= bbFromTo;
+						m_bbKnights ^= bbFromTo;
+					}
+					case Chess.BLACK_BISHOP -> {
+						m_bbBlacks ^= bbFromTo;
+						m_bbBishops ^= bbFromTo;
+					}
+					case Chess.BLACK_ROOK -> {
+						m_bbBlacks ^= bbFromTo;
+						m_bbRooks ^= bbFromTo;
+					}
+					case Chess.BLACK_QUEEN -> {
+						m_bbBlacks ^= bbFromTo;
+						m_bbBishops ^= bbFromTo;
+						m_bbRooks ^= bbFromTo;
+					}
 					}
 					m_hashCode ^= s_hashMod[sqiFrom][stone - Chess.MIN_STONE];
 					m_hashCode ^= s_hashMod[sqiTo][stone - Chess.MIN_STONE];
