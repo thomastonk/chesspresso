@@ -36,6 +36,7 @@ import chesspresso.Variant;
 import chesspresso.game.Game;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
+import chesspresso.position.InvalidFenException;
 import chesspresso.position.NAG;
 import chesspresso.position.Position;
 
@@ -438,6 +439,14 @@ public final class PGNReader extends PGN {
 			if (m_curGame.getTag(TAG_FEN) == null) {
 				throw new PGNSyntaxError(PGNSyntaxError.ERROR, "Chess960 variant detected, but without FEN.", m_filename,
 						getLineNumber(), "");
+			}
+		}
+		String fen = m_curGame.getTag(TAG_FEN);
+		if (fen != null) { // test FEN string validity
+			try {
+				new Position(fen);
+			} catch (InvalidFenException e) {
+				throw new PGNSyntaxError(PGNSyntaxError.ERROR, e.getMessage(), m_filename, getLineNumber(), "");
 			}
 		}
 	}

@@ -16,7 +16,6 @@ package chesspresso.game.view;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.lang.reflect.Constructor;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -35,13 +34,7 @@ import chesspresso.position.NAG;
  */
 public class ActionFactory {
 
-	private static String inputDialogClass = null;
-
 	private ActionFactory() {
-	}
-
-	public static void setInputDialogClass(String className) {
-		inputDialogClass = className;
 	}
 
 	public static Action getNagAction(Game game, String nag) {
@@ -229,18 +222,7 @@ public class ActionFactory {
 				message = "Your comment before " + move + ":";
 			}
 
-			InputDialog inputDialog;
-			if (inputDialogClass == null) {
-				inputDialog = new DefaultInputDialog();
-			} else {
-				try {
-					Class<?> c = Class.forName(inputDialogClass);
-					Constructor<?> cons = c.getConstructor();
-					inputDialog = (InputDialog) cons.newInstance();
-				} catch (Exception ignore) {
-					inputDialog = new DefaultInputDialog();
-				}
-			}
+			InputDialog inputDialog = new AdvancedInputDialog();
 
 			Object comment = inputDialog.showInputDialog(parent, "Edit a comment", message, currentComment);
 			if (comment != null) {
@@ -283,18 +265,7 @@ public class ActionFactory {
 				message = "Your comment after " + move + ":";
 			}
 
-			InputDialog inputDialog;
-			if (inputDialogClass == null) {
-				inputDialog = new DefaultInputDialog();
-			} else {
-				try {
-					Class<?> c = Class.forName(inputDialogClass);
-					Constructor<?> cons = c.getConstructor();
-					inputDialog = (InputDialog) cons.newInstance();
-				} catch (Exception ignore) {
-					inputDialog = new DefaultInputDialog();
-				}
-			}
+			InputDialog inputDialog = new AdvancedInputDialog();
 
 			Object comment = inputDialog.showInputDialog(parent, "Edit a comment", message, currentComment);
 			if (comment != null) {
