@@ -138,14 +138,6 @@ public class LightWeightPosition extends AbstractMutablePosition {
 	}
 
 	@Override
-	public void setPlyNumber(int plyNumber) {
-		if (m_plyNumber != plyNumber) {
-			m_plyNumber = plyNumber;
-			firePositionChanged();
-		}
-	}
-
-	@Override
 	public void setHalfMoveClock(int halfMoveClock) {
 		if (m_halfMoveClock != halfMoveClock) {
 			m_halfMoveClock = halfMoveClock;

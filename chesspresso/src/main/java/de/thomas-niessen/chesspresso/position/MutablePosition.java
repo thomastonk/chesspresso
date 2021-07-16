@@ -38,8 +38,6 @@ public interface MutablePosition extends ImmutablePosition {
 
 	void toggleToPlay();
 
-	void setPlyNumber(int plyNumber);
-
 	void setPlyOffset(int plyOffset);
 
 	void setHalfMoveClock(int halfMoveClock);

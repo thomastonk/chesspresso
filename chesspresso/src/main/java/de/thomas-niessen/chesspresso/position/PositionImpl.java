@@ -447,6 +447,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public void clear() {
 		super.clear();
+		m_flags &= ~((long) PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
 	}
 
 	private void clearStacks() {
@@ -475,6 +476,8 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public void initFromFEN(String fen, boolean validate) throws InvalidFenException {
+		clear();
+		clearStacks();
 		FEN.initFromFEN(this, fen, validate);
 	}
 
@@ -517,7 +520,8 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public final int getPlyNumber() {
-		return (int) (m_flags >> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK;
+		int plies = (int) ((m_flags >> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
+		return m_plyOffset + plies;
 	}
 
 	@Override
@@ -768,18 +772,6 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				clearStacks();
 			}
 		}
-	}
-
-	@Override
-	public final void setPlyNumber(int plyNumber) {
-		// By the bit operations a ply number will always be between 0 and 1023!
-		if (plyNumber < 0 || plyNumber > 1023) {
-			System.err.println("Invalid ply number: " + plyNumber);
-		}
-		if (DEBUG)
-			System.out.println("setPlyNumber " + plyNumber);
-		m_flags &= ~((long) PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
-		m_flags |= (long) plyNumber << PLY_NUMBER_SHIFT;
 	}
 
 	private void incPlyNumber() {

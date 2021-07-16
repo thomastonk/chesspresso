@@ -221,7 +221,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
 		}
 
 		/*---------- check ply number ----------*/
-		if (getPlyNumber() < 0) {
+		if (getHalfMoveClock() < 0) {
 			return Validity.NEGATIVE_HALF_MOVE_CLOCK;
 		}
 		if (getHalfMoveClock() > getPlyNumber()) {

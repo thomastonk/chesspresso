@@ -221,11 +221,9 @@ public class FEN {
 			} else {
 				ply = 2 * (moveNumber - 1) + 1;
 			}
-			pos.setPlyNumber(ply);
 			pos.setPlyOffset(ply);
 		} else { // default value
 			int ply = pos.getToPlay() == Chess.WHITE ? 0 : 1;
-			pos.setPlyNumber(ply);
 			pos.setPlyOffset(ply);
 		}
 
@@ -989,29 +987,29 @@ public class FEN {
 
 	private static char switchCharsLeftAndRight(char ch) {
 		return switch (ch) {
-			case 'a' -> 'h';
-			case 'b' -> 'g';
-			case 'c' -> 'f';
-			case 'd' -> 'e';
-			case 'e' -> 'd';
-			case 'f' -> 'c';
-			case 'g' -> 'b';
-			case 'h' -> 'a';
-			case 'A' -> 'H';
-			case 'B' -> 'G';
-			case 'C' -> 'F';
-			case 'D' -> 'E';
-			case 'E' -> 'D';
-			case 'F' -> 'C';
-			case 'G' -> 'B';
-			case 'H' -> 'A';
-			// The following four cases are for Chess960 castling options;
-			// they make no sense for standard chess.
-			case 'k' -> 'q';
-			case 'q' -> 'k';
-			case 'K' -> 'Q';
-			case 'Q' -> 'K';
-			default -> ch;
+		case 'a' -> 'h';
+		case 'b' -> 'g';
+		case 'c' -> 'f';
+		case 'd' -> 'e';
+		case 'e' -> 'd';
+		case 'f' -> 'c';
+		case 'g' -> 'b';
+		case 'h' -> 'a';
+		case 'A' -> 'H';
+		case 'B' -> 'G';
+		case 'C' -> 'F';
+		case 'D' -> 'E';
+		case 'E' -> 'D';
+		case 'F' -> 'C';
+		case 'G' -> 'B';
+		case 'H' -> 'A';
+		// The following four cases are for Chess960 castling options;
+		// they make no sense for standard chess.
+		case 'k' -> 'q';
+		case 'q' -> 'k';
+		case 'K' -> 'Q';
+		case 'Q' -> 'K';
+		default -> ch;
 		};
 	}
 

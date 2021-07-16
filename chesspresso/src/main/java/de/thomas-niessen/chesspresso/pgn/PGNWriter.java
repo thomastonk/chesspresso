@@ -123,7 +123,7 @@ public class PGNWriter extends PGN {
 		//        if (!game.getPosition().isStartPosition())
 		//            m_out.println(TOK_TAG_BEGIN + TAG_FEN        + " " + TOK_QUOTE + FEN.getFEN(game.getPosition()) + TOK_QUOTE + TOK_TAG_END);
 		// New code:
-		Game copy = new Game(game.getModel());
+		Game copy = new Game(game);
 		copy.gotoStart();
 		if (!copy.getPosition().isStartPosition()) {
 			m_out.println(TOK_TAG_BEGIN + TAG_SET_UP + " " + TOK_QUOTE + "1" + TOK_QUOTE + TOK_TAG_END);

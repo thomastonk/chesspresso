@@ -68,7 +68,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 		setSqiEP(Chess.NO_SQUARE);
 		setCastles(NO_CASTLES);
 		setToPlay(Chess.WHITE);
-		setPlyNumber(0);
+		setPlyOffset(0);
 		setHalfMoveClock(0);
 	}
 
@@ -88,7 +88,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 		setCastles(position.getCastles());
 		setSqiEP(position.getSqiEP());
 		setToPlay(position.getToPlay());
-		setPlyNumber(position.getPlyNumber());
+		setPlyOffset(position.getPlyOffset());
 		setHalfMoveClock(position.getHalfMoveClock());
 	}
 

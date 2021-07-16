@@ -87,7 +87,11 @@ public class Game implements RelatedGame, Serializable {
 		this(new GameModel());
 	}
 
-	public Game(GameModel gameModel) {
+	public Game(Game game) {
+		this(game.getModel());
+	}
+
+	private Game(GameModel gameModel) {
 		m_model = gameModel;
 
 		String fen = m_model.getHeaderModel().getTag(PGN.TAG_FEN);
@@ -158,7 +162,7 @@ public class Game implements RelatedGame, Serializable {
 
 	// ======================================================================
 
-	public GameModel getModel() {
+	private GameModel getModel() {
 		return m_model;
 	}
 

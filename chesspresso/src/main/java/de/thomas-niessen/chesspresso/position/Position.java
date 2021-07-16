@@ -199,14 +199,6 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
-	public void setPlyNumber(int plyNumber) {
-		if (getPlyNumber() != plyNumber) {
-			impl.setPlyNumber(plyNumber);
-			firePositionChanged();
-		}
-	}
-
-	@Override
 	public void setPlyOffset(int plyOffset) {
 		if (getPlyOffset() != plyOffset) {
 			impl.setPlyOffset(plyOffset);
