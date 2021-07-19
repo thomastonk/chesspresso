@@ -958,8 +958,7 @@ public class Game implements RelatedGame, Serializable {
 					traverse(listener, withLines, plyNumber + 1, level + 1);
 
 					goBackToParentLine();
-					if (i > 0)
-						listener.notifyLineEnd(level);
+					listener.notifyLineEnd(level);
 				}
 			}
 
