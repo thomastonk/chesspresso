@@ -49,7 +49,7 @@ public final class Position implements MoveablePosition, Serializable {
 	@Serial
 	private static final long serialVersionUID = 2L;
 
-	private final PositionImpl impl;
+	private final MoveablePosition impl;
 
 	private int algorithmDepth;
 
@@ -121,20 +121,14 @@ public final class Position implements MoveablePosition, Serializable {
 		return algorithmDepth <= 0;
 	}
 
+	@Override
 	public String getLastMoveAsSanWithNumber() {
 		return impl.getLastMoveAsSanWithNumber();
 	}
 
+	@Override
 	public Move getNextMove(short moveAsShort) {
-		try {
-			impl.doMove(moveAsShort);
-		} catch (IllegalMoveException e) {
-			e.printStackTrace();
-			return null;
-		}
-		Move move = impl.getLastMove();
-		impl.undoMove();
-		return move;
+		return impl.getNextMove(moveAsShort);
 	}
 
 	@Override
@@ -507,6 +501,7 @@ public final class Position implements MoveablePosition, Serializable {
 		}
 	}
 
+	@Override
 	public PosInternalState getInternalState() {
 		return impl.getInternalState();
 	}

@@ -1604,6 +1604,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		}
 	}
 
+	@Override
 	public String getLastMoveAsSanWithNumber() {
 		int plies = getPlyNumber();
 		if (plies > 0) {
@@ -1643,6 +1644,19 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			bb &= bb - 1;
 		}
 		return Chess.NO_SQUARE;
+	}
+
+	@Override
+	public Move getNextMove(short moveAsShort) {
+		try {
+			doMove(moveAsShort);
+		} catch (IllegalMoveException e) {
+			e.printStackTrace();
+			return null;
+		}
+		Move move = getLastMove();
+		undoMove();
+		return move;
 	}
 
 	@Override
@@ -2794,6 +2808,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		}
 	}
 
+	@Override
 	public PosInternalState getInternalState() {
 		return new PosInternalState();
 	}

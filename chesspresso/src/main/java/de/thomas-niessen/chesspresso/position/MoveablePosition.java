@@ -16,6 +16,7 @@ package chesspresso.position;
 
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
+import chesspresso.position.PositionImpl.PosInternalState;
 
 /**
  *
@@ -27,9 +28,13 @@ public interface MoveablePosition extends MutablePosition {
 
 	void doMove(Move move) throws IllegalMoveException;
 
-	short getLastShortMove() throws IllegalMoveException;
+	short getLastShortMove();
 
-	Move getLastMove() throws IllegalMoveException;
+	Move getLastMove();
+
+	String getLastMoveAsSanWithNumber();
+
+	Move getNextMove(short moveAsShort);
 
 	boolean canUndoMove();
 
@@ -46,4 +51,6 @@ public interface MoveablePosition extends MutablePosition {
 	short getPawnMove(int colFrom, int to, int promoPiece);
 
 	short getPieceMove(int piece, int colFrom, int rowFrom, int to);
+
+	PosInternalState getInternalState();
 }
