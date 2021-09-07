@@ -42,7 +42,7 @@ public class HTMLGameBrowser implements TraverseListener {
 	private int[] m_lasts;
 
 	// ======================================================================
-	// GameListener Methods
+	// TraverseListener Methods
 
 	@Override
 	public void notifyLineStart(int level) {
@@ -81,7 +81,8 @@ public class HTMLGameBrowser implements TraverseListener {
 			m_moves.append("<span class=\"comment\">").append(preMoveComment).append("</span> ");
 		}
 
-		m_moves.append("<a name=\"").append(m_moveNumber).append("\" class=\"").append(type).append("\" href=\"javascript:go(").append(m_moveNumber).append(")\">");
+		m_moves.append("<a name=\"").append(m_moveNumber).append("\" class=\"").append(type).append("\" href=\"javascript:go(")
+				.append(m_moveNumber).append(")\">");
 		if (m_showMoveNumber) {
 			m_moves.append(plyNumber / 2 + 1).append(".");
 		}

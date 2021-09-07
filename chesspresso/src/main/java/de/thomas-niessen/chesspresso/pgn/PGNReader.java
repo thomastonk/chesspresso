@@ -828,7 +828,7 @@ public final class PGNReader extends PGN {
 	}
 
 	/**
-	 * Parse the next PGN game into the argument and returns a reference.
+	 * Parses the next PGN game into the argument and returns a reference.
 	 *
 	 * @return the next game
 	 */
