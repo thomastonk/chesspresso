@@ -361,6 +361,11 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
+	public boolean isInsufficientMaterial() {
+		return impl.isInsufficientMaterial();
+	}
+
+	@Override
 	public Variant getVariant() {
 		return impl.getVariant();
 	}

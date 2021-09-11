@@ -1565,6 +1565,11 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		return !isCheck() && !canMove();
 	}
 
+	@Override
+	public boolean isInsufficientMaterial() {
+		return m_bbPawns == 0L && m_bbRooks == 0L && Long.bitCount(m_bbKnights) + Long.bitCount(m_bbBishops) <= 1;
+	}
+
 	/*
 	 * =========================================================================
 	 */

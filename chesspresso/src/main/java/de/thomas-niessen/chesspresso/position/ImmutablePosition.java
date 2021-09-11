@@ -211,6 +211,11 @@ public interface ImmutablePosition {
 	boolean isStaleMate();
 
 	/**
+	 * @return whether the position is a draw because of insifficient material 
+	 */
+	boolean isInsufficientMaterial();
+
+	/**
 	 * @return the chess variant
 	 */
 	Variant getVariant();

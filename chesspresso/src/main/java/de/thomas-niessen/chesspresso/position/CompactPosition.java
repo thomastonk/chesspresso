@@ -146,6 +146,11 @@ public class CompactPosition extends AbstractPosition {
 	}
 
 	@Override
+	public boolean isInsufficientMaterial() {
+		throw new RuntimeException("CompactPosition::isInsufficientMaterial: method has not been implemented yet.");
+	}
+
+	@Override
 	public Variant getVariant() {
 		throw new RuntimeException("CompactPosition::getVariant: method has not been implemented yet.");
 	}

@@ -228,6 +228,11 @@ public class LightWeightPosition extends AbstractMutablePosition {
 	}
 
 	@Override
+	public boolean isInsufficientMaterial() {
+		throw new RuntimeException("LightweightPosition::isInsufficientMaterial: method has not been implemented yet.");
+	}
+
+	@Override
 	public Variant getVariant() {
 		throw new RuntimeException("LightweightPosition::getVariant: method has not been implemented yet.");
 	}
