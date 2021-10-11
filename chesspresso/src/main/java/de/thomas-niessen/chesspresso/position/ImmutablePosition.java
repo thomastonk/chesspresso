@@ -211,9 +211,14 @@ public interface ImmutablePosition {
 	boolean isStaleMate();
 
 	/**
-	 * @return whether the position is a draw because of insifficient material 
+	 * @return whether the position is a draw because of insufficient material 
 	 */
 	boolean isInsufficientMaterial();
+
+	/**
+	 * @return the total number of kings, pieces and pawns 
+	 */
+	int getNumberOfPieces();
 
 	/**
 	 * @return the chess variant

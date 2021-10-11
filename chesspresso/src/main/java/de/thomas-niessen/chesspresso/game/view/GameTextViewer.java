@@ -106,6 +106,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	// ======================================================================
 
 	private Game m_game;
+	private UserAction m_userAction;
 	private int[] m_moveBegin, m_moveEnd;
 	private int[] m_moveNrBegin;
 	private int[] m_moveNode;
@@ -117,7 +118,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	 *
 	 * @param game the game to represent
 	 */
-	public GameTextViewer(Game game) {
+	public GameTextViewer(Game game, UserAction userAction) {
 		EditorKit editorKit = new StyledEditorKit();
 		setEditorKit(editorKit);
 		setEditable(false);
@@ -126,19 +127,18 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		setSelectedTextColor(Color.white);
 
 		setGame(game);
+		m_userAction = userAction;
 
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				// the following three lines seem to be over-restrictive.
-				//		if (!m_userActionEnabled) {
-				//		    return;
-				//		}
+				if (m_userAction != UserAction.ENABLED) {
+					return;
+				}
 				if (SwingUtilities.isRightMouseButton(e) || e.isPopupTrigger()) {
 					return;
 				}
-				if (e.getPoint().y < 3) {
-					// clicks at the upper boundary move otherwise the game to first ply
+				if (e.getPoint().y < 3) { // clicks at the upper boundary move otherwise the game to first ply
 					return;
 				}
 				try {
@@ -159,10 +159,6 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// the following three lines seem to be over-restrictive.
-				//		if (!m_userActionEnabled) {
-				//		    return;
-				//		}
 				if (e.getKeyCode() == KeyEvent.VK_CONTROL)
 					return;
 				if (e.getKeyCode() == KeyEvent.VK_SHIFT)
@@ -196,7 +192,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 			}
 		});
 
-		requestFocus();
+		requestFocusInWindow();
 	}
 
 	// ======================================================================
@@ -214,6 +210,10 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 			m_game.getPosition().addPositionListener(this);
 			m_game.addChangeListener(this);
 		}
+	}
+
+	public void setUserAction(UserAction userAction) {
+		m_userAction = userAction;
 	}
 
 	// ======================================================================
@@ -273,7 +273,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 
 	@Override
 	public void positionChanged(ImmutablePosition pos) {
-		requestFocus();
+		requestFocusInWindow();
 		showCurrentGameNode();
 	}
 
@@ -413,22 +413,31 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	// Methods to walk through the game
 
 	private boolean goBackward() {
-		return m_game.goBack();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
+			return m_game.goBack();
+		}
+		return false;
 	}
 
 	private void goBackToLineBegin() {
-		m_game.goBackToLineBegin();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_game.goBackToLineBegin();
 	}
 
 	private void gotoEndOfLine() {
-		m_game.gotoEndOfLine();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_game.gotoEndOfLine();
 	}
 
 	private void goForwardMainLine() {
-		m_game.goForward(0);
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_game.goForward(0);
 	}
 
 	private boolean goForward() {
+		if (m_userAction != UserAction.ENABLED && m_userAction != UserAction.NAVIGABLE) {
+			return false;
+		}
 		int num = m_game.getNumOfNextMoves();
 		boolean retVal = false;
 		if (num > 1) {
@@ -440,11 +449,13 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	}
 
 	private void goStart() {
-		m_game.gotoStart();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_game.gotoStart();
 	}
 
 	private void goEnd() {
-		m_game.gotoEndOfLine();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_game.gotoEndOfLine();
 	}
 
 	private int getNodeForCaret() {

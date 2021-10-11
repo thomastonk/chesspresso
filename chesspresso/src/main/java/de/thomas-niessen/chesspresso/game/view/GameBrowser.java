@@ -63,7 +63,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	private Game m_game;
 	private PositionView m_positionView;
 	private GameTextViewer m_textViewer;
-	private boolean m_editable;
+	protected UserAction m_userAction;
 	private boolean m_oneClickMoves;
 
 	private Component m_parent = null;
@@ -79,7 +79,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	 * @param game the game to be displayed
 	 */
 	public GameBrowser(Game game) {
-		this(game, Chess.WHITE, false, false);
+		this(game, Chess.WHITE, UserAction.ENABLED, false);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	 * @param boardOnTheRight instead board on the left-hand side
 	 */
 	public GameBrowser(Game game, boolean boardOnTheRight) {
-		this(game, Chess.WHITE, false, boardOnTheRight);
+		this(game, Chess.WHITE, UserAction.ENABLED, boardOnTheRight);
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	 * @param boardOnTheRight instead board on the left-hand side
 	 */
 	public GameBrowser(Game game, int bottomPlayer, boolean boardOnTheRight) {
-		this(game, bottomPlayer, false, boardOnTheRight);
+		this(game, bottomPlayer, UserAction.ENABLED, boardOnTheRight);
 	}
 
 	/**
@@ -111,18 +111,17 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	 * @param editable        whether the game can be edited by the view
 	 * @param boardOnTheRight instead board on the left-hand side
 	 */
-	public GameBrowser(Game game, int bottomPlayer, boolean editable, boolean boardOnTheRight) {
+	public GameBrowser(Game game, int bottomPlayer, UserAction userAction, boolean boardOnTheRight) {
 		super();
 		initComponents(boardOnTheRight);
 		setGame(game, bottomPlayer);
 
-		m_positionView.setShowSqiEP(false);
 		m_positionView.setFocusable(false);
 		m_positionFrame.add(m_positionView, BorderLayout.CENTER);
 
 		m_textFrame.add(new JScrollPane(m_textViewer), BorderLayout.CENTER);
 
-		m_editable = editable;
+		setUserAction(userAction);
 		m_oneClickMoves = false;
 		addPopupToPositionView();
 		addPopupToTextViewer();
@@ -159,7 +158,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 			m_game.addChangeListener(this);
 
 			if (m_positionView == null) {
-				m_positionView = new PositionView(m_game.getPosition(), bottomPlayer);
+				m_positionView = new PositionView(m_game.getPosition(), bottomPlayer, m_userAction);
 			} else {
 				m_positionView.setPosition(m_game.getPosition());
 				m_positionView.setBottomPlayer(bottomPlayer);
@@ -167,7 +166,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 			m_positionView.setPositionMotionListener(this);
 
 			if (m_textViewer == null) {
-				m_textViewer = new GameTextViewer(m_game);
+				m_textViewer = new GameTextViewer(m_game, m_userAction);
 			} else {
 				m_textViewer.setGame(game);
 			}
@@ -298,11 +297,14 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	@Override
 	public boolean isDragAllowed(ImmutablePosition position, int from) {
 		// allow dragging only if editable and there is a stone on the square
-		return m_editable && m_game.getPosition().getStone(from) != Chess.NO_STONE;
+		return m_userAction == UserAction.ENABLED && m_game.getPosition().getStone(from) != Chess.NO_STONE;
 	}
 
 	@Override
 	public boolean dragged(ImmutablePosition position, int from, int to, MouseEvent e) {
+		if (m_userAction != UserAction.ENABLED) {
+			return false;
+		}
 		try {
 			m_game.getPosition().doMove(m_game.getPosition().getMove(from, to, Chess.NO_PIECE));
 			// TN: this code is not correct, because no promotion is possible.
@@ -315,7 +317,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	@Override
 	public void squareClicked(ImmutablePosition position, int sqi, MouseEvent e) {
-		if (m_editable && m_oneClickMoves && m_game.getPosition() == position) {
+		if (m_userAction == UserAction.ENABLED && m_oneClickMoves && m_game.getPosition() == position) {
 			OneClickMove.squareClicked(m_game.getPosition(), sqi, e);
 		}
 	}
@@ -328,14 +330,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	public void setBottomPlayer(int player) {
 		m_positionView.setBottomPlayer(player);
-	}
-
-	public boolean getEditable() {
-		return m_editable;
-	}
-
-	public void setEditable(boolean editable) {
-		m_editable = editable;
 	}
 
 	public void setParent(final Component c) {
@@ -531,23 +525,28 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	}
 
 	private void m_buttEndActionPerformed(ActionEvent evt) {
-		m_game.gotoEndOfLine();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_game.gotoEndOfLine();
 	}
 
 	private void m_buttForwardActionPerformed(ActionEvent evt) {
-		m_game.goForward();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_game.goForward();
 	}
 
 	private void m_buttBackwardActionPerformed(ActionEvent evt) {
-		m_game.goBack();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_game.goBack();
 	}
 
 	private void m_buttStartActionPerformed(ActionEvent evt) {
-		m_game.gotoStart();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_game.gotoStart();
 	}
 
 	private void m_buttFlipActionPerformed(ActionEvent evt) {
-		m_positionView.flip();
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+			m_positionView.flip();
 	}
 
 	// Variables declaration - do not modify
@@ -590,25 +589,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_moveLabel.setText(m_game.getPosition().getLastMoveAsSanWithNumber());
 	}
 
-	private boolean m_userActionEnabled = true;
-
-	public void setUserActionEnabled(final boolean userActionEnabled) {
-		m_userActionEnabled = userActionEnabled;
-
-		m_buttFlip.setEnabled(userActionEnabled);
-		m_buttStart.setEnabled(userActionEnabled);
-		m_buttBackward.setEnabled(userActionEnabled);
-		m_buttForward.setEnabled(userActionEnabled);
-		m_buttEnd.setEnabled(userActionEnabled);
-		m_fenButton.setEnabled(userActionEnabled);
-		m_pgnButton.setEnabled(userActionEnabled);
-
-		Component[] components = jPanel3.getComponents();
-		for (Component component : components) {
-			component.setEnabled(userActionEnabled);
-		}
-	}
-
 	protected void addToHeaderOnTheRight(final JComponent component) {
 		jPanel3.removeAll();
 		jPanel3.setAlignmentX(RIGHT_ALIGNMENT);
@@ -620,9 +600,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_positionView.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent event) {
-				if (!m_userActionEnabled) {
-					return;
-				}
 				if (SwingUtilities.isRightMouseButton(event)) {
 					JPopupMenu popup = new JPopupMenu();
 					JMenuItem deleteColorCommentsMenuItem = new JMenuItem("Delete color comments");
@@ -641,7 +618,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_textViewer.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent event) {
-				if (!m_userActionEnabled) {
+				if (m_userAction == UserAction.DISABLED) {
 					return;
 				}
 				// The behavior of DefaultCaret doesn't select the move, if it is a right
@@ -658,7 +635,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
-				if (!m_userActionEnabled) {
+				if (m_userAction == UserAction.DISABLED) {
 					return;
 				}
 				if (!SwingUtilities.isRightMouseButton(event)) {
@@ -690,5 +667,22 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	@Override
 	public void moveModelChanged(Game game) {
+	}
+
+	public void setUserAction(UserAction userAction) {
+		m_userAction = userAction;
+		m_positionView.setUserAction(userAction);
+		m_textViewer.setUserAction(userAction);
+
+		updateComponents();
+	}
+
+	private void updateComponents() {
+		boolean navButtons = m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE;
+		m_buttFlip.setEnabled(navButtons);
+		m_buttStart.setEnabled(navButtons);
+		m_buttBackward.setEnabled(navButtons);
+		m_buttForward.setEnabled(navButtons);
+		m_buttEnd.setEnabled(navButtons);
 	}
 }

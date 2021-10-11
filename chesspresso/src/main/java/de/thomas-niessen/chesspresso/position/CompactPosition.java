@@ -151,6 +151,11 @@ public class CompactPosition extends AbstractPosition {
 	}
 
 	@Override
+	public int getNumberOfPieces() {
+		throw new RuntimeException("CompactPosition::getNumberOfPieces: method has not been implemented yet.");
+	}
+
+	@Override
 	public Variant getVariant() {
 		throw new RuntimeException("CompactPosition::getVariant: method has not been implemented yet.");
 	}

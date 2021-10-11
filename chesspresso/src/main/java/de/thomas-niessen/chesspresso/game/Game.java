@@ -417,10 +417,10 @@ public class Game implements RelatedGame, Serializable {
 
 	/**
 	 * Returns information to display at the header of a game. The information is
-	 * split in three parts: (1) white and black player plus their elos, (2) event,
-	 * site, date, round, and (3) the ECO.
+	 * split in two parts: (1) white and black player plus their elos, (2) event,
+	 * site, date, round, and the ECO.
 	 *
-	 * @param line which line to return (0..2)
+	 * @param line which line to return (0 or 1)
 	 * @return the info string
 	 */
 	public String getHeaderString(int line) {
@@ -435,7 +435,7 @@ public class Game implements RelatedGame, Serializable {
 			sb.append(" - ").append(getBlack());
 			if (getBlackElo() != 0)
 				sb.append(" [").append(getBlackElo()).append("]");
-			sb.append("  ").append(getResultStr()).append("  (").append(getNumOfMoves()).append(" moves)");
+			sb.append("  ").append(getResultStr());
 			return sb.toString();
 		} else if (line == 1) {
 			StringBuilder sb = new StringBuilder();
@@ -458,7 +458,7 @@ public class Game implements RelatedGame, Serializable {
 			}
 			return sb.toString();
 		} else {
-			throw new RuntimeException("Only 2 header lines supported");
+			throw new RuntimeException("Game::getHeaderString: Only 2 header lines supported");
 		}
 	}
 

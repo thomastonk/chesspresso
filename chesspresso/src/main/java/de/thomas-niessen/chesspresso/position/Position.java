@@ -366,6 +366,11 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
+	public int getNumberOfPieces() {
+		return impl.getNumberOfPieces();
+	}
+
+	@Override
 	public Variant getVariant() {
 		return impl.getVariant();
 	}

@@ -44,6 +44,7 @@ import javax.swing.SwingUtilities;
 
 import chesspresso.Chess;
 import chesspresso.Mouse;
+import chesspresso.game.view.UserAction;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
@@ -57,10 +58,9 @@ import chesspresso.position.view.Decoration.DecorationType;
  */
 @SuppressWarnings("serial")
 public class PositionView extends java.awt.Component implements PositionListener, MouseListener, MouseMotionListener {
-	private int m_bottom;
 	private Position m_position;
-	@SuppressWarnings("unused")
-	private boolean m_showSqiEP;
+	private int m_bottom;
+	private UserAction m_userAction;
 	private Color m_whiteSquareColor;
 	private Color m_blackSquareColor;
 	private Color m_whiteColor;
@@ -122,7 +122,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 	 * @param position the position to display
 	 */
 	public PositionView(Position position) {
-		this(position, Chess.WHITE);
+		this(position, Chess.WHITE, UserAction.ENABLED);
 	}
 
 	/**
@@ -130,11 +130,12 @@ public class PositionView extends java.awt.Component implements PositionListener
 	 * 
 	 * @param position     the position to display
 	 * @param bottomPlayer the player at the lower edge
+	 * @param userAction   user action
 	 */
-	public PositionView(Position position, int bottomPlayer) {
+	public PositionView(Position position, int bottomPlayer, UserAction userAction) {
 		m_position = position;
 		m_bottom = bottomPlayer;
-		m_showSqiEP = false;
+		m_userAction = userAction;
 		m_whiteSquareColor = m_whiteSquareDefaultColor;
 		m_blackSquareColor = m_blackSquareDefaultColor;
 		m_whiteColor = Color.BLACK;
@@ -175,6 +176,10 @@ public class PositionView extends java.awt.Component implements PositionListener
 			m_bottom = player;
 			repaint();
 		}
+	}
+
+	public void setUserAction(UserAction userAction) {
+		m_userAction = userAction;
 	}
 
 	public Color getWhiteSquareColor() {
@@ -262,16 +267,6 @@ public class PositionView extends java.awt.Component implements PositionListener
 	 */
 	public void flip() {
 		setBottomPlayer(Chess.otherPlayer(m_bottom));
-	}
-
-	/**
-	 * Determines whether or not the en passant square should be marked. NOT YET
-	 * IMPLEMENTED.
-	 * 
-	 * @param showSqiEP whether or not to mark the en passant square
-	 */
-	public void setShowSqiEP(boolean showSqiEP) {
-		m_showSqiEP = showSqiEP;
 	}
 
 	public Position getPosition() {
@@ -432,6 +427,9 @@ public class PositionView extends java.awt.Component implements PositionListener
 
 	@Override
 	public void mousePressed(MouseEvent e) {
+		if (m_userAction == UserAction.DISABLED) {
+			return;
+		}
 		if (Mouse.isSpecial(e) || SwingUtilities.isRightMouseButton(e)) {
 			if (e.isAltDown()) {
 				m_draggedFrom = getSquareForEvent(e);
@@ -495,6 +493,9 @@ public class PositionView extends java.awt.Component implements PositionListener
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		if (m_userAction == UserAction.DISABLED) {
+			return;
+		}
 		if (Mouse.isSpecial(e)) {
 			if (e.isAltDown()) {
 				drawChessbaseDecorations(e);
@@ -506,7 +507,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 			}
 			return;
 		}
-		if (m_positionMotionListener == null)
+		if (m_positionMotionListener == null || m_userAction == UserAction.NAVIGABLE)
 			return;
 		if (m_draggedFrom != Chess.NO_SQUARE) {
 			int draggedTo = getSquareForEvent(e);
@@ -525,6 +526,9 @@ public class PositionView extends java.awt.Component implements PositionListener
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
+		if (m_userAction == UserAction.DISABLED) {
+			return;
+		}
 		if (Mouse.isSpecial(e)) {
 			if (m_draggedStone != Chess.NO_STONE) {
 				m_draggedFrom = Chess.NO_SQUARE;

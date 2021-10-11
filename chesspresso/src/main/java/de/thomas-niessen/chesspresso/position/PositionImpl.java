@@ -1570,6 +1570,20 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		return m_bbPawns == 0L && m_bbRooks == 0L && Long.bitCount(m_bbKnights) + Long.bitCount(m_bbBishops) <= 1;
 	}
 
+	@Override
+	public int getNumberOfPieces() {
+		int numberOfPieces = Long.bitCount(m_bbPawns) + Long.bitCount(m_bbKnights); // pawns and knights
+		numberOfPieces += Long.bitCount(m_bbRooks) + Long.bitCount(m_bbBishops) - Long.bitCount(m_bbRooks & m_bbBishops);
+		// (rooks and queens) + (bishops and queens) - queens
+		if (m_whiteKing != Chess.NO_SQUARE) {
+			++numberOfPieces;
+		}
+		if (m_blackKing != Chess.NO_SQUARE) {
+			++numberOfPieces;
+		}
+		return numberOfPieces;
+	}
+
 	/*
 	 * =========================================================================
 	 */

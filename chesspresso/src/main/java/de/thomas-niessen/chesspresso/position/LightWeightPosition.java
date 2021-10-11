@@ -233,6 +233,11 @@ public class LightWeightPosition extends AbstractMutablePosition {
 	}
 
 	@Override
+	public int getNumberOfPieces() {
+		throw new RuntimeException("LightweightPosition::getNumberOfPieces: method has not been implemented yet.");
+	}
+
+	@Override
 	public Variant getVariant() {
 		throw new RuntimeException("LightweightPosition::getVariant: method has not been implemented yet.");
 	}

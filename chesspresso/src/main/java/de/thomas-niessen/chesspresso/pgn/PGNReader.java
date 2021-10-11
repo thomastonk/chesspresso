@@ -509,7 +509,8 @@ public final class PGNReader extends PGN {
 			System.out.println("getLastTokenAsMove " + getLastTokenAsString());
 
 		if (!isLastTokenIdent())
-			syntaxError("Move expected near ply " + m_curGame.getPosition().getPlyNumber());
+			syntaxError("Move expected near ply " + m_curGame.getPosition().getPlyNumber() + ", found '" + getLastTokenAsString()
+					+ "'");
 
 		int next = 0;
 		int last = m_lastTokenLength - 1;
