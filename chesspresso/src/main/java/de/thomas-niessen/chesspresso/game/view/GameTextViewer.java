@@ -22,6 +22,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
@@ -204,7 +205,6 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 				m_game.removeChangeListener(this);
 			}
 			m_game = game;
-			setText("");
 			createText();
 			setCaretPosition(getDocument().getStartPosition().getOffset());
 			m_game.getPosition().addPositionListener(this);
@@ -221,13 +221,11 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 
 	@Override
 	public void headerModelChanged(Game game) {
-		setDocument(new DefaultStyledDocument());
 		createText(); // TN: Is this really necessary, if the header model is changed?
 	}
 
 	@Override
 	public void moveModelChanged(Game game) {
-		setDocument(new DefaultStyledDocument());
 		createText();
 		showCurrentGameNode();
 	}
@@ -367,6 +365,30 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	 * Create or recreate the game text based on the current game.
 	 */
 	private synchronized void createText() {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						createTextOnEDT();
+					}
+				});
+			} catch (InvocationTargetException | InterruptedException e) {
+				System.err.println("GameTextViewer::createText: " + e);
+				e.printStackTrace();
+			}
+		} else {
+			createTextOnEDT();
+		}
+	}
+
+	private void createTextOnEDT() {
+		setDocument(new DefaultStyledDocument());
+		// This is better than setText(""); see documentation of JEditorPane::setText(),
+		// which suggests
+		// setDocument(getEditorKit().createDefaultDocument());
+		// but this should be equivalent.
+
 		int totalPlies = m_game.getTotalNumOfPlies();
 		m_moveBegin = new int[totalPlies];
 		m_moveEnd = new int[totalPlies];
@@ -384,8 +406,9 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		}
 
 		m_needsMoveNumber = true;
-		m_game.traverse(this, true);
+		m_game.traverse(GameTextViewer.this, true);
 		appendText(m_game.getResultStr(), MAIN);
+
 		// TN:
 		// Unfortunately, there appears sometimes a line-break within the result. This could be
 		// avoided by replacing the above line by the following line. But this looks more often
@@ -407,6 +430,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 
 		// Alternative JTextPane:
 		// Looks like JeditorPane, but does not support wrap-style word.
+
 	}
 
 	// ======================================================================
