@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import chesspresso.Chess;
@@ -57,7 +58,7 @@ import chesspresso.position.view.Decoration.DecorationType;
  * @author Bernhard Seybold
  */
 @SuppressWarnings("serial")
-public class PositionView extends java.awt.Component implements PositionListener, MouseListener, MouseMotionListener {
+public class PositionView extends JPanel implements PositionListener, MouseListener, MouseMotionListener {
 	private Position m_position;
 	private int m_bottom;
 	private UserAction m_userAction;
@@ -113,6 +114,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 	final static private Color RED_TRANSPARENT = new Color(1.f, 0.f, 0.f, 0.6f);
 
 	final static private String DEFAULT_FONT_NAME = "CS Chess Merida Unicode";
+	final static private int DEFAULT_FONT_SIZE = 32;
 
 	// ======================================================================
 
@@ -126,13 +128,25 @@ public class PositionView extends java.awt.Component implements PositionListener
 	}
 
 	/**
-	 * Create a new position view.
+	 * Creates a new position view with default font size.
 	 * 
 	 * @param position     the position to display
 	 * @param bottomPlayer the player at the lower edge
 	 * @param userAction   user action
 	 */
 	public PositionView(Position position, int bottomPlayer, UserAction userAction) {
+		this(position, bottomPlayer, userAction, DEFAULT_FONT_SIZE);
+	}
+
+	/**
+	 * Create a new position view.
+	 * 
+	 * @param position     the position to display
+	 * @param bottomPlayer the player at the lower edge
+	 * @param userAction   user action
+	 * @param fontSize     the font size
+	 */
+	public PositionView(Position position, int bottomPlayer, UserAction userAction, int fontSize) {
 		m_position = position;
 		m_bottom = bottomPlayer;
 		m_userAction = userAction;
@@ -142,7 +156,7 @@ public class PositionView extends java.awt.Component implements PositionListener
 		m_blackColor = Color.BLACK;
 		m_solidStones = true;
 
-		setFont(new Font(DEFAULT_FONT_NAME, Font.PLAIN, 32));
+		setFont(new Font(DEFAULT_FONT_NAME, Font.PLAIN, fontSize));
 		// If this font is not available, "Dialog" will be chosen.
 
 		m_draggedStone = Chess.NO_STONE;
@@ -562,8 +576,8 @@ public class PositionView extends java.awt.Component implements PositionListener
 	}
 
 	@Override
-	public void paint(Graphics graphics) {
-		super.paint(graphics);
+	public void paintComponent(Graphics graphics) {
+		super.paintComponent(graphics);
 		Graphics2D g2 = (Graphics2D) graphics;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -672,26 +686,20 @@ public class PositionView extends java.awt.Component implements PositionListener
 			final int windingRule = pathIterater.getWindingRule();
 			generalPath.setWindingRule(windingRule);
 			switch (pathSegmentType) {
-			case PathIterator.SEG_MOVETO:
-				generalPath = new GeneralPath();
-				generalPath.setWindingRule(windingRule);
-				generalPath.moveTo(coords[0], coords[1]);
-				break;
-			case PathIterator.SEG_LINETO:
-				generalPath.lineTo(coords[0], coords[1]);
-				break;
-			case PathIterator.SEG_QUADTO:
-				generalPath.quadTo(coords[0], coords[1], coords[2], coords[3]);
-				break;
-			case PathIterator.SEG_CUBICTO:
-				generalPath.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
-				break;
-			case PathIterator.SEG_CLOSE:
-				generalPath.closePath();
-				partsOfShape.add(new Area(generalPath));
-				break;
-			default:
-				break;
+				case PathIterator.SEG_MOVETO -> {
+					generalPath = new GeneralPath();
+					generalPath.setWindingRule(windingRule);
+					generalPath.moveTo(coords[0], coords[1]);
+				}
+				case PathIterator.SEG_LINETO -> generalPath.lineTo(coords[0], coords[1]);
+				case PathIterator.SEG_QUADTO -> generalPath.quadTo(coords[0], coords[1], coords[2], coords[3]);
+				case PathIterator.SEG_CUBICTO -> generalPath.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+				case PathIterator.SEG_CLOSE -> {
+					generalPath.closePath();
+					partsOfShape.add(new Area(generalPath));
+				}
+				default -> {
+				}
 			}
 		}
 
@@ -700,6 +708,10 @@ public class PositionView extends java.awt.Component implements PositionListener
 
 	public static String getDefaultFontname() {
 		return DEFAULT_FONT_NAME;
+	}
+
+	public static int getDefaultFontSize() {
+		return DEFAULT_FONT_SIZE;
 	}
 
 }
