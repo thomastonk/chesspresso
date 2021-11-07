@@ -16,5 +16,5 @@ package chesspresso.game.view;
 public enum UserAction {
 	ENABLED, // all enabled
 	NAVIGABLE, // the user can navigate through the existing moves and lines, but cannot change the game
-	DISABLED; // all disabled
+	DISABLED // all disabled
 }

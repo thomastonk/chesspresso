@@ -15,7 +15,6 @@
 package chesspresso.position.view;
 
 import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -57,8 +56,6 @@ public class FenToClipBoard extends AbstractAction {
 					fenDialog = new JDialog((Frame) parent);
 				} else if (parent instanceof Window) {
 					fenDialog = new JDialog((Window) parent);
-				} else if (parent instanceof Dialog) {
-					fenDialog = new JDialog((Dialog) parent);
 				} else {
 					fenDialog = new JDialog();
 				}

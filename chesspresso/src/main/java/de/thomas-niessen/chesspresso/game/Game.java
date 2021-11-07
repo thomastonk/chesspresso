@@ -16,6 +16,7 @@ package chesspresso.game;
 
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -1103,5 +1104,13 @@ public class Game implements RelatedGame, Serializable {
 		PGNWriter writer = new PGNWriter(buf);
 		writer.write(this);
 		s.writeUTF(buf.toString());
+	}
+
+	// ======================================================================
+
+	// For debug purposes: 
+
+	public void dumpMoveModel(PrintStream out) {
+		m_model.getMoveModel().write(out);
 	}
 }

@@ -686,20 +686,21 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 			final int windingRule = pathIterater.getWindingRule();
 			generalPath.setWindingRule(windingRule);
 			switch (pathSegmentType) {
-				case PathIterator.SEG_MOVETO -> {
-					generalPath = new GeneralPath();
-					generalPath.setWindingRule(windingRule);
-					generalPath.moveTo(coords[0], coords[1]);
-				}
-				case PathIterator.SEG_LINETO -> generalPath.lineTo(coords[0], coords[1]);
-				case PathIterator.SEG_QUADTO -> generalPath.quadTo(coords[0], coords[1], coords[2], coords[3]);
-				case PathIterator.SEG_CUBICTO -> generalPath.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
-				case PathIterator.SEG_CLOSE -> {
-					generalPath.closePath();
-					partsOfShape.add(new Area(generalPath));
-				}
-				default -> {
-				}
+			case PathIterator.SEG_MOVETO -> {
+				generalPath = new GeneralPath();
+				generalPath.setWindingRule(windingRule);
+				generalPath.moveTo(coords[0], coords[1]);
+			}
+			case PathIterator.SEG_LINETO -> generalPath.lineTo(coords[0], coords[1]);
+			case PathIterator.SEG_QUADTO -> generalPath.quadTo(coords[0], coords[1], coords[2], coords[3]);
+			case PathIterator.SEG_CUBICTO -> generalPath.curveTo(coords[0], coords[1], coords[2], coords[3], coords[4],
+					coords[5]);
+			case PathIterator.SEG_CLOSE -> {
+				generalPath.closePath();
+				partsOfShape.add(new Area(generalPath));
+			}
+			default -> {
+			}
 			}
 		}
 

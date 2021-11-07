@@ -631,7 +631,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		setStone(sqi, stone, true);
 	}
 
-	private final void setStone(int sqi, int stone, boolean clearStacks) {
+	private void setStone(int sqi, int stone, boolean clearStacks) {
 		if (PROFILE)
 			m_numSet++;
 

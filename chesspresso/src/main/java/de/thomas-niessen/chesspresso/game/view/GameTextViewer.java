@@ -367,12 +367,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	private synchronized void createText() {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						createTextOnEDT();
-					}
-				});
+				SwingUtilities.invokeAndWait(() -> createTextOnEDT());
 			} catch (InvocationTargetException | InterruptedException e) {
 				System.err.println("GameTextViewer::createText: " + e);
 				e.printStackTrace();

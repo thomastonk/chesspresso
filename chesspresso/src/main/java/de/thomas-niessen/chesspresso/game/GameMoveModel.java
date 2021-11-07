@@ -14,7 +14,12 @@
  ******************************************************************************/
 package chesspresso.game;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -1122,7 +1127,6 @@ class GameMoveModel implements Serializable {
 		short[] newMoves = new short[m_moves.length];
 		int retVal = -1;
 		try {
-			int copied = 0;
 			// copy everything from the beginning that remains unchanged
 			int copyIndex = siblings.get(0);
 			while (Move.isSpecial(m_moves[copyIndex])) {
@@ -1135,7 +1139,7 @@ class GameMoveModel implements Serializable {
 				}
 			}
 			System.arraycopy(m_moves, 0, newMoves, 0, copyIndex);
-			copied = copyIndex;
+			int copied = copyIndex;
 
 			// copy the first move of the promoted line
 			int startIndex = upVar.getKey() + 1;

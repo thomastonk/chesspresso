@@ -162,8 +162,7 @@ public final class PGNReader extends PGN {
 	public void reset() throws FileNotFoundException {
 		String fn = m_filename;
 		init();
-		InputStream iStrm = null;
-		iStrm = new FileInputStream(fn);
+		InputStream iStrm = new FileInputStream(fn);
 		setInput(new InputStreamReader(iStrm, StandardCharsets.ISO_8859_1), fn);
 	}
 
@@ -382,7 +381,7 @@ public final class PGNReader extends PGN {
 	private boolean parseTag() throws PGNSyntaxError, IOException {
 		if (getLastToken() == TOK_TAG_BEGIN) {
 			m_ignoreLineComment = true;
-			String tagName = null, tagValue = null;
+			String tagName = null;
 
 			if (getNextToken() == TOK_IDENT) {
 				tagName = getLastTokenAsString();
@@ -393,7 +392,7 @@ public final class PGNReader extends PGN {
 			if (getNextToken() != TOK_STRING) {
 				syntaxError("Tag value expected");
 			}
-			tagValue = getLastTokenAsString();
+			String tagValue = getLastTokenAsString();
 
 			// compensate for quotes in tag values as produced e.g. by ChessBase
 			while (getNextToken() != TOK_TAG_END) {
@@ -727,7 +726,9 @@ public final class PGNReader extends PGN {
 				break;
 			}
 			case TOK_LINE_END -> {
-				m_curGame.setPostMoveComment(aggregateComments(comments));
+				if (!comments.isEmpty()) {
+					m_curGame.setPostMoveComment(aggregateComments(comments));
+				}
 				--level;
 				commentsArePreMove = true;
 				comments.clear();
