@@ -311,6 +311,11 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
+	public String getEpFEN() {
+		return impl.getEpFEN();
+	}
+
+	@Override
 	public boolean isStartPosition() {
 		return impl.isStartPosition();
 	}

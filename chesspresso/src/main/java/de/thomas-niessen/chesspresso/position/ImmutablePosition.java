@@ -141,6 +141,14 @@ public interface ImmutablePosition {
 	 */
 	String getFEN(int numberOfParts);
 
+	/**
+	 * Return a 4-part FEN of the position with en passant set if and only if an 
+	 * en passant move is possible.
+	 *  
+	 * @return the special FEN
+	 */
+	String getEpFEN();
+
 	// ======================================================================
 
 	/**

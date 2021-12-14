@@ -38,6 +38,7 @@ import javax.swing.SwingUtilities;
 import chesspresso.Chess;
 import chesspresso.game.Game;
 import chesspresso.game.GameModelChangeListener;
+import chesspresso.game.view.GameTextViewer.TextCreationType;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.position.FEN;
@@ -667,6 +668,20 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	@Override
 	public void moveModelChanged(Game game) {
+	}
+
+	public TextCreationType getTextCreationType() {
+		if (m_textViewer != null) {
+			return m_textViewer.getTextCreationType();
+		} else {
+			return null;
+		}
+	}
+
+	public void setTextCreationType(TextCreationType type) {
+		if (m_textViewer != null) {
+			m_textViewer.setTextCreationType(type);
+		}
 	}
 
 	public void setUserAction(UserAction userAction) {

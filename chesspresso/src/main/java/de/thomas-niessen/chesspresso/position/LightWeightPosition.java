@@ -257,6 +257,11 @@ public class LightWeightPosition extends AbstractMutablePosition {
 		throw new RuntimeException("LightweightPosition::getChess960KingsideRookFile: method has not been implemented yet.");
 	}
 
+	@Override
+	public String getEpFEN() {
+		throw new RuntimeException("LightweightPosition::getEpFEN: method has not been implemented yet.");
+	}
+
 	// everything for PositionListeners
 
 	public final void addPositionListener(PositionListener listener) {

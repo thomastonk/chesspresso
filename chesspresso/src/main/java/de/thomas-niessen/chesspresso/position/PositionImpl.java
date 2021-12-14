@@ -2311,8 +2311,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			eighthRank = 0;
 		}
 
-		// if pawn belonging to ep square is a target, include ep square as
-		// target
+		// if the pawn belonging to ep square is a target, include ep square as target
 		int sqiEP = getSqiEP();
 		if (getSqiEP() != Chess.NO_SQUARE) {
 			int epPawnSqi = sqiEP + (getToPlay() == Chess.WHITE ? -Chess.NUM_OF_COLS : Chess.NUM_OF_COLS);
@@ -2384,6 +2383,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						m_moves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.KNIGHT);
 					} else if (to == sqiEP) {
 						m_moves[moveIndex++] = Move.getEPMove(from, to);
+						m_enPassantFlag = true;
 					} else {
 						m_moves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.NO_PIECE);
 					}
@@ -2823,6 +2823,44 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				return retVal;
 			} else {
 				return false;
+			}
+		}
+	}
+
+	/*
+	 * The following flag is set in getAllPawnMoves if and only if an en passant moves is
+	 * created. This is done in order to detect the en passant possibility in getEpFEN below.
+	 */
+	private boolean m_enPassantFlag;
+
+	@Override
+	public String getEpFEN() {
+		String s = getFEN(4).trim();
+		if (s.endsWith("-")) {
+			return s;
+		} else {
+			long targets = 0L;
+			int sqiEP = getSqiEP();
+			int epPawnSqi = sqiEP + (getToPlay() == Chess.WHITE ? -Chess.NUM_OF_COLS : Chess.NUM_OF_COLS);
+			if (getSqiEP() != Chess.NO_SQUARE) {
+				targets |= ofSquare(epPawnSqi);
+			}
+			m_enPassantFlag = false;
+			getAllPawnMoves(0, targets);
+			if (m_enPassantFlag) {
+				return s;
+			} else {
+				String[] parts = s.split(" +");
+				StringBuilder sb = new StringBuilder();
+				if (parts.length == 4) {
+					for (int i = 0; i < 3; ++i) {
+						sb.append(parts[i]).append(" ");
+					}
+					sb.append("-");
+					return sb.toString();
+				} else {
+					throw new RuntimeException("PositionImpl::getEpFEN: internal error.");
+				}
 			}
 		}
 	}

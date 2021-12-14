@@ -51,7 +51,7 @@ import chesspresso.position.PositionListener;
  * 
  */
 @SuppressWarnings("serial")
-public class GameTextViewer extends JEditorPane implements TraverseListener, PositionListener, GameModelChangeListener {
+public class GameTextViewer extends JEditorPane implements PositionListener, GameModelChangeListener {
 
 	// attributes for main line
 	private static final SimpleAttributeSet MAIN = new SimpleAttributeSet();
@@ -106,7 +106,14 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 
 	// ======================================================================
 
+	public enum TextCreationType {
+		COMPACT, TREE_LIKE;
+	}
+
+	// ======================================================================
+
 	private Game m_game;
+	private TraverseListener textCreator;
 	private UserAction m_userAction;
 	private int[] m_moveBegin, m_moveEnd;
 	private int[] m_moveNrBegin;
@@ -127,7 +134,9 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		setSelectionColor(Color.darkGray);
 		setSelectedTextColor(Color.white);
 
-		setGame(game);
+		textCreator = new TreeLikeTextCreator(); // has to be set before setGame()!
+
+		setGame(game); // sets also m_game
 		m_userAction = userAction;
 
 		addMouseListener(new MouseAdapter() {
@@ -212,6 +221,27 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		}
 	}
 
+	public TextCreationType getTextCreationType() {
+		if (textCreator instanceof CompactTextCreator) {
+			return TextCreationType.COMPACT;
+		} else if (textCreator instanceof TreeLikeTextCreator) {
+			return TextCreationType.TREE_LIKE;
+		} else {
+			return null;
+		}
+	}
+
+	public void setTextCreationType(TextCreationType type) {
+		switch (type) {
+		case COMPACT:
+			textCreator = new CompactTextCreator();
+			break;
+		case TREE_LIKE:
+			textCreator = new TreeLikeTextCreator();
+		}
+		createText();
+	}
+
 	public void setUserAction(UserAction userAction) {
 		m_userAction = userAction;
 	}
@@ -292,73 +322,115 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 	}
 
 	// ======================================================================
-	// Methods to implement TraverseListener
+	// TraverseListeners for text creation
 
-	// state to indicate whether a move number will be needed for the next move
+	// indicate whether a move number will be needed for the next move
 	private boolean m_needsMoveNumber;
-
 	// current move index
 	private int m_notifyIndex;
 
-	@Override
-	public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level) {
-		AttributeSet attrs = (level == 0 ? MAIN : LINE);
+	private abstract class AbstractTextCreator implements TraverseListener {
 
-		/*---------- pre-move comment -----*/
-		if (preMoveComment != null)
-			appendText(preMoveComment + " ", COMMENT);
+		@Override
+		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level) {
+			AttributeSet attrs = (level == 0 ? MAIN : LINE);
 
-		/*---------- begin of move number or move -----*/
-		m_moveNrBegin[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
+			/*---------- pre-move comment -----*/
+			if (preMoveComment != null)
+				appendText(preMoveComment + " ", COMMENT);
 
-		/*---------- move number ----------*/
-		if (m_needsMoveNumber) {
-			if (move.isWhiteMove()) {
-				appendText(((plyNumber + 2) / 2) + ". ", attrs);
-			} else {
-				appendText(((plyNumber + 2) / 2) + "... ", attrs);
-			}
-		}
+			/*---------- begin of move number or move -----*/
+			m_moveNrBegin[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
 
-		/*---------- move text ----------*/
-		m_moveNode[m_notifyIndex] = m_game.getCurNode();
-		m_moveBegin[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
-		appendText(move.toString(), attrs);
-
-		/*---------- nags ----------*/
-		if (nags != null) {
-			for (short nag : nags) {
-				if (nag < NAG.NAG_BOUND) {
-					appendText(NAG.getShortString(nag, false) + " ", NAG_SET);
+			/*---------- move number ----------*/
+			if (m_needsMoveNumber) {
+				if (move.isWhiteMove()) {
+					appendText(((plyNumber + 2) / 2) + ". ", attrs);
 				} else {
-					// all non-standard nags shall be highlighted!
-					appendText(NAG.getShortString(nag, false) + " ", NAG_SET_EXTRA);
+					appendText(((plyNumber + 2) / 2) + "... ", attrs);
 				}
 			}
-		} else {
-			appendText(" ", attrs);
+
+			/*---------- move text ----------*/
+			m_moveNode[m_notifyIndex] = m_game.getCurNode();
+			m_moveBegin[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
+			appendText(move.toString(), attrs);
+
+			/*---------- nags ----------*/
+			if (nags != null) {
+				for (short nag : nags) {
+					if (nag < NAG.NAG_BOUND) {
+						appendText(NAG.getShortString(nag, false) + " ", NAG_SET);
+					} else {
+						// all non-standard nags shall be highlighted!
+						appendText(NAG.getShortString(nag, false) + " ", NAG_SET_EXTRA);
+					}
+				}
+			} else {
+				appendText(" ", attrs);
+			}
+			m_moveEnd[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 2;
+
+			/*---------- pre-move comment -----*/
+			if (postMoveComment != null)
+				appendText(postMoveComment + " ", COMMENT);
+
+			m_notifyIndex++;
+
+			m_needsMoveNumber = !move.isWhiteMove() || (postMoveComment != null);
 		}
-		m_moveEnd[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 2;
-
-		/*---------- pre-move comment -----*/
-		if (postMoveComment != null)
-			appendText(postMoveComment + " ", COMMENT);
-
-		m_notifyIndex++;
-
-		m_needsMoveNumber = !move.isWhiteMove() || (postMoveComment != null);
 	}
 
-	@Override
-	public void notifyLineStart(int level) {
-		appendText(" (", LINE);
-		m_needsMoveNumber = true;
+	private class CompactTextCreator extends AbstractTextCreator {
+
+		@Override
+		public void notifyLineStart(int level) {
+			appendText(" (", LINE);
+			m_needsMoveNumber = true;
+		}
+
+		@Override
+		public void notifyLineEnd(int level) {
+			appendText(") ", LINE);
+			m_needsMoveNumber = true;
+		}
 	}
 
-	@Override
-	public void notifyLineEnd(int level) {
-		appendText(") ", LINE);
-		m_needsMoveNumber = true;
+	private class TreeLikeTextCreator extends AbstractTextCreator {
+
+		private boolean m_newLineNeeded;
+
+		private void indent(int level) {
+			for (int i = 0; i < level; ++i) {
+				appendText("   ", LINE);
+			}
+		}
+
+		@Override
+		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level) {
+			if (m_newLineNeeded) {
+				appendText(System.lineSeparator(), LINE);
+				indent(level - 1);
+				m_newLineNeeded = false;
+			}
+			super.notifyMove(move, nags, preMoveComment, postMoveComment, plyNumber, level);
+		}
+
+		@Override
+		public void notifyLineStart(int level) {
+			appendText(System.lineSeparator(), LINE);
+			indent(level);
+			appendText(" (", LINE);
+			m_needsMoveNumber = true;
+			m_newLineNeeded = false;
+		}
+
+		@Override
+		public void notifyLineEnd(int level) {
+			appendText(") ", LINE);
+			m_needsMoveNumber = true;
+			m_newLineNeeded = true;
+		}
 	}
 
 	/**
@@ -401,7 +473,7 @@ public class GameTextViewer extends JEditorPane implements TraverseListener, Pos
 		}
 
 		m_needsMoveNumber = true;
-		m_game.traverse(GameTextViewer.this, true);
+		m_game.traverse(textCreator, true);
 		appendText(m_game.getResultStr(), MAIN);
 
 		// TN:

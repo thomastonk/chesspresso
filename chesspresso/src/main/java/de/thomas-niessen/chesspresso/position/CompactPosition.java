@@ -174,4 +174,9 @@ public class CompactPosition extends AbstractPosition {
 	public int getChess960KingsideRookFile() {
 		throw new RuntimeException("CompactPosition::getChess960KingsideRookFile: method has not been implemented yet.");
 	}
+
+	@Override
+	public String getEpFEN() {
+		throw new RuntimeException("CompactPosition::getEpFEN: method has not been implemented yet.");
+	}
 }
