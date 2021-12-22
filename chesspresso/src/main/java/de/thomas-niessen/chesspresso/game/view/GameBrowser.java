@@ -400,7 +400,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		jToolBar1.setFloatable(false);
 		jToolBar2 = new javax.swing.JToolBar();
 		jToolBar2.setFloatable(false);
-		m_buttFlip = new javax.swing.JButton();
+		m_buttFlipBoard = new javax.swing.JButton();
 		m_buttStart = new javax.swing.JButton();
 		m_buttBackward = new javax.swing.JButton();
 		m_buttForward = new javax.swing.JButton();
@@ -456,11 +456,11 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 		add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
-		m_buttFlip.setText("^");
-		m_buttFlip.setToolTipText("Flip");
-		m_buttFlip.addActionListener(this::m_buttFlipActionPerformed);
+		m_buttFlipBoard.setText("^");
+		m_buttFlipBoard.setToolTipText("Flip board");
+		m_buttFlipBoard.addActionListener(this::m_buttFlipBoardActionPerformed);
 
-		jToolBar1.add(m_buttFlip);
+		jToolBar1.add(m_buttFlipBoard);
 
 		m_buttStart.setText("|<");
 		m_buttStart.setToolTipText("Start");
@@ -545,7 +545,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 			m_game.gotoStart();
 	}
 
-	private void m_buttFlipActionPerformed(ActionEvent evt) {
+	private void m_buttFlipBoardActionPerformed(ActionEvent evt) {
 		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
 			m_positionView.flip();
 	}
@@ -555,7 +555,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	// private javax.swing.JButton m_buttEndOfLine;
 	private javax.swing.JButton m_buttBackward;
 	private javax.swing.JPanel m_textFrame;
-	private javax.swing.JButton m_buttFlip;
+	private javax.swing.JButton m_buttFlipBoard;
 	private javax.swing.JButton m_buttStart;
 	private javax.swing.JSplitPane jSplitPane1;
 	private javax.swing.JButton m_buttEnd;
@@ -694,7 +694,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	private void updateComponents() {
 		boolean navButtons = m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE;
-		m_buttFlip.setEnabled(navButtons);
+		m_buttFlipBoard.setEnabled(navButtons);
 		m_buttStart.setEnabled(navButtons);
 		m_buttBackward.setEnabled(navButtons);
 		m_buttForward.setEnabled(navButtons);

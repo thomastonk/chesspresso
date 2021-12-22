@@ -277,7 +277,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	/**
-	 * Flip the sides.
+	 * Flip board.
 	 */
 	public void flip() {
 		setBottomPlayer(Chess.otherPlayer(m_bottom));

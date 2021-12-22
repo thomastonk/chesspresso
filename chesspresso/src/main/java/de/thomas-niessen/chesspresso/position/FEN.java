@@ -14,6 +14,9 @@
  ******************************************************************************/
 package chesspresso.position;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import chesspresso.Chess;
@@ -1077,5 +1080,131 @@ public class FEN {
 		}
 
 		return newFen.toString();
+	}
+
+	/**
+	 * This method returns a two strings which describe White's and Black's pieces in the
+	 * following manner: 'Kh8 Pc6' and 'Ka6 Ph5' for Reti's famous study.
+	 * 
+	 * @param fen
+	 * @return two strings as described above
+	 * @throws InvalidFenException 
+	 */
+	public static String[] getWhiteAndBlackPieces(String fen) throws InvalidFenException {
+		String[] pieceStr = new String[] { "", "" };
+		String[] parts = fen.split(" +");
+		if (parts.length == 0) {
+			return pieceStr;
+		}
+		List<String> whites = new ArrayList<>();
+		List<String> blacks = new ArrayList<>();
+		String[] rows = parts[0].split("/");
+		for (int rowIndex = 0; rowIndex < rows.length; ++rowIndex) {
+			String row = rows[rowIndex];
+			int colIndex = 0;
+			for (int index = 0; index < row.length(); ++index) {
+				char ch = row.charAt(index);
+				if (ch >= '1' && ch <= '8') {
+					int num = ch - '0';
+					if (index + num > 8) {
+						throw new InvalidFenException("Invalid FEN: too many pieces in row " + (rowIndex + 1));
+					}
+					colIndex += num;
+				} else {
+					String str = Chess.sqiToStr(Chess.coorToSqi(colIndex, 7 - rowIndex));
+					switch (ch) {
+					case 'K':
+						whites.add("K" + str);
+						break;
+					case 'Q':
+						whites.add("Q" + str);
+						break;
+					case 'R':
+						whites.add("R" + str);
+						break;
+					case 'B':
+						whites.add("B" + str);
+						break;
+					case 'N':
+						whites.add("N" + str);
+						break;
+					case 'P':
+						whites.add("P" + str);
+						break;
+					case 'k':
+						blacks.add("K" + str);
+						break;
+					case 'q':
+						blacks.add("Q" + str);
+						break;
+					case 'r':
+						blacks.add("R" + str);
+						break;
+					case 'b':
+						blacks.add("B" + str);
+						break;
+					case 'n':
+						blacks.add("N" + str);
+						break;
+					case 'p':
+						blacks.add("P" + str);
+						break;
+					}
+					++colIndex;
+				}
+			}
+		}
+		MyComparator myComparator = new MyComparator();
+		whites.sort(myComparator);
+		blacks.sort(myComparator);
+
+		StringBuilder sb = new StringBuilder();
+		for (String w : whites) {
+			sb.append(w).append(" ");
+		}
+		pieceStr[0] = sb.toString().trim();
+
+		sb = new StringBuilder();
+		for (String b : blacks) {
+			sb.append(b).append(" ");
+		}
+		pieceStr[1] = sb.toString().trim();
+
+		return pieceStr;
+	}
+
+	private static class MyComparator implements Comparator<String> {
+
+		@Override
+		public int compare(String o1, String o2) {
+			char ch1 = o1.charAt(0);
+			char ch2 = o2.charAt(0);
+			if (ch1 == 'K') {
+				return -1;
+			} else if (ch2 == 'K') {
+				return 1;
+			}
+			if (ch1 == 'Q') {
+				return -1;
+			} else if (ch2 == 'Q') {
+				return 1;
+			}
+			if (ch1 == 'R') {
+				return -1;
+			} else if (ch2 == 'R') {
+				return 1;
+			}
+			if (ch1 == 'B') {
+				return -1;
+			} else if (ch2 == 'B') {
+				return 1;
+			}
+			if (ch1 == 'N') {
+				return -1;
+			} else if (ch2 == 'N') {
+				return 1;
+			}
+			return 0; // 'P'
+		}
 	}
 }
