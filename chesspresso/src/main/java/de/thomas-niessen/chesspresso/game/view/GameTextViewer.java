@@ -336,8 +336,9 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			AttributeSet attrs = (level == 0 ? MAIN : LINE);
 
 			/*---------- pre-move comment -----*/
-			if (preMoveComment != null)
+			if (preMoveComment != null) {
 				appendText(preMoveComment + " ", COMMENT);
+			}
 
 			/*---------- begin of move number or move -----*/
 			m_moveNrBegin[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
@@ -371,7 +372,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			}
 			m_moveEnd[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 2;
 
-			/*---------- pre-move comment -----*/
+			/*---------- post-move comment -----*/
 			if (postMoveComment != null)
 				appendText(postMoveComment + " ", COMMENT);
 
@@ -420,7 +421,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		public void notifyLineStart(int level) {
 			appendText(System.lineSeparator(), LINE);
 			indent(level);
-			appendText(" (", LINE);
+			appendText("(", LINE);
 			m_needsMoveNumber = true;
 			m_newLineNeeded = false;
 		}
@@ -474,6 +475,9 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 		m_needsMoveNumber = true;
 		m_game.traverse(textCreator, true);
+		if (textCreator instanceof TreeLikeTextCreator && getDocument().getLength() > 0) {
+			appendText(System.lineSeparator(), MAIN);
+		}
 		appendText(m_game.getResultStr(), MAIN);
 
 		// TN:
