@@ -936,6 +936,7 @@ public class Game implements RelatedGame, Serializable {
 		m_position.increaseAlgorithmDepth();
 		int index = getCurNode();
 		gotoStart();
+		listener.initTraversal();
 		traverse(listener, withLines, m_position.getPlyNumber(), 0);
 		gotoNode(index);
 		m_position.decreaseAlgorithmDepth();

@@ -15,6 +15,9 @@
 package chesspresso.game.view;
 
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
@@ -25,12 +28,14 @@ import java.awt.geom.Rectangle2D;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JEditorPane;
+import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.EditorKit;
+import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
@@ -169,34 +174,42 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_CONTROL)
+				if (e.getKeyCode() == KeyEvent.VK_CONTROL || e.getKeyCode() == KeyEvent.VK_SHIFT
+						|| e.getKeyCode() == KeyEvent.VK_ALT) {
 					return;
-				if (e.getKeyCode() == KeyEvent.VK_SHIFT)
-					return;
-				if (e.getKeyCode() == KeyEvent.VK_ALT)
-					return;
+				}
 				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-					if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
+					if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
 						goBackToLineBegin();
-					else
+						centerLineInScrollPane(GameTextViewer.this);
+					} else {
 						goBackward();
+						centerLineInScrollPane(GameTextViewer.this);
+					}
 				} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-					if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
+					if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
 						gotoEndOfLine();
-					else if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
+						centerLineInScrollPane(GameTextViewer.this);
+					} else if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
 						goForwardMainLine();
-					else
+						centerLineInScrollPane(GameTextViewer.this);
+					} else {
 						goForward();
-				} else if (e.getKeyCode() == KeyEvent.VK_DOWN)
+						centerLineInScrollPane(GameTextViewer.this);
+					}
+				} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 					gotoPlyForCaret();
-				else if (e.getKeyCode() == KeyEvent.VK_UP)
+					centerLineInScrollPane(GameTextViewer.this);
+				} else if (e.getKeyCode() == KeyEvent.VK_UP) {
 					gotoPlyForCaret();
-				else if (e.getKeyCode() == KeyEvent.VK_HOME)
+					centerLineInScrollPane(GameTextViewer.this);
+				} else if (e.getKeyCode() == KeyEvent.VK_HOME) {
 					goStart();
-				else if (e.getKeyCode() == KeyEvent.VK_END)
+				} else if (e.getKeyCode() == KeyEvent.VK_END) {
 					goEnd();
-				else
+				} else {
 					gotoPlyForCaret();
+				}
 				if (getSelectionStart() == getSelectionEnd()) // assure that we always have a selection
 					showCurrentGameNode();
 			}
@@ -401,6 +414,11 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 		private boolean m_newLineNeeded;
 
+		@Override
+		public void initTraversal() {
+			m_newLineNeeded = false;
+		}
+
 		private void indent(int level) {
 			for (int i = 0; i < level; ++i) {
 				appendText("   ", LINE);
@@ -595,6 +613,36 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		}
 		if (request) {
 			addFocusListener(new FocusRequester());
+		}
+	}
+
+	/* Taken from Rob Camick's posting (2 January 2009) https://tips4java.wordpress.com/2009/01/04/center-line-in-scroll-pane/
+	 * which is free to use: https://tips4java.wordpress.com/about/
+	 * More about this topic
+	 * https://stackoverflow.com/questions/6056376/how-do-i-center-the-caret-position-of-a-jtextpane-by-autoscrolling
+	 * 
+	 * Modified because modelToView is deprecated since Java 9.
+	 */
+	static void centerLineInScrollPane(JTextComponent component) {
+		Container container = SwingUtilities.getAncestorOfClass(JViewport.class, component);
+		if (container == null) {
+			return;
+		}
+		try {
+			Rectangle2D r2D = component.modelToView2D(component.getCaretPosition());
+			if (r2D instanceof Rectangle r) {
+				JViewport viewport = (JViewport) container;
+				int extentHeight = viewport.getExtentSize().height;
+				int viewHeight = viewport.getViewSize().height;
+
+				int y = Math.max(0, r.y - ((extentHeight - r.height) / 2));
+				y = Math.min(y, viewHeight - extentHeight);
+
+				viewport.setViewPosition(new Point(0, y));
+			} else {
+				System.err.println("GameTextViewer::centerLineInScrollPane: unexpected rectangle class.");
+			}
+		} catch (BadLocationException ble) {
 		}
 	}
 
