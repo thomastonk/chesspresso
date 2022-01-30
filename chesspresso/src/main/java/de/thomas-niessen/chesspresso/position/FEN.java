@@ -1158,13 +1158,13 @@ public class FEN {
 		whites.sort(myComparator);
 		blacks.sort(myComparator);
 
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder("");
 		for (String w : whites) {
 			sb.append(w).append(" ");
 		}
 		pieceStr[0] = sb.toString().trim();
 
-		sb = new StringBuilder();
+		sb = new StringBuilder("");
 		for (String b : blacks) {
 			sb.append(b).append(" ");
 		}
