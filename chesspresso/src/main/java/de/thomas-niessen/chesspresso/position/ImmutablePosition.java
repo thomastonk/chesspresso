@@ -38,7 +38,8 @@ public interface ImmutablePosition {
 		INVALID_EN_PASSANT_SQUARE("The en passant square is invalid."),
 		INVALID_NUMBER_OF_KINGS("The number of kings is invalid."),
 		WRONG_KING_ATTACKED("A king is attacked, but the opponent has the move."),
-		PAWN_ON_BACK_RANK("There is a pawn on the back rank.");
+		PAWN_ON_BACK_RANK("There is a pawn on the back rank."),
+		KING_ATTACKED_BY_AN_UNMOVED_PAWN("The king is attacked by an unmoved pawn.");
 
 		private final String description;
 

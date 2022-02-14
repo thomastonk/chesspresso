@@ -319,6 +319,19 @@ public abstract class Chess {
 	}
 
 	/**
+	 * Converts a stone to a piece (remove color info).
+	 *
+	 * @param stone the colored piece
+	 * @return the piece
+	 */
+	public static short stoneToPiece(short stone) {
+		if (stone < 0)
+			return (short) -stone;
+		else
+			return stone;
+	}
+
+	/**
 	 * Change the color of the stone.
 	 *
 	 * @param stone the colored piece

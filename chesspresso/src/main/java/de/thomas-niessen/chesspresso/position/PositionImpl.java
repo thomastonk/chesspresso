@@ -1463,16 +1463,50 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if (val != Validity.IS_VALID)
 			return val;
 
-		/*---------- king of toPlay must not be attacked ----------*/
-		if (!checkKingOfToPlay()) {
+		/*---------- wrong king attacked ------------------*/
+		if (checkKingOfToPlay()) {
 			return Validity.WRONG_KING_ATTACKED;
 		}
+		/*---------- king attacked by an unmoved pawn ----------*/
+		if (checkKingAttackedByUnmovedPawn()) {
+			return Validity.KING_ATTACKED_BY_AN_UNMOVED_PAWN;
+		}
+
 		return Validity.IS_VALID;
 	}
 
 	private boolean checkKingOfToPlay() {
 		int kingSquare = (getToPlay() == Chess.WHITE ? m_blackKing : m_whiteKing);
-		return !isAttacked(kingSquare, getToPlay(), 0L); // =====>
+		return isAttacked(kingSquare, getToPlay(), 0L);
+	}
+
+	private boolean checkKingAttackedByUnmovedPawn() {
+		if (getToPlay() == Chess.WHITE) {
+			int kingSquare = m_whiteKing;
+			if (Chess.sqiToRow(kingSquare) == 5) {
+				int col = Chess.sqiToCol(kingSquare);
+				if (col == 0) { // king on a6
+					return getStone(Chess.B7) == Chess.BLACK_PAWN;
+				} else if (col == 7) { // king on h6
+					return getStone(Chess.G7) == Chess.BLACK_PAWN;
+				} else {
+					return getStone(kingSquare + 7) == Chess.BLACK_PAWN || getStone(kingSquare + 9) == Chess.BLACK_PAWN;
+				}
+			}
+		} else {
+			int kingSquare = m_blackKing;
+			if (Chess.sqiToRow(kingSquare) == 2) {
+				int col = Chess.sqiToCol(kingSquare);
+				if (col == 0) { // king on a3
+					return getStone(Chess.B2) == Chess.WHITE_PAWN;
+				} else if (col == 7) { //  king on h3
+					return getStone(Chess.G2) == Chess.WHITE_PAWN;
+				} else {
+					return getStone(kingSquare - 7) == Chess.WHITE_PAWN || getStone(kingSquare - 9) == Chess.WHITE_PAWN;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
