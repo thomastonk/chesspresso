@@ -24,7 +24,10 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -33,6 +36,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 
 import chesspresso.Chess;
@@ -609,6 +613,22 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 						m_positionView.repaint();
 					});
 					popup.add(deleteColorCommentsMenuItem);
+					popup.add(new JSeparator());
+					for (int i = 0; i <= 9; ++i) {
+						int iFinal = i;
+						JMenuItem addNumberMenuItem = new JMenuItem("Add number " + iFinal);
+						addNumberMenuItem.addActionListener(e -> {
+							m_positionView.addDecoration(DecorationFactory.getNumberInSquare(
+									m_positionView.getSquare(event.getX(), event.getY()), Color.DARK_GRAY, iFinal), true);
+						});
+						popup.add(addNumberMenuItem);
+					}
+					popup.add(new JSeparator());
+					JMenuItem removeAllNumbersMenuItem = new JMenuItem("Remove all numbers");
+					removeAllNumbersMenuItem.addActionListener(e -> {
+						m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY);
+					});
+					popup.add(removeAllNumbersMenuItem);
 					popup.show(m_positionView, event.getX(), event.getY());
 				}
 			}
@@ -699,5 +719,24 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_buttBackward.setEnabled(navButtons);
 		m_buttForward.setEnabled(navButtons);
 		m_buttEnd.setEnabled(navButtons);
+	}
+
+	// https://docs.oracle.com/javase/tutorial/2d/images/saveimage.html
+	public boolean savePositionViewScreenShot(String fileName) {
+		BufferedImage bufferedImage = getScreenShot(m_positionView);
+		try {
+			File outputfile = new File(fileName);
+			ImageIO.write(bufferedImage, "png", outputfile);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	private static BufferedImage getScreenShot(Component c) {
+		BufferedImage image = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_RGB);
+		c.paint(image.getGraphics());
+		return image;
 	}
 }

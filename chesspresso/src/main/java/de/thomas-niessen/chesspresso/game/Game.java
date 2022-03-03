@@ -937,13 +937,15 @@ public class Game implements RelatedGame, Serializable {
 		int index = getCurNode();
 		gotoStart();
 		listener.initTraversal();
-		traverse(listener, withLines, m_position.getPlyNumber(), 0);
+		if (!listener.stopRequested()) {
+			traverse(listener, withLines, m_position.getPlyNumber(), 0);
+		}
 		gotoNode(index);
 		m_position.decreaseAlgorithmDepth();
 	}
 
 	private void traverse(TraverseListener listener, boolean withLines, int plyNumber, int level) {
-		while (hasNextMove()) {
+		while (hasNextMove() && !listener.stopRequested()) {
 			int numOfNextMoves = getNumOfNextMoves();
 
 			Move move = goForwardAndGetMove();

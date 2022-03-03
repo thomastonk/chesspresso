@@ -715,4 +715,9 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		return DEFAULT_FONT_SIZE;
 	}
 
+	public BufferedImage getScreenShot() {
+		BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+		paint(image.getGraphics()); // alternately use .printAll(..)
+		return image;
+	}
 }

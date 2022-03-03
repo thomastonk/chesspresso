@@ -1017,6 +1017,86 @@ public class FEN {
 		};
 	}
 
+	// Switch the position along the horizontal line in the middle of the board.
+	// Castling and the en passant square are always void in the result.
+	public static String switchTopAndBottom(String fen) {
+		String[] fenParts = fen.trim().split(" +");
+
+		if (fenParts.length == 0) {
+			throw new IllegalArgumentException("FEN::switchTopAndBottom: Invalid FEN: empty string or only white spaces.");
+		}
+
+		StringBuilder newFen = new StringBuilder();
+
+		/* ========== 1st field : pieces ========== */
+		if (fenParts.length > 0) {
+			String[] rows = fenParts[0].split("/");
+			if (rows.length != 8) {
+				throw new IllegalArgumentException(
+						"FEN::switchTopAndBottom: Invalid FEN: invalid piece description, only " + rows.length + " rows found.");
+			}
+
+			for (int rowIndex = 7; rowIndex >= 0; --rowIndex) {
+				newFen.append(rows[rowIndex]);
+				if (rowIndex > 0) {
+					newFen.append("/");
+				}
+			}
+			newFen.append(' ');
+		}
+
+		/* ========== 2nd field : to play ========== */
+		if (fenParts.length > 1) {
+			newFen.append(fenParts[1]).append(' ');
+		}
+
+		/* ========== 3rd field : castles ========== */
+		if (fenParts.length > 2) {
+			newFen.append("- ");
+		}
+
+		/* ========== 4th field : ep square ========== */
+		if (fenParts.length > 3) {
+			newFen.append("- ");
+		}
+
+		/* ========== 5th field : half-move clock ==== */
+		if (fenParts.length > 4) {
+			newFen.append(fenParts[4]).append(' ');
+		}
+
+		/* ========== 6th field : full move number ========== */
+		if (fenParts.length > 5) {
+			newFen.append(fenParts[5]);
+		}
+
+		return newFen.toString();
+	}
+
+	// Reflect the position along the a1-h8 diagonal.
+	//  Castling and the en passant square are always void in the result.
+	public static String reflectAlongDiagonal(String fen) {
+		PositionImpl pos;
+		try {
+			pos = new PositionImpl(fen, false);
+		} catch (InvalidFenException ignore) {
+			return null;
+		}
+		PositionImpl reflectedPos = new PositionImpl(0);
+		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+			int stone = pos.getStone(sqi);
+			if (stone != Chess.NO_STONE) {
+				reflectedPos.setStone(Chess.getDiagonallyReflectedSquare(sqi), stone);
+			}
+		}
+		reflectedPos.setToPlay(pos.getToPlay());
+		reflectedPos.setHalfMoveClock(pos.getHalfMoveClock());
+		reflectedPos.setPlyOffset(pos.getPlyOffset());
+
+		String[] fenParts = fen.trim().split(" +");
+		return reflectedPos.getFEN(Math.min(fenParts.length, 6));
+	}
+
 	public static String removePieces(String fen, int piece) {
 		String[] fenParts = fen.trim().split(" +");
 

@@ -86,6 +86,10 @@ public class DecorationFactory {
 		return new Text(square, color, text);
 	}
 
+	static public Decoration getNumberInSquare(int square, Color color, int number) {
+		return new NumberInSquare(square, color, number);
+	}
+
 	static class Arrow implements Decoration {
 		private final int from;
 		private final int to;
@@ -724,6 +728,52 @@ public class DecorationFactory {
 		public DecorationType getType() {
 			return DecorationType.TEXT;
 		}
+	}
 
+	static class NumberInSquare implements Decoration {
+
+		private final int square;
+		private final Color color;
+		private final int number;
+
+		NumberInSquare(int square, Color color, int number) {
+			this.square = square;
+			this.color = color;
+			this.number = number;
+		}
+
+		@Override
+		public void paint(Graphics2D g, int squareSize, int bottomPlayer) {
+			g.setColor(color);
+
+			int square_col, square_row;
+			if (bottomPlayer == Chess.WHITE) {
+				square_col = Chess.sqiToCol(square);
+				square_row = Chess.NUM_OF_ROWS - 1 - Chess.sqiToRow(square);
+			} else {
+				square_col = Chess.NUM_OF_COLS - 1 - Chess.sqiToCol(square);
+				square_row = Chess.sqiToRow(square);
+			}
+
+			int x0 = squareSize * (square_col - 1) + squareSize + 12; // some mystic numbers
+			int y0 = squareSize * (square_row + 1) - 10;
+
+			Graphics2D g2 = (Graphics2D) g.create();
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			g2.setFont(new Font(Font.DIALOG, Font.PLAIN, squareSize - 12));
+			g2.drawString(Integer.toString(number), x0, y0);
+			g2.dispose();
+		}
+
+		@Override
+		public Color getColor() {
+			return color;
+		}
+
+		@Override
+		public DecorationType getType() {
+			return DecorationType.NUMBER_IN_SQUARE;
+		}
 	}
 }

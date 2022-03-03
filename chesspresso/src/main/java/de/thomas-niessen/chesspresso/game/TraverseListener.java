@@ -27,6 +27,11 @@ public interface TraverseListener {
 	default void initTraversal() {
 	}
 
+	/* This method is called during the traversal and can be overwritten for optimization. */
+	default boolean stopRequested() {
+		return false;
+	}
+
 	/* The traversed game's position will be the one after the move in the parameters. */
 	void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level);
 
