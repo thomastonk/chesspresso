@@ -50,6 +50,8 @@ public abstract class Chess {
 			F4 = 29, G4 = 30, H4 = 31, A3 = 16, B3 = 17, C3 = 18, D3 = 19, E3 = 20, F3 = 21, G3 = 22, H3 = 23, A2 = 8, B2 = 9,
 			C2 = 10, D2 = 11, E2 = 12, F2 = 13, G2 = 14, H2 = 15, A1 = 0, B1 = 1, C1 = 2, D1 = 3, E1 = 4, F1 = 5, G1 = 6, H1 = 7;
 
+	public static final int A_FILE = 0, B_FILE = 1, C_FILE = 2, D_FILE = 3, E_FILE = 4, F_FILE = 5, G_FILE = 6, H_FILE = 7;
+
 	public static final int NO_COL = -1, NO_ROW = -1, NO_SQUARE = -1;
 
 	/**

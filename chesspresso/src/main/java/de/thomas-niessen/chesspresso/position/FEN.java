@@ -1164,7 +1164,8 @@ public class FEN {
 
 	/**
 	 * This method returns a two strings which describe White's and Black's pieces in the
-	 * following manner: 'Kh8 Pc6' and 'Ka6 Ph5' for Reti's famous study.
+	 * following manner: 'Kh8 Pc6' and 'Ka6 Ph5' for Reti's famous study. The Piece strings
+	 * are sorted primarily by the piece letters, and secondarily by the squares. 
 	 * 
 	 * @param fen
 	 * @return two strings as described above
@@ -1253,38 +1254,51 @@ public class FEN {
 		return pieceStr;
 	}
 
+	/* This class does the sorting:
+	 * 	- first by piece letter in the order K, Q, R, B, N, and P
+	 * 	- second by the following square. */
 	private static class MyComparator implements Comparator<String> {
 
 		@Override
 		public int compare(String o1, String o2) {
 			char ch1 = o1.charAt(0);
 			char ch2 = o2.charAt(0);
-			if (ch1 == 'K') {
-				return -1;
-			} else if (ch2 == 'K') {
-				return 1;
+			if (ch1 != ch2) {
+				if (ch1 == 'K') {
+					return -1;
+				} else if (ch2 == 'K') {
+					return 1;
+				}
+				if (ch1 == 'Q') {
+					return -1;
+				} else if (ch2 == 'Q') {
+					return 1;
+				}
+				if (ch1 == 'R') {
+					return -1;
+				} else if (ch2 == 'R') {
+					return 1;
+				}
+				if (ch1 == 'B') {
+					return -1;
+				} else if (ch2 == 'B') {
+					return 1;
+				}
+				if (ch1 == 'N') {
+					return -1;
+				} else if (ch2 == 'N') {
+					return 1;
+				}
+				return 0; // 'P'
 			}
-			if (ch1 == 'Q') {
-				return -1;
-			} else if (ch2 == 'Q') {
-				return 1;
+			ch1 = o1.charAt(1);
+			ch2 = o2.charAt(1);
+			if (ch1 != ch2) {
+				return ch1 - ch2;
 			}
-			if (ch1 == 'R') {
-				return -1;
-			} else if (ch2 == 'R') {
-				return 1;
-			}
-			if (ch1 == 'B') {
-				return -1;
-			} else if (ch2 == 'B') {
-				return 1;
-			}
-			if (ch1 == 'N') {
-				return -1;
-			} else if (ch2 == 'N') {
-				return 1;
-			}
-			return 0; // 'P'
+			ch1 = o1.charAt(2);
+			ch2 = o2.charAt(2);
+			return ch1 - ch2;
 		}
 	}
 }
