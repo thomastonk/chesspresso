@@ -36,6 +36,7 @@ import chesspresso.Variant;
 import chesspresso.game.Game;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
+import chesspresso.pgn.PGNSyntaxError.Severity;
 import chesspresso.position.InvalidFenException;
 import chesspresso.position.NAG;
 import chesspresso.position.Position;
@@ -214,8 +215,7 @@ public final class PGNReader extends PGN {
 	}
 
 	private void syntaxError(String msg) throws PGNSyntaxError {
-		PGNSyntaxError error = new PGNSyntaxError(PGNSyntaxError.ERROR, msg, m_filename, getLineNumber(),
-				getLastTokenAsDebugString());
+		PGNSyntaxError error = new PGNSyntaxError(Severity.ERROR, msg, m_filename, getLineNumber(), getLastTokenAsDebugString());
 		if (m_errorHandler != null)
 			m_errorHandler.handleError(error);
 		throw error;
@@ -223,7 +223,7 @@ public final class PGNReader extends PGN {
 
 	private void warning(String msg) {
 		if (m_errorHandler != null) {
-			PGNSyntaxError warning = new PGNSyntaxError(PGNSyntaxError.WARNING, msg, m_filename, getLineNumber(),
+			PGNSyntaxError warning = new PGNSyntaxError(Severity.WARNING, msg, m_filename, getLineNumber(),
 					getLastTokenAsDebugString());
 			m_errorHandler.handleWarning(warning);
 		}
@@ -421,7 +421,7 @@ public final class PGNReader extends PGN {
 			} else if (variant.contains("standard") || variant.contains("three-check")) { // as in lichess
 				return Variant.STANDARD;
 			} else {
-				throw new PGNSyntaxError(PGNSyntaxError.ERROR, "Unknown variant: " + m_curGame.getTag(TAG_VARIANT), m_filename,
+				throw new PGNSyntaxError(Severity.ERROR, "Unknown variant: " + m_curGame.getTag(TAG_VARIANT), m_filename,
 						getLineNumber(), getLastTokenAsDebugString());
 			}
 		} else { // no variant tag
@@ -436,7 +436,7 @@ public final class PGNReader extends PGN {
 		}
 		if (getVariantFromTag() == Variant.CHESS960) { // Chess960 needs a FEN
 			if (m_curGame.getTag(TAG_FEN) == null) {
-				throw new PGNSyntaxError(PGNSyntaxError.ERROR, "Chess960 variant detected, but without FEN.", m_filename,
+				throw new PGNSyntaxError(Severity.ERROR, "Chess960 variant detected, but without FEN.", m_filename,
 						getLineNumber(), "");
 			}
 		}
@@ -445,7 +445,7 @@ public final class PGNReader extends PGN {
 			try {
 				new Position(fen);
 			} catch (InvalidFenException e) {
-				throw new PGNSyntaxError(PGNSyntaxError.ERROR, e.getMessage(), m_filename, getLineNumber(), "");
+				throw new PGNSyntaxError(Severity.ERROR, e.getMessage(), m_filename, getLineNumber(), "");
 			}
 		}
 	}

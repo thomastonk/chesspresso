@@ -51,7 +51,7 @@ class GameMoveModel implements Serializable {
 			POST_COMMENT_START = Move.OTHER_SPECIALS + 4, POST_COMMENT_END = Move.OTHER_SPECIALS + 5,
 			NAG_BASE = Move.OTHER_SPECIALS + 16, LAST_SPECIAL = (short) (NAG_BASE + NAG.NUM_OF_NAGS);
 
-	// Currently, this would be dead code, but is LAST_SPECIAL is changed:
+	// Currently, this would be dead code, but if LAST_SPECIAL is changed:
 	//	static {
 	//		if (LAST_SPECIAL > Move.SPECIAL_MOVE + Move.NUM_OF_SPECIAL_MOVES) {
 	//			throw new RuntimeException("Not enough space to define special moves for game move model");
@@ -60,10 +60,9 @@ class GameMoveModel implements Serializable {
 
 	// ======================================================================
 
-	private short[] m_moves; // TN: a better name would be m_nodes!
+	private short[] m_moves; // TN: a much better/consistent name would be m_nodes!
 	private int m_size;
 	private int m_hashCode;
-	// TN added:
 	private boolean m_hasComment;
 
 	// ======================================================================
@@ -82,7 +81,6 @@ class GameMoveModel implements Serializable {
 		m_hashCode = 0; // store in file?
 	}
 
-	// TN added:
 	void clear() {
 		Arrays.fill(m_moves, (short) 0);
 		m_moves[0] = LINE_START;
@@ -92,7 +90,6 @@ class GameMoveModel implements Serializable {
 		m_hasComment = false;
 	}
 
-	// TN added:
 	GameMoveModel getDeepCopy() {
 		GameMoveModel copy = new GameMoveModel();
 		copy.m_moves = new short[this.m_moves.length];
@@ -108,11 +105,11 @@ class GameMoveModel implements Serializable {
 
 	private void checkLegalCursor(int index) {
 		if (index < 0)
-			throw new RuntimeException("Illegal index " + index);
+			throw new IllegalArgumentException("Illegal index " + index);
 		if (index >= m_size)
-			throw new RuntimeException("Illegal index " + index + " m_size=" + m_size);
+			throw new IllegalArgumentException("Illegal index " + index + " m_size=" + m_size);
 		if (m_moves[index] != LINE_START && !isMoveValue(m_moves[index]))
-			throw new RuntimeException("No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
+			throw new IllegalArgumentException("No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
 	}
 
 	// ======================================================================
@@ -177,7 +174,7 @@ class GameMoveModel implements Serializable {
 		}
 		if (EXTRA_CHECKS)
 			if (!isMoveValue(m_moves[index]))
-				throw new RuntimeException("No move at index " + index + " move=" + valueToString(m_moves[index]));
+				throw new IllegalArgumentException("No move at index " + index + " move=" + valueToString(m_moves[index]));
 
 		int num = 0;
 		while (isNagValue(m_moves[index + 1])) {
@@ -191,7 +188,7 @@ class GameMoveModel implements Serializable {
 			// collect nags from back to front (most recently added last)
 			for (int i = 0; i < num; i++)
 				nags[i] = getNagForValue(m_moves[index - i]);
-			Arrays.sort(nags); // TN: added this line to get !,? etc before =, +- etc
+			Arrays.sort(nags); // in order to get !,? etc before =, +- etc
 			return nags;
 		}
 	}
@@ -211,7 +208,7 @@ class GameMoveModel implements Serializable {
 
 		if (EXTRA_CHECKS)
 			if (!isMoveValue(m_moves[index]))
-				throw new RuntimeException("No move at index " + index + " val=" + valueToString(m_moves[index]));
+				throw new IllegalArgumentException("No move at index " + index + " val=" + valueToString(m_moves[index]));
 
 		makeSpace(index + 1, 1, false); // most recent nag first
 		m_moves[index + 1] = getValueForNag(nag);
@@ -236,7 +233,7 @@ class GameMoveModel implements Serializable {
 
 		if (EXTRA_CHECKS)
 			if (!isMoveValue(m_moves[index]))
-				throw new RuntimeException("No move at index " + index + " val=" + valueToString(m_moves[index]));
+				throw new IllegalArgumentException("No move at index " + index + " val=" + valueToString(m_moves[index]));
 
 		short nagValue = getValueForNag(nag);
 		short value;
@@ -261,7 +258,6 @@ class GameMoveModel implements Serializable {
 		return changed;
 	}
 
-	// TN added:
 	boolean removePunctuationNags(int index) {
 		boolean changed = false;
 		if (index == 0) {
@@ -278,7 +274,6 @@ class GameMoveModel implements Serializable {
 		return changed;
 	}
 
-	// TN added:
 	boolean removeEvaluationNags(int index) {
 		boolean changed = false;
 		if (index == 0) {
@@ -295,7 +290,6 @@ class GameMoveModel implements Serializable {
 		return changed;
 	}
 
-	// TN added:
 	boolean removeAllNags() {
 		// This simple method has caused many problems; change with utmost care.
 		boolean changed = false;
@@ -330,7 +324,8 @@ class GameMoveModel implements Serializable {
 			while (m_moves[index] != PRE_COMMENT_START)
 				index--;
 		} else {
-			throw new RuntimeException("No comment start or end at index " + index + " move " + valueToString(m_moves[index]));
+			throw new IllegalArgumentException(
+					"No comment starts or ends at index " + index + " move " + valueToString(m_moves[index]));
 		}
 		return index;
 	}
@@ -343,7 +338,8 @@ class GameMoveModel implements Serializable {
 			while (m_moves[index] != POST_COMMENT_START)
 				index--;
 		} else {
-			throw new RuntimeException("No comment start or end at index " + index + " move " + valueToString(m_moves[index]));
+			throw new IllegalArgumentException(
+					"No comment starts or ends at index " + index + " move " + valueToString(m_moves[index]));
 		}
 		return index;
 	}
@@ -351,7 +347,8 @@ class GameMoveModel implements Serializable {
 	String getPreMoveComment(int index) {
 		if (EXTRA_CHECKS)
 			if (!isMoveValue(m_moves[index]) && index != 0)
-				throw new RuntimeException("No move at index " + index + " move=" + valueToString(m_moves[index]));
+				throw new IllegalArgumentException(
+						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
 		if (index - 1 >= 0 && m_moves[index - 1] == PRE_COMMENT_END) {
 			index -= 2;
 			StringBuilder sb = new StringBuilder();
@@ -381,7 +378,8 @@ class GameMoveModel implements Serializable {
 	String getPostMoveComment(int index) {
 		if (EXTRA_CHECKS)
 			if (!isMoveValue(m_moves[index]) && index != 0)
-				throw new RuntimeException("No move at index " + index + " move=" + valueToString(m_moves[index]));
+				throw new IllegalArgumentException(
+						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
 
 		if (index == 0) {
 			index = getFirstMoveIndex();
@@ -443,8 +441,7 @@ class GameMoveModel implements Serializable {
 		}
 		// TN trap: that's not the the same as
 		// return removePreMoveComment(index) || addPreMoveComment(index, comment);
-		// because addPreMoveComment is not executed, if removePreMoveComment returns
-		// true
+		// because addPreMoveComment is not executed, if removePreMoveComment returns true
 	}
 
 	boolean setPostMoveComment(int index, String comment) {
@@ -464,8 +461,7 @@ class GameMoveModel implements Serializable {
 		}
 		// TN trap: that's not the the same as
 		// return removePostMoveComment(index) || addPostMoveComment(index, comment);
-		// because addPostMoveComment is not executed, if removePostMoveComment returns
-		// true
+		// because addPostMoveComment is not executed, if removePostMoveComment returns true
 	}
 
 	private boolean addPreMoveComment(int index, String comment) {
@@ -476,7 +472,8 @@ class GameMoveModel implements Serializable {
 
 		if (EXTRA_CHECKS)
 			if (!isMoveValue(m_moves[index]))
-				throw new RuntimeException("No move at index " + index + " val=" + valueToString(m_moves[index]));
+				throw new IllegalArgumentException(
+						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
 
 		if (comment == null || comment.length() == 0)
 			return false; // =====>
@@ -509,7 +506,8 @@ class GameMoveModel implements Serializable {
 
 		if (EXTRA_CHECKS)
 			if (index != 0 && !isMoveValue(m_moves[index]))
-				throw new RuntimeException("No move at index " + index + " val=" + valueToString(m_moves[index]));
+				throw new IllegalArgumentException(
+						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
 
 		if (comment == null || comment.length() == 0)
 			return false; // =====>
@@ -547,7 +545,8 @@ class GameMoveModel implements Serializable {
 
 		if (EXTRA_CHECKS)
 			if (!isMoveValue(m_moves[index]))
-				throw new RuntimeException("No move at index " + index + " val=" + valueToString(m_moves[index]));
+				throw new IllegalArgumentException(
+						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
 
 		boolean isChanged = false;
 		if (m_moves[index - 1] == PRE_COMMENT_END) {
@@ -716,36 +715,10 @@ class GameMoveModel implements Serializable {
 		}
 	}
 
-	// int goBackToMainLine(int index)
-	// {
-	// if (DEBUG) {
-	// System.out.println("goBackToMainLine " + index);
-	// write(System.out);
-	// }
-	//
-	// index--;
-	// int level = 1;
-	// while (index > 0) {
-	// short move = m_moves[index];
-	// if (move == LINE_START) level--;
-	// else if (move == LINE_END) level++;
-	// else if (isNagValue(move)) ;
-	// else if (move == COMMENT_START) ; // error
-	// else if (move == COMMENT_END) index = skipComment(index);
-	// else if (move == NO_MOVE) ;
-	// else if (level == 0) break;
-	// index--;
-	// }
-	// if (DEBUG) System.out.println(" --> " + index);
-	// return index;
-	// }
-
-	// TN added:
 	/**
 	 * Determines if the node at the given index belongs to the main line.
 	 * 
-	 * @return true, if the node at the given index belongs to the main line, false
-	 *         otherwise
+	 * @return true, if the node at the given index belongs to the main line, false otherwise
 	 */
 	boolean isMainLine(int index) {
 		int level = 0;
@@ -986,25 +959,6 @@ class GameMoveModel implements Serializable {
 		return index;
 	}
 
-	// TN: old, looks very bad!
-	//    private int findEarliestNoMove(int index) {
-	//	while (index > 1 && m_moves[index - 1] == NO_MOVE)
-	//	    index--;
-	//	return index;
-	//    }
-	//
-	//    private int findLatestNoMove(int index) {
-	//	if (EXTRA_CHECKS)
-	//	    if (index < 1 || index > m_size)
-	//		throw new RuntimeException("Index out of bounds " + index);
-	//	    else if (m_moves[index] != NO_MOVE)
-	//		throw new RuntimeException("Expected no move  " + index);
-	//
-	//	while (index > 0 && m_moves[index - 1] == NO_MOVE)
-	//	    index--;
-	//	return index;
-	//    }
-
 	private void enlarge(int index, int size) {
 		if (DEBUG) {
 			System.out.println("enlarge " + index + " " + size);
@@ -1029,7 +983,7 @@ class GameMoveModel implements Serializable {
 
 		if (EXTRA_CHECKS)
 			if (index < 1 || index >= m_size)
-				throw new RuntimeException("Index out of bounds " + index + " size=" + m_size);
+				throw new IllegalArgumentException("Index out of bounds " + index + " (size=" + m_size + ")");
 
 		for (int i = 0; i < spaceNeeded; i++) {
 			if (m_moves[index + i] != NO_MOVE) {
@@ -1093,8 +1047,7 @@ class GameMoveModel implements Serializable {
 		}
 	}
 
-	// TN added: The return value is the new index of the current move or -1 if
-	// something failed.
+	// The return value is the new index of the current move or -1 if something failed.
 	int promoteVariation(int index) {
 		if (DEBUG) {
 			System.out.println("promoteVariation " + index);
@@ -1237,7 +1190,6 @@ class GameMoveModel implements Serializable {
 		return retVal;
 	}
 
-	// TN added:
 	// The return value indicates, whether some move was deleted.
 	boolean deleteRemainingMoves(int index) {
 		if (DEBUG) {
@@ -1294,23 +1246,11 @@ class GameMoveModel implements Serializable {
 		int level = 0;
 		boolean deleteLineEnd = false;
 
-		// TN: the old version assume to be on a LINE_START already, because this
-		// method was called only when a Game::goBackToLineBegin was called.
-		// General, this assumption is wrong, and this became evident, when pre-move
-		// comments where introduced.
-		//		// check if we stand at a line start
-		//		for (int i = 1; i < index; i++) {
-		//			short move = m_moves[index - i];
-		//			if (move == LINE_START) {
-		//				index -= i;
-		//				deleteLineEnd = true;
-		//				level = -1;
-		//				break;
-		//			} else if (move != NO_MOVE)
-		//				break;
-		//		}
-
-		// TN version: go back to next LINE_START
+		// TN: the old version assumed to be on a LINE_START already, because this method was 
+		// called only when a Game::goBackToLineBegin was called.
+		// In general, this assumption is wrong, and this became evident, when pre-move
+		// comments where introduced.		
+		// Go back to next LINE_START:
 		for (int i = index - 1; i >= 0; --i) {
 			short move = m_moves[i];
 			if (move == LINE_START) {
@@ -1346,7 +1286,6 @@ class GameMoveModel implements Serializable {
 	}
 
 	// ======================================================================
-	// TN added:
 	boolean deleteAllLines() {
 		if (DEBUG) {
 			System.out.println("deleteAllLines");

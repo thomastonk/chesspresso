@@ -179,87 +179,90 @@ public class LightWeightPosition extends AbstractMutablePosition {
 
 	@Override
 	public void setVariant(Variant variant) {
-		throw new RuntimeException("LightweightPosition::setVariant: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::setVariant: method has not been implemented yet.");
 	}
 
 	@Override
 	public void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile) {
-		throw new RuntimeException("LightweightPosition::getWhitesKingSquare: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getWhitesKingSquare: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getWhitesKingSquare() {
-		throw new RuntimeException("LightweightPosition::getWhitesKingSquare: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getWhitesKingSquare: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getBlacksKingSquare() {
-		throw new RuntimeException("LightweightPosition::getBlacksKingSquare: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getBlacksKingSquare: method has not been implemented yet.");
 	}
 
 	@Override
 	public long getAllPawnsBB() {
-		throw new RuntimeException("LightweightPosition::getAllPawnsBB: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getAllPawnsBB: method has not been implemented yet.");
 	}
 
 	@Override
 	public long getWhitePawnsBB() {
-		throw new RuntimeException("LightweightPosition::getWhitePawnsBB: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getWhitePawnsBB: method has not been implemented yet.");
 	}
 
 	@Override
 	public long getBlackPawnsBB() {
-		throw new RuntimeException("LightweightPosition::getBlackPawnsBB: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getBlackPawnsBB: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isCheck() {
-		throw new RuntimeException("LightweightPosition::isCheck: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::isCheck: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isMate() {
-		throw new RuntimeException("LightweightPosition::isMate: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::isMate: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isStaleMate() {
-		throw new RuntimeException("LightweightPosition::isStaleMate: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::isStaleMate: method has not been implemented yet.");
 	}
 
 	@Override
 	public boolean isInsufficientMaterial() {
-		throw new RuntimeException("LightweightPosition::isInsufficientMaterial: method has not been implemented yet.");
+		throw new UnsupportedOperationException(
+				"LightweightPosition::isInsufficientMaterial: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getNumberOfPieces() {
-		throw new RuntimeException("LightweightPosition::getNumberOfPieces: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getNumberOfPieces: method has not been implemented yet.");
 	}
 
 	@Override
 	public Variant getVariant() {
-		throw new RuntimeException("LightweightPosition::getVariant: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getVariant: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getChess960KingFile() {
-		throw new RuntimeException("LightweightPosition::getChess960KingFile: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getChess960KingFile: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getChess960QueensideRookFile() {
-		throw new RuntimeException("LightweightPosition::getChess960QueensideRookFile: method has not been implemented yet.");
+		throw new UnsupportedOperationException(
+				"LightweightPosition::getChess960QueensideRookFile: method has not been implemented yet.");
 	}
 
 	@Override
 	public int getChess960KingsideRookFile() {
-		throw new RuntimeException("LightweightPosition::getChess960KingsideRookFile: method has not been implemented yet.");
+		throw new UnsupportedOperationException(
+				"LightweightPosition::getChess960KingsideRookFile: method has not been implemented yet.");
 	}
 
 	@Override
 	public String getEpFEN() {
-		throw new RuntimeException("LightweightPosition::getEpFEN: method has not been implemented yet.");
+		throw new UnsupportedOperationException("LightweightPosition::getEpFEN: method has not been implemented yet.");
 	}
 
 	// everything for PositionListeners

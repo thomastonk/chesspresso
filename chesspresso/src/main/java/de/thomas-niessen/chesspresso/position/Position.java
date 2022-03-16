@@ -91,7 +91,7 @@ public final class Position implements MoveablePosition, Serializable {
 		if (relatedGame.checkCompatibility(this)) {
 			this.relatedGame = relatedGame;
 		} else {
-			throw new RuntimeException("Position::setRelatedGame: the compatibility check failed!");
+			throw new IllegalStateException("Position::setRelatedGame: the compatibility check failed!");
 		}
 	}
 

@@ -22,18 +22,26 @@ package chesspresso.pgn;
  */
 @SuppressWarnings("serial")
 public class PGNSyntaxError extends java.lang.Exception {
-	public final static int ERROR = 0, WARNING = 1, MESSAGE = 2;
+	public enum Severity {
+		ERROR("ERROR"), WARNING("WARNING"), MESSAGE("MESSAGE");
+
+		String desc;
+
+		Severity(String desc) {
+			this.desc = desc;
+		}
+	}
 
 	// ======================================================================
 
-	private final int m_severity;
+	private final Severity m_severity;
 	private final String m_filename;
 	private final int m_lineNumber;
 	private final String m_lastToken;
 
 	// ======================================================================
 
-	public PGNSyntaxError(int severity, String msg, String filename, int lineNumber, String lastToken) {
+	public PGNSyntaxError(Severity severity, String msg, String filename, int lineNumber, String lastToken) {
 		super(msg);
 		m_severity = severity;
 		m_filename = filename;
@@ -43,7 +51,7 @@ public class PGNSyntaxError extends java.lang.Exception {
 
 	// ======================================================================
 
-	public int getSeverity() {
+	public Severity getSeverity() {
 		return m_severity;
 	}
 
@@ -61,16 +69,9 @@ public class PGNSyntaxError extends java.lang.Exception {
 
 	// ======================================================================
 
+	@Override
 	public String toString() {
-		if (m_severity == ERROR) {
-			return "ERROR: " + m_filename + ":" + m_lineNumber + ": near " + m_lastToken + ": " + getMessage();
-		} else if (m_severity == WARNING) {
-			return "WARNING: " + m_filename + ":" + m_lineNumber + ": near " + m_lastToken + ": " + getMessage();
-		} else if (m_severity == MESSAGE) {
-			return "MESSAGE: " + m_filename + ":" + m_lineNumber + ": near " + m_lastToken + ": " + getMessage();
-		} else {
-			throw new RuntimeException("Illegal severity");
-		}
+		return m_severity.desc + ": " + m_filename + ":" + m_lineNumber + ": near " + m_lastToken + ": " + getMessage();
 	}
 
 }

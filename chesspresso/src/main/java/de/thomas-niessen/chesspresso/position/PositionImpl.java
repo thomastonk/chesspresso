@@ -618,7 +618,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		case Chess.BLACK_BISHOP -> m_bbBishops & (~m_bbRooks) & m_bbBlacks;
 		case Chess.BLACK_ROOK -> m_bbRooks & (~m_bbBishops) & m_bbBlacks;
 		case Chess.BLACK_QUEEN -> m_bbBishops & m_bbRooks & m_bbBlacks;
-		default -> throw new RuntimeException("Unknown stone: " + stone);
+		default -> throw new IllegalArgumentException("Unknown stone in PpsitionImpl::getBitBoard: " + stone);
 		};
 	}
 
@@ -1260,11 +1260,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		m_flags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT); // delete canMove info
 
 		/*---------- move pieces ----------*/
-		try {
-			setMove(move);
-		} catch (RuntimeException ex) {
-			throw new IllegalMoveException(move, ex.getMessage());
-		}
+		setMove(move);
 
 		/*---------- compare state and push changes ----------*/
 		// only push data that have actually changed

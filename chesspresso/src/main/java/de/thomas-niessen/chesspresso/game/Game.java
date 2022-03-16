@@ -459,7 +459,7 @@ public class Game implements RelatedGame, Serializable {
 			}
 			return sb.toString();
 		} else {
-			throw new RuntimeException("Game::getHeaderString: Only 2 header lines supported");
+			throw new IllegalArgumentException("Game::getHeaderString: Only two header lines supported");
 		}
 	}
 
@@ -940,7 +940,11 @@ public class Game implements RelatedGame, Serializable {
 		if (!listener.stopRequested()) {
 			traverse(listener, withLines, m_position.getPlyNumber(), 0);
 		}
-		gotoNode(index);
+		try {
+			gotoNode(index);
+		} catch (IllegalArgumentException ignore) {
+			// this exception can happen, if the TraverseListener changes the game and index becomes invalid
+		}
 		m_position.decreaseAlgorithmDepth();
 	}
 
