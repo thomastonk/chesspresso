@@ -728,80 +728,79 @@ public class Game implements RelatedGame, Serializable {
 	}
 
 	public void gotoStart() {
-		m_position.increaseAlgorithmDepth();
-		while (goBack())
-			;
-		m_position.decreaseAlgorithmDepth();
+		m_position.runAlgorithm(() -> {
+			while (goBack())
+				;
+		});
 	}
 
 	public void gotoEndOfLine() {
-		m_position.increaseAlgorithmDepth();
-		while (goForward())
-			;
-		m_position.decreaseAlgorithmDepth();
+		m_position.runAlgorithm(() -> {
+			while (goForward())
+				;
+		});
 	}
 
 	public void goBackToParentLine() {
 		if (DEBUG)
 			System.out.println("goBackToMainLine");
 
-		m_position.increaseAlgorithmDepth();
-		goBackToLineBegin();
-		goBack();
-		goForward();
-		m_position.decreaseAlgorithmDepth();
+		m_position.runAlgorithm(() -> {
+			goBackToLineBegin();
+			goBack();
+			goForward();
+		});
 	}
 
 	public void goBackToLineBegin() {
 		if (DEBUG)
 			System.out.println("goBackToLineBegin");
 
-		m_position.increaseAlgorithmDepth();
-		while (goBackInLine()) {
-		}
-		m_position.decreaseAlgorithmDepth();
-
+		m_position.runAlgorithm(() -> {
+			while (goBackInLine()) {
+			}
+		});
 	}
 
 	// Note: a node is not necessarily a move.
 	public void gotoNode(int node) {
 		int[] nodeNodes = getNodesToRoot(node);
 
-		m_position.increaseAlgorithmDepth();
-		gotoStart();
-		for (int i = nodeNodes.length - 2; i >= 0; i--) {
-			int nextMoveIndex = 0;
-			for (int j = 1; j < getNumOfNextMoves(); j++) {
-				if (m_model.getMoveModel().goForward(m_cur, j) == nodeNodes[i]) {
-					nextMoveIndex = j;
-					break;
+		m_position.runAlgorithm(() -> {
+			gotoStart();
+			for (int i = nodeNodes.length - 2; i >= 0; i--) {
+				int nextMoveIndex = 0;
+				for (int j = 1; j < getNumOfNextMoves(); j++) {
+					if (m_model.getMoveModel().goForward(m_cur, j) == nodeNodes[i]) {
+						nextMoveIndex = j;
+						break;
+					}
 				}
+				goForward(nextMoveIndex);
 			}
-			goForward(nextMoveIndex);
-		}
-		m_cur = node; // now that we have made all the moves, set cur to node
-		m_position.decreaseAlgorithmDepth();
+			m_cur = node; // now that we have made all the moves, set cur to node
+		});
 	}
 
 	public void deleteCurrentLine() {
-		m_position.increaseAlgorithmDepth();
-		goBackToLineBegin();
-		int index = m_cur;
-		goBack();
-		if (0 == index) { // otherwise we get an exception in fireMoveModelChanged below
-			m_model.getMoveModel().clear();
-		} else {
-			m_model.getMoveModel().deleteCurrentLine(index);
-		}
-		fireMoveModelChanged();
-		m_position.decreaseAlgorithmDepth();
+		m_position.runAlgorithm(() -> {
+			goBackToLineBegin();
+			int index = m_cur;
+			goBack();
+			if (0 == index) { // otherwise we get an exception in fireMoveModelChanged below
+				m_model.getMoveModel().clear();
+			} else {
+				m_model.getMoveModel().deleteCurrentLine(index);
+			}
+			fireMoveModelChanged();
+		});
 	}
 
 	public void deleteAllLines() {
 		if (!isMainLine()) {
-			m_position.increaseAlgorithmDepth();
-			gotoStart();
-			m_position.decreaseAlgorithmDepth();
+			m_position.runAlgorithm(() -> {
+				gotoStart();
+			});
 		}
 		if (m_model.getMoveModel().deleteAllLines()) {
 			fireMoveModelChanged();
@@ -818,12 +817,12 @@ public class Game implements RelatedGame, Serializable {
 		if (getCurrentPly() == ply) {
 			return;
 		}
-		m_position.increaseAlgorithmDepth();
-		gotoStart();
-		for (int i = 0; i < ply - getPlyOffset(); ++i) {
-			goForward();
-		}
-		m_position.decreaseAlgorithmDepth();
+		m_position.runAlgorithm(() -> {
+			gotoStart();
+			for (int i = 0; i < ply - getPlyOffset(); ++i) {
+				goForward();
+			}
+		});
 		// for a while we check the value
 		if (ply < getPlyOffset() || ply > getPlyOffset() + getNumOfPlies()) {
 			System.err.println("Suspicious value in Game::gotoPly: ");
@@ -933,19 +932,19 @@ public class Game implements RelatedGame, Serializable {
 	 * @param withLines whether or not to include sub-lines of the main line.
 	 */
 	public void traverse(TraverseListener listener, boolean withLines) {
-		m_position.increaseAlgorithmDepth();
-		int index = getCurNode();
-		gotoStart();
-		listener.initTraversal();
-		if (!listener.stopRequested()) {
-			traverse(listener, withLines, m_position.getPlyNumber(), 0);
-		}
-		try {
-			gotoNode(index);
-		} catch (IllegalArgumentException ignore) {
-			// this exception can happen, if the TraverseListener changes the game and index becomes invalid
-		}
-		m_position.decreaseAlgorithmDepth();
+		m_position.runAlgorithm(() -> {
+			int index = getCurNode();
+			gotoStart();
+			listener.initTraversal();
+			if (!listener.stopRequested()) {
+				traverse(listener, withLines, m_position.getPlyNumber(), 0);
+			}
+			try {
+				gotoNode(index);
+			} catch (IllegalArgumentException ignore) {
+				// this exception can happen, if the TraverseListener changes the game and index becomes invalid
+			}
+		});
 	}
 
 	private void traverse(TraverseListener listener, boolean withLines, int plyNumber, int level) {

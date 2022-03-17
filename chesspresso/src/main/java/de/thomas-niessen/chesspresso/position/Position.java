@@ -50,12 +50,13 @@ public final class Position implements MoveablePosition, Serializable {
 	private static final long serialVersionUID = 2L;
 
 	private final MoveablePosition impl;
-
+	private final List<PositionListener> listeners = new ArrayList<>();
+	private RelatedGame relatedGame = null;
 	private int algorithmDepth;
 
-	private final List<PositionListener> listeners = new ArrayList<>();
-
-	private RelatedGame relatedGame = null;
+	public interface Algorithm {
+		void run();
+	}
 
 	public Position() {
 		impl = new PositionImpl();
@@ -103,7 +104,19 @@ public final class Position implements MoveablePosition, Serializable {
 		}
 	}
 
-	public void decreaseAlgorithmDepth() {
+	/*
+	 * With an Algorithm, the user can prevent the listeners from being notified until the very end.
+	 */
+	public void runAlgorithm(Algorithm alg) {
+		increaseAlgorithmDepth();
+		try {
+			alg.run();
+		} finally {
+			decreaseAlgorithmDepth();
+		}
+	}
+
+	private void decreaseAlgorithmDepth() {
 		if (algorithmDepth == 1) {
 			algorithmDepth = 0;
 			firePositionChanged();
@@ -113,7 +126,7 @@ public final class Position implements MoveablePosition, Serializable {
 		}
 	}
 
-	public void increaseAlgorithmDepth() {
+	private void increaseAlgorithmDepth() {
 		++algorithmDepth;
 	}
 
