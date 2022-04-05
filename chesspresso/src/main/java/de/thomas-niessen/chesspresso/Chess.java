@@ -31,7 +31,7 @@ package chesspresso;
  * A piece is an uncolored type of chessman, a stone is a piece plus a colored.
  * For instance, possible pieces would be: a knight, a pawn, a king. Possible
  * stones are: a white queen, a black pawn. Possible colors (or players) are:
- * white, black and nobody.
+ * white, black and nobody/anybody.
  *
  * @author Bernhard Seybold
  * 
@@ -404,7 +404,7 @@ public abstract class Chess {
 
 	/* ========== players ========== */
 
-	public static final int WHITE = 0, BLACK = 1, NOBODY = -1;
+	public static final int WHITE = 0, BLACK = 1, NOBODY = -1, ANYBODY = -1;
 
 	/**
 	 * Returns the opposite player.

@@ -168,6 +168,7 @@ public class ActionFactory {
 		private final Game game;
 
 		private RemoveEvaluationAction(Game game) {
+			super("(none)");
 			this.game = game;
 		}
 
@@ -186,6 +187,7 @@ public class ActionFactory {
 		private final Game game;
 
 		private RemovePunctuationAction(Game game) {
+			super("(none)");
 			this.game = game;
 		}
 

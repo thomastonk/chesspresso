@@ -50,7 +50,6 @@ public class TextViewerPopup extends JPopupMenu {
 				punctuationNagMenu.add(item);
 			}
 			JMenuItem noneItem = new JMenuItem(ActionFactory.getRemovePunctuationAction(game));
-			noneItem.setActionCommand("none");
 			punctuationNagMenu.add(noneItem);
 			add(punctuationNagMenu);
 		}
@@ -62,7 +61,6 @@ public class TextViewerPopup extends JPopupMenu {
 				evaluationNagMenu.add(item);
 			}
 			JMenuItem noneItem = new JMenuItem(ActionFactory.getRemoveEvaluationAction(game));
-			noneItem.setActionCommand("none");
 			evaluationNagMenu.add(noneItem);
 			add(evaluationNagMenu);
 		}

@@ -196,8 +196,8 @@ public abstract class NAG {
 			"-+", // 19
 			null, // "White has a crushing advantage (Black should resign)", // 20
 			null, // "Black has a crushing advantage (White should resign)", // 21
-			null, // "White is in zugzwang", // 22
-			null, // "Black is in zugzwang", // 23
+			"\u2A00", // "White is in zugzwang", // 22
+			"\u2A00", // "Black is in zugzwang", // 23
 			null, // "White has a slight space advantage", // 24
 			null, // "Black has a slight space advantage", // 25
 			null, // "White has a moderate space advantage", // 26
