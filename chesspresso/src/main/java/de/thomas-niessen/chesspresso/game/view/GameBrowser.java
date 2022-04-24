@@ -24,10 +24,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -40,6 +37,7 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 
 import chesspresso.Chess;
+import chesspresso.ScreenShot;
 import chesspresso.game.Game;
 import chesspresso.game.GameModelChangeListener;
 import chesspresso.game.view.GameTextViewer.TextCreationType;
@@ -721,22 +719,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_buttEnd.setEnabled(navButtons);
 	}
 
-	// https://docs.oracle.com/javase/tutorial/2d/images/saveimage.html
 	public boolean savePositionViewScreenShot(String fileName) {
-		BufferedImage bufferedImage = getScreenShot(m_positionView);
-		try {
-			File outputfile = new File(fileName);
-			ImageIO.write(bufferedImage, "png", outputfile);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-
-	private static BufferedImage getScreenShot(Component c) {
-		BufferedImage image = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_RGB);
-		c.paint(image.getGraphics());
-		return image;
+		return ScreenShot.saveScreenShot(m_positionView, fileName);
 	}
 }

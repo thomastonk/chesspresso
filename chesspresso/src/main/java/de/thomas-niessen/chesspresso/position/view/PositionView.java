@@ -45,6 +45,7 @@ import javax.swing.SwingUtilities;
 
 import chesspresso.Chess;
 import chesspresso.Mouse;
+import chesspresso.ScreenShot;
 import chesspresso.game.view.UserAction;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.Position;
@@ -715,9 +716,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		return DEFAULT_FONT_SIZE;
 	}
 
-	public BufferedImage getScreenShot() {
-		BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-		paint(image.getGraphics()); // alternately use .printAll(..)
-		return image;
+	public boolean saveScreenShot(String fileName) {
+		return ScreenShot.saveScreenShot(this, fileName);
 	}
 }
