@@ -109,6 +109,10 @@ public class ActionFactory {
 		return new PromoteVariationAction(game, parent);
 	}
 
+	public static Action getPromoteToMainlineAction(Game game, Component parent) {
+		return new PromoteToMainlineAction(game, parent);
+	}
+
 	public static Action getNullMoveAction(Game game, Component parent) {
 		return new NullMoveAction(game, parent);
 	}
@@ -565,6 +569,29 @@ public class ActionFactory {
 			if (!game.promoteVariation()) {
 				String message = "Ooops. A malfuction happened. Please report the game and move to the program's author.";
 				JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	@SuppressWarnings("serial")
+	private static class PromoteToMainlineAction extends AbstractAction {
+
+		private final Game game;
+		private final Component parent;
+
+		private PromoteToMainlineAction(Game game, Component parent) {
+			super("Promote to mainline");
+			this.game = game;
+			this.parent = parent;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			while (!game.isMainLine()) {
+				if (!game.promoteVariation()) {
+					String message = "Ooops. A malfuction happened. Please report the game and position to the program's author.";
+					JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		}
 	}

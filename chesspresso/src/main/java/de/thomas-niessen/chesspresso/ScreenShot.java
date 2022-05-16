@@ -21,7 +21,7 @@ public class ScreenShot {
 		return true;
 	}
 
-	private static BufferedImage getScreenShot(Component c) {
+	public static BufferedImage getScreenShot(Component c) {
 		BufferedImage image = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_RGB);
 		c.paint(image.getGraphics());
 		return image;

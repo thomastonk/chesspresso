@@ -96,6 +96,7 @@ public class TextViewerPopup extends JPopupMenu {
 		addSeparator();
 
 		add(ActionFactory.getPromoteVariationAction(game, parent));
+		add(ActionFactory.getPromoteToMainlineAction(game, parent));
 		addSeparator();
 
 		add(ActionFactory.getNullMoveAction(game, parent));
