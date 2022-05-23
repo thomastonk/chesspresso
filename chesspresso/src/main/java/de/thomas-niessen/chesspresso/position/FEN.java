@@ -46,14 +46,18 @@ public class FEN {
 	public static final String START_POSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 	public static final String EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
-	// ======================================================================
-	// TN: The new implementation accepts a position description, and adds default
-	// values for all other information, if necessary.
-
 	private static final Pattern SQUARE_PATTERN = Pattern.compile("[a-h][1-8]");
 
 	static void initFromFEN(MutablePosition pos, String fen, boolean validate) throws InvalidFenException {
 		pos.clear();
+
+		if (fen == null) {
+			throw new InvalidFenException("Invalid FEN: FEN string is null.");
+		}
+		if (fen.equals(FEN.START_POSITION)) { // a little bit of optimization
+			initFromStandardStartFEN(pos);
+			return;
+		}
 
 		String[] fenParts = fen.trim().split(" +");
 		if (fenParts.length == 0) {
@@ -120,39 +124,17 @@ public class FEN {
 		/* ========== 3rd field : castles ========== */
 		if (fenParts.length > 2) {
 			String castleString = fenParts[2];
-			int castles = ImmutablePosition.NO_CASTLES;
 			if (!castleString.equals("-")) {
 				if (castleString.length() > 4) {
 					throw new InvalidFenException(
-							"Invalid FEN: expected castling information of length at most 4, found " + castleString);
+							"Invalid FEN: expected castling information of length at most 4, found '" + castleString + "'");
 				}
-				if (castleString.matches("[kqKQ]+")) { // standard FEN encoding
-					if (pos.getVariant() == Variant.STANDARD) { // no-Chess960
-						for (int i = 0; i < castleString.length(); ++i) {
-							char ch = castleString.charAt(i);
-							if (ch == 'K') {
-								if (pos.getStone(Chess.E1) == Chess.WHITE_KING && pos.getStone(Chess.H1) == Chess.WHITE_ROOK)
-									castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
-							} else if (ch == 'Q') {
-								if (pos.getStone(Chess.E1) == Chess.WHITE_KING && pos.getStone(Chess.A1) == Chess.WHITE_ROOK)
-									castles |= ImmutablePosition.WHITE_LONG_CASTLE;
-							} else if (ch == 'k') {
-								if (pos.getStone(Chess.E8) == Chess.BLACK_KING && pos.getStone(Chess.H8) == Chess.BLACK_ROOK)
-									castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
-							} else if (ch == 'q') {
-								if (pos.getStone(Chess.E8) == Chess.BLACK_KING && pos.getStone(Chess.A8) == Chess.BLACK_ROOK)
-									castles |= ImmutablePosition.BLACK_LONG_CASTLE;
-							}
-						}
-						pos.setCastles(castles);
-					} else {
-						setChess960Castling(pos, castleString);
-					}
-				} else if (castleString.matches("[a-hA-HkqKQ]+")) {
-					pos.setVariant(Variant.CHESS960);
-					setChess960Castling(pos, castleString);
-				} else {
-					throw new InvalidFenException("Invalid castling options in FEN: " + castleString);
+				if (!castleString.matches("[a-hA-HkqKQ]+")) {
+					throw new InvalidFenException("Invalid FEN: illegal letter found  in '" + castleString + "'");
+				}
+				CastlingInfoError error = setCastlingAndVariant(pos, castleString);
+				if (error != CastlingInfoError.PROCESSED) {
+					throw new InvalidFenException("Invalid FEN: " + error.getText() + ".");
 				}
 			}
 		} else { // determine castling possibilities from position
@@ -244,76 +226,303 @@ public class FEN {
 		}
 	}
 
-	private static void setChess960Castling(MutablePosition pos, String castleString) {
-		if (!castleString.matches("[a-hA-HkqKQ]+")) {
-			throw new IllegalArgumentException("Invalid castling options in FEN: " + castleString);
+	private static void initFromStandardStartFEN(MutablePosition pos) {
+		pos.setStone(Chess.A1, Chess.WHITE_ROOK);
+		pos.setStone(Chess.B1, Chess.WHITE_KNIGHT);
+		pos.setStone(Chess.C1, Chess.WHITE_BISHOP);
+		pos.setStone(Chess.D1, Chess.WHITE_QUEEN);
+		pos.setStone(Chess.E1, Chess.WHITE_KING);
+		pos.setStone(Chess.F1, Chess.WHITE_BISHOP);
+		pos.setStone(Chess.G1, Chess.WHITE_KNIGHT);
+		pos.setStone(Chess.H1, Chess.WHITE_ROOK);
+		pos.setStone(Chess.A8, Chess.BLACK_ROOK);
+		pos.setStone(Chess.B8, Chess.BLACK_KNIGHT);
+		pos.setStone(Chess.C8, Chess.BLACK_BISHOP);
+		pos.setStone(Chess.D8, Chess.BLACK_QUEEN);
+		pos.setStone(Chess.E8, Chess.BLACK_KING);
+		pos.setStone(Chess.F8, Chess.BLACK_BISHOP);
+		pos.setStone(Chess.G8, Chess.BLACK_KNIGHT);
+		pos.setStone(Chess.H8, Chess.BLACK_ROOK);
+		for (int i = Chess.A2; i <= Chess.H2; ++i) {
+			pos.setStone(i, Chess.WHITE_PAWN);
+		}
+		for (int i = Chess.A7; i <= Chess.H7; ++i) {
+			pos.setStone(i, Chess.BLACK_PAWN);
+		}
+		pos.setToPlay(Chess.WHITE);
+		pos.setCastles(ImmutablePosition.ALL_CASTLES);
+		pos.setSqiEP(Chess.NO_SQUARE);
+		pos.setHalfMoveClock(0);
+		pos.setPlyOffset(0);
+	}
+
+	public static enum CastlingInfoError {
+		PROCESSED("Processed without error"), NOT_PROCESSED("Not processed"), ILLEGAL_CHARACTER("Illegal character"),
+		ILLEGAL_WHITE_KING_SQUARE("Illegal white king square"), ILLEGAL_BLACK_KING_SQUARE("Illegal black king square"),
+		REPEATED_INFORMATION("Repeated information"),
+		KINGS_ON_DIFFERENT_FILES("Both sides can castle, but kings are on different files"),
+		QUEENSIDE_ROOKS_ON_DIFFERENT_FILES("Both sides can castle queenside, but rooks on different squares"),
+		KINGSIDE_ROOKS_ON_DIFFERENT_FILES("Both sides can castle kingside, but rooks on different squares"),
+		NO_WHITE_ROOK_ON_A1("No white rook on a1"), NO_WHITE_ROOK_ON_B1("No white rook on b1"),
+		NO_WHITE_ROOK_ON_C1("No white rook on c1"), NO_WHITE_ROOK_ON_D1("No white rook on d1"),
+		NO_WHITE_ROOK_ON_E1("No white rook on e1"), NO_WHITE_ROOK_ON_F1("No white rook on f1"),
+		NO_WHITE_ROOK_ON_G1("No white rook on g1"), NO_WHITE_ROOK_ON_H1("No white rook on h1"),
+		NO_BLACK_ROOK_ON_A8("No black rook on a8"), NO_BLACK_ROOK_ON_B8("No black rook on b8"),
+		NO_BLACK_ROOK_ON_C8("No black rook on c8"), NO_BLACK_ROOK_ON_D8("No black rook on d8"),
+		NO_BLACK_ROOK_ON_E8("No black rook on e8"), NO_BLACK_ROOK_ON_F8("No black rook on f8"),
+		NO_BLACK_ROOK_ON_G8("No black rook on g8"), NO_BLACK_ROOK_ON_H8("No black rook on h8"),
+		INVALID_CASTLING_INFORMATION("Invalid castling information");
+
+		private final String text;
+
+		CastlingInfoError(String text) {
+			this.text = text;
 		}
 
-		pos.setVariant(Variant.CHESS960);
+		public String getText() {
+			return text;
+		}
+	}
 
-		boolean whiteCanCastle = castleString.matches(".*[A-HKQ]+.*");
-		boolean blackCanCastle = castleString.matches(".*[a-hkq]+.*");
+	private static CastlingInfoError setCastlingAndVariant(MutablePosition pos, String castleString) {
+		// Pre-condition: The castleString matches '[a-hkqA-HKQ]+' and has at most four letters.
+		if (castleString.matches("[KQkq]+")) {
+			CastlingInfoError error = checkAndSetStandardCastling(pos, castleString);
+			if (error == CastlingInfoError.PROCESSED) {
+				return CastlingInfoError.PROCESSED;
+			}
+			if (error != CastlingInfoError.NOT_PROCESSED) {
+				String msg = "Internal error: Unexpected return value of FEN::checkAndSetStandardCastling for '" + pos.getEpFEN()
+						+ "' and '" + castleString + "'";
+				throw new RuntimeException(msg);
+			}
+		}
+		if (!castleString.matches("[A-Ha-h]+")) {
+			String[] cSArray = new String[] { castleString };
+			CastlingInfoError error = xFenToShredderFen(pos, cSArray);
+			if (error != CastlingInfoError.PROCESSED) {
+				return error;
+			}
+			castleString = cSArray[0];
+		}
+		return checkAndSetChess960CastlingShredder(pos, castleString);
+	}
+
+	private static CastlingInfoError xFenToShredderFen(MutablePosition pos, String[] cSArray) {
+		// Pre-condition: castleString matches '[a-hkqA-HKQ]+', but not "[A-Ha-h]+".
+		String castleString = cSArray[0];
+		if (castleString.contains("K")) {
+			int whiteKingSquare = pos.getWhitesKingSquare();
+			if (whiteKingSquare >= Chess.H1 || whiteKingSquare <= Chess.A1) {
+				return CastlingInfoError.ILLEGAL_WHITE_KING_SQUARE;
+			}
+			char ch = 'H';
+			for (int square = Chess.H1; square > whiteKingSquare; --square, --ch) {
+				if (pos.getStone(square) == Chess.WHITE_ROOK) {
+					castleString = castleString.replace('K', ch);
+					break;
+				}
+			}
+			if (castleString.contains("K")) {
+				return CastlingInfoError.REPEATED_INFORMATION;
+			}
+		}
+		if (castleString.contains("Q")) {
+			int whiteKingSquare = pos.getWhitesKingSquare();
+			if (whiteKingSquare >= Chess.H1 || whiteKingSquare <= Chess.A1) {
+				return CastlingInfoError.ILLEGAL_WHITE_KING_SQUARE;
+			}
+			char ch = 'A';
+			for (int square = Chess.A1; square < whiteKingSquare; ++square, ++ch) {
+				if (pos.getStone(square) == Chess.WHITE_ROOK) {
+					castleString = castleString.replace('Q', ch);
+					break;
+				}
+			}
+			if (castleString.contains("Q")) {
+				return CastlingInfoError.REPEATED_INFORMATION;
+			}
+		}
+		if (castleString.contains("k")) {
+			int blackKingSquare = pos.getBlacksKingSquare();
+			if (blackKingSquare >= Chess.H8 || blackKingSquare <= Chess.A8) {
+				return CastlingInfoError.ILLEGAL_BLACK_KING_SQUARE;
+			}
+			char ch = 'h';
+			for (int square = Chess.H8; square > blackKingSquare; --square, --ch) {
+				if (pos.getStone(square) == Chess.BLACK_ROOK) {
+					castleString = castleString.replace('k', ch);
+					break;
+				}
+			}
+			if (castleString.contains("k")) {
+				return CastlingInfoError.REPEATED_INFORMATION;
+			}
+		}
+		if (castleString.contains("q")) {
+			int blackKingSquare = pos.getBlacksKingSquare();
+			if (blackKingSquare >= Chess.H8 || blackKingSquare <= Chess.A8) {
+				return CastlingInfoError.ILLEGAL_BLACK_KING_SQUARE;
+			}
+			char ch = 'a';
+			for (int square = Chess.A8; square < blackKingSquare; ++square, ++ch) {
+				if (pos.getStone(square) == Chess.BLACK_ROOK) {
+					castleString = castleString.replace('q', ch);
+					break;
+				}
+			}
+			if (castleString.contains("q")) {
+				return CastlingInfoError.REPEATED_INFORMATION;
+			}
+		}
+		cSArray[0] = castleString;
+		return CastlingInfoError.PROCESSED;
+	}
+
+	private static CastlingInfoError checkAndSetStandardCastling(MutablePosition pos, String castleString) {
+		// Pre-condition: casteString matches '[KQkq]+'.
+		boolean whiteCanCastleKingSide = false;
+		boolean whiteCanCastleQueenSide = false;
+		boolean blackCanCastleKingSide = false;
+		boolean blackCanCastleQueenSide = false;
+		for (int i = 0; i < castleString.length(); ++i) {
+			char ch = castleString.charAt(i);
+			if (ch == 'K') {
+				whiteCanCastleKingSide = true;
+			} else if (ch == 'Q') {
+				whiteCanCastleQueenSide = true;
+			} else if (ch == 'k') {
+				blackCanCastleKingSide = true;
+			} else if (ch == 'q') {
+				blackCanCastleQueenSide = true;
+			}
+		}
+		if (whiteCanCastleKingSide || whiteCanCastleQueenSide) {
+			if (pos.getWhitesKingSquare() != Chess.E1) {
+				return CastlingInfoError.NOT_PROCESSED;
+			}
+		}
+		if (blackCanCastleKingSide || blackCanCastleQueenSide) {
+			if (pos.getBlacksKingSquare() != Chess.E8) {
+				return CastlingInfoError.NOT_PROCESSED;
+			}
+		}
+		int castles = ImmutablePosition.NO_CASTLES;
+		if (whiteCanCastleKingSide) {
+			if (pos.getStone(Chess.H1) != Chess.WHITE_ROOK) {
+				return CastlingInfoError.NOT_PROCESSED;
+			}
+			castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
+		}
+		if (whiteCanCastleQueenSide) {
+			if (pos.getStone(Chess.A1) != Chess.WHITE_ROOK) {
+				return CastlingInfoError.NOT_PROCESSED;
+			}
+			castles |= ImmutablePosition.WHITE_LONG_CASTLE;
+		}
+		if (blackCanCastleKingSide) {
+			if (pos.getStone(Chess.H8) != Chess.BLACK_ROOK) {
+				return CastlingInfoError.NOT_PROCESSED;
+			}
+			castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
+		}
+		if (blackCanCastleQueenSide) {
+			if (pos.getStone(Chess.A8) != Chess.BLACK_ROOK) {
+				return CastlingInfoError.NOT_PROCESSED;
+			}
+			castles |= ImmutablePosition.BLACK_LONG_CASTLE;
+		}
+		pos.setCastles(castles);
+		return CastlingInfoError.PROCESSED;
+	}
+
+	private static CastlingInfoError checkAndSetChess960CastlingShredder(MutablePosition pos, String castleString) {
+		if (!castleString.matches("[A-Ha-h]+")) {
+			return CastlingInfoError.ILLEGAL_CHARACTER;
+		}
+
+		boolean whiteCanCastle = castleString.matches(".*[A-H]+.*");
+		boolean blackCanCastle = castleString.matches(".*[a-h]+.*");
 
 		// start with the kings
-		int whitesKingSquare = -1;
-		int blacksKingSquare = -1;
+		int whitesKingSquare = pos.getWhitesKingSquare();
+		int blacksKingSquare = pos.getBlacksKingSquare();
 
 		if (whiteCanCastle) { // White's king square is relevant
-			for (int square = Chess.A1; square <= Chess.H1; ++square) {
-				if (pos.getStone(square) == Chess.WHITE_KING) {
-					whitesKingSquare = square;
-					break;
-				}
-			}
-			if (whitesKingSquare == -1) {
-				throw new IllegalArgumentException(
-						"Invalid castling options in FEN: " + castleString + ", White's king is not on the first rank.");
-			}
-			if (whitesKingSquare == Chess.A1) {
-				throw new IllegalArgumentException(
-						"Invalid castling options in FEN: " + castleString + ", but White's king is on A1.");
-			}
-			if (whitesKingSquare == Chess.H1) {
-				throw new IllegalArgumentException(
-						"Invalid castling options in FEN: " + castleString + ", but White's king is on H1.");
+			if (whitesKingSquare <= Chess.A1 || whitesKingSquare >= Chess.H1) {
+				return CastlingInfoError.ILLEGAL_WHITE_KING_SQUARE;
 			}
 		}
-
 		if (blackCanCastle) { // Black's king square is relevant
-			for (int square = Chess.A8; square <= Chess.H8; ++square) {
-				if (pos.getStone(square) == Chess.BLACK_KING) {
-					blacksKingSquare = square;
-					break;
+			if (blacksKingSquare <= Chess.A8 || blacksKingSquare >= Chess.H8) {
+				return CastlingInfoError.ILLEGAL_BLACK_KING_SQUARE;
+			}
+		}
+
+		if (whiteCanCastle && blackCanCastle) {
+			if (whitesKingSquare % 8 != blacksKingSquare % 8) {
+				return CastlingInfoError.KINGS_ON_DIFFERENT_FILES;
+			}
+		}
+
+		// check the castleString
+		// no detailed error messages, because the castleString can be processed
+		char wKSCSq = ' ';
+		char wQSCSq = ' ';
+		char bKSCSq = ' ';
+		char bQSCSq = ' ';
+		char wKSq = (char) ('A' + whitesKingSquare);
+		char bKSq = (char) ('a' + blacksKingSquare - Chess.A8);
+		for (int i = 0; i < castleString.length(); ++i) {
+			char ch = castleString.charAt(i);
+			if (ch >= 'A' && ch <= 'H') { // a castling option for White
+				if (ch == wKSq) { // rook and king square are equal
+					return CastlingInfoError.INVALID_CASTLING_INFORMATION;
+				} else if (ch < wKSq) { // queenside
+					if (wQSCSq != ' ') { // already set
+						return CastlingInfoError.INVALID_CASTLING_INFORMATION;
+					}
+					wQSCSq = ch;
+				} else if (ch > wKSq) { // kingside
+					if (wKSCSq != ' ') { // already set
+						return CastlingInfoError.INVALID_CASTLING_INFORMATION;
+					}
+					wKSCSq = ch;
+				}
+			} else if (ch >= 'a' && ch <= 'h') { // a castling option for Black
+				if (ch == bKSq) { // rook and king square are equal
+					return CastlingInfoError.INVALID_CASTLING_INFORMATION;
+				} else if (ch < bKSq) { // queenside
+					if (bQSCSq != ' ') { // already set
+						return CastlingInfoError.INVALID_CASTLING_INFORMATION;
+					}
+					bQSCSq = ch;
+				} else if (ch > bKSq) { // kingside
+					if (bKSCSq != ' ') { // already set
+						return CastlingInfoError.INVALID_CASTLING_INFORMATION;
+					}
+					bKSCSq = ch;
 				}
 			}
-			if (blacksKingSquare == -1) {
-				throw new IllegalArgumentException(
-						"Invalid castling options in FEN: " + castleString + ", Black's king is not on the eighth rank.");
+		}
+		if (wKSCSq != ' ' && bKSCSq != ' ') { // kingside: both set
+			if (Character.toLowerCase(wKSCSq) != bKSCSq) {
+				return CastlingInfoError.INVALID_CASTLING_INFORMATION;
 			}
-			if (blacksKingSquare == Chess.A8) {
-				throw new IllegalArgumentException(
-						"Invalid castling options in FEN: " + castleString + ", but Black's king is on A8.");
-			}
-			if (blacksKingSquare == Chess.H8) {
-				throw new IllegalArgumentException(
-						"Invalid castling options in FEN: " + castleString + ", but Black's king is on H8.");
+		}
+		if (wQSCSq != ' ' && bQSCSq != ' ') { // queenside: both set
+			if (Character.toLowerCase(wQSCSq) != bQSCSq) {
+				return CastlingInfoError.INVALID_CASTLING_INFORMATION;
 			}
 		}
 
-		if (whitesKingSquare != -1 && blacksKingSquare != -1) {
-			if (whitesKingSquare % 8 != blacksKingSquare % 8) {
-				throw new IllegalArgumentException(
-						"Invalid castling options in FEN: " + castleString + ", while kings are on different files.");
-			}
-		}
-
-		// next the rooks (only
+		// next the rooks
 		int whitesQueensideRookSquare = -1;
 		int blacksQueensideRookSquare = -1;
 		int whitesKingsideRookSquare = -1;
 		int blacksKingsideRookSquare = -1;
 
-		if (whiteCanCastle) { // White's rooks
+		if (whiteCanCastle) { // find White's rooks
 			for (int square = Chess.A1; square < whitesKingSquare; ++square) {
 				if (pos.getStone(square) == Chess.WHITE_ROOK) {
 					whitesQueensideRookSquare = square;
@@ -327,7 +536,7 @@ public class FEN {
 				}
 			}
 		}
-		if (blackCanCastle) { // Black's rooks
+		if (blackCanCastle) { // find Black's rooks
 			for (int square = Chess.A8; square < blacksKingSquare; ++square) {
 				if (pos.getStone(square) == Chess.BLACK_ROOK) {
 					blacksQueensideRookSquare = square;
@@ -346,36 +555,28 @@ public class FEN {
 			if (whitesQueensideRookSquare != blacksQueensideRookSquare % 8) {
 				{
 					String s = Character.toString(Chess.colToChar(whitesQueensideRookSquare));
-					if ((castleString.contains(s) || castleString.contains("q"))
-							&& (castleString.contains(s.toUpperCase()) || castleString.contains("Q"))) {
-						throw new IllegalArgumentException(
-								"Invalid castling options in FEN: " + castleString + ", but queenside rooks on different files.");
+					if (castleString.contains(s) && castleString.contains(s.toUpperCase())) {
+						return CastlingInfoError.QUEENSIDE_ROOKS_ON_DIFFERENT_FILES;
 					}
 				}
 				{
 					String t = Character.toString(Chess.colToChar(blacksQueensideRookSquare % 8));
-					if ((castleString.contains(t) || castleString.contains("q"))
-							&& (castleString.contains(t.toUpperCase()) || castleString.contains("Q"))) {
-						throw new IllegalArgumentException(
-								"Invalid castling options in FEN: " + castleString + ", but queenside rooks on different files.");
+					if (castleString.contains(t) && castleString.contains(t.toUpperCase())) {
+						return CastlingInfoError.QUEENSIDE_ROOKS_ON_DIFFERENT_FILES;
 					}
 				}
 			}
 			if (whitesKingsideRookSquare != blacksKingsideRookSquare % 8) {
 				{
 					String s = Character.toString(Chess.colToChar(whitesKingsideRookSquare));
-					if ((castleString.contains(s) || castleString.contains("k"))
-							&& (castleString.contains(s.toUpperCase()) || castleString.contains("K"))) {
-						throw new IllegalArgumentException(
-								"Invalid castling options in FEN: " + castleString + ", but kingside rooks on different files.");
+					if (castleString.contains(s) && castleString.contains(s.toUpperCase())) {
+						return CastlingInfoError.KINGSIDE_ROOKS_ON_DIFFERENT_FILES;
 					}
 				}
 				{
 					String t = Character.toString(Chess.colToChar(blacksKingsideRookSquare % 8));
-					if ((castleString.contains(t) || castleString.contains("k"))
-							&& (castleString.contains(t.toUpperCase()) || castleString.contains("K"))) {
-						throw new IllegalArgumentException(
-								"Invalid castling options in FEN: " + castleString + ", but kingside rooks on different files.");
+					if (castleString.contains(t) && castleString.contains(t.toUpperCase())) {
+						return CastlingInfoError.KINGSIDE_ROOKS_ON_DIFFERENT_FILES;
 					}
 				}
 			}
@@ -389,18 +590,13 @@ public class FEN {
 
 		for (int i = 0; i < castleString.length(); ++i) {
 			int ch = castleString.charAt(i);
-			boolean needsException = false;
 			switch (ch) {
 			case 'A':
 				if (whitesQueensideRookSquare == Chess.A1) {
 					queensideRookSquare = Chess.A1;
 					castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'A' does not match a rook position.");
+					return CastlingInfoError.NO_WHITE_ROOK_ON_A1;
 				}
 				break;
 			case 'B':
@@ -408,11 +604,7 @@ public class FEN {
 					queensideRookSquare = Chess.B1;
 					castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'B' does not match a rook position.");
+					return CastlingInfoError.NO_WHITE_ROOK_ON_B1;
 				}
 				break;
 			case 'C':
@@ -421,21 +613,17 @@ public class FEN {
 						queensideRookSquare = Chess.C1;
 						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_WHITE_ROOK_ON_C1;
 					}
 				} else if (whitesKingSquare < Chess.C1) {
 					if (whitesKingsideRookSquare == Chess.C1) {
 						kingsideRookSquare = Chess.C1;
 						castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_WHITE_ROOK_ON_C1;
 					}
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'C' does not match a rook position.");
+					return CastlingInfoError.NO_WHITE_ROOK_ON_C1;
 				}
 				break;
 			case 'D':
@@ -444,21 +632,17 @@ public class FEN {
 						queensideRookSquare = Chess.D1;
 						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_WHITE_ROOK_ON_D1;
 					}
 				} else if (whitesKingSquare < Chess.D1) {
 					if (whitesKingsideRookSquare == Chess.D1) {
 						kingsideRookSquare = Chess.D1;
 						castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_WHITE_ROOK_ON_D1;
 					}
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'D' does not match a rook position.");
+					return CastlingInfoError.NO_WHITE_ROOK_ON_D1;
 				}
 				break;
 			case 'E':
@@ -467,21 +651,17 @@ public class FEN {
 						queensideRookSquare = Chess.E1;
 						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_WHITE_ROOK_ON_E1;
 					}
 				} else if (whitesKingSquare < Chess.E1) {
 					if (whitesKingsideRookSquare == Chess.E1) {
 						kingsideRookSquare = Chess.E1;
 						castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_WHITE_ROOK_ON_E1;
 					}
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'E' does not match a rook position.");
+					return CastlingInfoError.NO_WHITE_ROOK_ON_E1;
 				}
 				break;
 			case 'F':
@@ -490,21 +670,17 @@ public class FEN {
 						queensideRookSquare = Chess.F1;
 						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_WHITE_ROOK_ON_F1;
 					}
 				} else if (whitesKingSquare < Chess.F1) {
 					if (whitesKingsideRookSquare == Chess.F1) {
 						kingsideRookSquare = Chess.F1;
 						castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_WHITE_ROOK_ON_F1;
 					}
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'F' does not match a rook position.");
+					return CastlingInfoError.NO_WHITE_ROOK_ON_F1;
 				}
 				break;
 			case 'G':
@@ -512,11 +688,7 @@ public class FEN {
 					kingsideRookSquare = Chess.G1;
 					castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'G' does not match a rook position.");
+					return CastlingInfoError.NO_WHITE_ROOK_ON_G1;
 				}
 				break;
 			case 'H':
@@ -524,11 +696,7 @@ public class FEN {
 					kingsideRookSquare = Chess.H1;
 					castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'H' does not match a rook position.");
+					return CastlingInfoError.NO_WHITE_ROOK_ON_H1;
 				}
 				break;
 			case 'a':
@@ -536,11 +704,7 @@ public class FEN {
 					queensideRookSquare = Chess.A1;
 					castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'a' does not match a rook position.");
+					return CastlingInfoError.NO_BLACK_ROOK_ON_A8;
 				}
 				break;
 			case 'b':
@@ -548,11 +712,7 @@ public class FEN {
 					queensideRookSquare = Chess.B1;
 					castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'b' does not match a rook position.");
+					return CastlingInfoError.NO_BLACK_ROOK_ON_B8;
 				}
 				break;
 			case 'c':
@@ -561,21 +721,17 @@ public class FEN {
 						queensideRookSquare = Chess.C1;
 						castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_BLACK_ROOK_ON_C8;
 					}
 				} else if (blacksKingSquare < Chess.C8) {
 					if (blacksKingsideRookSquare == Chess.C8) {
 						kingsideRookSquare = Chess.C1;
 						castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_BLACK_ROOK_ON_C8;
 					}
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'c' does not match a rook position.");
+					return CastlingInfoError.NO_BLACK_ROOK_ON_C8;
 				}
 				break;
 			case 'd':
@@ -584,21 +740,17 @@ public class FEN {
 						queensideRookSquare = Chess.D1;
 						castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_BLACK_ROOK_ON_D8;
 					}
 				} else if (blacksKingSquare < Chess.D8) {
 					if (blacksKingsideRookSquare == Chess.D8) {
 						kingsideRookSquare = Chess.D1;
 						castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_BLACK_ROOK_ON_D8;
 					}
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'd' does not match a rook position.");
+					return CastlingInfoError.NO_BLACK_ROOK_ON_D8;
 				}
 				break;
 			case 'e':
@@ -607,21 +759,17 @@ public class FEN {
 						queensideRookSquare = Chess.E1;
 						castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_BLACK_ROOK_ON_E8;
 					}
 				} else if (blacksKingSquare < Chess.E8) {
 					if (blacksKingsideRookSquare == Chess.E8) {
 						kingsideRookSquare = Chess.E1;
 						castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_BLACK_ROOK_ON_E8;
 					}
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'e' does not match a rook position.");
+					return CastlingInfoError.NO_BLACK_ROOK_ON_E8;
 				}
 				break;
 			case 'f':
@@ -630,21 +778,17 @@ public class FEN {
 						queensideRookSquare = Chess.F1;
 						castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_BLACK_ROOK_ON_F8;
 					}
 				} else if (blacksKingSquare < Chess.F8) {
 					if (blacksKingsideRookSquare == Chess.F8) {
 						kingsideRookSquare = Chess.F1;
 						castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
 					} else {
-						needsException = true;
+						return CastlingInfoError.NO_BLACK_ROOK_ON_F8;
 					}
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'f' does not match a rook position.");
+					return CastlingInfoError.NO_BLACK_ROOK_ON_F8;
 				}
 				break;
 			case 'g':
@@ -652,11 +796,7 @@ public class FEN {
 					kingsideRookSquare = Chess.G1;
 					castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
 				} else {
-					needsException = true;
-				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'g' does not match a rook position.");
+					return CastlingInfoError.NO_BLACK_ROOK_ON_G8;
 				}
 				break;
 			case 'h':
@@ -664,38 +804,18 @@ public class FEN {
 					kingsideRookSquare = Chess.H1;
 					castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
 				} else {
-					needsException = true;
+					return CastlingInfoError.NO_BLACK_ROOK_ON_H8;
 				}
-				if (needsException) {
-					throw new IllegalArgumentException(
-							"Invalid castling options in FEN: " + castleString + ", but 'h' does not match a rook position.");
-				}
-				break;
-			case 'K':
-				kingsideRookSquare = whitesKingsideRookSquare;
-				castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
-				break;
-			case 'Q':
-				queensideRookSquare = whitesQueensideRookSquare;
-				castles |= ImmutablePosition.WHITE_LONG_CASTLE;
-				break;
-			case 'k':
-				kingsideRookSquare = blacksKingsideRookSquare % 8;
-				castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
-				break;
-			case 'q':
-				queensideRookSquare = blacksQueensideRookSquare % 8;
-				castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 				break;
 			default:
-				break;
+				break; // cannot be reached, since castleString matches [A-Ha-h]+.
 			}
 		}
 
 		pos.setCastles(castles);
-		if (pos.getVariant() == Variant.CHESS960) {
-			pos.setChess960CastlingFiles(whitesKingSquare, queensideRookSquare, kingsideRookSquare);
-		}
+		pos.setChess960();
+		pos.setChess960CastlingFiles(whitesKingSquare, queensideRookSquare, kingsideRookSquare);
+		return CastlingInfoError.PROCESSED;
 	}
 
 	public static String getFEN(ImmutablePosition pos, int numberOfParts) {

@@ -27,17 +27,13 @@ import chesspresso.move.Move;
 import chesspresso.position.PositionImpl.PosInternalState;
 
 /**
- * Position is the public part of the whole position hierarchy. It handles the
- * PositionListners and delegates all functionality to a PositionImpl object.
+ * Position is the public part of the whole position hierarchy. It handles the PositionListeners and delegates 
+ * all functionality to a PositionImpl object.
  * 
- * The user can prevent the listeners from being informed of changes by telling
- * the Position object to be 'within an algorithm'. This is used to make a
- * number of changes of the Position object with only once notification of the
- * listeners at the very end. Such algorithms can be nested. Call the method
- * increaseAlgorithmDepth to start an algorithm, and call decreaseAlgorithm to
- * stop one. When the last algorithms is stopped, the listeners are notified
- * (even if no change has taken place).
- * 
+ * The user can prevent the listeners from being informed of changes by using an Algorithm object in the method 
+ * runAlgorithm. If so, the notification of the listeners is deactivated, and then the algorithm is run. 
+ * Thereafter the notification of the listeners is activated again, unless the algorithm was run within another 
+ * algorithm.
  * 
  * This class is not thread-safe.
  * 
@@ -222,9 +218,9 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
-	public void setVariant(Variant variant) {
-		if (getVariant() != variant) {
-			impl.setVariant(variant);
+	public void setChess960() {
+		if (getVariant() != Variant.CHESS960) {
+			impl.setChess960();
 			firePositionChanged();
 		}
 	}

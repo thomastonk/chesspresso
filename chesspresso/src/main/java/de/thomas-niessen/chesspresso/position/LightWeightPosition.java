@@ -178,8 +178,8 @@ public class LightWeightPosition extends AbstractMutablePosition {
 	}
 
 	@Override
-	public void setVariant(Variant variant) {
-		throw new UnsupportedOperationException("LightweightPosition::setVariant: method has not been implemented yet.");
+	public void setChess960() {
+		throw new UnsupportedOperationException("LightweightPosition::setChess960: method has not been implemented yet.");
 	}
 
 	@Override

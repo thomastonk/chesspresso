@@ -418,7 +418,8 @@ public final class PGNReader extends PGN {
 			if ((variant.contains("chess") && variant.contains("960"))
 					|| (variant.contains("fischer") && variant.contains("random"))) {
 				return Variant.CHESS960;
-			} else if (variant.contains("standard") || variant.contains("three-check")) { // as in lichess
+			} else if (variant.contains("standard") || variant.contains("three-check") || variant.contains("normal")) {
+				// lichess and tcec values 
 				return Variant.STANDARD;
 			} else {
 				throw new PGNSyntaxError(Severity.ERROR, "Unknown variant: " + m_curGame.getTag(TAG_VARIANT), m_filename,
@@ -455,7 +456,7 @@ public final class PGNReader extends PGN {
 
 	private void initForMovetext() throws PGNSyntaxError {
 		if (getVariantFromTag() == Variant.CHESS960) {
-			m_curGame.setVariant(Variant.CHESS960);
+			m_curGame.setChess960();
 		}
 		String fen = m_curGame.getTag(TAG_FEN);
 		if (fen != null) {

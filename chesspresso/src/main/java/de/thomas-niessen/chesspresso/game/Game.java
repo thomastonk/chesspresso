@@ -184,9 +184,7 @@ public class Game implements RelatedGame, Serializable {
 	}
 
 	private void setPosition(Position position) {
-		Variant oldVariant = null;
 		if (m_position != null) {
-			oldVariant = m_position.getVariant();
 			List<PositionListener> listeners = m_position.getPositionListeners();
 			m_position = position;
 			for (PositionListener listener : listeners) {
@@ -197,12 +195,6 @@ public class Game implements RelatedGame, Serializable {
 		}
 		m_position.setRelatedGame(this);
 		m_cur = 0;
-		if (m_position.getVariant() == Variant.CHESS960) {
-			setVariant(m_position.getVariant());
-		}
-		if (oldVariant == Variant.CHESS960) {
-			m_position.setVariant(oldVariant);
-		}
 	}
 
 	public void setAlwaysAddLine(boolean alwaysAddLine) {
@@ -260,7 +252,7 @@ public class Game implements RelatedGame, Serializable {
 	}
 
 	public void setGameByFEN(String fen, boolean overwriteTags) throws InvalidFenException {
-		Position newPos = new Position(fen, false); // If this throws, this is unchanged!
+		Position newPos = new Position(fen, false); // If this throws, 'this' is unchanged!
 		if (overwriteTags) {
 			m_model.getHeaderModel().clearTags();
 			m_model.getHeaderModel().setTag(PGN.TAG_DATE, "????.??.??");
@@ -271,7 +263,6 @@ public class Game implements RelatedGame, Serializable {
 		m_model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
 		setPosition(newPos);
 		m_model.getMoveModel().clear();
-		setVariant(FEN.isShredderFEN(fen) ? Variant.CHESS960 : Variant.STANDARD);
 		fireMoveModelChanged();
 		fireHeaderModelChanged();
 	}
@@ -367,12 +358,11 @@ public class Game implements RelatedGame, Serializable {
 	}
 
 	public Variant getVariant() {
-		return m_model.getHeaderModel().getVariant();
+		return m_position.getVariant();
 	}
 
-	public void setVariant(Variant variant) {
-		m_model.getHeaderModel().setVariant(variant);
-		m_position.setVariant(variant);
+	public void setChess960() {
+		m_position.setChess960();
 	}
 
 	// ======================================================================

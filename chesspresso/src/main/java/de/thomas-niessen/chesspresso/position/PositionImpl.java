@@ -445,6 +445,19 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 
 	@Override
+	public void setPosition(ImmutablePosition position) {
+		super.setPosition(position);
+		this.m_variant = position.getVariant();
+		this.m_chess960KingFile = position.getChess960KingFile();
+		this.m_chess960KingsideRookFile = position.getChess960KingsideRookFile();
+		this.m_chess960QueensideRookFile = position.getChess960QueensideRookFile();
+	}
+
+	/*
+	 * =========================================================================
+	 */
+
+	@Override
 	public void clear() {
 		super.clear();
 		m_flags &= ~((long) PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
@@ -2580,8 +2593,8 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	@Override
-	public void setVariant(Variant variant) {
-		m_variant = variant;
+	public void setChess960() {
+		m_variant = Variant.CHESS960;
 	}
 
 	/**

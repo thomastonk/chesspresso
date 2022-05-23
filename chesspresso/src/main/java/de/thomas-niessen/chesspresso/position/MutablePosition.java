@@ -14,8 +14,6 @@
  ******************************************************************************/
 package chesspresso.position;
 
-import chesspresso.Variant;
-
 /**
  * @author $Author: Bernhard Seybold$
  */
@@ -42,7 +40,7 @@ public interface MutablePosition extends ImmutablePosition {
 
 	void setHalfMoveClock(int halfMoveClock);
 
-	void setVariant(Variant variant);
+	void setChess960();
 
 	void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile);
 

@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.LinkedList;
 
 import chesspresso.Chess;
-import chesspresso.Variant;
 import chesspresso.pgn.PGN;
 
 /**
@@ -51,7 +50,6 @@ class GameHeaderModel implements Serializable {
 	private String[] m_standardTags;
 	private LinkedList<String> m_otherTags;
 	private LinkedList<String> m_otherTagValues;
-	private Variant m_variant;
 
 	/*
 	 * =============================================================================
@@ -60,13 +58,11 @@ class GameHeaderModel implements Serializable {
 	GameHeaderModel() {
 		m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 		m_otherTags = null;
-		m_variant = Variant.STANDARD;
 	}
 
 	GameHeaderModel(DataInput in, int mode) throws IOException {
 		m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 		m_otherTags = null;
-		m_variant = Variant.STANDARD;
 		load(in, mode);
 	}
 
@@ -83,8 +79,6 @@ class GameHeaderModel implements Serializable {
 			copy.m_otherTagValues = new LinkedList<>();
 			copy.m_otherTagValues = (LinkedList<String>) this.m_otherTagValues.clone();
 		}
-		copy.m_variant = this.m_variant;
-
 		return copy;
 	}
 
@@ -281,23 +275,6 @@ class GameHeaderModel implements Serializable {
 			return Integer.parseInt(blackElo);
 		} catch (NumberFormatException ex) {
 			return 0; // =====>
-		}
-	}
-
-	/*
-	 * =============================================================================
-	 */
-
-	Variant getVariant() {
-		return m_variant;
-	}
-
-	void setVariant(Variant variant) {
-		m_variant = variant;
-		if (variant == Variant.CHESS960) {
-			setTag(PGN.TAG_VARIANT, "Chess960");
-		} else {
-			removeTag(PGN.TAG_VARIANT);
 		}
 	}
 
