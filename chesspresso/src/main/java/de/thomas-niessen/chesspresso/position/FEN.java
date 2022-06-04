@@ -47,6 +47,12 @@ public class FEN {
 	public static final String EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
 	private static final Pattern SQUARE_PATTERN = Pattern.compile("[a-h][1-8]");
+	private static final Pattern DOUBLE_WHITE_KING_PATTERN = Pattern.compile(".*K.*K.*");
+	private static final Pattern DOUBLE_BLACK_KING_PATTERN = Pattern.compile(".*k.*k.*");
+
+	private static final Pattern ANY_CASTLING_PATTERN = Pattern.compile("[a-hA-HkqKQ]+");
+	private static final Pattern CLASSICAL_CASTLING_PATTERN = Pattern.compile("[KQkq]+");
+	private static final Pattern SHREDDER_CASTLING_PATTERN = Pattern.compile("[A-Ha-h]+");
 
 	static void initFromFEN(MutablePosition pos, String fen, boolean validate) throws InvalidFenException {
 		pos.clear();
@@ -62,6 +68,15 @@ public class FEN {
 		String[] fenParts = fen.trim().split(" +");
 		if (fenParts.length == 0) {
 			throw new InvalidFenException("Invalid FEN: empty string or only white spaces.");
+		}
+
+		if (validate) { // double kings of the same color will found nowhere else
+			if (DOUBLE_WHITE_KING_PATTERN.matcher(fenParts[0]).matches()) {
+				throw new InvalidFenException("Invalid FEN: two or more white kings.");
+			}
+			if (DOUBLE_BLACK_KING_PATTERN.matcher(fenParts[0]).matches()) {
+				throw new InvalidFenException("Invalid FEN: two or more black kings.");
+			}
 		}
 
 		/* ========== 1st field : pieces ========== */
@@ -129,7 +144,7 @@ public class FEN {
 					throw new InvalidFenException(
 							"Invalid FEN: expected castling information of length at most 4, found '" + castleString + "'");
 				}
-				if (!castleString.matches("[a-hA-HkqKQ]+")) {
+				if (!ANY_CASTLING_PATTERN.matcher(castleString).matches()) {
 					throw new InvalidFenException("Invalid FEN: illegal letter found  in '" + castleString + "'");
 				}
 				CastlingInfoError error = setCastlingAndVariant(pos, castleString);
@@ -286,7 +301,7 @@ public class FEN {
 
 	private static CastlingInfoError setCastlingAndVariant(MutablePosition pos, String castleString) {
 		// Pre-condition: The castleString matches '[a-hkqA-HKQ]+' and has at most four letters.
-		if (castleString.matches("[KQkq]+")) {
+		if (CLASSICAL_CASTLING_PATTERN.matcher(castleString).matches()) {
 			CastlingInfoError error = checkAndSetStandardCastling(pos, castleString);
 			if (error == CastlingInfoError.PROCESSED) {
 				return CastlingInfoError.PROCESSED;
@@ -297,7 +312,7 @@ public class FEN {
 				throw new RuntimeException(msg);
 			}
 		}
-		if (!castleString.matches("[A-Ha-h]+")) {
+		if (!SHREDDER_CASTLING_PATTERN.matcher(castleString).matches()) {
 			String[] cSArray = new String[] { castleString };
 			CastlingInfoError error = xFenToShredderFen(pos, cSArray);
 			if (error != CastlingInfoError.PROCESSED) {
@@ -437,12 +452,12 @@ public class FEN {
 	}
 
 	private static CastlingInfoError checkAndSetChess960CastlingShredder(MutablePosition pos, String castleString) {
-		if (!castleString.matches("[A-Ha-h]+")) {
+		if (!SHREDDER_CASTLING_PATTERN.matcher(castleString).matches()) {
 			return CastlingInfoError.ILLEGAL_CHARACTER;
 		}
 
-		boolean whiteCanCastle = castleString.matches(".*[A-H]+.*");
-		boolean blackCanCastle = castleString.matches(".*[a-h]+.*");
+		boolean whiteCanCastle = castleString.matches(".*[A-H].*");
+		boolean blackCanCastle = castleString.matches(".*[a-h].*");
 
 		// start with the kings
 		int whitesKingSquare = pos.getWhitesKingSquare();

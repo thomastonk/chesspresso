@@ -396,7 +396,7 @@ public abstract class NAG {
 		}
 	}
 
-	public static short ofString(String description) throws IllegalArgumentException {
+	public static short ofString(String description) {
 		if (description != null) {
 			for (short i = 0; i < SHORT_DESCRIPTION.length; i++) {
 				if (description.equals(SHORT_DESCRIPTION[i]))
@@ -405,7 +405,7 @@ public abstract class NAG {
 					return i;
 			}
 		}
-		throw new IllegalArgumentException("Nag unknown " + description);
+		return -1;
 	}
 
 	// TN added:

@@ -667,11 +667,11 @@ public final class PGNReader extends PGN {
 				nagSB.append((char) getLastToken());
 				getNextToken();
 			} while (getLastToken() == '!' || getLastToken() == '?');
-			try {
-				short nag = NAG.ofString(nagSB.toString());
+			short nag = NAG.ofString(nagSB.toString());
+			if (nag != -1) {
 				warning("Direct NAG used " + nagSB.toString() + " -> $" + nag);
 				m_curGame.addNag(nag);
-			} catch (IllegalArgumentException ex) {
+			} else {
 				syntaxError("Illegal direct NAG " + nagSB.toString());
 			}
 		} else {

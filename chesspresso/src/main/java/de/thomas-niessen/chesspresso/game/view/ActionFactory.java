@@ -154,6 +154,9 @@ public class ActionFactory {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			short nag = NAG.ofString(e.getActionCommand());
+			if (nag == -1) {
+				return;
+			}
 			int curNode = game.getCurNode();
 			if (NAG.isEvaluation(nag)) {
 				game.removeEvaluationNags();
