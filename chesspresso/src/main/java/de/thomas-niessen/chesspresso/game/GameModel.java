@@ -14,12 +14,11 @@
  ******************************************************************************/
 package chesspresso.game;
 
-import java.io.*;
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
- *
  * @author Bernhard Seybold
- * 
  */
 class GameModel implements Serializable {
 	@Serial
@@ -28,10 +27,7 @@ class GameModel implements Serializable {
 	private GameHeaderModel m_headerModel;
 	private GameMoveModel m_moveModel;
 
-	/*
-	 * =============================================================================
-	 * ===
-	 */
+	// =============================================================================
 
 	GameModel() {
 		m_headerModel = new GameHeaderModel();
@@ -43,18 +39,11 @@ class GameModel implements Serializable {
 		m_moveModel = moveModel;
 	}
 
-	GameModel(DataInput in, int headerMode, int movesMode) throws IOException {
-		load(in, headerMode, movesMode);
-	}
-
-	// TN added:
 	public GameModel getDeepCopy() {
 		return new GameModel(m_headerModel.getDeepCopy(), m_moveModel.getDeepCopy());
 	}
 
-	/*
-	 * =============================================================================
-	 */
+	// =============================================================================
 
 	GameHeaderModel getHeaderModel() {
 		return m_headerModel;
@@ -64,23 +53,7 @@ class GameModel implements Serializable {
 		return m_moveModel;
 	}
 
-	/*
-	 * =============================================================================
-	 */
-
-	void load(DataInput in, int headerMode, int movesMode) throws IOException {
-		m_headerModel = new GameHeaderModel(in, headerMode);
-		m_moveModel = new GameMoveModel(in, movesMode);
-	}
-
-	void save(DataOutput out, int headerMode, int movesMode) throws IOException {
-		m_headerModel.save(out, headerMode);
-		m_moveModel.save(out, movesMode);
-	}
-
-	/*
-	 * =============================================================================
-	 */
+	// =============================================================================
 
 	@Override
 	public int hashCode() {
@@ -96,10 +69,7 @@ class GameModel implements Serializable {
 		return gameModel.getMoveModel().equals(getMoveModel());
 	}
 
-	/*
-	 * =============================================================================
-	 * ===
-	 */
+	// =============================================================================
 
 	@Override
 	public String toString() {

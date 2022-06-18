@@ -853,6 +853,7 @@ public final class PGNReader extends PGN {
 		initForMovetext();
 		parseMovetextSection();
 		m_curGame.pack();
+		m_curGame.setAlwaysAddLine(false);
 		return m_curGame;
 	}
 

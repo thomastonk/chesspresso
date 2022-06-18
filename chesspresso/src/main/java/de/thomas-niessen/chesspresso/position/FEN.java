@@ -286,6 +286,8 @@ public class FEN {
 		NO_BLACK_ROOK_ON_C8("No black rook on c8"), NO_BLACK_ROOK_ON_D8("No black rook on d8"),
 		NO_BLACK_ROOK_ON_E8("No black rook on e8"), NO_BLACK_ROOK_ON_F8("No black rook on f8"),
 		NO_BLACK_ROOK_ON_G8("No black rook on g8"), NO_BLACK_ROOK_ON_H8("No black rook on h8"),
+		NO_WHITE_KINGSIDE_ROOK("No white kingside rook"), NO_WHITE_QUEENSIDE_ROOK("No white queenside rook"),
+		NO_BLACK_KINGSIDE_ROOK("No black kingside rook"), NO_BLACK_QUEENSIDE_ROOK("No black queenside rook"),
 		INVALID_CASTLING_INFORMATION("Invalid castling information");
 
 		private final String text;
@@ -332,11 +334,16 @@ public class FEN {
 				return CastlingInfoError.ILLEGAL_WHITE_KING_SQUARE;
 			}
 			char ch = 'H';
+			boolean rookFound = false;
 			for (int square = Chess.H1; square > whiteKingSquare; --square, --ch) {
 				if (pos.getStone(square) == Chess.WHITE_ROOK) {
 					castleString = castleString.replace('K', ch);
+					rookFound = true;
 					break;
 				}
+			}
+			if (!rookFound) {
+				return CastlingInfoError.NO_WHITE_KINGSIDE_ROOK;
 			}
 			if (castleString.contains("K")) {
 				return CastlingInfoError.REPEATED_INFORMATION;
@@ -348,11 +355,16 @@ public class FEN {
 				return CastlingInfoError.ILLEGAL_WHITE_KING_SQUARE;
 			}
 			char ch = 'A';
+			boolean rookFound = false;
 			for (int square = Chess.A1; square < whiteKingSquare; ++square, ++ch) {
 				if (pos.getStone(square) == Chess.WHITE_ROOK) {
 					castleString = castleString.replace('Q', ch);
+					rookFound = true;
 					break;
 				}
+			}
+			if (!rookFound) {
+				return CastlingInfoError.NO_WHITE_QUEENSIDE_ROOK;
 			}
 			if (castleString.contains("Q")) {
 				return CastlingInfoError.REPEATED_INFORMATION;
@@ -364,11 +376,16 @@ public class FEN {
 				return CastlingInfoError.ILLEGAL_BLACK_KING_SQUARE;
 			}
 			char ch = 'h';
+			boolean rookFound = false;
 			for (int square = Chess.H8; square > blackKingSquare; --square, --ch) {
 				if (pos.getStone(square) == Chess.BLACK_ROOK) {
 					castleString = castleString.replace('k', ch);
+					rookFound = true;
 					break;
 				}
+			}
+			if (!rookFound) {
+				return CastlingInfoError.NO_BLACK_KINGSIDE_ROOK;
 			}
 			if (castleString.contains("k")) {
 				return CastlingInfoError.REPEATED_INFORMATION;
@@ -380,11 +397,16 @@ public class FEN {
 				return CastlingInfoError.ILLEGAL_BLACK_KING_SQUARE;
 			}
 			char ch = 'a';
+			boolean rookFound = false;
 			for (int square = Chess.A8; square < blackKingSquare; ++square, ++ch) {
 				if (pos.getStone(square) == Chess.BLACK_ROOK) {
 					castleString = castleString.replace('q', ch);
+					rookFound = true;
 					break;
 				}
+			}
+			if (!rookFound) {
+				return CastlingInfoError.NO_BLACK_QUEENSIDE_ROOK;
 			}
 			if (castleString.contains("q")) {
 				return CastlingInfoError.REPEATED_INFORMATION;

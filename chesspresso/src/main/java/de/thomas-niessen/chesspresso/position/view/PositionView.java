@@ -158,7 +158,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		m_solidStones = true;
 
 		setFont(new Font(DEFAULT_FONT_NAME, Font.PLAIN, fontSize));
-		// If this font is not available, "Dialog" will be chosen.
+		// If this font is not available, Java's logical font "Dialog" will be chosen.
 
 		m_draggedStone = Chess.NO_STONE;
 		m_draggedFrom = Chess.NO_SQUARE;

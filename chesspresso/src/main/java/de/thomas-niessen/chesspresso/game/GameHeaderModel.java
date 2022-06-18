@@ -14,20 +14,16 @@
  ******************************************************************************/
 package chesspresso.game;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.Objects;
 
 import chesspresso.Chess;
 import chesspresso.pgn.PGN;
 
 /**
- *
  * @author Bernhard Seybold
- * 
  */
 class GameHeaderModel implements Serializable {
 	@Serial
@@ -43,27 +39,17 @@ class GameHeaderModel implements Serializable {
 	public static final int MODE_SEVEN_TAG_ROASTER = 0, // need to be consecutive!
 			MODE_STANDARD_TAGS = 1, MODE_ALL_TAGS = 2;
 
-	/*
-	 * =============================================================================
-	 */
+	// =============================================================================
 
 	private String[] m_standardTags;
 	private LinkedList<String> m_otherTags;
 	private LinkedList<String> m_otherTagValues;
 
-	/*
-	 * =============================================================================
-	 */
+	// =============================================================================
 
 	GameHeaderModel() {
 		m_standardTags = new String[NUM_OF_STANDARD_TAGS];
 		m_otherTags = null;
-	}
-
-	GameHeaderModel(DataInput in, int mode) throws IOException {
-		m_standardTags = new String[NUM_OF_STANDARD_TAGS];
-		m_otherTags = null;
-		load(in, mode);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -82,9 +68,7 @@ class GameHeaderModel implements Serializable {
 		return copy;
 	}
 
-	/*
-	 * =============================================================================
-	 */
+	// =============================================================================
 
 	private int getStandardTagIndex(String tagName) {
 		for (int i = 0; i < NUM_OF_STANDARD_TAGS; i++) {
@@ -184,9 +168,8 @@ class GameHeaderModel implements Serializable {
 		}
 	}
 
-	/*
-	 * =============================================================================
-	 */
+	// =============================================================================
+
 	// convenience methods for tags
 
 	private String getStandardTag(int index) {
@@ -278,68 +261,48 @@ class GameHeaderModel implements Serializable {
 		}
 	}
 
-	/*
-	 * =============================================================================
-	 */
+	// =============================================================================
 
-	private String readUTFNonNull(DataInput in) throws IOException {
-		String s = in.readUTF();
-		return s.equals("") ? null : s;
+	boolean contains(GameHeaderModel other) {
+		for (int index = 0; index < NUM_OF_STANDARD_TAGS; ++index) {
+			String value = other.m_standardTags[index];
+			if (value != null && !value.isEmpty() && !value.equals(m_standardTags[index])) {
+				return false;
+			}
+		}
+		if (other.m_otherTags == null) {
+			return true;
+		}
+		if (m_otherTags == null) {
+			return other.m_otherTags.size() == 0;
+		}
+		for (int index = 0; index < other.m_otherTags.size(); ++index) {
+			String value = other.m_otherTagValues.get(index);
+			if (value != null && !value.isEmpty()) {
+				String otherTag = other.m_otherTags.get(index);
+				if (otherTag == null) {
+					continue;
+				}
+				boolean checked = false;
+				for (int i = 0; i < m_otherTags.size(); ++i) {
+					String tag = m_otherTags.get(i);
+					if (otherTag.equals(tag)) {
+						if (!Objects.equals(other.m_otherTagValues.get(index), m_otherTagValues.get(i))) {
+							return false;
+						}
+						checked = true;
+						break;
+					}
+				}
+				if (!checked) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
-	void load(DataInput in, int mode) throws IOException {
-		setTag(PGN.TAG_EVENT, readUTFNonNull(in));
-		setTag(PGN.TAG_SITE, readUTFNonNull(in));
-		setTag(PGN.TAG_DATE, readUTFNonNull(in));
-		setTag(PGN.TAG_ROUND, readUTFNonNull(in));
-		setTag(PGN.TAG_WHITE, readUTFNonNull(in));
-		setTag(PGN.TAG_BLACK, readUTFNonNull(in));
-		setTag(PGN.TAG_RESULT, readUTFNonNull(in));
-
-		if (mode <= MODE_SEVEN_TAG_ROASTER)
-			return; // =====>
-
-		setTag(PGN.TAG_WHITE_ELO, readUTFNonNull(in));
-		setTag(PGN.TAG_BLACK_ELO, readUTFNonNull(in));
-		setTag(PGN.TAG_EVENT_DATE, readUTFNonNull(in));
-		setTag(PGN.TAG_ECO, readUTFNonNull(in));
-
-		if (mode <= MODE_STANDARD_TAGS)
-			return; // =====>
-
-		// NOT YET SUPPORTED
-	}
-
-	private void writeUTFNonNull(DataOutput out, String s) throws IOException {
-		out.writeUTF(s == null ? "" : s);
-	}
-
-	void save(DataOutput out, int mode) throws IOException {
-		writeUTFNonNull(out, getEvent());
-		writeUTFNonNull(out, getSite());
-		writeUTFNonNull(out, getDate());
-		writeUTFNonNull(out, getRound());
-		writeUTFNonNull(out, getWhite());
-		writeUTFNonNull(out, getBlack());
-		writeUTFNonNull(out, getResultStr());
-
-		if (mode <= MODE_SEVEN_TAG_ROASTER)
-			return; // =====>
-
-		writeUTFNonNull(out, getWhiteEloStr());
-		writeUTFNonNull(out, getBlackEloStr());
-		writeUTFNonNull(out, getEventDate());
-		writeUTFNonNull(out, getECO());
-
-		if (mode <= MODE_STANDARD_TAGS)
-			return; // =====>
-
-		// NOT YET SUPPORTED
-	}
-
-	/*
-	 * ===================================================================
-	 */
+	// ===================================================================
 
 	private static boolean isStringSimilar(String s1, String s2) {
 		if (s1 == null) {
@@ -368,9 +331,7 @@ class GameHeaderModel implements Serializable {
 		return isStringSimilar(getWhite(), headerModel.getWhite()) && isStringSimilar(getBlack(), headerModel.getBlack());
 	}
 
-	/*
-	 * =============================================================================
-	 */
+	// =============================================================================
 
 	@Override
 	public String toString() {

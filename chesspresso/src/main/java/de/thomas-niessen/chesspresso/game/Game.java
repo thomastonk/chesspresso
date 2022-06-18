@@ -14,7 +14,6 @@
  ******************************************************************************/
 package chesspresso.game;
 
-import java.io.DataOutput;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serial;
@@ -965,12 +964,6 @@ public class Game implements RelatedGame, Serializable {
 
 	// ======================================================================
 
-	public void save(DataOutput out, int headerMode, int movesMode) throws IOException {
-		m_model.save(out, headerMode, movesMode);
-	}
-
-	// ======================================================================
-
 	/**
 	 * Returns the hash code of the game, which is defined as the hash code of the
 	 * move model. That means two game are considered equal if they contain exactly
@@ -996,6 +989,107 @@ public class Game implements RelatedGame, Serializable {
 		if (!(obj instanceof Game game))
 			return false; // =====>
 		return game.getModel().equals(getModel());
+	}
+
+	// ======================================================================
+
+	/**
+	 * Returns whether the other game is completely contained in this game; header and
+	 * move model are compared.
+	 */
+	public boolean contains(Game other) {
+		if (this == other) {
+			return true;
+		}
+		if (other.getNumOfPlies() > getNumOfPlies()) { // some optimization
+			return false;
+		}
+		// check the header
+		if (!m_model.getHeaderModel().contains(other.m_model.getHeaderModel())) {
+			return false;
+		}
+		// check an empty game comment
+		if (!checkComment(getEmptyGameComment(), other.getEmptyGameComment())) {
+			return false;
+		}
+		// check the moves
+		gotoStart();
+		other.gotoStart();
+		return checkMoves(this, other);
+	}
+
+	private static boolean checkMoves(Game game, Game other) {
+		if (game.isMainLine() != other.isMainLine()) {
+			return false;
+		}
+		if (game.getNumOfNextMoves() < other.getNumOfNextMoves()) {
+			return false;
+		}
+		Move[] moves = game.getNextMoves();
+		Move[] otherMoves = other.getNextMoves();
+		for (Move otherMove : otherMoves) {
+			boolean found = false;
+			for (Move move : moves) {
+				if (otherMove.equals(move)) {
+					found = true;
+					try {
+						game.getPosition().doMove(move);
+						other.getPosition().doMove(otherMove);
+					} catch (IllegalMoveException ignore) {
+						return false;
+					}
+					if (!checkComment(game.getPreMoveComment(), other.getPreMoveComment())) {
+						return false;
+					}
+					if (!checkComment(game.getPostMoveComment(), other.getPostMoveComment())) {
+						return false;
+					}
+					if (!checkNAGs(game.getNags(), other.getNags())) {
+						return false;
+					}
+					if (!checkMoves(game, other)) {
+						return false;
+					}
+					game.getPosition().undoMove();
+					other.getPosition().undoMove();
+				}
+			}
+			if (!found) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean checkComment(String comment, String otherComment) {
+		if (otherComment != null && !otherComment.isBlank()) {
+			if (comment == null || !comment.contains(otherComment)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean checkNAGs(short[] nags, short[] otherNags) {
+		if (otherNags == null) {
+			return true;
+		}
+		if (nags == null) {
+			return otherNags == null;
+		}
+		for (short otherNag : otherNags) {
+			boolean found = false;
+			for (short nag : nags) {
+				if (otherNag == nag) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	// ======================================================================

@@ -14,9 +14,6 @@
  ******************************************************************************/
 package chesspresso.game;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serial;
 import java.io.Serializable;
@@ -33,7 +30,6 @@ import chesspresso.position.NAG;
  * Representation of moves of a chess game.
  *
  * @author Bernhard Seybold
- * 
  */
 class GameMoveModel implements Serializable {
 	@Serial
@@ -74,11 +70,6 @@ class GameMoveModel implements Serializable {
 		m_size = 2;
 		m_hashCode = 0;
 		m_hasComment = false;
-	}
-
-	GameMoveModel(DataInput in, int mode) throws IOException {
-		load(in, mode);
-		m_hashCode = 0;
 	}
 
 	void clear() {
@@ -1262,6 +1253,7 @@ class GameMoveModel implements Serializable {
 	}
 
 	// ======================================================================
+
 	boolean deleteAllLines() {
 		if (DEBUG) {
 			System.out.println("deleteAllLines");
@@ -1331,39 +1323,6 @@ class GameMoveModel implements Serializable {
 			System.out.println("  --> " + index);
 
 		return index;
-	}
-
-	// ======================================================================
-
-	void load(DataInput in, int mode) throws IOException {
-		m_size = in.readInt() + 2;
-		m_moves = new short[m_size];
-		byte[] data = new byte[2 * (m_size - 2)];
-		in.readFully(data);
-		for (int i = 1; i < m_size - 1; i++) {
-			// copied from RandomAccesFile.readShort
-			m_moves[i] = (short) ((data[2 * i - 2] << 8) | (data[2 * i - 1] & 0xFF));
-			// m_moves[i] = in.readShort();
-		}
-		m_moves[0] = LINE_START;
-		m_moves[m_size - 1] = LINE_END;
-		changed();
-		if (DEBUG)
-			write(System.out);
-	}
-
-	void save(DataOutput out, int mode) throws IOException {
-		// do not save the guards at index 0 and m_size-1
-		out.writeInt(m_size - 2);
-		byte[] data = new byte[2 * (m_size - 2)];
-		for (int i = 1; i < m_size - 1; i++) {
-			short m = m_moves[i];
-			// copied from RandomAccesFile.writeShort
-			data[2 * i - 2] = (byte) ((m >>> 8) & 0xFF);
-			data[2 * i - 1] = (byte) ((m) & 0xFF);
-			// out.writeShort(m_moves[i]);
-		}
-		out.write(data);
 	}
 
 	// ======================================================================
@@ -1453,5 +1412,4 @@ class GameMoveModel implements Serializable {
 			index2 = gameMoveModel.goForward(index2);
 		}
 	}
-
 }
