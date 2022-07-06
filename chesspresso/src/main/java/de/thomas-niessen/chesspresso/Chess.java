@@ -461,4 +461,21 @@ public abstract class Chess {
 	public static int getDiagonallyReflectedSquare(int square) {
 		return sqiToCol(square) * 8 + sqiToRow(square);
 	}
+
+	/**
+	 * Returns a string description of the file.
+	 */
+	public static String fileToString(int file) {
+		return switch (file) {
+		case A_FILE -> "a-file";
+		case B_FILE -> "b-file";
+		case C_FILE -> "c-file";
+		case D_FILE -> "d-file";
+		case E_FILE -> "e-file";
+		case F_FILE -> "f-file";
+		case G_FILE -> "g-file";
+		case H_FILE -> "h-file";
+		default -> "unknown file";
+		};
+	}
 }

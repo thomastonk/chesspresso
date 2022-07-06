@@ -199,7 +199,7 @@ public class PGNWriter extends PGN {
 	private void print(String s, boolean addSpace) {
 		if (s == null)
 			return;
-		if (m_curCol + s.length() > m_charactersPerLine) {
+		if (m_curCol > 0 && m_curCol + s.length() > m_charactersPerLine) {
 			m_out.println();
 			m_curCol = 0;
 		}

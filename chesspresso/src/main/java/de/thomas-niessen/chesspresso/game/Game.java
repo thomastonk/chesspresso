@@ -514,6 +514,15 @@ public class Game implements RelatedGame, Serializable {
 		fireMoveModelChanged();
 	}
 
+	public void appendPostMoveComment(String comment) {
+		String currentComment = getPostMoveComment();
+		if (currentComment == null || currentComment.isBlank()) {
+			setPostMoveComment(comment);
+		} else {
+			setPostMoveComment(currentComment + " " + comment);
+		}
+	}
+
 	public void removePreMoveComment() {
 		removePreMoveComment(false);
 	}

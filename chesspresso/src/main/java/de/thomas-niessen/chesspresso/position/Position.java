@@ -28,7 +28,9 @@ import chesspresso.position.PositionImpl.PosInternalState;
 
 /**
  * Position is the public part of the whole position hierarchy. It handles the PositionListeners and delegates 
- * all functionality to a PositionImpl object.
+ * all functionality to a MoveablePosition object. (This MoveablePosition is a PositionImpl object in the
+ * standard implementation, but a MoveablePosition is preferred for future use. For example, in the Shatranj
+ * implementation a different kind of object was used.) 
  * 
  * The user can prevent the listeners from being informed of changes by using an Algorithm object in the method 
  * runAlgorithm. If so, the notification of the listeners is deactivated, and then the algorithm is run. 
@@ -498,31 +500,31 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	/*
-	 * This is the fire method for all changes NOT relevant to RelatedGame.
+	 * The following two firePositionChanged methods looks like a misconception, but
+	 * in fact this is a well-thought concept. The only thing one has to keep in mind
+	 * is to call the second one, if the RelatedGame needs to be informed. 
+	 * Note that the two positionChanged methods come from different interfaces.
 	 */
+
+	// This is the fire method for all changes NOT relevant to RelatedGame.
 	private void firePositionChanged() {
 		if (isOutsideAlgorithm()) {
 			for (PositionListener listener : listeners) {
-				listener.positionChanged(this);
+				listener.positionChanged(this); // From the interface PositionListener!
 			}
 		}
 	}
 
-	/*
-	 * This is the fire method for all changes relevant to RelatedGame.
-	 */
+	// This is the fire method for all changes relevant to RelatedGame (and the PositionListeners
+	// are informed, if necessary, as well).
 	private void firePositionChanged(ChangeType type, short move, String fen) {
 		// First: The order here is important, since PositionListeners may depend on relatedGame.
-		// Second: The relatedGame is notified during algorithms. (Otherwise it would be
-		// necessary to inform RelatedGame about the algorithm end, which so far is not possible.)
+		// Second: The relatedGame is indeed notified during algorithms. (Otherwise it would be
+		// necessary to inform RelatedGame about the algorithm end, which is impossible so far.)
 		if (relatedGame != null) {
-			relatedGame.positionChanged(type, move, fen);
+			relatedGame.positionChanged(type, move, fen); // From the interface RelatedGame!
 		}
-		if (isOutsideAlgorithm()) {
-			for (PositionListener listener : listeners) {
-				listener.positionChanged(this);
-			}
-		}
+		firePositionChanged();
 	}
 
 	@Override
