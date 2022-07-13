@@ -16,7 +16,6 @@ package chesspresso.position;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import chesspresso.Variant;
@@ -92,6 +91,14 @@ public final class Position implements MoveablePosition, Serializable {
 		} else {
 			throw new IllegalStateException("Position::setRelatedGame: the compatibility check failed!");
 		}
+	}
+
+	/**
+	 * This is a public method, but please don't use it! It shall only be used in the implementation of Game.
+	 * Its only use is to delete unnecessary references and thereby give the GC a chance.
+	 */
+	public void unsetRelatedGame() {
+		relatedGame = null;
 	}
 
 	public static Position createInitialPosition() {
@@ -495,8 +502,15 @@ public final class Position implements MoveablePosition, Serializable {
 		listeners.remove(listener);
 	}
 
-	public final synchronized List<PositionListener> getPositionListeners() {
-		return Collections.unmodifiableList(listeners);
+	public static void transferAllPositionListeners(Position sourcePos, Position targetPos) {
+		if (sourcePos != null && targetPos != null) {
+			for (PositionListener listener : sourcePos.listeners) {
+				targetPos.addPositionListener(listener);
+			}
+		}
+		if (sourcePos != null) {
+			sourcePos.listeners.clear();
+		}
 	}
 
 	/*
@@ -507,7 +521,7 @@ public final class Position implements MoveablePosition, Serializable {
 	 */
 
 	// This is the fire method for all changes NOT relevant to RelatedGame.
-	private void firePositionChanged() {
+	public void firePositionChanged() {
 		if (isOutsideAlgorithm()) {
 			for (PositionListener listener : listeners) {
 				listener.positionChanged(this); // From the interface PositionListener!

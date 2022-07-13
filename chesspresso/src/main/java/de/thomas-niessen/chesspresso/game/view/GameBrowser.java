@@ -46,6 +46,7 @@ import chesspresso.move.Move;
 import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.OneClickMove;
+import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
 import chesspresso.position.view.Decoration.DecorationType;
@@ -580,7 +581,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	// PositionListner
 
 	@Override
-	public void positionChanged(ImmutablePosition pos) {
+	public void positionChanged(Position pos) {
 		updateMovePane();
 		highlightLastMove();
 		if (m_positionView != null) {

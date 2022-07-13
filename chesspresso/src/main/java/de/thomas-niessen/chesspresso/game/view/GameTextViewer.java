@@ -45,8 +45,8 @@ import chesspresso.game.Game;
 import chesspresso.game.GameModelChangeListener;
 import chesspresso.game.TraverseListener;
 import chesspresso.move.Move;
-import chesspresso.position.ImmutablePosition;
 import chesspresso.position.NAG;
+import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
 
 /**
@@ -313,7 +313,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	// PositionListener
 
 	@Override
-	public void positionChanged(ImmutablePosition pos) {
+	public void positionChanged(Position pos) {
 		requestFocusInWindow();
 		showCurrentGameNode();
 	}

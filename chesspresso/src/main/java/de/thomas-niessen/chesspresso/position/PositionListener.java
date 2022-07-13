@@ -15,5 +15,6 @@
 package chesspresso.position;
 
 public interface PositionListener {
-	void positionChanged(ImmutablePosition position);
+	/* The method informs the listener about some change of the position. */
+	void positionChanged(Position position);
 }

@@ -47,7 +47,6 @@ import chesspresso.Chess;
 import chesspresso.Mouse;
 import chesspresso.ScreenShot;
 import chesspresso.game.view.UserAction;
-import chesspresso.position.ImmutablePosition;
 import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
@@ -411,7 +410,10 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	// PositionListener
 
 	@Override
-	public void positionChanged(ImmutablePosition position) {
+	public void positionChanged(Position position) {
+		if (m_position != position) {
+			m_position = position;
+		}
 		repaint();
 	}
 

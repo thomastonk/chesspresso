@@ -52,20 +52,37 @@ class GameHeaderModel implements Serializable {
 		m_otherTags = null;
 	}
 
-	@SuppressWarnings("unchecked")
 	GameHeaderModel getDeepCopy() {
 		GameHeaderModel copy = new GameHeaderModel();
-		copy.m_standardTags = new String[this.m_standardTags.length];
-		System.arraycopy(this.m_standardTags, 0, copy.m_standardTags, 0, copy.m_standardTags.length);
-		if (this.m_otherTags != null) {
-			copy.m_otherTags = new LinkedList<>();
-			copy.m_otherTags = (LinkedList<String>) this.m_otherTags.clone();
-		}
-		if (this.m_otherTagValues != null) {
-			copy.m_otherTagValues = new LinkedList<>();
-			copy.m_otherTagValues = (LinkedList<String>) this.m_otherTagValues.clone();
-		}
+		copy.setByCopying(this);
 		return copy;
+	}
+
+	void setByCopying(GameHeaderModel otherModel) {
+		if (this == otherModel) {
+			return;
+		}
+		// standard tags
+		for (int i = 0; i < NUM_OF_STANDARD_TAGS; ++i) {
+			m_standardTags[i] = otherModel.m_standardTags[i];
+		}
+		// other tags
+		if (otherModel.m_otherTags == null) {
+			m_otherTags = null;
+			m_otherTagValues = null;
+		} else {
+			if (m_otherTags == null) {
+				m_otherTags = new LinkedList<>();
+				m_otherTagValues = new LinkedList<>();
+			} else {
+				m_otherTags.clear();
+				m_otherTagValues.clear();
+			}
+			for (int i = 0; i < otherModel.m_otherTags.size(); ++i) {
+				m_otherTags.add(otherModel.m_otherTags.get(i));
+				m_otherTagValues.add(otherModel.m_otherTagValues.get(i));
+			}
+		}
 	}
 
 	// =============================================================================

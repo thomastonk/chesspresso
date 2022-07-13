@@ -35,7 +35,6 @@ import chesspresso.pgn.PGNWriter;
 import chesspresso.position.FEN;
 import chesspresso.position.InvalidFenException;
 import chesspresso.position.Position;
-import chesspresso.position.PositionListener;
 
 /**
  * Abstraction of a chess game.
@@ -182,16 +181,15 @@ public class Game implements RelatedGame, Serializable {
 		m_cur = m_model.getMoveModel().pack(m_cur);
 	}
 
+	/* Whenever this method is used, think about whether Position::firePositionChanged
+	 * has to called. This is not done here, because it could be the wrong moment,
+	 * because other changes on this game have to be finished first. */
 	private void setPosition(Position position) {
+		Position.transferAllPositionListeners(m_position, position);
 		if (m_position != null) {
-			List<PositionListener> listeners = m_position.getPositionListeners();
-			m_position = position;
-			for (PositionListener listener : listeners) {
-				m_position.addPositionListener(listener);
-			}
-		} else {
-			m_position = position;
+			m_position.unsetRelatedGame();
 		}
+		m_position = position;
 		m_position.setRelatedGame(this);
 		m_cur = 0;
 	}
@@ -251,7 +249,7 @@ public class Game implements RelatedGame, Serializable {
 	}
 
 	public void setGameByFEN(String fen, boolean overwriteTags) throws InvalidFenException {
-		Position newPos = new Position(fen, false); // If this throws, 'this' is unchanged!
+		Position newPos = new Position(fen, false); // If this call throws, 'this' is unchanged!
 		if (overwriteTags) {
 			m_model.getHeaderModel().clearTags();
 			m_model.getHeaderModel().setTag(PGN.TAG_DATE, "????.??.??");
@@ -264,6 +262,28 @@ public class Game implements RelatedGame, Serializable {
 		m_model.getMoveModel().clear();
 		fireMoveModelChanged();
 		fireHeaderModelChanged();
+		m_position.firePositionChanged();
+	}
+
+	public void setGameByDeepCopying(Game otherGame) throws InvalidFenException {
+		GameModel otherModel = otherGame.getModel();
+		String otherFen = otherModel.getHeaderModel().getTag(PGN.TAG_FEN);
+		String fen = otherFen != null ? otherFen : FEN.START_POSITION;
+		Position newPos = new Position(fen, false); // If this call throws, 'this' is unchanged!
+
+		if (this == otherGame) {
+			return;
+		}
+
+		m_model.getHeaderModel().setByCopying(otherModel.getHeaderModel());
+		m_model.getMoveModel().setByCopying(otherModel.getMoveModel());
+		setPosition(newPos);
+		m_cur = 0;
+		m_ignoreNotifications = false;
+		m_alwaysAddLine = false;
+		fireHeaderModelChanged();
+		fireMoveModelChanged();
+		m_position.firePositionChanged();
 	}
 
 	public String getEvent() {

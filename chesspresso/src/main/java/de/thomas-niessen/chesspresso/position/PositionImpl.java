@@ -1553,10 +1553,6 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				}
 			}
 			System.out.println("PositionImpl.internalValidate: " + FEN.getFEN(this));
-			// TN: Why did he use LightWeightPosition here?
-			System.out.println("PositionImpl.internalValidate: " + FEN.getFEN(new LightWeightPosition(this)));
-			throw new IllegalPositionException("Wrong hash code " + getHashCode() + " should be " + super.getHashCode()
-					+ " difference " + (getHashCode() - super.getHashCode()));
 		}
 	}
 

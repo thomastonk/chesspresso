@@ -83,12 +83,19 @@ class GameMoveModel implements Serializable {
 
 	GameMoveModel getDeepCopy() {
 		GameMoveModel copy = new GameMoveModel();
-		copy.m_moves = new short[this.m_moves.length];
-		System.arraycopy(this.m_moves, 0, copy.m_moves, 0, copy.m_moves.length);
-		copy.m_size = this.m_size;
-		copy.m_hashCode = 0;
-		copy.m_hasComment = m_hasComment;
+		copy.setByCopying(this);
+
 		return copy;
+	}
+
+	void setByCopying(GameMoveModel otherModel) {
+		if (this == otherModel) {
+			return;
+		}
+		m_moves = Arrays.copyOf(otherModel.m_moves, otherModel.m_moves.length);
+		m_size = otherModel.m_size;
+		m_hashCode = otherModel.m_hashCode;
+		m_hasComment = otherModel.m_hasComment;
 	}
 
 	// ======================================================================
