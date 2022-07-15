@@ -63,7 +63,7 @@ import chesspresso.position.Position;
  * @author Bernhard Seybold
  * 
  */
-public class Game implements RelatedGame, Serializable {
+public non-sealed class Game implements RelatedGame, Serializable {
 	@Serial
 	private static final long serialVersionUID = 2L;
 
