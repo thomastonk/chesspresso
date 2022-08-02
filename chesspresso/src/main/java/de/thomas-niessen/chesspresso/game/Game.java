@@ -841,10 +841,11 @@ public non-sealed class Game implements RelatedGame, Serializable {
 				goForward();
 			}
 		});
-		// for a while we check the value
+		// We check the value, because so many apps get it wrong.
 		if (ply < getPlyOffset() || ply > getPlyOffset() + getNumOfPlies()) {
 			System.err.println("Suspicious value in Game::gotoPly: ");
-			System.err.println("   Ply: " + ply + ", plyOffset: " + getPlyOffset() + ", numOfPlies: " + getNumOfPlies());
+			System.err
+					.println("   Requested ply: " + ply + ", plyOffset: " + getPlyOffset() + ", numOfPlies: " + getNumOfPlies());
 		}
 	}
 
