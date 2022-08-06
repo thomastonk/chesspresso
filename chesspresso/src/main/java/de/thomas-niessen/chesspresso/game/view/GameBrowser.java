@@ -120,6 +120,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		initComponents(boardOnTheRight);
 		setGame(game, bottomPlayer);
 
+		m_positionView.setShowCoordinates(true);
 		m_positionView.setFocusable(false);
 		m_positionFrame.add(m_positionView, BorderLayout.CENTER);
 
@@ -163,6 +164,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 			if (m_positionView == null) {
 				m_positionView = new PositionView(m_game.getPosition(), bottomPlayer, m_userAction);
+				m_positionView.setShowCoordinates(true);
 			} else {
 				m_positionView.setPosition(m_game.getPosition());
 				m_positionView.setBottomPlayer(bottomPlayer);

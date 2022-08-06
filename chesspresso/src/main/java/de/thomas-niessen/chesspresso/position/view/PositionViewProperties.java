@@ -70,6 +70,7 @@ public class PositionViewProperties extends JDialog {
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 		m_positionView = new PositionView(Position.createInitialPosition());
+		m_positionView.setShowCoordinates(true);
 		panel.add(m_positionView);
 		m_positionFrame.add(panel, BorderLayout.CENTER);
 
