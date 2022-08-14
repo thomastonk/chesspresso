@@ -496,6 +496,8 @@ public final class Position implements MoveablePosition, Serializable {
 		}
 		// for initialization
 		listener.positionChanged(this);
+		// TODO This can be a bad call: In Game::setPosition is Position.transferAllPositionListeners called,
+		// and hence the situation of game/old position/new position is still not consistent.
 	}
 
 	public final void removePositionListener(PositionListener listener) {

@@ -40,11 +40,11 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
 
-//import chesspresso.*;
 import chesspresso.game.Game;
 import chesspresso.game.GameModelChangeListener;
 import chesspresso.game.TraverseListener;
 import chesspresso.move.Move;
+import chesspresso.pgn.PGN;
 import chesspresso.position.NAG;
 import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
@@ -112,7 +112,27 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	// ======================================================================
 
 	public enum TextCreationType {
-		COMPACT, TREE_LIKE;
+		COMPACT("Compact"), TREE_LIKE("Tree-like"), PUZZLE_MODE("Puzzle mode");
+
+		String description;
+
+		TextCreationType(String desc) {
+			description = desc;
+		}
+
+		@Override
+		public String toString() {
+			return description;
+		}
+
+		public static TextCreationType getType(String desc) {
+			for (TextCreationType type : TextCreationType.values()) {
+				if (type.description.equals(desc)) {
+					return type;
+				}
+			}
+			return null;
+		}
 	}
 
 	// ======================================================================
@@ -239,9 +259,10 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			return TextCreationType.COMPACT;
 		} else if (textCreator instanceof TreeLikeTextCreator) {
 			return TextCreationType.TREE_LIKE;
-		} else {
-			return null;
+		} else if (textCreator instanceof PuzzleModeTextCreator) {
+			return TextCreationType.PUZZLE_MODE;
 		}
+		throw new IllegalStateException("GameTextViewer::getTextCreationType: unknown text creator.");
 	}
 
 	public void setTextCreationType(TextCreationType type) {
@@ -251,6 +272,12 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			break;
 		case TREE_LIKE:
 			textCreator = new TreeLikeTextCreator();
+			break;
+		case PUZZLE_MODE:
+			textCreator = new PuzzleModeTextCreator();
+			break;
+		default:
+			throw new IllegalArgumentException("GameTextViewer::setTextCreationType: " + type);
 		}
 		createText();
 	}
@@ -452,6 +479,62 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		}
 	}
 
+	private class PuzzleModeTextCreator implements TraverseListener {
+
+		private int maxPly;
+		private boolean stopRequested;
+		private final TreeLikeTextCreator textCreator;
+		private String startFen; // The game is changed by deep copying, so the start FEN is used 
+									//for game change detection
+
+		PuzzleModeTextCreator() {
+			stopRequested = false;
+			maxPly = m_game.getPlyOffset() + 1;
+			textCreator = new TreeLikeTextCreator();
+			m_game.getPosition().addPositionListener(e -> {
+				if (m_game.isMainLine() && maxPly < m_game.getCurrentPly()) {
+					maxPly = m_game.getCurrentPly();
+					createText();
+				}
+			});
+			startFen = m_game.getTag(PGN.TAG_FEN);
+		}
+
+		@Override
+		public void initTraversal() {
+			stopRequested = false;
+			if (!startFen.equals(m_game.getTag(PGN.TAG_FEN))) { // the game has changed
+				maxPly = m_game.getPlyOffset() + 1;
+				startFen = m_game.getTag(PGN.TAG_FEN);
+			}
+			textCreator.initTraversal();
+		}
+
+		@Override
+		public boolean stopRequested() {
+			return stopRequested;
+		}
+
+		@Override
+		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level) {
+			if (plyNumber >= maxPly && level == 0) {
+				stopRequested = true;
+				return;
+			}
+			textCreator.notifyMove(move, nags, preMoveComment, postMoveComment, plyNumber, level);
+		}
+
+		@Override
+		public void notifyLineStart(int level) {
+			textCreator.notifyLineStart(level);
+		}
+
+		@Override
+		public void notifyLineEnd(int level) {
+			textCreator.notifyLineEnd(level);
+		}
+	}
+
 	/**
 	 * Create or recreate the game text based on the current game.
 	 */
@@ -493,10 +576,12 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 		m_needsMoveNumber = true;
 		m_game.traverse(textCreator, true);
-		if (textCreator instanceof TreeLikeTextCreator && getDocument().getLength() > 0) {
-			appendText(System.lineSeparator(), MAIN);
+		if (!(textCreator instanceof PuzzleModeTextCreator)) {
+			if (textCreator instanceof TreeLikeTextCreator && getDocument().getLength() > 0) {
+				appendText(System.lineSeparator(), MAIN);
+			}
+			appendText(m_game.getResultStr(), MAIN);
 		}
-		appendText(m_game.getResultStr(), MAIN);
 
 		// TN:
 		// Unfortunately, there appears sometimes a line-break within the result. This could be
@@ -519,7 +604,6 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 		// Alternative JTextPane:
 		// Looks like JeditorPane, but does not support wrap-style word.
-
 	}
 
 	// ======================================================================

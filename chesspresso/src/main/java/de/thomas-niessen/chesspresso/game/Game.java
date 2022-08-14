@@ -182,8 +182,11 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	/* Whenever this method is used, think about whether Position::firePositionChanged
-	 * has to called. This is not done here, because it could be the wrong moment,
+	 * has to be called. This is not done here, because it could be the wrong moment,
 	 * because other changes on this game have to be finished first. */
+	// TODO This comment has become wrong, since Position::addPositionListener, which
+	// is called in Position.transferAllPositionListeners(..) calls positionChanged for
+	// initialization.
 	private void setPosition(Position position) {
 		Position.transferAllPositionListeners(m_position, position);
 		if (m_position != null) {
@@ -275,10 +278,10 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			return;
 		}
 
+		m_cur = 0; // The order is important; this is always a valid value. 
 		m_model.getHeaderModel().setByCopying(otherModel.getHeaderModel());
 		m_model.getMoveModel().setByCopying(otherModel.getMoveModel());
 		setPosition(newPos);
-		m_cur = 0;
 		m_ignoreNotifications = false;
 		m_alwaysAddLine = false;
 		fireHeaderModelChanged();

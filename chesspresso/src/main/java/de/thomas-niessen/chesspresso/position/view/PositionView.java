@@ -728,7 +728,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 	private void drawCoordinates(Graphics2D g2) {
 		Font oldFont = g2.getFont();
-		Font newFont = new Font(Font.DIALOG, Font.PLAIN, 18);
+		Font newFont = new Font(Font.DIALOG, Font.PLAIN, 14);
 		g2.setFont(newFont);
 		int squareSize = getFont().getSize() + squareOffset;
 		if (m_bottom == Chess.WHITE) { // a-h in the bottom line, 1-8 in the rightmost file from bottom to top
@@ -738,7 +738,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 				} else {
 					g2.setColor(m_blackSquareColor);
 				}
-				g2.drawChars(letters[x], 0, 1, x * squareSize + 2, 8 * squareSize - 2);
+				g2.drawChars(letters[x], 0, 1, x * squareSize + 1, 8 * squareSize - 3);
 			}
 			for (int y = 0; y < Chess.NUM_OF_ROWS; y++) {
 				if (y % 2 == 0) {
@@ -746,7 +746,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 				} else {
 					g2.setColor(m_blackSquareColor);
 				}
-				g2.drawChars(numbers[Chess.NUM_OF_ROWS - 1 - y], 0, 1, 8 * squareSize - 12, y * squareSize + 16);
+				g2.drawChars(numbers[Chess.NUM_OF_ROWS - 1 - y], 0, 1, 8 * squareSize - 10, y * squareSize + 14);
 			}
 		} else { //h-a in the bottom line, 1-8 in the rightmost file from top to bottom
 			for (int x = 0; x < Chess.NUM_OF_COLS; x++) {
