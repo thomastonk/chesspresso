@@ -183,10 +183,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 
 	/* Whenever this method is used, think about whether Position::firePositionChanged
 	 * has to be called. This is not done here, because it could be the wrong moment,
-	 * because other changes on this game have to be finished first. */
-	// TODO This comment has become wrong, since Position::addPositionListener, which
-	// is called in Position.transferAllPositionListeners(..) calls positionChanged for
-	// initialization.
+	 * e.g., when other changes of this game have to be finished first. */
 	private void setPosition(Position position) {
 		Position.transferAllPositionListeners(m_position, position);
 		if (m_position != null) {
@@ -268,6 +265,8 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		m_position.firePositionChanged();
 	}
 
+	/* At the moment this method does not protect its changes of the position by an algorithm.
+	 * This could by necessary in the future. */
 	public void setGameByDeepCopying(Game otherGame) throws InvalidFenException {
 		GameModel otherModel = otherGame.getModel();
 		String otherFen = otherModel.getHeaderModel().getTag(PGN.TAG_FEN);

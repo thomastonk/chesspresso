@@ -43,6 +43,7 @@ import chesspresso.game.GameModelChangeListener;
 import chesspresso.game.view.GameTextViewer.TextCreationType;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
+import chesspresso.pgn.PGN;
 import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.OneClickMove;
@@ -351,7 +352,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_positionView.removeDecorations(DecorationType.ARROW, Color.BLUE);
 		if (m_highlightLastMove) {
 			Move lastMove = m_game.getLastMove();
-			if (lastMove != null) {
+			if (lastMove != null && lastMove.getShortMoveDesc() != Move.NULL_MOVE) {
 				if (!lastMove.isCastle() && !lastMove.isCastleChess960()) {
 					m_positionView.addDecoration(
 							DecorationFactory.getArrowDecoration(lastMove.getFromSqi(), lastMove.getToSqi(), Color.BLUE), false);
@@ -386,6 +387,18 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	public void flip() {
 		m_positionView.flip();
+	}
+
+	// =======================================================================
+
+	public void setupPuzzleMode() {
+		if (getTextCreationType() == TextCreationType.PUZZLE_MODE) {
+			if (m_game.getTag(PGN.TAG_FEN) != null) { // only fragments are treated as puzzles	
+				m_game.gotoStart();
+				m_game.goForward();
+				setBottomPlayer(m_game.getPosition().getToPlay());
+			}
+		}
 	}
 
 	// =======================================================================

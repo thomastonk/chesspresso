@@ -608,9 +608,6 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		// Second step: draw letters and numbers, if needed.
 		if (m_showCoordinates) {
 			drawCoordinates(g2);
-		} // Fourth step: draw letters and numbers, if needed.
-		if (m_showCoordinates) {
-			drawCoordinates(g2);
 		}
 
 		// Third step: draw the layer below the stones.

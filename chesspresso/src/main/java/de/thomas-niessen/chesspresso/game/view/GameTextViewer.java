@@ -26,6 +26,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
 import javax.swing.JEditorPane;
 import javax.swing.JViewport;
@@ -489,23 +490,43 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 		PuzzleModeTextCreator() {
 			stopRequested = false;
-			maxPly = m_game.getPlyOffset() + 1;
+			startFen = m_game.getTag(PGN.TAG_FEN); // can be null, if this is no puzzle
+			if (startFen != null) {
+				maxPly = m_game.getPlyOffset() + 1;
+			} else {
+				maxPly = m_game.getNumOfPlies() + 1;
+			}
 			textCreator = new TreeLikeTextCreator();
 			m_game.getPosition().addPositionListener(e -> {
-				if (m_game.isMainLine() && maxPly < m_game.getCurrentPly()) {
-					maxPly = m_game.getCurrentPly();
-					createText();
+				// this listener updates maxPly
+				if (m_game.isMainLine()) { // Is there a new mainline move?
+					if (maxPly < m_game.getCurrentPly()) {
+						maxPly = m_game.getCurrentPly();
+						createText();
+					}
+				} else { // Is there a new sub-variation move with missing mainline move? 
+					Game copy = m_game.getDeepCopy();
+					copy.gotoNode(m_game.getCurNode());
+					if (copy.goBack() && copy.goForward()) {
+						if (copy.isMainLine() && maxPly < copy.getCurrentPly()) {
+							maxPly = copy.getCurrentPly();
+							createText();
+						}
+					}
 				}
 			});
-			startFen = m_game.getTag(PGN.TAG_FEN);
 		}
 
 		@Override
 		public void initTraversal() {
 			stopRequested = false;
-			if (!startFen.equals(m_game.getTag(PGN.TAG_FEN))) { // the game has changed
-				maxPly = m_game.getPlyOffset() + 1;
+			if (!Objects.equals(startFen, m_game.getTag(PGN.TAG_FEN))) { // the game has changed
 				startFen = m_game.getTag(PGN.TAG_FEN);
+				if (startFen != null) { // puzzle mode
+					maxPly = m_game.getPlyOffset() + 1;
+				} else {
+					maxPly = m_game.getNumOfPlies() + 1;
+				}
 			}
 			textCreator.initTraversal();
 		}
