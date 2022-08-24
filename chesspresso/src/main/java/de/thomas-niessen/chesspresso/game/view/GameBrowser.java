@@ -630,15 +630,27 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 					popup.add(new JSeparator());
 					for (int i = 0; i <= 9; ++i) {
 						int iFinal = i;
-						JMenuItem addNumberMenuItem = new JMenuItem("Add number " + iFinal);
+						JMenuItem addNumberMenuItem = new JMenuItem("Set number " + iFinal);
 						addNumberMenuItem.addActionListener(e -> {
-							m_positionView.addDecoration(DecorationFactory.getNumberInSquare(
-									m_positionView.getSquare(event.getX(), event.getY()), Color.DARK_GRAY, iFinal), true);
+							int square = m_positionView.getSquare(event.getX(), event.getY());
+							m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY,
+									d -> d.getType() == DecorationType.NUMBER_IN_SQUARE && d.getSquare() == square);
+							m_positionView.addDecoration(DecorationFactory.getNumberInSquare(square, Color.DARK_GRAY, iFinal),
+									true);
 						});
 						popup.add(addNumberMenuItem);
 					}
 					popup.add(new JSeparator());
-					JMenuItem removeAllNumbersMenuItem = new JMenuItem("Remove all numbers");
+
+					JMenuItem removeNumberMenuItem = new JMenuItem("Remove number from square");
+					removeNumberMenuItem.addActionListener(e -> {
+						m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY,
+								d -> d.getType() == DecorationType.NUMBER_IN_SQUARE
+										&& d.getSquare() == m_positionView.getSquare(event.getX(), event.getY()));
+					});
+					popup.add(removeNumberMenuItem);
+
+					JMenuItem removeAllNumbersMenuItem = new JMenuItem("Remove all numbers from all squares");
 					removeAllNumbersMenuItem.addActionListener(e -> {
 						m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY);
 					});
@@ -647,6 +659,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 				}
 			}
 		});
+
 	}
 
 	private void addPopupToTextViewer() {

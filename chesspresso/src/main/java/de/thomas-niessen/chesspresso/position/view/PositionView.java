@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -408,6 +409,23 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 				try {
 					lowerLevel.removeIf(d -> d.getType().equals(type));
 					upperLevel.removeIf(d -> d.getType().equals(type));
+				} catch (NullPointerException ex) {
+					ex.printStackTrace();
+				}
+			}
+		}
+		repaint();
+	}
+
+	public void removeDecorations(Decoration.DecorationType type, Color color, Predicate<Decoration> predicate) {
+		synchronized (decorationToken) {
+			if (color != null) {
+				lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
+				upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
+			} else {
+				try {
+					lowerLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
+					upperLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
 				} catch (NullPointerException ex) {
 					ex.printStackTrace();
 				}

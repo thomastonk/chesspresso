@@ -491,9 +491,9 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		PuzzleModeTextCreator() {
 			stopRequested = false;
 			startFen = m_game.getTag(PGN.TAG_FEN); // can be null, if this is no puzzle
-			if (startFen != null) {
+			if (startFen != null && m_game.getNumOfPlies() > 0) { // a puzzle
 				maxPly = m_game.getPlyOffset() + 1;
-			} else {
+			} else { // no puzzle
 				maxPly = m_game.getNumOfPlies() + 1;
 			}
 			textCreator = new TreeLikeTextCreator();
@@ -687,7 +687,14 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		if (m_moveNode.length == 0) {
 			return m_game.getRootNode();
 		} else {
-			return m_moveNode[m_moveNode.length - 1];
+			// Here we need the last node. The old 
+			// return m_moveNode[m_moveNode.length - 1];
+			// does not work in puzzle mode, because m_moveNode is not completely filled until all moves are shown.
+			int j = m_moveNode.length - 1;
+			while (m_moveNode[j] == 0 && j > 0) {
+				--j;
+			}
+			return m_moveNode[j];
 		}
 	}
 

@@ -16,11 +16,17 @@ package chesspresso.position.view;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import chesspresso.Chess;
+
 public interface Decoration {
 
 	enum DecorationType {
 		ARROW, BORDER, CIRCLE, CROSS_MARK, STROKE, FRAMED_AREA, GRAY_HAZE, TRIANGLE_IN_CORNER, ONE_IN_CORNER, ZERO_IN_CORNER,
 		BAR_IN_CORNER, TEXT, NUMBER_IN_SQUARE
+	}
+
+	default int getSquare() {
+		return Chess.NO_SQUARE;
 	}
 
 	void paint(Graphics2D g, int squareSize, int bottomPlayer);

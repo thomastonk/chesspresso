@@ -772,6 +772,11 @@ public class DecorationFactory {
 		}
 
 		@Override
+		public int getSquare() {
+			return square;
+		}
+
+		@Override
 		public DecorationType getType() {
 			return DecorationType.NUMBER_IN_SQUARE;
 		}
