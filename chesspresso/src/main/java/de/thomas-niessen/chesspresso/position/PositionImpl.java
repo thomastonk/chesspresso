@@ -164,8 +164,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	// directions
 
 	public static final int NO_DIR = -1, NUM_OF_DIRS = 8, SW = 0, S = 1, SE = 2, E = 3, NE = 4, N = 5, NW = 6, W = 7;
-	// need to start there, to allow calculation between pawn move dir and pawn
-	// capture dir
+	// see pawn move dir vs pawn capture dir
 
 	private static final int[] DIR_SHIFT = { -9, -8, -7, 1, 9, 8, 7, -1 };
 	private static final long[] RIM_BOARD;
@@ -352,15 +351,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private final static int OTHER_CHANGE_MOVE = Move.OTHER_SPECIALS;
 
-	// can use up to 47 bits (64 bits - 2 * 6 to store king squares - 5 for
-	// change mask)
+	// can use up to 47 bits (64 bits - 2 * 6 to store king squares - 5 for change mask)
 
 	/*
 	 * =========================================================================
 	 */
 
 	private long m_bbWhites, m_bbBlacks, m_bbPawns, m_bbKnights, m_bbBishops, m_bbRooks;
-	private int m_whiteKing = Chess.NO_SQUARE, m_blackKing = Chess.NO_SQUARE; // actually only a short (6 bit)
+	private int m_whiteKing = Chess.NO_SQUARE, m_blackKing = Chess.NO_SQUARE; // actually only a short (6 bit) is needed
 	private long m_flags;
 	private long m_hashCode;
 
@@ -423,9 +421,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if (PROFILE)
 			m_numPositions++;
 
-		m_bakStack = new long[4 * bufferLength]; // on average, we need about
-		// 3.75 longs to backup a
-		// position
+		m_bakStack = new long[4 * bufferLength]; // on average, we need about 3.75 longs to backup a position
 		m_moveStack = new short[bufferLength];
 		clear();
 	}
@@ -460,7 +456,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public void clear() {
 		super.clear();
-		m_flags &= ~((long) PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
+		m_flags = 0l;
 	}
 
 	private void clearStacks() {
@@ -796,8 +792,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public void setHalfMoveClock(int halfMoveClock) {
-		// By the bit operations a half move clock number will always be between 0 and
-		// 255!
+		// By the bit operations a half move clock number will always be between 0 and 255!
 		if (DEBUG)
 			System.out.println("setHalfMoveClock " + halfMoveClock);
 		m_flags &= ~(HALF_MOVE_CLOCK_MASK << HALF_MOVE_CLOCK_SHIFT);
@@ -1002,9 +997,6 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 								- Chess.MIN_STONE];
 					} else {
 						notBBTo = ~bbTo;
-						// int capturedStone =
-						// Chess.pieceToStone(ChMove.getCapturedPiece(move),
-						// getNotToPlay());
 						int capturedStone = getStone(Move.getToSqi(move));
 						m_hashCode ^= s_hashMod[sqiTo][capturedStone - Chess.MIN_STONE];
 					}
@@ -1020,10 +1012,6 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 					increaseHalfMoveClock = false;
 				}
 				if (Move.isPromotion(move)) {
-					// System.out.println("PROMOTION");
-					// System.out.println(move + " " +
-					// ChMove.getBinaryString(move) + " " +
-					// ChMove.getString(move));
 					int promotionStone = Chess.pieceToStone(Move.getPromotionPiece(move), getToPlay());
 					if (getToPlay() == Chess.WHITE) {
 						m_bbWhites ^= bbFromTo;
@@ -1190,16 +1178,6 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		/*---------- store move in stack ----------*/
 		int index = m_moveStackIndex;
 		checkMoveStack();
-		// if (index >= m_moveStack.length) {
-		// short[] newMoveStack = new short[m_moveStack.length * 2];
-		// System.arraycopy(m_moveStack, 0, newMoveStack, 0,
-		// m_moveStack.length);
-		// m_moveStack = newMoveStack;
-		//// if (index >= m_moveStack.length) System.out.println("Too big");
-		// }
-		// if (index < 0 || index >= m_moveStack.length)
-		// System.out.println(index + " " + m_plyNumber + " " +
-		// m_initialPlyNumber + " " + m_moveStack.length);
 		m_moveStack[index] = move;
 		m_moveStackIndex++;
 	}
@@ -1277,10 +1255,8 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 		/*---------- compare state and push changes ----------*/
 		// only push data that have actually changed
-		// on average, we need about 3.75 longs per position (instead of 7 if we
-		// back up all)
-		// (hashCode, flags, 1/2 whites, 1 piece bb, plus sometimes another
-		// piece bb for captures, promotions, castles)
+		// on average, we need about 3.75 longs per position (instead of 7 if we back up all)
+		// (hashCode, flags, 1/2 whites, 1 piece bb, plus sometimes another piece bb for captures, promotions, castles)
 		int changeMask = 0;
 		if (bakWhites != m_bbWhites) {
 			m_bakStack[m_bakIndex++] = bakWhites;
@@ -1396,8 +1372,6 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public boolean redoMove() {
-		// if (PROFILE) m_numRedoMove++;
-
 		if (canRedoMove()) {
 
 			/*---------- reset pieces ----------*/

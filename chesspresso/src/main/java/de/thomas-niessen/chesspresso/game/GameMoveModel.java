@@ -1261,7 +1261,7 @@ class GameMoveModel implements Serializable {
 
 	// ======================================================================
 
-	boolean deleteAllLines() {
+	boolean deleteAllSublines() {
 		if (DEBUG) {
 			System.out.println("deleteAllLines");
 			write(System.out);

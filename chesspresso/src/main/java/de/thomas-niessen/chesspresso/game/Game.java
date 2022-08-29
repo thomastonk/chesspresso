@@ -504,7 +504,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	public void stripAll() {
 		gotoStart();
 		removeAllComments();
-		deleteAllLines();
+		deleteAllSublines();
 		removeAllNags();
 		fireMoveModelChanged();
 	}
@@ -816,15 +816,14 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		});
 	}
 
-	public void deleteAllLines() {
-		if (!isMainLine()) {
-			m_position.runAlgorithm(() -> {
-				gotoStart();
-			});
-		}
-		if (m_model.getMoveModel().deleteAllLines()) {
-			fireMoveModelChanged();
-		}
+	public void deleteAllSublines() {
+		m_position.runAlgorithm(() -> {
+			// First, the position is placed in the only legal post-deletion state.
+			gotoStart();
+			if (m_model.getMoveModel().deleteAllSublines()) {
+				fireMoveModelChanged();
+			}
+		});
 	}
 
 	public void deleteRemainingMoves() {

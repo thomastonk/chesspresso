@@ -292,7 +292,10 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 	@Override
 	public void headerModelChanged(Game game) {
-		createText(); // TN: Is this really necessary, if the header model is changed?
+		// Do not add an unnecessary 
+		// createText();
+		// here. A header model change can be an FEN tag change, and hence the header and the
+		// move model can be inconsistent, and thus createText can fail. 
 	}
 
 	@Override

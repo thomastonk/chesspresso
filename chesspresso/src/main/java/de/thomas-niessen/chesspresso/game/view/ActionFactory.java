@@ -697,7 +697,7 @@ public class ActionFactory {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			game.deleteAllLines();
+			game.deleteAllSublines();
 			textViewer.showCurrentGameNode();
 		}
 	}
