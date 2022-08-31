@@ -246,6 +246,9 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	public void setTag(String tagName, String tagValue) {
 		m_model.getHeaderModel().setTag(tagName, tagValue);
 		fireHeaderModelChanged();
+		if (PGN.TAG_RESULT.equals(tagName)) {
+			fireMoveModelChanged();
+		}
 	}
 
 	public void setGameByFEN(String fen, boolean overwriteTags) throws InvalidFenException {

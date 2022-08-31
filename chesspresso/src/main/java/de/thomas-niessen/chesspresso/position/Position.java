@@ -77,7 +77,7 @@ public final class Position implements MoveablePosition, Serializable {
 	/**
 	 * This is a public method, but please don't use it! It shall only be used in the implementation of Game.
 	 * 
-	 * Note: A non-null related game can only be set once.
+	 * Note: A non-null related game can only be set, if it isn't set so far.
 	 */
 	public void setRelatedGame(RelatedGame relatedGame) {
 		if (this.relatedGame != null) {
