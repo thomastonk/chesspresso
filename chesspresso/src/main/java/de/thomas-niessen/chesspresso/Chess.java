@@ -239,14 +239,17 @@ public abstract class Chess {
 	 *         passed
 	 */
 	public static int strToSqi(String s) {
-		if (s == null || s.length() != 2)
+		if (s == null || s.length() != 2) {
 			return NO_SQUARE;
+		}
 		int col = charToCol(s.charAt(0));
-		if (col == NO_COL)
+		if (col == NO_COL) {
 			return NO_SQUARE;
+		}
 		int row = charToRow(s.charAt(1));
-		if (row == NO_ROW)
+		if (row == NO_ROW) {
 			return NO_SQUARE;
+		}
 		return coorToSqi(col, row);
 	}
 
@@ -260,11 +263,13 @@ public abstract class Chess {
 	 */
 	public static int strToSqi(char colCh, char rowCh) {
 		int col = charToCol(colCh);
-		if (col == NO_COL)
+		if (col == NO_COL) {
 			return NO_SQUARE;
+		}
 		int row = charToRow(rowCh);
-		if (row == NO_ROW)
+		if (row == NO_ROW) {
 			return NO_SQUARE;
+		}
 		return coorToSqi(col, row);
 	}
 
@@ -314,10 +319,11 @@ public abstract class Chess {
 	 * @return the piece
 	 */
 	public static int stoneToPiece(int stone) {
-		if (stone < 0)
+		if (stone < 0) {
 			return -stone;
-		else
+		} else {
 			return stone;
+		}
 	}
 
 	/**
@@ -327,10 +333,11 @@ public abstract class Chess {
 	 * @return the piece
 	 */
 	public static short stoneToPiece(short stone) {
-		if (stone < 0)
+		if (stone < 0) {
 			return (short) -stone;
-		else
+		} else {
 			return stone;
+		}
 	}
 
 	/**
@@ -352,8 +359,9 @@ public abstract class Chess {
 	 */
 	public static int charToPiece(char ch) {
 		for (int piece = 0; piece < pieceChars.length; piece++) {
-			if (pieceChars[piece] == ch)
+			if (pieceChars[piece] == ch) {
 				return piece;
+			}
 		}
 		return NO_PIECE;
 	}
@@ -366,8 +374,9 @@ public abstract class Chess {
 	 *         passed
 	 */
 	public static char pieceToChar(int piece) {
-		if (piece < 0 || piece > MAX_PIECE)
+		if (piece < 0 || piece > MAX_PIECE) {
 			return '?';
+		}
 		return pieceChars[piece];
 	}
 
@@ -379,10 +388,11 @@ public abstract class Chess {
 	 *         passed
 	 */
 	public static char stoneToChar(int stone) {
-		if (stone < 0)
+		if (stone < 0) {
 			return pieceChars[-stone];
-		else
+		} else {
 			return pieceChars[stone];
+		}
 	}
 
 	/**

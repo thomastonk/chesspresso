@@ -89,8 +89,9 @@ class GameHeaderModel implements Serializable {
 
 	private int getStandardTagIndex(String tagName) {
 		for (int i = 0; i < NUM_OF_STANDARD_TAGS; i++) {
-			if (TAG_NAMES[i].equals(tagName))
+			if (TAG_NAMES[i].equals(tagName)) {
 				return i;
+			}
 		}
 		return -1;
 	}
@@ -130,15 +131,18 @@ class GameHeaderModel implements Serializable {
 
 	String[] getTags() {
 		int numOfTags = (m_otherTags == null ? 0 : m_otherTags.size());
-		for (int i = 0; i < NUM_OF_STANDARD_TAGS; i++)
-			if (m_standardTags[i] != null)
+		for (int i = 0; i < NUM_OF_STANDARD_TAGS; i++) {
+			if (m_standardTags[i] != null) {
 				numOfTags++;
+			}
+		}
 
 		String[] tags = new String[numOfTags];
 		int index = 0;
 		for (int i = 0; i < NUM_OF_STANDARD_TAGS; i++) {
-			if (m_standardTags[i] != null)
+			if (m_standardTags[i] != null) {
 				tags[index++] = TAG_NAMES[i];
+			}
 		}
 		if (m_otherTags != null) {
 			for (String m_otherTag : m_otherTags) {
@@ -244,23 +248,26 @@ class GameHeaderModel implements Serializable {
 		// get the code for string detection, e.g. the if/else below, and both methods
 		// could apply it. Not trivial.
 		String result = getResultStr();
-		if ("1-0".equals(result))
+		if ("1-0".equals(result)) {
 			return Chess.RES_WHITE_WINS;
-		else if ("0-1".equals(result))
+		} else if ("0-1".equals(result)) {
 			return Chess.RES_BLACK_WINS;
-		else if ("1/2-1/2".equals(result))
+		} else if ("1/2-1/2".equals(result)) {
 			return Chess.RES_DRAW;
-		else if ("*".equals(result))
+		} else if ("*".equals(result)) {
 			return Chess.RES_NOT_FINISHED;
-		else
+		} else {
 			return Chess.NO_RES;
+		}
 	}
 
 	int getWhiteElo() {
 		try {
 			String whiteElo = getWhiteEloStr();
 			if (whiteElo == null)
+			 {
 				return 0; // =====>
+			}
 			return Integer.parseInt(whiteElo);
 		} catch (NumberFormatException ex) {
 			return 0; // =====>
@@ -271,7 +278,9 @@ class GameHeaderModel implements Serializable {
 		try {
 			String blackElo = getBlackEloStr();
 			if (blackElo == null)
+			 {
 				return 0; // =====>
+			}
 			return Integer.parseInt(blackElo);
 		} catch (NumberFormatException ex) {
 			return 0; // =====>

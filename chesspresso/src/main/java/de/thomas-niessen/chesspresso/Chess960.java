@@ -153,11 +153,8 @@ public class Chess960 {
 		if (kings != 1 || queens != 1 || rooks != 2 || bishops != 2 || knights != 2) {
 			return false;
 		}
-		if ((secondBishop - firstBishop) % 2 == 0) {
-			return false;
-		}
 		//noinspection RedundantIfStatement
-		if (firstRook > king || secondRook < king) {
+		if (((secondBishop - firstBishop) % 2 == 0) || firstRook > king || secondRook < king) {
 			return false;
 		}
 		return true;

@@ -22,7 +22,10 @@ public interface MutablePosition extends ImmutablePosition {
 
 	void initFromFEN(String fen, boolean validate) throws InvalidFenException;
 
-	void setPosition(ImmutablePosition position);
+	/** This method takes the current state of the argument as a snapshot and
+	 * copies this snapshot into this. It is not any kind of deep copying into
+	 * this. */
+	void setPositionSnapshot(ImmutablePosition position);
 
 	void setStart();
 

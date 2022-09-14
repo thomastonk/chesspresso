@@ -20,6 +20,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -168,13 +169,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (m_userAction != UserAction.ENABLED) {
-					return;
-				}
-				if (SwingUtilities.isRightMouseButton(e) || e.isPopupTrigger()) {
-					return;
-				}
-				if (e.getPoint().y < 3) { // clicks at the upper boundary move otherwise the game to first ply
+				if ((m_userAction != UserAction.ENABLED) || SwingUtilities.isRightMouseButton(e) || e.isPopupTrigger() || (e.getPoint().y < 3)) { // clicks at the upper boundary move otherwise the game to first ply
 					return;
 				}
 				try {
@@ -200,7 +195,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 					return;
 				}
 				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-					if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
+					if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
 						goBackToLineBegin();
 						centerLineInScrollPane(GameTextViewer.this);
 					} else {
@@ -208,10 +203,10 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 						centerLineInScrollPane(GameTextViewer.this);
 					}
 				} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-					if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
+					if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
 						gotoEndOfLine();
 						centerLineInScrollPane(GameTextViewer.this);
-					} else if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
+					} else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
 						goForwardMainLine();
 						centerLineInScrollPane(GameTextViewer.this);
 					} else {
@@ -231,8 +226,9 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 				} else {
 					gotoPlyForCaret();
 				}
-				if (getSelectionStart() == getSelectionEnd()) // assure that we always have a selection
+				if (getSelectionStart() == getSelectionEnd()) { // assure that we always have a selection
 					showCurrentGameNode();
+				}
 			}
 		});
 
@@ -417,8 +413,9 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			m_moveEnd[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 2;
 
 			/*---------- post-move comment -----*/
-			if (postMoveComment != null)
+			if (postMoveComment != null) {
 				appendText(postMoveComment + " ", COMMENT);
+			}
 
 			m_notifyIndex++;
 
@@ -641,18 +638,21 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	}
 
 	private void goBackToLineBegin() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.goBackToLineBegin();
+		}
 	}
 
 	private void gotoEndOfLine() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.gotoEndOfLine();
+		}
 	}
 
 	private void goForwardMainLine() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.goForward(0);
+		}
 	}
 
 	private boolean goForward() {
@@ -670,22 +670,26 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	}
 
 	private void goStart() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.gotoStart();
+		}
 	}
 
 	private void goEnd() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.gotoEndOfLine();
+		}
 	}
 
 	private int getNodeForCaret() {
 		int caret = getCaretPosition();
-		if (caret < 3)
+		if (caret < 3) {
 			return m_game.getRootNode();
+		}
 		for (int i = 0; i < m_moveNode.length - 1; i++) {
-			if (m_moveNrBegin[i + 1] > caret)
+			if (m_moveNrBegin[i + 1] > caret) {
 				return m_moveNode[i];
+			}
 		}
 		if (m_moveNode.length == 0) {
 			return m_game.getRootNode();

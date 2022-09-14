@@ -88,8 +88,9 @@ public final class PGNReader extends PGN {
 		s_isToken = new boolean[128];
 		Arrays.fill(s_isToken, false);
 
-		for (int i = 0; i <= 32; i++)
+		for (int i = 0; i <= 32; i++) {
 			s_isToken[i] = true;
+		}
 
 		s_isToken[TOK_ASTERISK] = true;
 		s_isToken[TOK_COMMENT_BEGIN] = true;
@@ -199,25 +200,32 @@ public final class PGNReader extends PGN {
 	private String getLastTokenAsDebugString() {
 		int last;
 		last = getLastToken();
-		if (last == TOK_EOF)
+		if (last == TOK_EOF) {
 			return "EOF";
-		if (last == TOK_EOL)
+		}
+		if (last == TOK_EOL) {
 			return "EOL";
-		if (last == TOK_NO_TOKEN)
+		}
+		if (last == TOK_NO_TOKEN) {
 			return "NO_TOKEN";
-		if (last == TOK_IDENT)
+		}
+		if (last == TOK_IDENT) {
 			return getLastTokenAsString();
-		if (last == TOK_COMMENT_BEGIN)
+		}
+		if (last == TOK_COMMENT_BEGIN) {
 			return TOK_COMMENT_BEGIN + getLastTokenAsString() + TOK_COMMENT_END;
-		if (last == TOK_STRING)
+		}
+		if (last == TOK_STRING) {
 			return TOK_QUOTE + getLastTokenAsString() + TOK_QUOTE;
+		}
 		return String.valueOf((char) last);
 	}
 
 	private void syntaxError(String msg) throws PGNSyntaxError {
 		PGNSyntaxError error = new PGNSyntaxError(Severity.ERROR, msg, m_filename, getLineNumber(), getLastTokenAsDebugString());
-		if (m_errorHandler != null)
+		if (m_errorHandler != null) {
 			m_errorHandler.handleError(error);
+		}
 		throw error;
 	}
 
@@ -259,8 +267,9 @@ public final class PGNReader extends PGN {
 				return '\n';
 			}
 		}
-		if (ch < 0)
+		if (ch < 0) {
 			ch = TOK_EOF;
+		}
 		m_lastChar = ch;
 		return ch;
 	}
@@ -282,12 +291,15 @@ public final class PGNReader extends PGN {
 		} else if (ch == TOK_QUOTE) {
 			for (;;) {
 				ch = getChar();
-				if (ch == TOK_QUOTE)
+				if (ch == TOK_QUOTE) {
 					break;
-				if (ch < 0)
+				}
+				if (ch < 0) {
 					syntaxError("Unfinished string");
-				if (m_lastTokenLength >= MAX_TOKEN_SIZE)
+				}
+				if (m_lastTokenLength >= MAX_TOKEN_SIZE) {
 					syntaxError("Token too long");
+				}
 				m_buf[m_lastTokenLength++] = (char) ch;
 			}
 			m_lastToken = TOK_STRING;
@@ -300,28 +312,33 @@ public final class PGNReader extends PGN {
 					m_ignoreLineComment = false; // TN added
 					break;
 				}
-				if (ch == TOK_EOF)
+				if (ch == TOK_EOF) {
 					syntaxError("Unfinished comment, started at line " + start);
+				}
 				if (ch == '\n')
+				 {
 					ch = ' '; // end of line -> space
-				if (m_lastTokenLength >= MAX_TOKEN_SIZE)
+				}
+				if (m_lastTokenLength >= MAX_TOKEN_SIZE) {
 					syntaxError("Token too long");
-				if (ch >= 0)
+				}
+				if (ch >= 0) {
 					m_buf[m_lastTokenLength++] = (char) ch;
+				}
 			}
 			m_lastToken = TOK_COMMENT_BEGIN;
 		} else if (ch >= 0 && ch < s_isToken.length && s_isToken[ch]) {
 			m_lastToken = ch;
 		} else if (ch >= 0) {
 			for (;;) {
-				if (m_lastTokenLength >= MAX_TOKEN_SIZE)
+				if (m_lastTokenLength >= MAX_TOKEN_SIZE) {
 					syntaxError("Token too long");
+				}
 				m_buf[m_lastTokenLength++] = (char) ch;
 				ch = getChar();
-				if (ch < 0)
+				if ((ch < 0) || (ch < s_isToken.length && s_isToken[ch])) {
 					break;
-				if (ch < s_isToken.length && s_isToken[ch])
-					break;
+				}
 			}
 			m_pushedBack = true;
 			m_lastToken = TOK_IDENT;
@@ -345,7 +362,9 @@ public final class PGNReader extends PGN {
 		for (int i = 0; i < m_lastTokenLength; i++) {
 			int digit = m_buf[i];
 			if (digit < '0' || digit > '9')
+			 {
 				return false; // =====>
+			}
 		}
 		return true;
 	}
@@ -354,8 +373,9 @@ public final class PGNReader extends PGN {
 		int value = 0;
 		for (int i = 0; i < m_lastTokenLength; i++) {
 			int digit = m_buf[i];
-			if (digit < '0' || digit > '9')
+			if (digit < '0' || digit > '9') {
 				syntaxError("Not a digit " + digit);
+			}
 			value = 10 * value + (m_buf[i] - 48);
 		}
 		return value;
@@ -370,10 +390,12 @@ public final class PGNReader extends PGN {
 	private boolean findNextGameStart() throws PGNSyntaxError, IOException {
 		for (;;) {
 			int last = getLastToken();
-			if (last == TOK_EOF)
+			if (last == TOK_EOF) {
 				return false;
-			if (last == TOK_TAG_BEGIN)
+			}
+			if (last == TOK_TAG_BEGIN) {
 				return true;
+			}
 			getNextToken();
 		}
 	}
@@ -474,12 +496,12 @@ public final class PGNReader extends PGN {
 
 	private int getLastTokenAsResult() {
 		// System.out.println("CheckResult: " + getLastTokenAsString());
-		if (getLastToken() == TOK_ASTERISK)
+		if (getLastToken() == TOK_ASTERISK) {
 			return Chess.RES_NOT_FINISHED;
-		if (getLastToken() == TOK_EOF)
+		}
+		if ((getLastToken() == TOK_EOF) || getLastToken() == TOK_COMMENT_BEGIN || getLastToken() == TOK_COMMENT_END) {
 			return Chess.NO_RES;
-		if (getLastToken() == TOK_COMMENT_BEGIN || getLastToken() == TOK_COMMENT_END)
-			return Chess.NO_RES;
+		}
 		if (m_buf[0] == '1') {
 			if (m_buf[1] == '/') {
 				if (m_lastTokenLength == 7 && m_buf[2] == '2' && m_buf[3] == '-' && m_buf[4] == '1' && m_buf[5] == '/'
@@ -505,12 +527,14 @@ public final class PGNReader extends PGN {
 	}
 
 	private short getLastTokenAsMove() throws PGNSyntaxError {
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("getLastTokenAsMove " + getLastTokenAsString());
+		}
 
-		if (!isLastTokenIdent())
+		if (!isLastTokenIdent()) {
 			syntaxError("Move expected near ply " + m_curGame.getPosition().getPlyNumber() + ", found '" + getLastTokenAsString()
 					+ "'");
+		}
 
 		int next = 0;
 		int last = m_lastTokenLength - 1;
@@ -579,9 +603,10 @@ public final class PGNReader extends PGN {
 			if (ch >= 'a' && ch <= 'h') {
 				/*---------- pawn move ----------*/
 				int col = Chess.NO_COL;
-				if (1 > last)
+				if (1 > last) {
 					syntaxError("Illegal pawn move near ply " + m_curGame.getPosition().getPlyNumber() + ", move "
 							+ getLastTokenAsString());
+				}
 				if (m_buf[1] == 'x') {
 					col = Chess.charToCol(ch);
 					next = 2;
@@ -592,9 +617,10 @@ public final class PGNReader extends PGN {
 					next = 1;
 				}
 
-				if (next + 1 > last)
+				if (next + 1 > last) {
 					syntaxError("Illegal pawn move near ply " + m_curGame.getPosition().getPlyNumber()
 							+ ", no destination square for move " + getLastTokenAsString());
+				}
 				int toSqi = Chess.strToSqi(m_buf[next], m_buf[next + 1]);
 				next += 2;
 
@@ -620,7 +646,9 @@ public final class PGNReader extends PGN {
 				last -= 2;
 
 				if (m_buf[last] == 'x')
+				 {
 					last--; // capturing
+				}
 
 				int row = Chess.NO_ROW, col = Chess.NO_COL;
 				while (last >= 1) {
@@ -641,8 +669,9 @@ public final class PGNReader extends PGN {
 				move = m_curGame.getPosition().getPieceMove(piece, col, row, toSqi);
 			}
 		}
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("  -> " + Move.getString(move));
+		}
 		return move;
 	}
 
@@ -683,8 +712,9 @@ public final class PGNReader extends PGN {
 	private short parseHalfMove(String preMoveComment) throws PGNSyntaxError, IOException {
 		short move = 1;
 		if (isLastTokenMoveNumber()) {
-			while (getNextToken() == TOK_PERIOD)
-				;
+			while (getNextToken() == TOK_PERIOD) {
+				
+			}
 		}
 		try {
 			move = getLastTokenAsMove();
@@ -801,8 +831,9 @@ public final class PGNReader extends PGN {
 		}
 
 		getLastTokenAsResult(); // check
-		if (level != 0)
+		if (level != 0) {
 			syntaxError("Unfinished variations in game: " + level);
+		}
 	}
 
 	private String aggregateComments(Collection<String> comments) {
@@ -836,12 +867,12 @@ public final class PGNReader extends PGN {
 	 * @return the next game
 	 */
 	public Game parseGame(Game game) throws PGNSyntaxError, IOException {
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("===> new game");
-		if (m_in == null)
+		}
+		if ((m_in == null) || (game == null)) {
 			return null;
-		if (game == null)
-			return null;
+		}
 		m_curGame = null;
 		if (!findNextGameStart()) {
 			return null;

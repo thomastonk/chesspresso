@@ -62,8 +62,9 @@ public class PGNWriter extends PGN {
 		m_out.println();
 		m_curCol = 0;
 		writeMoves(game);
-		if (m_curCol > 0)
+		if (m_curCol > 0) {
 			m_out.println();
+		}
 	}
 
 	public void writeNewLine() {
@@ -113,10 +114,12 @@ public class PGNWriter extends PGN {
 			m_out.println(TOK_TAG_BEGIN + TAG_BLACK_ELO + " " + TOK_QUOTE + game.getBlackElo() + TOK_QUOTE + TOK_TAG_END);
 		}
 
-		if (game.getEventDate() != null)
+		if (game.getEventDate() != null) {
 			m_out.println(TOK_TAG_BEGIN + TAG_EVENT_DATE + " " + TOK_QUOTE + game.getEventDate() + TOK_QUOTE + TOK_TAG_END);
-		if (game.getECO() != null)
+		}
+		if (game.getECO() != null) {
 			m_out.println(TOK_TAG_BEGIN + TAG_ECO + " " + TOK_QUOTE + game.getECO() + TOK_QUOTE + TOK_TAG_END);
+		}
 		// TN: I think the following is nonsense: a FEN tag is needed if and only if the
 		// start position of the game is not the usual one; but getPosition doesn't give
 		// the start position!
@@ -153,8 +156,9 @@ public class PGNWriter extends PGN {
 				@Override
 				public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber,
 						int level) {
-					if (preMoveComment != null)
+					if (preMoveComment != null) {
 						print(TOK_COMMENT_BEGIN + preMoveComment + TOK_COMMENT_END, true);
+					}
 					if (needsMoveNumber) {
 						if (move.isWhiteMove()) {
 							print(Chess.plyToMoveNumber(plyNumber) + ".", true);
@@ -169,8 +173,9 @@ public class PGNWriter extends PGN {
 							print(TOK_NAG_BEGIN + String.valueOf(nag), true);
 						}
 					}
-					if (postMoveComment != null)
+					if (postMoveComment != null) {
 						print(TOK_COMMENT_BEGIN + postMoveComment + TOK_COMMENT_END, true);
+					}
 					needsMoveNumber = !move.isWhiteMove() || (postMoveComment != null);
 				}
 
@@ -197,8 +202,9 @@ public class PGNWriter extends PGN {
 	}
 
 	private void print(String s, boolean addSpace) {
-		if (s == null)
+		if (s == null) {
 			return;
+		}
 		if (m_curCol > 0 && m_curCol + s.length() > m_charactersPerLine) {
 			m_out.println();
 			m_curCol = 0;

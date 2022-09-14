@@ -92,8 +92,9 @@ public class SanToMove {
 			if (ch >= 'a' && ch <= 'h') {
 				/*---------- pawn move ----------*/
 				int col = Chess.NO_COL;
-				if (1 > last)
+				if (1 > last) {
 					return Move.ILLEGAL_MOVE;
+				}
 				if (buffer[1] == 'x') {
 					col = Chess.charToCol(ch);
 					next = 2;
@@ -130,7 +131,9 @@ public class SanToMove {
 				last -= 2;
 
 				if (buffer[last] == 'x')
+				 {
 					last--; // capturing
+				}
 
 				int row = Chess.NO_ROW, col = Chess.NO_COL;
 				while (last >= 1) {

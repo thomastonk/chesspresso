@@ -81,14 +81,14 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	}
 
 	@Override
-	public void setPosition(ImmutablePosition position) {
+	public void setPositionSnapshot(ImmutablePosition position) {
 		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 			setStone(sqi, position.getStone(sqi));
 		}
 		setCastles(position.getCastles());
 		setSqiEP(position.getSqiEP());
 		setToPlay(position.getToPlay());
-		setPlyOffset(position.getPlyOffset());
+		setPlyOffset(position.getPlyNumber()); // not getPlyOffset
 		setHalfMoveClock(position.getHalfMoveClock());
 	}
 
@@ -180,7 +180,6 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	@Override
 	public final void invert() {
 		/*---------- invert stones ----------*/
-		// avoid to have two kings of the same on the board at the same time
 		int[] stones = new int[Chess.NUM_OF_SQUARES];
 		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 			stones[sqi] = getStone(sqi);
@@ -200,14 +199,18 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 		/*---------- invert castles ----------*/
 		int castles = getCastles();
 		setCastles(NO_CASTLES);
-		if ((castles & WHITE_SHORT_CASTLE) != 0)
+		if ((castles & WHITE_SHORT_CASTLE) != 0) {
 			includeCastles(BLACK_SHORT_CASTLE);
-		if ((castles & WHITE_LONG_CASTLE) != 0)
+		}
+		if ((castles & WHITE_LONG_CASTLE) != 0) {
 			includeCastles(BLACK_LONG_CASTLE);
-		if ((castles & BLACK_SHORT_CASTLE) != 0)
+		}
+		if ((castles & BLACK_SHORT_CASTLE) != 0) {
 			includeCastles(WHITE_SHORT_CASTLE);
-		if ((castles & BLACK_LONG_CASTLE) != 0)
+		}
+		if ((castles & BLACK_LONG_CASTLE) != 0) {
 			includeCastles(WHITE_LONG_CASTLE);
+		}
 
 		/*---------- invert to play ----------*/
 		toggleToPlay();

@@ -38,12 +38,14 @@ public abstract class PGN {
 	// [Date "2001.01.01"]
 
 	public static int getYearOfPGNDate(String pgnDate) throws IllegalArgumentException {
-		if (pgnDate == null)
+		if (pgnDate == null) {
 			throw new IllegalArgumentException("date string is null");
+		}
 		try {
 			int index = pgnDate.indexOf('.');
-			if (index == -1)
+			if (index == -1) {
 				throw new IllegalArgumentException("string does not contain a dot");
+			}
 			return Integer.parseInt(pgnDate.substring(0, index));
 		} catch (NumberFormatException ex) {
 			throw new IllegalArgumentException(ex.getMessage());

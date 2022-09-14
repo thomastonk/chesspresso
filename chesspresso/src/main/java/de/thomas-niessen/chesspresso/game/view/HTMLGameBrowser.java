@@ -62,8 +62,9 @@ public class HTMLGameBrowser implements TraverseListener {
 		for (int row = Chess.NUM_OF_ROWS - 1; row >= 0; row--) {
 			for (int col = 0; col < Chess.NUM_OF_COLS; col++) {
 				int sqi = Chess.coorToSqi(col, row);
-				if (sqi != Chess.A8)
+				if (sqi != Chess.A8) {
 					m_posData.append(",");
+				}
 				m_posData.append(pos.getStone(sqi) - Chess.MIN_STONE);
 			}
 		}
@@ -265,8 +266,9 @@ public class HTMLGameBrowser implements TraverseListener {
 			}
 			for (int stone = Chess.MIN_STONE; stone <= Chess.MAX_STONE; stone++) {
 				out.print("'" + getImageForStone(stone, false) + "'");
-				if (stone < Chess.MAX_STONE)
+				if (stone < Chess.MAX_STONE) {
 					out.print(",");
+				}
 			}
 			out.println(");");
 

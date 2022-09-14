@@ -149,8 +149,9 @@ public class Move implements Serializable {
 	private static final int[] s_promo = new int[Chess.MAX_PIECE + 1];
 
 	static {
-		for (int i = 0; i <= Chess.MAX_PIECE; i++)
+		for (int i = 0; i <= Chess.MAX_PIECE; i++) {
 			s_promo[i] = NO_PROMO;
+		}
 		s_promo[Chess.KNIGHT] = PROMO_KNIGHT;
 		s_promo[Chess.BISHOP] = PROMO_BISHOP;
 		s_promo[Chess.ROOK] = PROMO_ROOK;
@@ -266,8 +267,9 @@ public class Move implements Serializable {
 	public static int getPromotionPiece(short move) {
 		int promo = move & PROMO_MASK;
 		for (int piece = 0; piece <= Chess.MAX_PIECE; piece++) {
-			if (s_promo[piece] == promo)
+			if (s_promo[piece] == promo) {
 				return piece;
+			}
 		}
 		return Chess.NO_PIECE;
 	}
@@ -321,10 +323,11 @@ public class Move implements Serializable {
 	public static String getBinaryString(short move) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 15; i >= 0; i--) {
-			if ((move & (1 << i)) != 0)
+			if ((move & (1 << i)) != 0) {
 				sb.append("1");
-			else
+			} else {
 				sb.append("0");
+			}
 		}
 		return sb.toString();
 	}
@@ -336,25 +339,26 @@ public class Move implements Serializable {
 	 * @return the string representation, e.g. e2xf4
 	 */
 	public static String getString(short move) {
-		if (move == NO_MOVE)
+		if (move == NO_MOVE) {
 			return "<no move>";
-		else if (move == ILLEGAL_MOVE)
+		} else if (move == ILLEGAL_MOVE) {
 			return "<illegal move>";
-		else if (isSpecial(move))
+		} else if (isSpecial(move)) {
 			return "<special>";
-		else if (isShortCastle(move) || isShortCastleChess960(move))
+		} else if (isShortCastle(move) || isShortCastleChess960(move)) {
 			return SHORT_CASTLE_STRING;
-		else if (isLongCastle(move) || isLongCastleChess960(move))
+		} else if (isLongCastle(move) || isLongCastleChess960(move)) {
 			return LONG_CASTLE_STRING;
-		else if (isNullMove(move))
+		} else if (isNullMove(move)) {
 			return NULL_MOVE_STRING;
-		else {
+		} else {
 			StringBuilder sb = new StringBuilder();
 			sb.append(Chess.sqiToStr(getFromSqi(move)));
 			sb.append(isCapturing(move) ? 'x' : '-');
 			sb.append(Chess.sqiToStr(getToSqi(move)));
-			if (isPromotion(move))
+			if (isPromotion(move)) {
 				sb.append(Chess.pieceToChar(getPromotionPiece(move)));
+			}
 			return sb.toString();
 		}
 	}
@@ -535,15 +539,16 @@ public class Move implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if ((obj == null) || (getClass() != obj.getClass())) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		}
 		Move other = (Move) obj;
-		if (m_info != other.m_info)
+		if (m_info != other.m_info) {
 			return false;
+		}
 		return m_move == other.m_move;
 	}
 
@@ -565,9 +570,10 @@ public class Move implements Serializable {
 				sb.append(NULL_MOVE_STRING);
 			} else {
 				int piece = getMovingPiece();
-				if (piece == Chess.NO_PIECE)
+				if (piece == Chess.NO_PIECE) {
 					System.out.println("Move::getLAN: unexpected NO_PIECE for " + m_move + " " + m_info + " "
 							+ Integer.toBinaryString(m_info));
+				}
 				if (piece != Chess.PAWN) {
 					sb.append(Chess.pieceToChar(piece));
 				}
@@ -578,10 +584,11 @@ public class Move implements Serializable {
 					sb.append('=').append(Chess.pieceToChar(getPromo()));
 				}
 			}
-			if (isMate())
+			if (isMate()) {
 				sb.append('#');
-			else if (isCheck())
+			} else if (isCheck()) {
 				sb.append('+');
+			}
 			return sb.toString();
 		}
 	}
@@ -604,27 +611,32 @@ public class Move implements Serializable {
 				sb.append(NULL_MOVE_STRING);
 			} else {
 				int piece = getMovingPiece();
-				if (piece == Chess.NO_PIECE)
+				if (piece == Chess.NO_PIECE) {
 					System.out.println("Move::getSAN: unexpected NO_PIECE for " + m_move + " " + m_info + " "
 							+ Integer.toBinaryString(m_info));
+				}
 				if (piece != Chess.PAWN) {
 					sb.append(Chess.pieceToChar(piece));
 				}
-				if (getColFrom() != Chess.NO_COL)
+				if (getColFrom() != Chess.NO_COL) {
 					sb.append(Chess.colToChar(getColFrom()));
-				if (getRowFrom() != Chess.NO_ROW)
+				}
+				if (getRowFrom() != Chess.NO_ROW) {
 					sb.append(Chess.rowToChar(getRowFrom()));
-				if (isCapturing())
+				}
+				if (isCapturing()) {
 					sb.append("x");
+				}
 				sb.append(Chess.sqiToStr(getToSqi()));
 				if (isPromotion()) {
 					sb.append('=').append(Chess.pieceToChar(getPromo()));
 				}
 			}
-			if (isMate())
+			if (isMate()) {
 				sb.append('#');
-			else if (isCheck())
+			} else if (isCheck()) {
 				sb.append('+');
+			}
 			return sb.toString();
 		}
 	}

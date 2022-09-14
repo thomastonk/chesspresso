@@ -32,7 +32,9 @@ public abstract class AbstractMoveablePosition extends AbstractMutablePosition i
 	@Override
 	public short getMove(int from, int to, int promoPiece) {
 		if (getColor(from) != getToPlay())
+		 {
 			return Move.ILLEGAL_MOVE; // =====>
+		}
 		int piece = getPiece(from);
 		if (piece == Chess.PAWN) {
 			if (Chess.sqiToCol(from) == Chess.sqiToCol(to)) { // moves forward

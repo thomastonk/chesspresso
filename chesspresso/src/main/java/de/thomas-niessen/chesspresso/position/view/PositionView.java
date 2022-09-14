@@ -224,15 +224,17 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	public void setWhiteSquareColor(Color color) {
-		if (m_whiteSquareColor == color)
+		if (m_whiteSquareColor == color) {
 			return;
+		}
 		m_whiteSquareColor = color;
 		repaint();
 	}
 
 	public void setBlackSquareColor(Color color) {
-		if (m_blackSquareColor == color)
+		if (m_blackSquareColor == color) {
 			return;
+		}
 		m_blackSquareColor = color;
 		repaint();
 	}
@@ -248,15 +250,17 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	public void setWhiteColor(Color color) {
-		if (m_whiteColor == color)
+		if (m_whiteColor == color) {
 			return;
+		}
 		m_whiteColor = color;
 		repaint();
 	}
 
 	public void setBlackColor(Color color) {
-		if (m_blackColor == color)
+		if (m_blackColor == color) {
 			return;
+		}
 		m_blackColor = color;
 		repaint();
 	}
@@ -277,8 +281,9 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	public void setSolidStones(boolean solid) {
-		if (solid == m_solidStones)
+		if (solid == m_solidStones) {
 			return;
+		}
 		m_solidStones = solid;
 		repaint();
 	}
@@ -474,8 +479,9 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 			}
 			return;
 		}
-		if (m_positionMotionListener == null)
+		if (m_positionMotionListener == null) {
 			return;
+		}
 		m_draggedFrom = getSquare(e.getX(), e.getY());
 		if (m_positionMotionListener.isDragAllowed(m_position, m_draggedFrom)) {
 			m_draggedStone = m_position.getStone(m_draggedFrom);
@@ -545,8 +551,9 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 			}
 			return;
 		}
-		if (m_positionMotionListener == null || m_userAction == UserAction.NAVIGABLE)
+		if (m_positionMotionListener == null || m_userAction == UserAction.NAVIGABLE) {
 			return;
+		}
 		if (m_draggedFrom != Chess.NO_SQUARE) {
 			int draggedTo = getSquare(e.getX(), e.getY());
 			if (draggedTo != Chess.NO_SQUARE) {

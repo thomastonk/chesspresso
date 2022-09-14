@@ -71,7 +71,7 @@ public final class Position implements MoveablePosition, Serializable {
 
 	public Position(ImmutablePosition pos) {
 		this();
-		setPosition(pos);
+		setPositionSnapshot(pos);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public final class Position implements MoveablePosition, Serializable {
 
 	public static Position createInitialPosition() {
 		try {
-			return new Position(FEN.START_POSITION, true);
+			return new Position(FEN.START_POSITION, false);
 		} catch (InvalidFenException ignore) {
 			return null;
 		}
@@ -162,8 +162,8 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
-	public void setPosition(ImmutablePosition position) {
-		impl.setPosition(position);
+	public void setPositionSnapshot(ImmutablePosition position) {
+		impl.setPositionSnapshot(position);
 	}
 
 	@Override
@@ -246,31 +246,31 @@ public final class Position implements MoveablePosition, Serializable {
 	@Override
 	public void moveAllUp() {
 		impl.moveAllUp();
-		firePositionChanged();
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
 	}
 
 	@Override
 	public void moveAllDown() {
 		impl.moveAllDown();
-		firePositionChanged();
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
 	}
 
 	@Override
 	public void moveAllLeft() {
 		impl.moveAllLeft();
-		firePositionChanged();
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
 	}
 
 	@Override
 	public void moveAllRight() {
 		impl.moveAllRight();
-		firePositionChanged();
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
 	}
 
 	@Override
 	public void invert() {
 		impl.invert();
-		firePositionChanged();
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
 	}
 
 	@Override
@@ -498,17 +498,6 @@ public final class Position implements MoveablePosition, Serializable {
 
 	public final void removePositionListener(PositionListener listener) {
 		listeners.remove(listener);
-	}
-
-	public static void transferAllPositionListeners(Position sourcePos, Position targetPos) {
-		if (sourcePos != null && targetPos != null) {
-			for (PositionListener listener : sourcePos.listeners) {
-				targetPos.addPositionListener(listener);
-			}
-		}
-		if (sourcePos != null) {
-			sourcePos.listeners.clear();
-		}
 	}
 
 	/*

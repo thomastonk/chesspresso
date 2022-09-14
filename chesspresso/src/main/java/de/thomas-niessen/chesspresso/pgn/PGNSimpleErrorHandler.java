@@ -34,10 +34,12 @@ public class PGNSimpleErrorHandler implements PGNErrorHandler {
 
 	/* ================================================================================ */
 
+	@Override
 	public void handleError(PGNSyntaxError error) {
 		m_out.println(error);
 	}
 
+	@Override
 	public void handleWarning(PGNSyntaxError warning) {
 		m_out.println(warning);
 	}

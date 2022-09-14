@@ -165,12 +165,14 @@ public abstract class AbstractPosition implements ImmutablePosition {
 				}
 			}
 		}
-		if (sqiEP != Chess.NO_COL)
+		if (sqiEP != Chess.NO_COL) {
 			hashCode ^= s_hashEPMod[Chess.sqiToCol(sqiEP)];
+		}
 
 		/*---------- to play ----------*/
-		if (getToPlay() == Chess.BLACK)
+		if (getToPlay() == Chess.BLACK) {
 			hashCode |= HASH_TOPLAY_MULT;
+		}
 
 		return hashCode;
 	}
@@ -249,11 +251,13 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	public boolean checkEnPassantSquare() {
 		if (getSqiEP() != Chess.NO_SQUARE) {
 			if (getToPlay() == Chess.WHITE) {
-				if (getStone(getSqiEP() - Chess.NUM_OF_COLS) != Chess.pieceToStone(Chess.PAWN, Chess.BLACK))
+				if (getStone(getSqiEP() - Chess.NUM_OF_COLS) != Chess.pieceToStone(Chess.PAWN, Chess.BLACK)) {
 					return false;
+				}
 			} else {
-				if (getStone(getSqiEP() + Chess.NUM_OF_COLS) != Chess.pieceToStone(Chess.PAWN, Chess.WHITE))
+				if (getStone(getSqiEP() + Chess.NUM_OF_COLS) != Chess.pieceToStone(Chess.PAWN, Chess.WHITE)) {
 					return false;
+				}
 			}
 		}
 		return true;
@@ -262,10 +266,12 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	public boolean checkNumberOfKings() {
 		int numOfWhiteKings = 0, numOfBlackKings = 0;
 		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
-			if (getStone(sqi) == Chess.WHITE_KING)
+			if (getStone(sqi) == Chess.WHITE_KING) {
 				numOfWhiteKings++;
-			if (getStone(sqi) == Chess.BLACK_KING)
+			}
+			if (getStone(sqi) == Chess.BLACK_KING) {
 				numOfBlackKings++;
+			}
 		}
 		if (numOfWhiteKings != 1 || numOfBlackKings != 1) {
 			return false;
@@ -294,10 +300,12 @@ public abstract class AbstractPosition implements ImmutablePosition {
 		int numOfWhiteKings = 0;
 		int numOfBlackKings = 0;
 		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
-			if (getStone(sqi) == Chess.WHITE_KING)
+			if (getStone(sqi) == Chess.WHITE_KING) {
 				numOfWhiteKings++;
-			if (getStone(sqi) == Chess.BLACK_KING)
+			}
+			if (getStone(sqi) == Chess.BLACK_KING) {
 				numOfBlackKings++;
+			}
 		}
 		if (numOfWhiteKings != 1) {
 			if (numOfWhiteKings == 0) {

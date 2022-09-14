@@ -544,28 +544,33 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	}
 
 	private void m_buttEndActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.gotoEndOfLine();
+		}
 	}
 
 	private void m_buttForwardActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.goForward();
+		}
 	}
 
 	private void m_buttBackwardActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.goBack();
+		}
 	}
 
 	private void m_buttStartActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.gotoStart();
+		}
 	}
 
 	private void m_buttFlipBoardActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE)
+		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_positionView.flip();
+		}
 	}
 
 	// Variables declaration - do not modify
@@ -683,10 +688,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
-				if (m_userAction == UserAction.DISABLED) {
-					return;
-				}
-				if (!SwingUtilities.isRightMouseButton(event)) {
+				if ((m_userAction == UserAction.DISABLED) || !SwingUtilities.isRightMouseButton(event)) {
 					return;
 				}
 

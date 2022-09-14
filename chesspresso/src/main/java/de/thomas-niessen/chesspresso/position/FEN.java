@@ -29,8 +29,9 @@ public class FEN {
 
 	public static int fenCharToStone(char ch) {
 		for (int stone = Chess.MIN_STONE; stone <= Chess.MAX_STONE; stone++) {
-			if (fenChars[stone - Chess.MIN_STONE] == ch)
+			if (fenChars[stone - Chess.MIN_STONE] == ch) {
 				return stone;
+			}
 		}
 		return Chess.NO_STONE;
 	}
@@ -884,8 +885,9 @@ public class FEN {
 				row--;
 				col = 0;
 				blanks = 0;
-				if (row >= 0)
+				if (row >= 0) {
 					sb.append('/');
+				}
 			}
 		}
 		if (numberOfParts < 2) {
@@ -903,23 +905,31 @@ public class FEN {
 		int castles = pos.getCastles();
 		if (castles != ImmutablePosition.NO_CASTLES) {
 			if (pos.getVariant() == Variant.STANDARD) {
-				if ((castles & ImmutablePosition.WHITE_SHORT_CASTLE) != 0)
+				if ((castles & ImmutablePosition.WHITE_SHORT_CASTLE) != 0) {
 					sb.append('K');
-				if ((castles & ImmutablePosition.WHITE_LONG_CASTLE) != 0)
+				}
+				if ((castles & ImmutablePosition.WHITE_LONG_CASTLE) != 0) {
 					sb.append('Q');
-				if ((castles & ImmutablePosition.BLACK_SHORT_CASTLE) != 0)
+				}
+				if ((castles & ImmutablePosition.BLACK_SHORT_CASTLE) != 0) {
 					sb.append('k');
-				if ((castles & ImmutablePosition.BLACK_LONG_CASTLE) != 0)
+				}
+				if ((castles & ImmutablePosition.BLACK_LONG_CASTLE) != 0) {
 					sb.append('q');
+				}
 			} else { // Chess960
-				if ((castles & ImmutablePosition.WHITE_LONG_CASTLE) != 0)
+				if ((castles & ImmutablePosition.WHITE_LONG_CASTLE) != 0) {
 					sb.append(Character.toUpperCase(Chess.colToChar(pos.getChess960QueensideRookFile())));
-				if ((castles & ImmutablePosition.WHITE_SHORT_CASTLE) != 0)
+				}
+				if ((castles & ImmutablePosition.WHITE_SHORT_CASTLE) != 0) {
 					sb.append(Character.toUpperCase(Chess.colToChar(pos.getChess960KingsideRookFile())));
-				if ((castles & ImmutablePosition.BLACK_LONG_CASTLE) != 0)
+				}
+				if ((castles & ImmutablePosition.BLACK_LONG_CASTLE) != 0) {
 					sb.append(Chess.colToChar(pos.getChess960QueensideRookFile()));
-				if ((castles & ImmutablePosition.BLACK_SHORT_CASTLE) != 0)
+				}
+				if ((castles & ImmutablePosition.BLACK_SHORT_CASTLE) != 0) {
 					sb.append(Chess.colToChar(pos.getChess960KingsideRookFile()));
+				}
 			}
 		} else {
 			sb.append('-');
@@ -930,10 +940,11 @@ public class FEN {
 
 		/* ========== 4th field : ep square ========== */
 		sb.append(' ');
-		if (pos.getSqiEP() == Chess.NO_SQUARE)
+		if (pos.getSqiEP() == Chess.NO_SQUARE) {
 			sb.append('-');
-		else
+		} else {
 			sb.append(Chess.sqiToStr(pos.getSqiEP()));
+		}
 		if (numberOfParts < 5) {
 			return sb.toString();
 		}

@@ -49,11 +49,14 @@ public class ChXBoardEngine {
 	}
 
 	private class EngineMessageListener implements Runnable {
+		@Override
 		public void run() {
 			try {
 				for (;;) {
 					if (m_process == null)
+					 {
 						return; // =====>
+					}
 					//                    if (m_listen) {
 					String line = waitForAnswer(50, 1);
 					if (line != null) {
@@ -95,15 +98,17 @@ public class ChXBoardEngine {
 	/* ================================================================================ */
 
 	public void addListener(Listener listener) {
-		if (m_listeners == null)
+		if (m_listeners == null) {
 			m_listeners = new Vector<>();
+		}
 		m_listeners.add(listener);
 	}
 
 	public void removeListener(Listener listener) {
 		m_listeners.remove(listener);
-		if (m_listeners.size() == 0)
+		if (m_listeners.size() == 0) {
 			m_listeners = null;
+		}
 	}
 
 	private void fireInputMessage(String msg) {
@@ -166,8 +171,9 @@ public class ChXBoardEngine {
 						int time = Integer.parseInt(tokenizer.nextToken());
 						int nodesSearched = Integer.parseInt(tokenizer.nextToken());
 						StringBuilder bestLine = new StringBuilder(tokenizer.nextToken());
-						while (tokenizer.hasMoreTokens())
+						while (tokenizer.hasMoreTokens()) {
 							bestLine.append(" ").append(tokenizer.nextToken());
+						}
 						m_analysisListener.notifyPost(ply, score, time, nodesSearched, bestLine.toString());
 					} catch (Exception ignored) {
 					}
@@ -218,8 +224,9 @@ public class ChXBoardEngine {
 		if (!m_inAnalyzeMode) {
 			m_inAnalyzeMode = true;
 			m_analysisListener = listener;
-			if (post)
+			if (post) {
 				sendMessage("post");
+			}
 			sendMessage("analyze");
 		}
 	}
