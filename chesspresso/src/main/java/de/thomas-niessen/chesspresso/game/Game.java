@@ -157,6 +157,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			}
 			--numOfPlies;
 		}
+		fragment.setTag(PGN.TAG_RESULT, copy.getResultStr());
 
 		return fragment;
 	}
@@ -753,7 +754,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	public void gotoStart() {
 		m_position.runAlgorithm(() -> {
 			while (goBack()) {
-				
+
 			}
 		});
 	}
@@ -761,7 +762,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	public void gotoEndOfLine() {
 		m_position.runAlgorithm(() -> {
 			while (goForward()) {
-				
+
 			}
 		});
 	}
@@ -1026,8 +1027,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == this)
-		 {
+		if (obj == this) {
 			return true; // =====>
 		}
 		if (!(obj instanceof Game game)) {
@@ -1046,11 +1046,12 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		if (this == other) {
 			return true;
 		}
-		
+
 		// check the header
-		
+
 		// check an empty game comment
-		if ((other.getNumOfPlies() > getNumOfPlies()) || !m_model.getHeaderModel().contains(other.m_model.getHeaderModel()) || !checkComment(getEmptyGameComment(), other.getEmptyGameComment())) {
+		if ((other.getNumOfPlies() > getNumOfPlies()) || !m_model.getHeaderModel().contains(other.m_model.getHeaderModel())
+				|| !checkComment(getEmptyGameComment(), other.getEmptyGameComment())) {
 			return false;
 		}
 		// check the moves
@@ -1076,7 +1077,9 @@ public non-sealed class Game implements RelatedGame, Serializable {
 					} catch (IllegalMoveException ignore) {
 						return false;
 					}
-					if (!checkComment(game.getPreMoveComment(), other.getPreMoveComment()) || !checkComment(game.getPostMoveComment(), other.getPostMoveComment()) || !checkNAGs(game.getNags(), other.getNags()) || !checkMoves(game, other)) {
+					if (!checkComment(game.getPreMoveComment(), other.getPreMoveComment())
+							|| !checkComment(game.getPostMoveComment(), other.getPostMoveComment())
+							|| !checkNAGs(game.getNags(), other.getNags()) || !checkMoves(game, other)) {
 						return false;
 					}
 					game.getPosition().undoMove();
@@ -1188,7 +1191,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			} else {
 				m_model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
 			}
-			setTag(PGN.TAG_RESULT, PGN.RESULT_UNFINISHED);
+			// Don't change other things here, say the result, because that result in an order problem.
 		}
 	}
 

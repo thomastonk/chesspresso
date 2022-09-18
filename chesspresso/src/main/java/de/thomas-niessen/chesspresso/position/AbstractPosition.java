@@ -189,6 +189,11 @@ public abstract class AbstractPosition implements ImmutablePosition {
 
 	@Override
 	public boolean equals(Object obj) {
+		System.out.println("Stacktrace of AbstractPosition::equals:");
+		StackTraceElement[] st = Thread.currentThread().getStackTrace();
+		for (StackTraceElement ste : st) {
+			System.out.println(ste);
+		}
 		return (obj instanceof ImmutablePosition) && (((ImmutablePosition) obj).getHashCode() == getHashCode());
 	}
 

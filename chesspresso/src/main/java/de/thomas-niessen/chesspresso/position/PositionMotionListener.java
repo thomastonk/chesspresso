@@ -17,6 +17,9 @@ package chesspresso.position;
 import java.awt.event.MouseEvent;
 
 public interface PositionMotionListener {
+	// TN: The ImmutablePosition arguments are made for checking which position is meant.
+	// A MoveablePosition could be used directly. Maybe some day a change can be made.
+
 	boolean isDragAllowed(ImmutablePosition position, int from);
 
 	boolean dragged(ImmutablePosition position, int from, int to, MouseEvent e);
