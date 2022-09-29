@@ -488,4 +488,8 @@ public abstract class Chess {
 		default -> "unknown file";
 		};
 	}
+
+	public static boolean isSquareOnFile(int sqi, int file) {
+		return (sqi - file) % 8 == 0;
+	}
 }
