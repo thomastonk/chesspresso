@@ -495,8 +495,7 @@ class GameMoveModel implements Serializable {
 			}
 		}
 
-		if (comment == null || comment.length() == 0)
-		 {
+		if (comment == null || comment.length() == 0) {
 			return false; // =====>
 		}
 
@@ -534,8 +533,7 @@ class GameMoveModel implements Serializable {
 			}
 		}
 
-		if (comment == null || comment.length() == 0)
-		 {
+		if (comment == null || comment.length() == 0) {
 			return false; // =====>
 		}
 
@@ -794,17 +792,16 @@ class GameMoveModel implements Serializable {
 			} else if (move == LINE_END) {
 				level++;
 			} else if (isNagValue(move)) {
-				
+
 			} else if (move == PRE_COMMENT_START || move == POST_COMMENT_START) {
-				 // error
+				// error
 			} else if (move == PRE_COMMENT_END) {
 				index = skipPreComment(index);
 			} else if (move == POST_COMMENT_END) {
 				index = skipPostComment(index);
 			} else if (move == NO_MOVE) {
-				
-			} else if (level == 0)
-			 {
+
+			} else if (level == 0) {
 				break; // =====>
 			}
 			index--;
@@ -845,15 +842,15 @@ class GameMoveModel implements Serializable {
 					break;
 				}
 			} else if (isNagValue(move)) {
-				
+
 			} else if (move == PRE_COMMENT_START) {
 				index = skipPreComment(index);
 			} else if (move == POST_COMMENT_START) {
 				index = skipPostComment(index);
 			} else if (move == PRE_COMMENT_END || move == POST_COMMENT_END) {
-				 // error
+				// error
 			} else if (move == NO_MOVE) {
-				
+
 			} else if (level == 0) {
 				break;
 			}
@@ -892,15 +889,15 @@ class GameMoveModel implements Serializable {
 						break;
 					}
 				} else if (isNagValue(move)) {
-					
+
 				} else if (move == PRE_COMMENT_START) {
 					index = skipPreComment(index);
 				} else if (move == POST_COMMENT_START) {
 					index = skipPostComment(index);
 				} else if (move == PRE_COMMENT_END || move == POST_COMMENT_END) {
-					 // error
+					// error
 				} else if (move == NO_MOVE) {
-					
+
 				} else if (level == 1 && whichLine == 0) {
 					break;
 				} else if (level == 0) {
@@ -927,8 +924,7 @@ class GameMoveModel implements Serializable {
 		}
 
 		index = goForward(index);
-		if (m_moves[index] == LINE_END)
-		 {
+		if (m_moves[index] == LINE_END) {
 			return 0; // =====>
 		}
 
@@ -945,15 +941,15 @@ class GameMoveModel implements Serializable {
 					numOfMoves++;
 				}
 			} else if (isNagValue(move)) {
-				
+
 			} else if (move == PRE_COMMENT_START) {
 				index = skipPreComment(index);
 			} else if (move == POST_COMMENT_START) {
 				index = skipPostComment(index);
 			} else if (move == PRE_COMMENT_END || move == POST_COMMENT_END) {
-				 // error
+				// error
 			} else if (move == NO_MOVE) {
-				
+
 			} else if (level == 0) {
 				break;
 			}
@@ -1492,30 +1488,22 @@ class GameMoveModel implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		// s_equals++;
-		if (obj == this)
-		 {
-			return true; // =====>
+		if (obj == this) {
+			return true;
 		}
-		 // =====>
-
-		if (!(obj instanceof GameMoveModel gameMoveModel) || (gameMoveModel.getHashCode() != getHashCode()))
-		 {
-			return false; // =====>
-		// s_fullCompare++;
+		if (!(obj instanceof GameMoveModel gameMoveModel) || (gameMoveModel.getHashCode() != getHashCode())) {
+			return false;
 		}
 
 		int index1 = 0, index2 = 0;
 		for (;;) {
 			short move1 = m_moves[index1];
 			short move2 = gameMoveModel.m_moves[index2];
-			if (move1 == LINE_END && move2 == LINE_END)
-			 {
-				return true; // =====>
+			if (move1 == LINE_END && move2 == LINE_END) {
+				return true;
 			}
-			if (move1 != move2)
-			 {
-				return false; // =====>
+			if (move1 != move2) {
+				return false;
 			}
 			index1 = goForward(index1);
 			index2 = gameMoveModel.goForward(index2);

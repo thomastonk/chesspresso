@@ -575,20 +575,12 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		if (getNumOfPlies() == 0) {
 			m_model.getMoveModel().setEmptyGameComment(null);
 		} else {
-			traverse(new TraverseListener() {
+			traverse(new TraverseAdapter() {
 				@Override
 				public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber,
 						int level) {
 					removePreMoveComment(true);
 					removePostMoveComment(true);
-				}
-
-				@Override
-				public void notifyLineStart(int level) {
-				}
-
-				@Override
-				public void notifyLineEnd(int level) {
 				}
 			}, true);
 		}
@@ -762,7 +754,6 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	public void gotoEndOfLine() {
 		m_position.runAlgorithm(() -> {
 			while (goForward()) {
-
 			}
 		});
 	}

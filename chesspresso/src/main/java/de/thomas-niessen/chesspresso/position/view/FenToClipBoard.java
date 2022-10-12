@@ -20,6 +20,7 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
+import java.util.function.Supplier;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -27,19 +28,18 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
-import chesspresso.ParentSupplier;
 import chesspresso.position.FEN;
-import chesspresso.position.PositionSupplier;
+import chesspresso.position.Position;
 
 /**
  * @author Thomas Niessen
  */
 @SuppressWarnings("serial")
 public class FenToClipBoard extends AbstractAction {
-	private final PositionSupplier positionSupplier;
-	private final ParentSupplier parentSupplier;
+	private final Supplier<Position> positionSupplier;
+	private final Supplier<Component> parentSupplier;
 
-	public FenToClipBoard(PositionSupplier positionSupplier, ParentSupplier parentSupplier) {
+	public FenToClipBoard(Supplier<Position> positionSupplier, Supplier<Component> parentSupplier) {
 		super("FEN");
 		this.positionSupplier = positionSupplier;
 		this.parentSupplier = parentSupplier;
@@ -47,10 +47,10 @@ public class FenToClipBoard extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		String fen = FEN.getFEN(positionSupplier.getCurrentPosition());
+		String fen = FEN.getFEN(positionSupplier.get());
 		JDialog fenDialog;
 		if (parentSupplier != null) {
-			Component parent = parentSupplier.getCurrentParent();
+			Component parent = parentSupplier.get();
 			if (parent != null) {
 				if (parent instanceof Frame) {
 					fenDialog = new JDialog((Frame) parent);
@@ -82,8 +82,8 @@ public class FenToClipBoard extends AbstractAction {
 		fenDialog.setModal(true);
 		fenDialog.add(textPanel);
 		fenDialog.pack();
-		if (parentSupplier != null && parentSupplier.getCurrentParent() != null) {
-			fenDialog.setLocationRelativeTo(parentSupplier.getCurrentParent());
+		if (parentSupplier != null && parentSupplier.get() != null) {
+			fenDialog.setLocationRelativeTo(parentSupplier.get());
 		}
 		fenDialog.setVisible(true);
 	}

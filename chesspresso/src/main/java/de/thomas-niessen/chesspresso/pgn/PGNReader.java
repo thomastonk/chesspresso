@@ -315,8 +315,7 @@ public final class PGNReader extends PGN {
 				if (ch == TOK_EOF) {
 					syntaxError("Unfinished comment, started at line " + start);
 				}
-				if (ch == '\n')
-				 {
+				if (ch == '\n') {
 					ch = ' '; // end of line -> space
 				}
 				if (m_lastTokenLength >= MAX_TOKEN_SIZE) {
@@ -361,8 +360,7 @@ public final class PGNReader extends PGN {
 	private boolean isLastTokenInt() {
 		for (int i = 0; i < m_lastTokenLength; i++) {
 			int digit = m_buf[i];
-			if (digit < '0' || digit > '9')
-			 {
+			if (digit < '0' || digit > '9') {
 				return false; // =====>
 			}
 		}
@@ -602,38 +600,70 @@ public final class PGNReader extends PGN {
 			char ch = m_buf[0];
 			if (ch >= 'a' && ch <= 'h') {
 				/*---------- pawn move ----------*/
-				int col = Chess.NO_COL;
 				if (1 > last) {
 					syntaxError("Illegal pawn move near ply " + m_curGame.getPosition().getPlyNumber() + ", move "
 							+ getLastTokenAsString());
 				}
-				if (m_buf[1] == 'x') {
-					col = Chess.charToCol(ch);
-					next = 2;
-				}
-
-				if (m_buf[1] >= 'a' && m_buf[1] <= 'h') { // the 'x' is missing!
-					col = Chess.charToCol(ch);
-					next = 1;
-				}
-
-				if (next + 1 > last) {
-					syntaxError("Illegal pawn move near ply " + m_curGame.getPosition().getPlyNumber()
-							+ ", no destination square for move " + getLastTokenAsString());
-				}
-				int toSqi = Chess.strToSqi(m_buf[next], m_buf[next + 1]);
-				next += 2;
-
-				int promo = Chess.NO_PIECE;
-				if (next <= last && m_buf[next] == '=') {
-					if (next < last) {
-						promo = Chess.charToPiece(m_buf[next + 1]);
+				if (last >= 3 && (m_buf[1] >= '2' && m_buf[1] <= '7')
+						&& ((m_buf[2] >= 'a' && m_buf[2] <= 'h') || m_buf[2] == 'x')) { // LAN notation as used by Rusz's SEE, for example!
+					int col = Chess.NO_COL;
+					if (m_buf[2] == 'x') {
+						col = Chess.charToCol(ch);
+						next = 3;
+					} else if (m_buf[2] != ch) { // the 'x' is missing!
+						col = Chess.charToCol(ch);
+						next = 2;
 					} else {
-						syntaxError("Illegal promotion move near ply " + m_curGame.getPosition().getPlyNumber()
-								+ ", misssing piece for move " + getLastTokenAsString());
+						next = 2;
 					}
+					if (next + 1 > last) {
+						syntaxError("Illegal pawn move near ply " + m_curGame.getPosition().getPlyNumber()
+								+ ", no destination square for move " + getLastTokenAsString());
+					}
+					int toSqi = Chess.strToSqi(m_buf[next], m_buf[next + 1]);
+					next += 2;
+
+					int promo = Chess.NO_PIECE;
+					if (next <= last && m_buf[next] == '=') {
+						if (next < last) {
+							promo = Chess.charToPiece(m_buf[next + 1]);
+						} else {
+							syntaxError("Illegal promotion move near ply " + m_curGame.getPosition().getPlyNumber()
+									+ ", misssing piece for move " + getLastTokenAsString());
+						}
+					}
+					move = m_curGame.getPosition().getPawnMove(col, toSqi, promo);
+				} else { // standard-compliant encoding!
+					int col = Chess.NO_COL;
+					if (m_buf[1] == 'x') {
+						col = Chess.charToCol(ch);
+						next = 2;
+					}
+
+					if (m_buf[1] >= 'a' && m_buf[1] <= 'h') { // the 'x' is missing!
+						col = Chess.charToCol(ch);
+						next = 1;
+					}
+
+					if (next + 1 > last) {
+						syntaxError("Illegal pawn move near ply " + m_curGame.getPosition().getPlyNumber()
+								+ ", no destination square for move " + getLastTokenAsString());
+					}
+					int toSqi = Chess.strToSqi(m_buf[next], m_buf[next + 1]);
+					next += 2;
+
+					int promo = Chess.NO_PIECE;
+					if (next <= last && m_buf[next] == '=') {
+						if (next < last) {
+							promo = Chess.charToPiece(m_buf[next + 1]);
+						} else {
+							syntaxError("Illegal promotion move near ply " + m_curGame.getPosition().getPlyNumber()
+									+ ", misssing piece for move " + getLastTokenAsString());
+						}
+					}
+					move = m_curGame.getPosition().getPawnMove(col, toSqi, promo);
 				}
-				move = m_curGame.getPosition().getPawnMove(col, toSqi, promo);
+
 			} else {
 				/*---------- non-pawn move ----------*/
 				int piece = Chess.charToPiece(ch);
@@ -645,8 +675,7 @@ public final class PGNReader extends PGN {
 				int toSqi = Chess.strToSqi(m_buf[last - 1], m_buf[last]);
 				last -= 2;
 
-				if (m_buf[last] == 'x')
-				 {
+				if (m_buf[last] == 'x') {
 					last--; // capturing
 				}
 
@@ -710,20 +739,21 @@ public final class PGNReader extends PGN {
 
 	// TN: the old implementation respected move numbers
 	private short parseHalfMove(String preMoveComment) throws PGNSyntaxError, IOException {
-		short move = 1;
+		short move = Move.ILLEGAL_MOVE;
 		if (isLastTokenMoveNumber()) {
 			while (getNextToken() == TOK_PERIOD) {
-				
 			}
 		}
-		try {
-			move = getLastTokenAsMove();
-			m_curGame.getPosition().doMove(move);
-			if (preMoveComment != null && !preMoveComment.isEmpty()) {
-				m_curGame.setPreMoveComment(preMoveComment);
+		if (!isLastTokenResult()) {
+			try {
+				move = getLastTokenAsMove();
+				m_curGame.getPosition().doMove(move);
+				if (preMoveComment != null && !preMoveComment.isEmpty()) {
+					m_curGame.setPreMoveComment(preMoveComment);
+				}
+			} catch (IllegalMoveException ex) {
+				syntaxError(ex.getMessage());
 			}
-		} catch (IllegalMoveException ex) {
-			syntaxError(ex.getMessage());
 		}
 		return move;
 	}
@@ -784,9 +814,13 @@ public final class PGNReader extends PGN {
 				} else {
 					if (commentsArePreMove) {
 						if (comments.isEmpty()) {
-							parseHalfMove(null);
+							if (parseHalfMove(null) == Move.ILLEGAL_MOVE) {
+								nextTokenNeeded = false;
+							}
 						} else {
-							parseHalfMove(aggregateComments(comments));
+							if (parseHalfMove(aggregateComments(comments)) == Move.ILLEGAL_MOVE) {
+								nextTokenNeeded = false;
+							}
 							comments.clear();
 						}
 					} else {
@@ -799,7 +833,9 @@ public final class PGNReader extends PGN {
 							m_curGame.setPostMoveComment(aggregateComments(comments));
 						}
 						comments.clear();
-						parseHalfMove(preMoveComment);
+						if (parseHalfMove(preMoveComment) == Move.ILLEGAL_MOVE) {
+							nextTokenNeeded = false;
+						}
 					}
 					commentsArePreMove = false;
 				}

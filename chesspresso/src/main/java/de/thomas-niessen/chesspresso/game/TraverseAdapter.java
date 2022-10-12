@@ -14,6 +14,24 @@
  ******************************************************************************/
 package chesspresso.game;
 
-public interface GameSupplier {
-	Game getCurrentGame();
+import chesspresso.move.Move;
+
+/**
+ * Default implementation of a TraverseListener.
+ * 
+ *  @author Thomas Niessen
+ */
+public class TraverseAdapter implements TraverseListener {
+
+	@Override
+	public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level) {
+	}
+
+	@Override
+	public void notifyLineStart(int level) {
+	}
+
+	@Override
+	public void notifyLineEnd(int level) {
+	}
 }

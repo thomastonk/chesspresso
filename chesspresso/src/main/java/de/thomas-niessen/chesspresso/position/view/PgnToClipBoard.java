@@ -23,6 +23,7 @@ import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -33,9 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
-import chesspresso.ParentSupplier;
 import chesspresso.game.Game;
-import chesspresso.game.GameSupplier;
 import chesspresso.pgn.PGNWriter;
 
 /**
@@ -43,10 +42,10 @@ import chesspresso.pgn.PGNWriter;
  */
 public class PgnToClipBoard implements ActionListener {
 
-	private final GameSupplier gameSupplier;
-	private final ParentSupplier parentSupplier;
+	private final Supplier<Game> gameSupplier;
+	private final Supplier<Component> parentSupplier;
 
-	public PgnToClipBoard(GameSupplier gameSupplier, ParentSupplier parentSupplier) {
+	public PgnToClipBoard(Supplier<Game> gameSupplier, Supplier<Component> parentSupplier) {
 		this.gameSupplier = gameSupplier;
 		this.parentSupplier = parentSupplier;
 	}
@@ -55,21 +54,21 @@ public class PgnToClipBoard implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 
 		String s;
-		Game game = gameSupplier.getCurrentGame();
+		Game game = gameSupplier.get();
 		if (game == null) {
-			JOptionPane.showMessageDialog(parentSupplier.getCurrentParent(),
+			JOptionPane.showMessageDialog(parentSupplier.get(),
 					"Unable to generate PGN:" + System.lineSeparator() + "no game available", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		try {
 			s = PGNWriter.writeToString(game.getDeepCopy());
 		} catch (IllegalArgumentException ex) {
-			JOptionPane.showMessageDialog(parentSupplier.getCurrentParent(),
+			JOptionPane.showMessageDialog(parentSupplier.get(),
 					"Unable to generate PGN:" + System.lineSeparator() + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		JDialog pgnDialog;
-		Component parent = parentSupplier.getCurrentParent();
+		Component parent = parentSupplier.get();
 		if (parent != null) {
 			if (parent instanceof Frame) {
 				pgnDialog = new JDialog((Frame) parent);
