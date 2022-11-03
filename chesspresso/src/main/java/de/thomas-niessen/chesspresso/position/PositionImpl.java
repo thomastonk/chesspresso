@@ -680,7 +680,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		setStone(sqi, stone, true);
 	}
 
-	private void setStone(int sqi, int stone, boolean clearStacks) {
+	private void setStone(int sqi, int stone, boolean clearStacksAndFlags) {
 		if (PROFILE) {
 			m_numSet++;
 		}
@@ -821,23 +821,23 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				// System.out.println("hash code set: " + m_hashCode);
 			}
 
-			if (clearStacks) {
+			if (clearStacksAndFlags) {
 				clearStacks();
-			}
-			/*---------- delete position properties in m_flags ----------*/
-			// TN: This is taken from doMove. m_flags = 0l; is not the right idea, because tests showed that
-			// for some reason the value of the hash code will later be changed!
-			m_flags &= ~(CHECK_MASK << CHECK_SHIFT); // delete isCheck info
-			m_flags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT); // delete canMove info
-			// This is needed additionally:
-			m_flags &= ~(PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
+				/*---------- delete position properties in m_flags ----------*/
+				// TN: This is taken from doMove. m_flags = 0l; is not the right idea, because tests showed that
+				// for some reason the value of the hash code will later be changed!
+				m_flags &= ~(CHECK_MASK << CHECK_SHIFT); // delete isCheck info
+				m_flags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT); // delete canMove info
+				// This is needed additionally:
+				m_flags &= ~(PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
 
-			// TN: What about the half move clock? The following line looks reasonable
-			// m_flags &= ~(HALF_MOVE_CLOCK_MASK << HALF_MOVE_CLOCK_SHIFT);
-			// but then the tests fail!
-			// TN: And what about castles? With the following line
-			// m_flags &= ~(CASTLES_MASK << CASTLES_SHIFT);
-			// at least AbstractMutablePosition::invert fails!
+				// TN: What about the half move clock? The following line looks reasonable
+				// m_flags &= ~(HALF_MOVE_CLOCK_MASK << HALF_MOVE_CLOCK_SHIFT);
+				// but then the tests fail!
+				// TN: And what about castles? With the following line
+				// m_flags &= ~(CASTLES_MASK << CASTLES_SHIFT);
+				// at least AbstractMutablePosition::invert fails!
+			}
 		}
 	}
 
