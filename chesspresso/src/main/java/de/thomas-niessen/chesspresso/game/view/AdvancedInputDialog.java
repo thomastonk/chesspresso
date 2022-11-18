@@ -47,6 +47,8 @@ public class AdvancedInputDialog implements InputDialog {
 	public AdvancedInputDialog() {
 		textAreaLabel = new JLabel("Your text:");
 		textArea = new JTextArea(5, 40);
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
 		saveButton = new JButton("Save");
 		cancelButton = new JButton("Cancel");
 		isCancelled = false;
