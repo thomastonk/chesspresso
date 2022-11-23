@@ -36,7 +36,6 @@ import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -522,14 +521,8 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	public void removeChessbaseDecorations() {
-		Iterator<Map.Entry<Integer, Paint>> iterator = m_backgroundPaints.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Map.Entry<Integer, Paint> entry = iterator.next();
-			Paint p = entry.getValue();
-			if (p.equals(YELLOW_TRANSPARENT) || p.equals(RED_TRANSPARENT) || p.equals(GREEN_TRANSPARENT)) {
-				iterator.remove();
-			}
-		}
+		m_backgroundPaints.values()
+				.removeIf(p -> p.equals(YELLOW_TRANSPARENT) || p.equals(RED_TRANSPARENT) || p.equals(GREEN_TRANSPARENT));
 		removeDecorations(DecorationType.ARROW, YELLOW_TRANSPARENT);
 		removeDecorations(DecorationType.ARROW, RED_TRANSPARENT);
 		removeDecorations(DecorationType.ARROW, GREEN_TRANSPARENT);
