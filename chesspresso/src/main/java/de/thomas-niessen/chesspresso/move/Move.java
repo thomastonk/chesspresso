@@ -248,11 +248,11 @@ public class Move implements Serializable {
 	 */
 
 	public static int getFromSqi(short move) {
-		return (move >> FROM_SHIFT) & 0x3F;
+		return (move >>> FROM_SHIFT) & 0x3F;
 	}
 
 	public static int getToSqi(short move) {
-		return (move >> TO_SHIFT) & 0x3F;
+		return (move >>> TO_SHIFT) & 0x3F;
 	}
 
 	public static boolean isCapturing(short move) {

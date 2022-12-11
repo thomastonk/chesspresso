@@ -518,11 +518,11 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public final int getToPlay() {
-		return ((m_flags >> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
+		return ((m_flags >>> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
 	}
 
 	private int getNotToPlay() {
-		return ((m_flags >> TO_PLAY_SHIFT) & TO_PLAY_MASK) != 0 ? Chess.WHITE : Chess.BLACK;
+		return ((m_flags >>> TO_PLAY_SHIFT) & TO_PLAY_MASK) != 0 ? Chess.WHITE : Chess.BLACK;
 	}
 
 	@Override
@@ -532,26 +532,26 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public final int getCastles() {
-		return (int) (m_flags >> CASTLES_SHIFT) & CASTLES_MASK;
+		return (int) (m_flags >>> CASTLES_SHIFT) & CASTLES_MASK;
 	}
 
 	@Override
 	public final int getSqiEP() {
-		return (int) ((m_flags >> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
+		return (int) ((m_flags >>> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
 	}
 
 	private int getHashColEP() {
-		return (int) ((m_flags >> HASH_COL_EP_SHIFT) & HASH_COL_EP_MASK) + Chess.NO_SQUARE;
+		return (int) ((m_flags >>> HASH_COL_EP_SHIFT) & HASH_COL_EP_MASK) + Chess.NO_SQUARE;
 	}
 
 	@Override
 	public final int getHalfMoveClock() {
-		return (int) (m_flags >> HALF_MOVE_CLOCK_SHIFT) & HALF_MOVE_CLOCK_MASK;
+		return (int) (m_flags >>> HALF_MOVE_CLOCK_SHIFT) & HALF_MOVE_CLOCK_MASK;
 	}
 
 	@Override
 	public final int getPlyNumber() {
-		int plies = (int) ((m_flags >> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
+		int plies = (int) ((m_flags >>> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
 		return m_plyOffset + plies;
 	}
 
@@ -1642,7 +1642,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			m_numIsCheck++;
 		}
 
-		int cacheInfo = (int) (m_flags >> CHECK_SHIFT) & CHECK_MASK;
+		int cacheInfo = (int) (m_flags >>> CHECK_SHIFT) & CHECK_MASK;
 		if (cacheInfo == FLAG_YES) {
 			return true;
 		} else if (cacheInfo == FLAG_NO) {
@@ -2629,7 +2629,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	private boolean canMove() {
-		int cacheInfo = (int) (m_flags >> CAN_MOVE_SHIFT) & CAN_MOVE_MASK;
+		int cacheInfo = (int) (m_flags >>> CAN_MOVE_SHIFT) & CAN_MOVE_MASK;
 		if (cacheInfo == FLAG_YES) {
 			return true;
 		} else if (cacheInfo == FLAG_NO) {

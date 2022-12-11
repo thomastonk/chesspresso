@@ -67,7 +67,7 @@ public class CompactPosition extends AbstractPosition {
 
 	@Override
 	public int getStone(int sqi) {
-		return ((m_stones[sqi / 8] >> (4 * (sqi & 0x7))) & 0xF) + Chess.NO_STONE;
+		return ((m_stones[sqi / 8] >>> (4 * (sqi & 0x7))) & 0xF) + Chess.NO_STONE;
 	}
 
 	@Override
@@ -77,27 +77,27 @@ public class CompactPosition extends AbstractPosition {
 
 	@Override
 	public int getSqiEP() {
-		return ((m_flags >> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
+		return ((m_flags >>> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
 	}
 
 	@Override
 	public int getCastles() {
-		return ((m_flags >> CASTLES_SHIFT) & CASTLES_MASK);
+		return ((m_flags >>> CASTLES_SHIFT) & CASTLES_MASK);
 	}
 
 	@Override
 	public int getToPlay() {
-		return ((m_flags >> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
+		return ((m_flags >>> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
 	}
 
 	@Override
 	public int getPlyNumber() {
-		return ((m_flags >> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
+		return ((m_flags >>> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
 	}
 
 	@Override
 	public int getHalfMoveClock() {
-		return ((m_flags >> HALF_MOVE_CLOCK_SHIFT) & HALF_MOVE_CLOCK_MASK);
+		return ((m_flags >>> HALF_MOVE_CLOCK_SHIFT) & HALF_MOVE_CLOCK_MASK);
 	}
 
 	@Override
