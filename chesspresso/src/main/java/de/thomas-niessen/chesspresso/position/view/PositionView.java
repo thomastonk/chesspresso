@@ -58,10 +58,11 @@ import chesspresso.position.view.Decoration.DecorationType;
  * @author Bernhard Seybold
  */
 @SuppressWarnings("serial")
-public class PositionView extends JPanel implements PositionListener, MouseListener, MouseMotionListener {
+public class PositionView extends JPanel implements PositionListener, MouseListener, MouseMotionListener, ScreenShot {
 	private Position m_position;
 	private int m_bottom;
 	private boolean m_showCoordinates;
+	private boolean m_decorationsEnabled; // restricts Chessbase decorations within the local MouseListener only
 	private UserAction m_userAction;
 	private Color m_whiteSquareColor;
 	private Color m_blackSquareColor;
@@ -151,6 +152,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		m_position = position;
 		m_bottom = bottomPlayer;
 		m_showCoordinates = false;
+		m_decorationsEnabled = false;
 		m_userAction = userAction;
 		m_whiteSquareColor = m_whiteSquareDefaultColor;
 		m_blackSquareColor = m_blackSquareDefaultColor;
@@ -196,6 +198,10 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 	public void setShowCoordinates(boolean showCoordinates) {
 		m_showCoordinates = showCoordinates;
+	}
+
+	public void setDecorationsEnabled(boolean enable) {
+		m_decorationsEnabled = enable;
 	}
 
 	public void setUserAction(UserAction userAction) {
@@ -494,38 +500,42 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	private void drawChessbaseDecorations(MouseEvent e) {
-		if (e.isAltDown() && m_draggedFrom != Chess.NO_SQUARE) {
-			int draggedTo = getSquare(e.getX(), e.getY());
-			if (draggedTo == Chess.NO_SQUARE) {
-				return;
-			} else if (draggedTo == m_draggedFrom) {
-				if (e.isControlDown() || e.isMetaDown()) {
-					setOrRemovePaint(draggedTo, YELLOW_TRANSPARENT);
-				} else if (e.isShiftDown()) {
-					setOrRemovePaint(draggedTo, RED_TRANSPARENT);
-				} else {
-					setOrRemovePaint(draggedTo, GREEN_TRANSPARENT);
-				}
-			} else { // arrows
-				if (e.isControlDown() || e.isMetaDown()) {
-					addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, YELLOW_TRANSPARENT), true);
-				} else if (e.isShiftDown()) {
-					addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, RED_TRANSPARENT), true);
-				} else {
-					addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, GREEN_TRANSPARENT), true);
+		if (m_decorationsEnabled) {
+			if (e.isAltDown() && m_draggedFrom != Chess.NO_SQUARE) {
+				int draggedTo = getSquare(e.getX(), e.getY());
+				if (draggedTo == Chess.NO_SQUARE) {
+					return;
+				} else if (draggedTo == m_draggedFrom) {
+					if (e.isControlDown() || e.isMetaDown()) {
+						setOrRemovePaint(draggedTo, YELLOW_TRANSPARENT);
+					} else if (e.isShiftDown()) {
+						setOrRemovePaint(draggedTo, RED_TRANSPARENT);
+					} else {
+						setOrRemovePaint(draggedTo, GREEN_TRANSPARENT);
+					}
+				} else { // arrows
+					if (e.isControlDown() || e.isMetaDown()) {
+						addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, YELLOW_TRANSPARENT), true);
+					} else if (e.isShiftDown()) {
+						addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, RED_TRANSPARENT), true);
+					} else {
+						addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, GREEN_TRANSPARENT), true);
+					}
 				}
 			}
+			m_draggedFrom = Chess.NO_SQUARE; // otherwise paint draws there an empty square
+			repaint();
 		}
-		m_draggedFrom = Chess.NO_SQUARE; // otherwise paint draws there an empty square
-		repaint();
 	}
 
 	public void removeChessbaseDecorations() {
-		m_backgroundPaints.values()
-				.removeIf(p -> p.equals(YELLOW_TRANSPARENT) || p.equals(RED_TRANSPARENT) || p.equals(GREEN_TRANSPARENT));
-		removeDecorations(DecorationType.ARROW, YELLOW_TRANSPARENT);
-		removeDecorations(DecorationType.ARROW, RED_TRANSPARENT);
-		removeDecorations(DecorationType.ARROW, GREEN_TRANSPARENT);
+		{
+			m_backgroundPaints.values()
+					.removeIf(p -> p.equals(YELLOW_TRANSPARENT) || p.equals(RED_TRANSPARENT) || p.equals(GREEN_TRANSPARENT));
+			removeDecorations(DecorationType.ARROW, YELLOW_TRANSPARENT);
+			removeDecorations(DecorationType.ARROW, RED_TRANSPARENT);
+			removeDecorations(DecorationType.ARROW, GREEN_TRANSPARENT);
+		}
 	}
 
 	@Override
@@ -792,7 +802,8 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		return DEFAULT_FONT_SIZE;
 	}
 
-	public boolean saveScreenShot(String fileName) {
+	@Override
+	public boolean doBoardScreenShot(String fileName) {
 		return ScreenShot.saveScreenShot(this, fileName);
 	}
 }

@@ -63,7 +63,7 @@ import chesspresso.position.view.PositionViewProperties;
  * @author Bernhard Seybold
  */
 @SuppressWarnings("serial")
-public class GameBrowser extends JPanel implements PositionMotionListener, PositionListener, GameModelChangeListener {
+public class GameBrowser extends JPanel implements PositionMotionListener, PositionListener, GameModelChangeListener, ScreenShot {
 
 	private Game m_game;
 	private PositionView m_positionView;
@@ -122,6 +122,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		setGame(game, bottomPlayer);
 
 		m_positionView.setShowCoordinates(true);
+		m_positionView.setDecorationsEnabled(true);
 		m_positionView.setFocusable(false);
 		m_positionFrame.add(m_positionView, BorderLayout.CENTER);
 
@@ -750,7 +751,8 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_buttEnd.setEnabled(navButtons);
 	}
 
-	public boolean savePositionViewScreenShot(String fileName) {
+	@Override
+	public boolean doBoardScreenShot(String fileName) {
 		return ScreenShot.saveScreenShot(m_positionView, fileName);
 	}
 }
