@@ -21,8 +21,6 @@ import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -36,6 +34,8 @@ import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import chesspresso.position.Position;
@@ -128,7 +128,7 @@ public class PositionViewProperties extends JDialog {
 		butBlack = new JButton();
 		jPanel4 = new JPanel();
 		cbFonts = new JComboBox<>();
-		teFontSize = new JTextField();
+		teFontSize = new JTextField(3);
 		cbSolid = new JCheckBox();
 		m_positionFrame = new JPanel();
 
@@ -178,11 +178,21 @@ public class PositionViewProperties extends JDialog {
 
 		jPanel4.add(cbFonts);
 
-		teFontSize.setText("12");
-		teFontSize.addKeyListener(new KeyAdapter() {
+		teFontSize.getDocument().addDocumentListener(new DocumentListener() {
+
 			@Override
-			public void keyTyped(KeyEvent evt) {
-				teFontSizeKeyTyped(evt);
+			public void removeUpdate(DocumentEvent e) {
+				setFont();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				setFont();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				setFont();
 			}
 		});
 
@@ -204,10 +214,6 @@ public class PositionViewProperties extends JDialog {
 	}
 
 	private void cbSolidItemStateChanged(ItemEvent evt) {
-		setFont();
-	}
-
-	private void teFontSizeKeyTyped(KeyEvent evt) {
 		setFont();
 	}
 

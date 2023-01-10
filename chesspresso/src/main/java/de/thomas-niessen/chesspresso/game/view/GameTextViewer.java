@@ -169,7 +169,8 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if ((m_userAction != UserAction.ENABLED) || SwingUtilities.isRightMouseButton(e) || e.isPopupTrigger() || (e.getPoint().y < 3)) { // clicks at the upper boundary move otherwise the game to first ply
+				if ((m_userAction != UserAction.ENABLED) || SwingUtilities.isRightMouseButton(e) || e.isPopupTrigger()
+						|| (e.getPoint().y < 3)) { // clicks at the upper boundary move otherwise the game to first ply
 					return;
 				}
 				try {

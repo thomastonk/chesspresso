@@ -53,8 +53,7 @@ public class ChXBoardEngine {
 		public void run() {
 			try {
 				for (;;) {
-					if (m_process == null)
-					 {
+					if (m_process == null) {
 						return; // =====>
 					}
 					//                    if (m_listen) {

@@ -130,8 +130,7 @@ public class SanToMove {
 				int toSqi = Chess.strToSqi(buffer[last - 1], buffer[last]);
 				last -= 2;
 
-				if (buffer[last] == 'x')
-				 {
+				if (buffer[last] == 'x') {
 					last--; // capturing
 				}
 

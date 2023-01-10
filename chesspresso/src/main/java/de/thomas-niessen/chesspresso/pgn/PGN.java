@@ -88,10 +88,10 @@ public abstract class PGN {
 
 	public static String getResultStr(int result) {
 		return switch (result) {
-			case Chess.RES_WHITE_WINS -> RESULT_WHITE_WINS;
-			case Chess.RES_BLACK_WINS -> RESULT_BLACK_WINS;
-			case Chess.RES_DRAW -> RESULT_DRAW;
-			default -> RESULT_UNFINISHED;
+		case Chess.RES_WHITE_WINS -> RESULT_WHITE_WINS;
+		case Chess.RES_BLACK_WINS -> RESULT_BLACK_WINS;
+		case Chess.RES_DRAW -> RESULT_DRAW;
+		default -> RESULT_UNFINISHED;
 		};
 	}
 }

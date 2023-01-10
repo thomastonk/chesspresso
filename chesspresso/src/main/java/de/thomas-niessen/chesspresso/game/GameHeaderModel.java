@@ -264,8 +264,7 @@ class GameHeaderModel implements Serializable {
 	int getWhiteElo() {
 		try {
 			String whiteElo = getWhiteEloStr();
-			if (whiteElo == null)
-			 {
+			if (whiteElo == null) {
 				return 0; // =====>
 			}
 			return Integer.parseInt(whiteElo);
@@ -277,8 +276,7 @@ class GameHeaderModel implements Serializable {
 	int getBlackElo() {
 		try {
 			String blackElo = getBlackEloStr();
-			if (blackElo == null)
-			 {
+			if (blackElo == null) {
 				return 0; // =====>
 			}
 			return Integer.parseInt(blackElo);
