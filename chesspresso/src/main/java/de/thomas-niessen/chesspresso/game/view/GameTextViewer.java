@@ -18,19 +18,21 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JEditorPane;
 import javax.swing.JViewport;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -188,52 +190,116 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			}
 		});
 
-		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_CONTROL || e.getKeyCode() == KeyEvent.VK_SHIFT
-						|| e.getKeyCode() == KeyEvent.VK_ALT) {
-					return;
-				}
-				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-					if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
-						goBackToLineBegin();
-						centerLineInScrollPane(GameTextViewer.this);
-					} else {
-						goBackward();
-						centerLineInScrollPane(GameTextViewer.this);
-					}
-				} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-					if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
-						gotoEndOfLine();
-						centerLineInScrollPane(GameTextViewer.this);
-					} else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
-						goForwardMainLine();
-						centerLineInScrollPane(GameTextViewer.this);
-					} else {
-						goForward();
-						centerLineInScrollPane(GameTextViewer.this);
-					}
-				} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-					gotoPlyForCaret();
-					centerLineInScrollPane(GameTextViewer.this);
-				} else if (e.getKeyCode() == KeyEvent.VK_UP) {
-					gotoPlyForCaret();
-					centerLineInScrollPane(GameTextViewer.this);
-				} else if (e.getKeyCode() == KeyEvent.VK_HOME) {
-					goStart();
-				} else if (e.getKeyCode() == KeyEvent.VK_END) {
-					goEnd();
-				} else {
-					gotoPlyForCaret();
-				}
-				if (getSelectionStart() == getSelectionEnd()) { // assure that we always have a selection
-					showCurrentGameNode();
-				}
-			}
-		});
+		// add key bindings
+
+		InputMap inputMap = getInputMap(WHEN_IN_FOCUSED_WINDOW);
+		ActionMap actionMap = getActionMap();
+		{
+			GoLeftAction goLeftAction = new GoLeftAction();
+			inputMap.put(KeyStroke.getKeyStroke("released LEFT"), "left");
+			actionMap.put("left", goLeftAction);
+			inputMap.put(KeyStroke.getKeyStroke("control released LEFT"), "control left");
+			actionMap.put("control left", goLeftAction);
+		}
+		{
+			GoRightAction goRightAction = new GoRightAction();
+			inputMap.put(KeyStroke.getKeyStroke("released RIGHT"), "right");
+			actionMap.put("right", goRightAction);
+			inputMap.put(KeyStroke.getKeyStroke("control released RIGHT"), "control right");
+			actionMap.put("control right", goRightAction);
+		}
+		{
+			GoUpOrDownAction goUpOrDownAction = new GoUpOrDownAction();
+			inputMap.put(KeyStroke.getKeyStroke("released UP"), "up");
+			actionMap.put("up", goUpOrDownAction);
+			inputMap.put(KeyStroke.getKeyStroke("released DOWN"), "down");
+			actionMap.put("down", goUpOrDownAction);
+		}
+		{
+			GoToStartAction goToStartAction = new GoToStartAction();
+			inputMap.put(KeyStroke.getKeyStroke("released HOME"), "home");
+			actionMap.put("home", goToStartAction);
+		}
+		{
+			GoToEndAction goToEndAction = new GoToEndAction();
+			inputMap.put(KeyStroke.getKeyStroke("released END"), "end");
+			actionMap.put("end", goToEndAction);
+		}
 
 		requestFocusInWindow();
+	}
+
+	// ======================================================================
+
+	private class GoLeftAction extends AbstractAction {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
+				goBackToLineBegin();
+				centerLineInScrollPane(GameTextViewer.this);
+			} else {
+				goBackward();
+				centerLineInScrollPane(GameTextViewer.this);
+			}
+			if (getSelectionStart() == getSelectionEnd()) { // assure that we always have a selection
+				showCurrentGameNode();
+			}
+		}
+	}
+
+	private class GoRightAction extends AbstractAction {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
+				gotoEndOfLine();
+				centerLineInScrollPane(GameTextViewer.this);
+			} else {
+				goForward();
+				centerLineInScrollPane(GameTextViewer.this);
+			}
+			if (getSelectionStart() == getSelectionEnd()) { // assure that we always have a selection
+				showCurrentGameNode();
+			}
+		}
+	}
+
+	private class GoUpOrDownAction extends AbstractAction {
+		/* This action is performed using the pane's caret, which then is used to find the next node.
+		 * There are however cases, when these operations don't work well together. To fix this, it
+		 * would be necessary to decouple this action from the pane's caret, which is quite a lot to do. 
+		 */
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			gotoPlyForCaret();
+			centerLineInScrollPane(GameTextViewer.this);
+			if (getSelectionStart() == getSelectionEnd()) { // assure that we always have a selection
+				showCurrentGameNode();
+			}
+		}
+	}
+
+	private class GoToStartAction extends AbstractAction {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			gotoStart();
+			if (getSelectionStart() == getSelectionEnd()) { // assure that we always have a selection
+				showCurrentGameNode();
+			}
+		}
+	}
+
+	private class GoToEndAction extends AbstractAction {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			gotoEnd();
+			if (getSelectionStart() == getSelectionEnd()) { // assure that we always have a selection
+				showCurrentGameNode();
+			}
+		}
 	}
 
 	// ======================================================================
@@ -334,7 +400,6 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 				getHighlighter().addHighlight(0, 1, highlightPainter);
 			} catch (BadLocationException ignore) {
 			}
-
 		}
 	}
 
@@ -625,7 +690,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		// Pros: has wrap-style word. Cons: Does not support setEditorKit and hence looks poor. (HTML?)
 
 		// Alternative JTextPane:
-		// Looks like JeditorPane, but does not support wrap-style word.
+		// Looks like JEditorPane, but does not support wrap-style word.
 	}
 
 	// ======================================================================
@@ -650,12 +715,6 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		}
 	}
 
-	private void goForwardMainLine() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.goForward(0);
-		}
-	}
-
 	private boolean goForward() {
 		if (m_userAction != UserAction.ENABLED && m_userAction != UserAction.NAVIGABLE) {
 			return false;
@@ -670,15 +729,15 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		return retVal;
 	}
 
-	private void goStart() {
+	private void gotoStart() {
 		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
 			m_game.gotoStart();
 		}
 	}
 
-	private void goEnd() {
+	private void gotoEnd() {
 		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.gotoEndOfLine();
+			m_game.gotoEnd();
 		}
 	}
 

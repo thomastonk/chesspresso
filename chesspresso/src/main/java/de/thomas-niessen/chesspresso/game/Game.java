@@ -746,7 +746,16 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	public void gotoStart() {
 		m_position.runAlgorithm(() -> {
 			while (goBack()) {
+			}
+		});
+	}
 
+	public void gotoEnd() {
+		m_position.runAlgorithm(() -> {
+			while (!isMainLine()) {
+				goBack();
+			}
+			while (goForward()) {
 			}
 		});
 	}
