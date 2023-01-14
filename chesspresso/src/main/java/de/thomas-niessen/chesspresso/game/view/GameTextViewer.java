@@ -19,8 +19,6 @@ import java.awt.Container;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
@@ -43,6 +41,7 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
+import javax.swing.text.Utilities;
 
 import chesspresso.game.Game;
 import chesspresso.game.GameModelChangeListener;
@@ -209,11 +208,12 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			actionMap.put("control right", goRightAction);
 		}
 		{
-			GoUpOrDownAction goUpOrDownAction = new GoUpOrDownAction();
 			inputMap.put(KeyStroke.getKeyStroke("released UP"), "up");
-			actionMap.put("up", goUpOrDownAction);
+			actionMap.put("up", new GoUpOrDownAction(true));
+		}
+		{
 			inputMap.put(KeyStroke.getKeyStroke("released DOWN"), "down");
-			actionMap.put("down", goUpOrDownAction);
+			actionMap.put("down", new GoUpOrDownAction(false));
 		}
 		{
 			GoToStartAction goToStartAction = new GoToStartAction();
@@ -225,8 +225,6 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			inputMap.put(KeyStroke.getKeyStroke("released END"), "end");
 			actionMap.put("end", goToEndAction);
 		}
-
-		requestFocusInWindow();
 	}
 
 	// ======================================================================
@@ -270,8 +268,27 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		 * There are however cases, when these operations don't work well together. To fix this, it
 		 * would be necessary to decouple this action from the pane's caret, which is quite a lot to do. 
 		 */
+
+		private boolean up;
+
+		GoUpOrDownAction(boolean up) {
+			this.up = up;
+		}
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (!hasFocus()) {
+				try {
+					if (up) {
+						setCaretPosition(Utilities.getPositionAbove(GameTextViewer.this, getCaretPosition(),
+								(float) modelToView2D(getCaretPosition()).getCenterX()));
+					} else {
+						setCaretPosition(Utilities.getPositionBelow(GameTextViewer.this, getCaretPosition(),
+								(float) modelToView2D(getCaretPosition()).getCenterX()));
+					}
+				} catch (BadLocationException ignore) {
+				}
+			}
 			gotoPlyForCaret();
 			centerLineInScrollPane(GameTextViewer.this);
 			if (getSelectionStart() == getSelectionEnd()) { // assure that we always have a selection
@@ -407,7 +424,6 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 	@Override
 	public void positionChanged(Position pos) {
-		requestFocusInWindow();
 		showCurrentGameNode();
 	}
 
@@ -769,29 +785,6 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		int newNode = getNodeForCaret();
 		if (m_game.getCurNode() != newNode) {
 			m_game.gotoNode(newNode);
-		}
-	}
-
-	private class FocusRequester implements FocusListener {
-		@Override
-		public void focusLost(FocusEvent e) {
-			SwingUtilities.invokeLater(GameTextViewer.this::requestFocusInWindow);
-		}
-
-		@Override
-		public void focusGained(FocusEvent e) {
-		}
-	}
-
-	void setFocusRequesting(boolean request) {
-		FocusListener[] listeners = getFocusListeners();
-		for (FocusListener listener : listeners) {
-			if (listener instanceof FocusRequester) {
-				removeFocusListener(listener);
-			}
-		}
-		if (request) {
-			addFocusListener(new FocusRequester());
 		}
 	}
 

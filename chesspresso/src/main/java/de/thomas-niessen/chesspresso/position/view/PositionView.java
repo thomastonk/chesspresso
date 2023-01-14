@@ -392,14 +392,16 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	public void addDecoration(Decoration decoration, boolean onTop) {
-		synchronized (decorationToken) {
-			if (onTop) {
-				upperLevel.add(decoration);
-			} else {
-				lowerLevel.add(decoration);
+		if (decoration != null) {
+			synchronized (decorationToken) {
+				if (onTop) {
+					upperLevel.add(decoration);
+				} else {
+					lowerLevel.add(decoration);
+				}
 			}
+			repaint();
 		}
-		repaint();
 	}
 
 	public void removeAllDecorations() {
@@ -411,37 +413,41 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	public void removeDecorations(Decoration.DecorationType type, Color color) {
-		synchronized (decorationToken) {
-			if (color != null) {
-				lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
-				upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
-			} else {
-				try {
-					lowerLevel.removeIf(d -> d.getType().equals(type));
-					upperLevel.removeIf(d -> d.getType().equals(type));
-				} catch (NullPointerException ex) {
-					ex.printStackTrace();
+		if (type != null) {
+			synchronized (decorationToken) {
+				if (color != null) {
+					lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
+					upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
+				} else {
+					try {
+						lowerLevel.removeIf(d -> d.getType().equals(type));
+						upperLevel.removeIf(d -> d.getType().equals(type));
+					} catch (NullPointerException ex) {
+						ex.printStackTrace();
+					}
 				}
 			}
+			repaint();
 		}
-		repaint();
 	}
 
 	public void removeDecorations(Decoration.DecorationType type, Color color, Predicate<Decoration> predicate) {
-		synchronized (decorationToken) {
-			if (color != null) {
-				lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
-				upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
-			} else {
-				try {
-					lowerLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
-					upperLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
-				} catch (NullPointerException ex) {
-					ex.printStackTrace();
+		if (type != null) {
+			synchronized (decorationToken) {
+				if (color != null) {
+					lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
+					upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
+				} else {
+					try {
+						lowerLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
+						upperLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
+					} catch (NullPointerException ex) {
+						ex.printStackTrace();
+					}
 				}
 			}
+			repaint();
 		}
-		repaint();
 	}
 
 	// ======================================================================

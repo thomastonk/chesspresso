@@ -291,10 +291,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_lbHeader1.setOpaque(highlight);
 	}
 
-	public void setGameTextFocusRequesting(boolean request) {
-		m_textViewer.setFocusRequesting(request);
-	}
-
 	public void allowOneClickMoves(boolean allow) {
 		m_oneClickMoves = allow;
 	}
@@ -314,10 +310,15 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 			return false;
 		}
 		try {
-			m_game.getPosition().doMove(m_game.getPosition().getMove(from, to, Chess.NO_PIECE));
-			// TN: this code is not correct, because no promotion is possible.
-		} catch (IllegalMoveException ex) {
-			ex.printStackTrace();
+			Position pos = m_game.getPosition();
+			int row = Chess.sqiToRow(to);
+			if (pos.getPiece(from) == Chess.PAWN && (row == 0 || row == 7)) {
+				pos.doMove(pos.getMove(from, to, Chess.QUEEN));
+			} else {
+				pos.doMove(pos.getMove(from, to, Chess.NO_PIECE));
+			}
+			// TN: This code is not complete, because underpromotions are not possible.
+		} catch (IllegalMoveException ignore) {
 			return false;
 		}
 		return true;
