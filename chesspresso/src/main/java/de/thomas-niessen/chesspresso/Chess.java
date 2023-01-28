@@ -204,6 +204,21 @@ public abstract class Chess {
 	}
 
 	/**
+	 * Returns whether the two square are adjacent.
+	 *
+	 * @param sqi1 the first square
+	 * @param sqi2 the second square
+	 * @return whether sqi1 and sqi2 are adjacent
+	 */
+	public static boolean areSquaresAdjacent(int sqi1, int sqi2) {
+		if (Chess.A1 <= sqi1 && sqi1 <= Chess.H8 && Chess.A1 <= sqi2 && sqi2 <= Chess.H8) {
+			return Math.abs((sqi1 % 8) - (sqi2 % 8)) <= 1 && Math.abs((sqi1 / 8) - (sqi2 / 8)) <= 1;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Returns the column represented by the character.
 	 *
 	 * @param ch the column character ('a'..'h')

@@ -14,6 +14,10 @@
  ******************************************************************************/
 package chesspresso.position;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import chesspresso.Chess;
 
 /**
@@ -99,17 +103,11 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	@Override
 	public final void moveAllUp() {
 		for (int sqi = Chess.H7; sqi >= Chess.A1; --sqi) {
-			int stone = getStone(sqi);
-			if (stone == Chess.WHITE_KING || stone == Chess.BLACK_KING) {
-				setStone(sqi, Chess.NO_STONE);
-				// Necessary to get a valid position again!
-			}
-			setStone(sqi + 8, stone);
+			setStone(sqi + 8, getStone(sqi));
 		}
 		for (int sqi = Chess.A1; sqi <= Chess.H1; ++sqi) {
 			setStone(sqi, Chess.NO_STONE);
 		}
-
 		setCastles(NO_CASTLES);
 		setSqiEP(Chess.NO_SQUARE);
 		setHalfMoveClock(0);
@@ -118,17 +116,11 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	@Override
 	public final void moveAllDown() {
 		for (int sqi = Chess.A2; sqi <= Chess.H8; ++sqi) {
-			int stone = getStone(sqi);
-			if (stone == Chess.WHITE_KING || stone == Chess.BLACK_KING) {
-				setStone(sqi, Chess.NO_STONE);
-				// Necessary to get a valid position again!
-			}
-			setStone(sqi - 8, stone);
+			setStone(sqi - 8, getStone(sqi));
 		}
 		for (int sqi = Chess.A8; sqi <= Chess.H8; ++sqi) {
 			setStone(sqi, Chess.NO_STONE);
 		}
-
 		setCastles(NO_CASTLES);
 		setSqiEP(Chess.NO_SQUARE);
 		setHalfMoveClock(0);
@@ -138,17 +130,11 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	public final void moveAllLeft() {
 		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
 			if (sqi % 8 != 7) {
-				int stone = getStone(sqi + 1);
-				if (stone == Chess.WHITE_KING || stone == Chess.BLACK_KING) {
-					setStone(sqi + 1, Chess.NO_STONE);
-					// Necessary to get a valid position again!
-				}
-				setStone(sqi, stone);
+				setStone(sqi, getStone(sqi + 1));
 			} else {
 				setStone(sqi, Chess.NO_STONE);
 			}
 		}
-
 		setCastles(NO_CASTLES);
 		setSqiEP(Chess.NO_SQUARE);
 		setHalfMoveClock(0);
@@ -158,20 +144,69 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	public final void moveAllRight() {
 		for (int sqi = Chess.H8; sqi >= Chess.A1; --sqi) {
 			if (sqi % 8 != 0) {
-				int stone = getStone(sqi - 1);
-				if (stone == Chess.WHITE_KING || stone == Chess.BLACK_KING) {
-					setStone(sqi - 1, Chess.NO_STONE);
-					// Necessary to get a valid position again!
-				}
-				setStone(sqi, stone);
+				setStone(sqi, getStone(sqi - 1));
 			} else {
 				setStone(sqi, Chess.NO_STONE);
 			}
 		}
-
 		setCastles(NO_CASTLES);
 		setSqiEP(Chess.NO_SQUARE);
 		setHalfMoveClock(0);
+	}
+
+	@Override
+	public void moveUp(Collection<Integer> squares) {
+		Map<Integer, Integer> stonesMp = new HashMap<>();
+		for (Integer sqi : squares) {
+			stonesMp.put(sqi, getStone(sqi));
+			setStone(sqi, Chess.NO_STONE);
+		}
+		for (Map.Entry<Integer, Integer> entry : stonesMp.entrySet()) {
+			if (entry.getKey() <= Chess.H7)
+				setStone(entry.getKey() + 8, entry.getValue());
+		}
+	}
+
+	@Override
+	public void moveDown(Collection<Integer> squares) {
+		Map<Integer, Integer> stonesMp = new HashMap<>();
+		for (Integer sqi : squares) {
+			stonesMp.put(sqi, getStone(sqi));
+			setStone(sqi, Chess.NO_STONE);
+		}
+		for (Map.Entry<Integer, Integer> entry : stonesMp.entrySet()) {
+			if (entry.getKey() >= Chess.A2) {
+				setStone(entry.getKey() - 8, entry.getValue());
+			}
+		}
+	}
+
+	@Override
+	public void moveLeft(Collection<Integer> squares) {
+		Map<Integer, Integer> stonesMp = new HashMap<>();
+		for (Integer sqi : squares) {
+			stonesMp.put(sqi, getStone(sqi));
+			setStone(sqi, Chess.NO_STONE);
+		}
+		for (Map.Entry<Integer, Integer> entry : stonesMp.entrySet()) {
+			if (entry.getKey() % 8 != 0) {
+				setStone(entry.getKey() - 1, entry.getValue());
+			}
+		}
+	}
+
+	@Override
+	public void moveRight(Collection<Integer> squares) {
+		Map<Integer, Integer> stonesMp = new HashMap<>();
+		for (Integer sqi : squares) {
+			stonesMp.put(sqi, getStone(sqi));
+			setStone(sqi, Chess.NO_STONE);
+		}
+		for (Map.Entry<Integer, Integer> entry : stonesMp.entrySet()) {
+			if (entry.getKey() % 8 != 7) {
+				setStone(entry.getKey() + 1, entry.getValue());
+			}
+		}
 	}
 
 	/*

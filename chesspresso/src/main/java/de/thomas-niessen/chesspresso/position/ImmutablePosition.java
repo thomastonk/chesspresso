@@ -39,7 +39,8 @@ public interface ImmutablePosition {
 		INVALID_NUMBER_OF_KINGS("The number of kings is invalid."),
 		WRONG_KING_ATTACKED("A king is attacked, but the opponent has the move."),
 		PAWN_ON_BACK_RANK("There is a pawn on the back rank."),
-		KING_ATTACKED_BY_AN_UNMOVED_PAWN("The king is attacked by an unmoved pawn.");
+		KING_ATTACKED_BY_AN_UNMOVED_PAWN("The king is attacked by an unmoved pawn."),
+		KING_ATTACKED_BY_TWO_PAWNS("The king is attacked by two pawns.");
 
 		private final String description;
 

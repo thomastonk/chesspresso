@@ -14,6 +14,8 @@
  ******************************************************************************/
 package chesspresso.position;
 
+import java.util.Collection;
+
 /**
  * @author $Author: Bernhard Seybold$
  */
@@ -54,6 +56,14 @@ public interface MutablePosition extends ImmutablePosition {
 	void moveAllLeft();
 
 	void moveAllRight();
+
+	void moveUp(Collection<Integer> squares);
+
+	void moveDown(Collection<Integer> squares);
+
+	void moveLeft(Collection<Integer> squares);
+
+	void moveRight(Collection<Integer> squares);
 
 	void invert();
 }

@@ -16,6 +16,7 @@ package chesspresso.position;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import chesspresso.Variant;
@@ -264,6 +265,30 @@ public final class Position implements MoveablePosition, Serializable {
 	@Override
 	public void moveAllRight() {
 		impl.moveAllRight();
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
+	public void moveUp(Collection<Integer> squares) {
+		impl.moveUp(squares);
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
+	public void moveDown(Collection<Integer> squares) {
+		impl.moveDown(squares);
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
+	public void moveLeft(Collection<Integer> squares) {
+		impl.moveLeft(squares);
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
+	public void moveRight(Collection<Integer> squares) {
+		impl.moveRight(squares);
 		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
 	}
 
