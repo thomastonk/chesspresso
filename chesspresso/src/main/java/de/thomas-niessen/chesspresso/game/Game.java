@@ -535,6 +535,15 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		fireMoveModelChanged();
 	}
 
+	public void appendPreMoveComment(String comment) {
+		String currentComment = getPreMoveComment();
+		if (currentComment == null || currentComment.isBlank()) {
+			setPreMoveComment(comment);
+		} else {
+			setPreMoveComment(currentComment + " " + comment);
+		}
+	}
+
 	public void appendPostMoveComment(String comment) {
 		String currentComment = getPostMoveComment();
 		if (currentComment == null || currentComment.isBlank()) {
