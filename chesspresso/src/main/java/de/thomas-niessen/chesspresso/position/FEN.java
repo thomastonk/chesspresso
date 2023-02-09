@@ -1330,8 +1330,8 @@ public class FEN {
 	}
 
 	/**
-	 * This method returns a two strings which describe White's and Black's pieces in the
-	 * following manner: 'Kh8 Pc6' and 'Ka6 Ph5' for Reti's famous study. The Piece strings
+	 * This method returns an array of two strings which describe White's and Black's pieces in 
+	 * the following manner: 'Kh8 Pc6' and 'Ka6 Ph5' for Reti's famous study. The Piece strings
 	 * are sorted primarily by the piece letters, and secondarily by the squares. 
 	 * 
 	 * @param fen
@@ -1467,5 +1467,23 @@ public class FEN {
 			ch2 = o2.charAt(2);
 			return ch1 - ch2;
 		}
+	}
+
+	/**
+	 * This method returns an array of two strings which describe White's and Black's pieces in 
+	 * the following manner: 'wKh8 wPc6' and 'bKa6 bPh5' for Reti's famous study. The Piece strings
+	 * are sorted primarily by the piece letters, and secondarily by the squares. 
+	 * 
+	 * @param fen
+	 * @return two strings as described above
+	 * @throws InvalidFenException 
+	 */
+	public static String[] getWhiteAndBlackPiecesWithColor(String fen) throws InvalidFenException {
+		String[] pieceStr = getWhiteAndBlackPieces(fen);
+		pieceStr[0] = pieceStr[0].replace("K", "wK").replaceAll("Q", "wQ").replaceAll("R", "wR").replaceAll("B", "wB")
+				.replaceAll("N", "wN").replaceAll("P", "wP");
+		pieceStr[1] = pieceStr[1].replace("K", "bK").replaceAll("Q", "bQ").replaceAll("R", "bR").replaceAll("B", "bB")
+				.replaceAll("N", "bN").replaceAll("P", "bP");
+		return pieceStr;
 	}
 }
