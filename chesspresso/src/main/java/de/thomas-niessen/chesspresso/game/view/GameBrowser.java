@@ -50,6 +50,7 @@ import chesspresso.position.OneClickMove;
 import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
+import chesspresso.position.view.AllFensToClipBoard;
 import chesspresso.position.view.Decoration.DecorationType;
 import chesspresso.position.view.DecorationFactory;
 import chesspresso.position.view.FenToClipBoard;
@@ -519,6 +520,10 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_fenButton.addActionListener(new FenToClipBoard(() -> m_game.getPosition(), () -> m_parent));
 		jToolBar2.add(m_fenButton);
 
+		m_allFensButton = new JButton("All Fens");
+		m_allFensButton.addActionListener(new AllFensToClipBoard(() -> m_game, () -> m_parent));
+		jToolBar2.add(m_allFensButton);
+
 		m_pgnButton = new JButton("PGN");
 		m_pgnButton.addActionListener(new PgnToClipBoard(() -> m_game, () -> m_parent));
 
@@ -593,8 +598,9 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	private javax.swing.JPanel jPanel1;
 	private javax.swing.JButton m_buttForward;
 
-	private javax.swing.JButton m_pgnButton;
 	private javax.swing.JButton m_fenButton;
+	private javax.swing.JButton m_allFensButton;
+	private javax.swing.JButton m_pgnButton;
 	private javax.swing.JPanel jPanel2;
 	private javax.swing.JPanel jPanel3;
 
