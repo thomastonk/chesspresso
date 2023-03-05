@@ -520,8 +520,9 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_fenButton.addActionListener(new FenToClipBoard(() -> m_game.getPosition(), () -> m_parent));
 		jToolBar2.add(m_fenButton);
 
-		m_allFensButton = new JButton("All Fens");
+		m_allFensButton = new JButton("FENs");
 		m_allFensButton.addActionListener(new AllFensToClipBoard(() -> m_game, () -> m_parent));
+		m_allFensButton.setToolTipText("Copy all mainline FENs to system clipboard");
 		jToolBar2.add(m_allFensButton);
 
 		m_pgnButton = new JButton("PGN");

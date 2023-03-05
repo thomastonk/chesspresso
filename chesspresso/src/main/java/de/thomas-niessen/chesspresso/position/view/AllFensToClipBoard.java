@@ -55,7 +55,7 @@ public class AllFensToClipBoard extends AbstractAction {
 			sb.append(System.lineSeparator()).append(copy.getPosition().getFEN());
 		}
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(sb.toString()), null);
-		JOptionPane.showMessageDialog(parentSupplier.get(), "All FENs were copied to the clipboard.", "All FENs",
+		JOptionPane.showMessageDialog(parentSupplier.get(), "All mainline FENs were copied to the system clipboard.", "All FENs",
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 }
