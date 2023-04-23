@@ -306,9 +306,9 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	}
 
 	@Override
-	public boolean dragged(ImmutablePosition position, int from, int to, MouseEvent e) {
+	public void dragged(ImmutablePosition position, int from, int to, MouseEvent e) {
 		if (m_userAction != UserAction.ENABLED) {
-			return false;
+			return;
 		}
 		try {
 			Position pos = m_game.getPosition();
@@ -320,9 +320,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 			}
 			// TN: This code is not complete, because underpromotions are not possible.
 		} catch (IllegalMoveException ignore) {
-			return false;
 		}
-		return true;
 	}
 
 	@Override

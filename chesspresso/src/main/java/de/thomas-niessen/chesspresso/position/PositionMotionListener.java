@@ -22,8 +22,7 @@ public interface PositionMotionListener {
 
 	boolean isDragAllowed(ImmutablePosition position, int from);
 
-	boolean dragged(ImmutablePosition position, int from, int to, MouseEvent e);
-	// the return value can be used to indicate success
+	void dragged(ImmutablePosition position, int from, int to, MouseEvent e);
 
 	void squareClicked(ImmutablePosition position, int sqi, MouseEvent e);
 }
