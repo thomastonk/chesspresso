@@ -155,7 +155,7 @@ public class PGNWriter extends PGN {
 
 				@Override
 				public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber,
-						int level) {
+						int level, String fenBeforeMove) {
 					if (preMoveComment != null) {
 						print(TOK_COMMENT_BEGIN + preMoveComment + TOK_COMMENT_END, true);
 					}

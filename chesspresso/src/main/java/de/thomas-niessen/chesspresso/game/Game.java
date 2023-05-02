@@ -587,7 +587,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			traverse(new TraverseAdapter() {
 				@Override
 				public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber,
-						int level) {
+						int level, String fenBeforeMove) {
 					removePreMoveComment(true);
 					removePostMoveComment(true);
 				}
@@ -992,16 +992,25 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		while (hasNextMove() && !listener.stopRequested()) {
 			int numOfNextMoves = getNumOfNextMoves();
 
+			String fenBeforeMove = null;
+			if (listener.notifyWithFen()) {
+				fenBeforeMove = getPosition().getFEN();
+			}
 			Move move = goForwardAndGetMove();
-			listener.notifyMove(move, getNags(), getPreMoveComment(), getPostMoveComment(), plyNumber, level);
+			listener.notifyMove(move, getNags(), getPreMoveComment(), getPostMoveComment(), plyNumber, level, fenBeforeMove);
 
 			if (withLines && numOfNextMoves > 1) {
 				for (int i = 1; i < numOfNextMoves; i++) {
 					goBack();
 					listener.notifyLineStart(level);
 
+					fenBeforeMove = null;
+					if (listener.notifyWithFen()) {
+						fenBeforeMove = getPosition().getFEN();
+					}
 					move = goForwardAndGetMove(i);
-					listener.notifyMove(move, getNags(), getPreMoveComment(), getPostMoveComment(), plyNumber, level + 1);
+					listener.notifyMove(move, getNags(), getPreMoveComment(), getPostMoveComment(), plyNumber, level + 1,
+							fenBeforeMove);
 
 					traverse(listener, withLines, plyNumber + 1, level + 1);
 

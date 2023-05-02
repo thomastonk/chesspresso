@@ -454,7 +454,8 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	private abstract class AbstractTextCreator implements TraverseListener {
 
 		@Override
-		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level) {
+		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
+				String fenBeforeMove) {
 			AttributeSet attrs = (level == 0 ? MAIN : LINE);
 
 			/*---------- pre-move comment -----*/
@@ -536,13 +537,14 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		}
 
 		@Override
-		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level) {
+		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
+				String fenBeforeMove) {
 			if (m_newLineNeeded) {
 				appendText(System.lineSeparator(), LINE);
 				indent(level - 1);
 				m_newLineNeeded = false;
 			}
-			super.notifyMove(move, nags, preMoveComment, postMoveComment, plyNumber, level);
+			super.notifyMove(move, nags, preMoveComment, postMoveComment, plyNumber, level, fenBeforeMove);
 		}
 
 		@Override
@@ -619,12 +621,13 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		}
 
 		@Override
-		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level) {
+		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
+				String fenBeforeMove) {
 			if (plyNumber >= maxPly && level == 0) {
 				stopRequested = true;
 				return;
 			}
-			textCreator.notifyMove(move, nags, preMoveComment, postMoveComment, plyNumber, level);
+			textCreator.notifyMove(move, nags, preMoveComment, postMoveComment, plyNumber, level, fenBeforeMove);
 		}
 
 		@Override

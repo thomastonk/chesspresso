@@ -24,7 +24,8 @@ import chesspresso.move.Move;
 public class TraverseAdapter implements TraverseListener {
 
 	@Override
-	public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level) {
+	public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
+			String fenBeforeMove) {
 	}
 
 	@Override

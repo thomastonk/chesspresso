@@ -32,8 +32,13 @@ public interface TraverseListener {
 		return false;
 	}
 
+	default boolean notifyWithFen() {
+		return false;
+	}
+
 	/* The traversed game's position will be the one after the move in the parameters. */
-	void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level);
+	void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
+			String fenBeforeMove);
 
 	/* This method is called before the first move of a new sub-line is executed. No call for the mainline. */
 	void notifyLineStart(int level);

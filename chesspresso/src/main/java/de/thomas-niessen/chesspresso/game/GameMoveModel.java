@@ -1148,9 +1148,9 @@ class GameMoveModel implements Serializable {
 			while (isNagValue(m_moves[endIndex + 1])) {
 				++endIndex;
 			}
-			if (m_moves[endIndex + 1] == POST_COMMENT_END) {
+			if (m_moves[endIndex + 1] == POST_COMMENT_START) {
 				endIndex += 2;
-				while (m_moves[endIndex] != POST_COMMENT_START) {
+				while (m_moves[endIndex] != POST_COMMENT_END) {
 					++endIndex;
 				}
 			}
