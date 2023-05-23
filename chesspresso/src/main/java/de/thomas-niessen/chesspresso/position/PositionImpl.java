@@ -134,8 +134,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	@SuppressWarnings("unused")
-	private static long getFirstSqiBB(long bb) // returns 0 if no bit set,
-	// not -1!!!
+	private static long getFirstSqiBB(long bb) // returns 0 if no bit set, not -1!!!
 	{
 		return bb & -bb;
 	}
@@ -1554,6 +1553,9 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if (isKingAttackedByTwoPawns()) {
 			return Validity.KING_ATTACKED_BY_TWO_PAWNS;
 		}
+		if (wasEnPassantDoubleStepIllegal()) {
+			return Validity.INVALID_EN_PASSANT_SQUARE;
+		}
 
 		return Validity.IS_VALID;
 	}
@@ -1616,6 +1618,79 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			}
 			return getStone(kingSquare - 7) == Chess.WHITE_PAWN && getStone(kingSquare - 9) == Chess.WHITE_PAWN;
 		}
+	}
+
+	private boolean wasEnPassantDoubleStepIllegal() {
+		// If an en passant square is set and a pawn is on the required square, it may still be that the double step 
+		// of this pawn was not the last move, namely if the opponent's king is now attacked and this did not happen 
+		// through that double step.
+		if (getSqiEP() == Chess.NO_SQUARE) {
+			return false;
+		}
+		// The implementation is according to ideas from getAllAttackers.
+
+		int kingSquare = getToPlay() == Chess.BLACK ? getBlacksKingSquare() : getWhitesKingSquare();
+		long bbAttackerPieces = (getToPlay() == Chess.BLACK ? m_bbWhites : m_bbBlacks);
+
+		/*---------- knights ----------*/
+		if ((KNIGHT_ATTACKS[kingSquare] & bbAttackerPieces & m_bbKnights) != 0L) {
+			// a knight attack is never caused by the double step
+			return true;
+		}
+
+		int fromSquarePawn = getToPlay() == Chess.BLACK ? getSqiEP() - 8 : getSqiEP() + 8;
+		long bbAllPieces = m_bbWhites | m_bbBlacks;
+
+		/*---------- bishops ----------*/
+		long bbTargets = BISHOP_ATTACKS[kingSquare] & m_bbBishops & bbAttackerPieces;
+		long bb = bbTargets;
+		while (bb != 0L) {
+			int from = getFirstSqi(bb);
+			if (((1 << fromSquarePawn) & SQUARES_BETWEEN[from][kingSquare]) == 0L) { // an attack from behind the fromSquarePawn is fine
+				if ((SQUARES_BETWEEN[from][kingSquare] & bbAllPieces & (~bbTargets)) == 0L) {
+					return true;
+				}
+			}
+			bb &= bb - 1;
+		}
+
+		/*---------- rooks -----------*/
+		bbTargets = ROOK_ATTACKS[kingSquare] & m_bbRooks & bbAttackerPieces;
+		bb = bbTargets;
+		while (bb != 0L) {
+			int from = getFirstSqi(bb);
+			if (((1 << fromSquarePawn) & SQUARES_BETWEEN[from][kingSquare]) == 0L) { // an attack from behind the fromSquarePawn is fine
+				if ((SQUARES_BETWEEN[from][kingSquare] & bbAllPieces & (~bbTargets)) == 0L) {
+					return true;
+				}
+			}
+			bb &= bb - 1;
+		}
+
+		/*---------- pawns -----------*/
+		if (getToPlay() == Chess.WHITE) {
+			bbTargets = WHITE_PAWN_ATTACKS[kingSquare] & bbAttackerPieces & m_bbPawns;
+			bb = bbTargets;
+			while (bb != 0L) {
+				int from = getFirstSqi(bb);
+				if (from != getSqiEP() - 8) {
+					return true;
+				}
+				bb &= bb - 1;
+			}
+		} else {
+			bbTargets = BLACK_PAWN_ATTACKS[kingSquare] & bbAttackerPieces & m_bbPawns;
+			bb = bbTargets;
+			while (bb != 0L) {
+				int from = getFirstSqi(bb);
+				if (from != getSqiEP() + 8) {
+					return true;
+				}
+				bb &= bb - 1;
+			}
+		}
+
+		return false;
 	}
 
 	@Override
