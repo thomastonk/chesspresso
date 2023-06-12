@@ -15,6 +15,7 @@
 package chesspresso.game.view;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -143,6 +144,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	private Game m_game;
 	private TraverseListener textCreator;
 	private UserAction m_userAction;
+	private Component m_parent;
 	private int[] m_moveBegin, m_moveEnd;
 	private int[] m_moveNrBegin;
 	private int[] m_moveNode;
@@ -154,7 +156,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	 *
 	 * @param game the game to represent
 	 */
-	public GameTextViewer(Game game, UserAction userAction) {
+	public GameTextViewer(Game game, UserAction userAction, Component parent) {
 		EditorKit editorKit = new StyledEditorKit();
 		setEditorKit(editorKit);
 		setEditable(false);
@@ -166,25 +168,45 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 		setGame(game); // sets also m_game
 		m_userAction = userAction;
+		m_parent = parent;
 
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if ((m_userAction != UserAction.ENABLED) || SwingUtilities.isRightMouseButton(e) || e.isPopupTrigger()
-						|| (e.getPoint().y < 3)) { // clicks at the upper boundary move otherwise the game to first ply
+				if ((m_userAction != UserAction.ENABLED) || (e.getPoint().y < 3)) {
+					// Ignore clicks at the upper boundary, since they always move the game to the first ply.
 					return;
 				}
+				int vOffset = 0;
+				if (!SwingUtilities.isRightMouseButton(e) || isEventWithinMoves(e)) {
+					int rightClickCaretPosition = viewToModel2D(e.getPoint());
+					setCaretPosition(rightClickCaretPosition);
+					gotoPlyForCaret();
+					vOffset = 10; // a selected move will stay visible when the popup is shown
+				}
+				if (SwingUtilities.isRightMouseButton(e)) {
+					TextViewerPopup popup = new TextViewerPopup(m_game, GameTextViewer.this, m_parent);
+					popup.show(GameTextViewer.this, e.getX(), e.getY() + vOffset);
+				}
+			}
+
+			private boolean isEventWithinMoves(MouseEvent e) {
+				Point point = e.getPoint();
+				Rectangle2D rect;
 				try {
-					// ignore clicks into the space after the last move
-					Rectangle2D rect = modelToView2D(m_moveEnd[m_moveEnd.length - 1]);
-					if (rect != null) {
-						if ((e.getY() > rect.getY() + rect.getHeight()) || (e.getY() > rect.getY() && e.getX() > rect.getX())) {
-							return;
+					int pos = viewToModel2D(point);
+					for (int index = 0; index < m_moveBegin.length; ++index) {
+						// This for-loop ensures that only a click to a move, but not to a comment, to
+						// a move number or to an indentation at begin of the line counts. 
+						if (m_moveBegin[index] <= pos && pos <= m_moveEnd[index]) {
+							rect = modelToView2D(pos);
+							rect.setRect(rect.getX() - 5.d, rect.getY(), 10.d, rect.getHeight()); // magical constants
+							return rect.contains(point);
 						}
 					}
 				} catch (BadLocationException ignore) {
 				}
-				gotoPlyForCaret();
+				return false;
 			}
 		});
 

@@ -132,7 +132,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		setUserAction(userAction);
 		m_oneClickMoves = false;
 		addPopupToPositionView();
-		addPopupToTextViewer();
 
 		addComponentListener(new ComponentAdapter() {
 			@Override
@@ -175,7 +174,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 			m_positionView.setPositionMotionListener(this);
 
 			if (m_textViewer == null) {
-				m_textViewer = new GameTextViewer(m_game, m_userAction);
+				m_textViewer = new GameTextViewer(m_game, m_userAction, this);
 			} else {
 				m_textViewer.setGame(game);
 			}
@@ -672,37 +671,6 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 			}
 		});
 
-	}
-
-	private void addPopupToTextViewer() {
-		m_textViewer.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent event) {
-				if (m_userAction == UserAction.DISABLED) {
-					return;
-				}
-				// The behavior of DefaultCaret doesn't select the move, if it is a right
-				// click, while a left click works. So, the caret has to be set here manually in
-				// order to get the *usual* (expected) behavior. Moreover, this has to be done
-				// in mousePressed (and not below in mouseClicked) because otherwise the caret
-				// position is updated at a later point of time (a phenomenon which I didn't
-				// understand at all).
-				if (SwingUtilities.isRightMouseButton(event)) {
-					int rightClickCaretPosition = m_textViewer.viewToModel2D(event.getPoint());
-					m_textViewer.setCaretPosition(rightClickCaretPosition);
-				}
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent event) {
-				if ((m_userAction == UserAction.DISABLED) || !SwingUtilities.isRightMouseButton(event)) {
-					return;
-				}
-
-				TextViewerPopup popup = new TextViewerPopup(m_game, m_textViewer, GameBrowser.this);
-				popup.show(m_textViewer, event.getX(), event.getY());
-			}
-		});
 	}
 
 	public int getDividerLocation() {
