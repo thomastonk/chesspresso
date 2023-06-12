@@ -175,16 +175,15 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 					return;
 				}
 				try {
-					// ignore clicks into the empty space at the bottom
-					Rectangle2D rect = modelToView2D(getDocument().getLength());
+					// ignore clicks into the space after the last move
+					Rectangle2D rect = modelToView2D(m_moveEnd[m_moveEnd.length - 1]);
 					if (rect != null) {
-						if ((rect.getY() + rect.getHeight() < e.getY()) || (rect.getY() < e.getY() && rect.getX() < e.getX())) {
+						if ((e.getY() > rect.getY() + rect.getHeight()) || (e.getY() > rect.getY() && e.getX() > rect.getX())) {
 							return;
 						}
 					}
 				} catch (BadLocationException ignore) {
 				}
-				getCaret().setMagicCaretPosition(e.getPoint()); // TN: Isn't this useless?
 				gotoPlyForCaret();
 			}
 		});
