@@ -51,8 +51,9 @@ public abstract class Chess {
 			C2 = 10, D2 = 11, E2 = 12, F2 = 13, G2 = 14, H2 = 15, A1 = 0, B1 = 1, C1 = 2, D1 = 3, E1 = 4, F1 = 5, G1 = 6, H1 = 7;
 
 	public static final int A_FILE = 0, B_FILE = 1, C_FILE = 2, D_FILE = 3, E_FILE = 4, F_FILE = 5, G_FILE = 6, H_FILE = 7;
+	// These values are equal to the square values in the first row.
 
-	public static final int NO_COL = -1, NO_ROW = -1, NO_SQUARE = -1;
+	public static final int NO_COL = -1, NO_ROW = -1, NO_SQUARE = -1, NO_FILE = -1;
 
 	/**
 	 * Converts coordinates to square index.

@@ -55,6 +55,7 @@ import chesspresso.position.view.Decoration.DecorationType;
 import chesspresso.position.view.DecorationFactory;
 import chesspresso.position.view.FenToClipBoard;
 import chesspresso.position.view.PgnToClipBoard;
+import chesspresso.position.view.PieceTracker;
 import chesspresso.position.view.PositionView;
 import chesspresso.position.view.PositionViewProperties;
 
@@ -626,19 +627,34 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		jPanel3.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 	}
 
+	private void removeColorComments() {
+		m_positionView.removeChessbaseDecorations();
+		PieceTracker.removeAllTracks(m_positionView);
+	}
+
+	private void removeAllNumbers() {
+		m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY);
+	}
+
 	private void addPopupToPositionView() {
 		m_positionView.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent event) {
 				if (SwingUtilities.isRightMouseButton(event)) {
 					JPopupMenu popup = new JPopupMenu();
-					JMenuItem deleteColorCommentsMenuItem = new JMenuItem("Delete color comments");
+					JMenuItem trackPieceItem = new JMenuItem("Track the piece");
+					trackPieceItem.addActionListener(e -> PieceTracker
+							.showTrack(m_positionView.getSquare(event.getX(), event.getY()), m_game, m_positionView));
+					popup.add(trackPieceItem);
+					popup.add(new JSeparator());
+
+					JMenuItem deleteColorCommentsMenuItem = new JMenuItem("Remove color comments");
 					deleteColorCommentsMenuItem.addActionListener(e -> {
-						m_positionView.removeChessbaseDecorations();
-						m_positionView.repaint();
+						removeColorComments();
 					});
 					popup.add(deleteColorCommentsMenuItem);
 					popup.add(new JSeparator());
+
 					for (int i = 0; i <= 9; ++i) {
 						int iFinal = i;
 						JMenuItem addNumberMenuItem = new JMenuItem("Set number " + iFinal);
@@ -663,9 +679,10 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 					JMenuItem removeAllNumbersMenuItem = new JMenuItem("Remove all numbers from all squares");
 					removeAllNumbersMenuItem.addActionListener(e -> {
-						m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY);
+						removeAllNumbers();
 					});
 					popup.add(removeAllNumbersMenuItem);
+
 					popup.show(m_positionView, event.getX(), event.getY());
 				}
 			}

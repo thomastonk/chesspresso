@@ -394,10 +394,9 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private Variant m_variant = Variant.STANDARD;
 
-	// only White's squares will be stored
-	private int m_chess960KingFile = -1;
-	private int m_chess960QueensideRookFile = -1;
-	private int m_chess960KingsideRookFile = -1;
+	private int m_chess960KingFile = Chess.NO_FILE;
+	private int m_chess960QueensideRookFile = Chess.NO_FILE;
+	private int m_chess960KingsideRookFile = Chess.NO_FILE;
 
 	/*
 	 * =========================================================================
