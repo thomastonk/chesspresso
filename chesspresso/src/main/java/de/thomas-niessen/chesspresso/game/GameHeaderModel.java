@@ -16,7 +16,8 @@ package chesspresso.game;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import chesspresso.Chess;
@@ -42,8 +43,8 @@ class GameHeaderModel implements Serializable {
 	// =============================================================================
 
 	private String[] m_standardTags;
-	private LinkedList<String> m_otherTags;
-	private LinkedList<String> m_otherTagValues;
+	private List<String> m_otherTags;
+	private List<String> m_otherTagValues;
 
 	// =============================================================================
 
@@ -72,8 +73,8 @@ class GameHeaderModel implements Serializable {
 			m_otherTagValues = null;
 		} else {
 			if (m_otherTags == null) {
-				m_otherTags = new LinkedList<>();
-				m_otherTagValues = new LinkedList<>();
+				m_otherTags = new ArrayList<>();
+				m_otherTagValues = new ArrayList<>();
 			} else {
 				m_otherTags.clear();
 				m_otherTagValues.clear();
@@ -116,13 +117,13 @@ class GameHeaderModel implements Serializable {
 			m_standardTags[index] = tagValue;
 		} else if (!"PlyCount".equals(tagName)) {
 			if (m_otherTags == null) {
-				m_otherTags = new LinkedList<>();
-				m_otherTagValues = new LinkedList<>();
+				m_otherTags = new ArrayList<>();
+				m_otherTagValues = new ArrayList<>();
 			}
 			index = m_otherTags.indexOf(tagName);
 			if (index == -1) {
-				m_otherTags.addLast(tagName);
-				m_otherTagValues.addLast(tagValue); // append
+				m_otherTags.add(tagName);
+				m_otherTagValues.add(tagValue); // append
 			} else {
 				m_otherTagValues.set(index, tagValue); // replace
 			}
