@@ -396,6 +396,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private int m_chess960CastlingFiles = 0;
 
+	// The coding is as follows: The three final bits are used as flags which indicate whether the corresponding
+	// file is set or not. Then three bits are left free for a possible Double Fischer Random Chess implementation.
+	// Then each file is stored in three further bits with the values Chess.A_FILE, ... , Chess.H_FIle.
+
 	private final static int CHESS960_KING_FILE_FLAG_SHIFT = 0, CHESS960_QUEENSIDE_ROOK_FILE_FLAG_SHIFT = 1,
 			CHESS960_KINGSIDE_ROOK_FILE_FLAG_SHIFT = 2, CHESS960_KING_FILE_SHIFT = 6, CHESS960_QUEENSIDE_ROOK_FILE_SHIFT = 9,
 			CHESS960_KINGSIDE_ROOK_FILE_SHIFT = 12;
@@ -2828,8 +2832,13 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	/**
-	 * A-file corresponds to Chess.A1, b-file to Chess.B1, etc. See also
-	 * Move::getChess960Castle(..).
+	 * There are two possible kind of values for the arguments possible.
+	 * 1. Chess.A_FILE, ... Chess.H_FILE, or
+	 * 2. Chess.A1, ... , Chess.H8, and in this case the square is used to define the file value under 1.
+	 * So, the second method is for convenience.
+	 * 
+	 * Note that the information set with this method and the information set with setCastles(int)
+	 * can be inconsistent. So, make sure that you use them with care.
 	 */
 	@Override
 	public void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile) {
