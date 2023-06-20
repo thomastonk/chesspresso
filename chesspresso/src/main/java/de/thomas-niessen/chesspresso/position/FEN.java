@@ -918,17 +918,25 @@ public class FEN {
 					sb.append('q');
 				}
 			} else { // Chess960
-				if ((castles & ImmutablePosition.WHITE_LONG_CASTLE) != 0) {
+				boolean stillEmpty = true;
+				if ((castles & ImmutablePosition.WHITE_LONG_CASTLE) != 0 && pos.getChess960QueensideRookFile() != Chess.NO_FILE) {
 					sb.append(Character.toUpperCase(Chess.colToChar(pos.getChess960QueensideRookFile())));
+					stillEmpty = false;
 				}
-				if ((castles & ImmutablePosition.WHITE_SHORT_CASTLE) != 0) {
+				if ((castles & ImmutablePosition.WHITE_SHORT_CASTLE) != 0 && pos.getChess960KingsideRookFile() != Chess.NO_FILE) {
 					sb.append(Character.toUpperCase(Chess.colToChar(pos.getChess960KingsideRookFile())));
+					stillEmpty = false;
 				}
-				if ((castles & ImmutablePosition.BLACK_LONG_CASTLE) != 0) {
+				if ((castles & ImmutablePosition.BLACK_LONG_CASTLE) != 0 && pos.getChess960QueensideRookFile() != Chess.NO_FILE) {
 					sb.append(Chess.colToChar(pos.getChess960QueensideRookFile()));
+					stillEmpty = false;
 				}
-				if ((castles & ImmutablePosition.BLACK_SHORT_CASTLE) != 0) {
+				if ((castles & ImmutablePosition.BLACK_SHORT_CASTLE) != 0 && pos.getChess960KingsideRookFile() != Chess.NO_FILE) {
 					sb.append(Chess.colToChar(pos.getChess960KingsideRookFile()));
+					stillEmpty = false;
+				}
+				if (stillEmpty) {
+					sb.append('-');
 				}
 			}
 		} else {

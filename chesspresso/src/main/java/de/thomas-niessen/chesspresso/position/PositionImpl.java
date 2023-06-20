@@ -394,9 +394,18 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private Variant m_variant = Variant.STANDARD;
 
-	private int m_chess960KingFile = Chess.NO_FILE;
-	private int m_chess960QueensideRookFile = Chess.NO_FILE;
-	private int m_chess960KingsideRookFile = Chess.NO_FILE;
+	private int m_chess960CastlingFiles = 0;
+
+	private final static int CHESS960_KING_FILE_FLAG_SHIFT = 0, CHESS960_QUEENSIDE_ROOK_FILE_FLAG_SHIFT = 1,
+			CHESS960_KINGSIDE_ROOK_FILE_FLAG_SHIFT = 2, CHESS960_KING_FILE_SHIFT = 6, CHESS960_QUEENSIDE_ROOK_FILE_SHIFT = 9,
+			CHESS960_KINGSIDE_ROOK_FILE_SHIFT = 12;
+
+	private final static int CHESS960_KING_FILE_FLAG_MASK = 1 << CHESS960_KING_FILE_FLAG_SHIFT,
+			CHESS960_QUEENSIDE_ROOK_FILE_FLAG_MASK = 1 << CHESS960_QUEENSIDE_ROOK_FILE_FLAG_SHIFT,
+			CHESS960_KINGSIDE_ROOK_FILE_FLAG_MASK = 1 << CHESS960_KINGSIDE_ROOK_FILE_FLAG_SHIFT,
+			CHESS960_KING_FILE_MASK = 7 << CHESS960_KING_FILE_SHIFT,
+			CHESS960_QUEENSIDE_ROOK_FILE_MASK = 7 << CHESS960_QUEENSIDE_ROOK_FILE_SHIFT,
+			CHESS960_KINGSIDE_ROOK_FILE_MASK = 7 << CHESS960_KINGSIDE_ROOK_FILE_SHIFT;
 
 	/*
 	 * =========================================================================
@@ -464,9 +473,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		clear(); // Needed. Because there is no direct way to reset the ply number.
 		super.setPositionSnapshot(position);
 		this.m_variant = position.getVariant();
-		this.m_chess960KingFile = position.getChess960KingFile();
-		this.m_chess960KingsideRookFile = position.getChess960KingsideRookFile();
-		this.m_chess960QueensideRookFile = position.getChess960QueensideRookFile();
+		if (m_variant == Variant.CHESS960) {
+			setChess960CastlingFiles(position.getChess960KingFile(), position.getChess960QueensideRookFile(),
+					position.getChess960KingsideRookFile());
+		}
 	}
 
 	/*
@@ -1222,26 +1232,26 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 							castles &= ~BLACK_SHORT_CASTLE;
 						}
 					} else { // Chess960
-						if (sqiFrom == m_chess960QueensideRookFile) {
+						if (sqiFrom == getChess960QueensideRookFile()) {
 							castles &= ~WHITE_LONG_CASTLE;
-						} else if (sqiFrom == m_chess960KingsideRookFile) {
+						} else if (sqiFrom == getChess960KingsideRookFile()) {
 							castles &= ~WHITE_SHORT_CASTLE;
-						} else if (sqiFrom == m_chess960QueensideRookFile + Chess.A8) {
+						} else if (sqiFrom == getChess960QueensideRookFile() + Chess.A8) {
 							castles &= ~BLACK_LONG_CASTLE;
-						} else if (sqiFrom == m_chess960KingsideRookFile + Chess.A8) {
+						} else if (sqiFrom == getChess960KingsideRookFile() + Chess.A8) {
 							castles &= ~BLACK_SHORT_CASTLE;
-						} else if (sqiFrom == m_chess960KingFile) {
+						} else if (sqiFrom == getChess960KingFile()) {
 							castles &= ~WHITE_CASTLE;
-						} else if (sqiFrom == m_chess960KingFile + Chess.A8) {
+						} else if (sqiFrom == getChess960KingFile() + Chess.A8) {
 							castles &= ~BLACK_CASTLE;
 						}
-						if (sqiTo == m_chess960QueensideRookFile) {
+						if (sqiTo == getChess960QueensideRookFile()) {
 							castles &= ~WHITE_LONG_CASTLE;
-						} else if (sqiTo == m_chess960KingsideRookFile) {
+						} else if (sqiTo == getChess960KingsideRookFile()) {
 							castles &= ~WHITE_SHORT_CASTLE;
-						} else if (sqiTo == m_chess960QueensideRookFile + Chess.A8) {
+						} else if (sqiTo == getChess960QueensideRookFile() + Chess.A8) {
 							castles &= ~BLACK_LONG_CASTLE;
-						} else if (sqiTo == m_chess960KingsideRookFile + Chess.A8) {
+						} else if (sqiTo == getChess960KingsideRookFile() + Chess.A8) {
 							castles &= ~BLACK_SHORT_CASTLE;
 						}
 					}
@@ -2390,30 +2400,30 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, m_chess960KingFile,
-								m_chess960KingsideRookFile);
+						m_moves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, getChess960KingFile(),
+								getChess960KingsideRookFile());
 					}
 					if (checkChess960WhiteLongCastle(bbAllPieces, bbTargets)) {
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, m_chess960KingFile,
-								m_chess960QueensideRookFile);
+						m_moves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, getChess960KingFile(),
+								getChess960QueensideRookFile());
 					}
 				} else {
 					if (checkChess960BlackShortCastle(bbAllPieces, bbTargets)) {
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, m_chess960KingFile,
-								m_chess960KingsideRookFile);
+						m_moves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, getChess960KingFile(),
+								getChess960KingsideRookFile());
 					}
 					if (checkChess960BlackLongCastle(bbAllPieces, bbTargets)) {
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, m_chess960KingFile,
-								m_chess960QueensideRookFile);
+						m_moves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, getChess960KingFile(),
+								getChess960QueensideRookFile());
 					}
 				}
 			}
@@ -2448,16 +2458,18 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private boolean checkChess960WhiteShortCastle(long bbAllPieces, long bbTargets) {
 		if ((getCastles() & WHITE_SHORT_CASTLE) == 0 || (ofSquare(Chess.G1) & bbTargets) == 0L
-				|| !checkChess960KingCastleCondition(bbAllPieces, m_chess960KingFile + 1, Chess.G1, m_chess960KingsideRookFile,
-						Chess.BLACK)) {
+				|| !checkChess960KingCastleCondition(bbAllPieces, getChess960KingFile() + 1, Chess.G1,
+						getChess960KingsideRookFile(), Chess.BLACK)) {
 			return false;
 		}
-		if (m_chess960KingsideRookFile < Chess.F1) {
-			if (!checkChess960RookCastleCondition(bbAllPieces, m_chess960KingsideRookFile + 1, Chess.F1, m_chess960KingFile)) {
+		if (getChess960KingsideRookFile() < Chess.F1) {
+			if (!checkChess960RookCastleCondition(bbAllPieces, getChess960KingsideRookFile() + 1, Chess.F1,
+					getChess960KingFile())) {
 				return false;
 			}
-		} else if (m_chess960KingsideRookFile > Chess.F1) {
-			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.F1, m_chess960KingsideRookFile - 1, m_chess960KingFile)) {
+		} else if (getChess960KingsideRookFile() > Chess.F1) {
+			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.F1, getChess960KingsideRookFile() - 1,
+					getChess960KingFile())) {
 				return false;
 			}
 		}
@@ -2468,23 +2480,25 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if ((getCastles() & WHITE_LONG_CASTLE) == 0 || (ofSquare(Chess.C1) & bbTargets) == 0L) {
 			return false;
 		}
-		if (m_chess960KingFile < Chess.C1) {
-			if (!checkChess960KingCastleCondition(bbAllPieces, m_chess960KingFile + 1, Chess.C1, m_chess960QueensideRookFile,
-					Chess.BLACK)) {
+		if (getChess960KingFile() < Chess.C1) {
+			if (!checkChess960KingCastleCondition(bbAllPieces, getChess960KingFile() + 1, Chess.C1,
+					getChess960QueensideRookFile(), Chess.BLACK)) {
 				return false;
 			}
 		} else {
-			if (!checkChess960KingCastleCondition(bbAllPieces, Chess.C1, m_chess960KingFile - 1, m_chess960QueensideRookFile,
-					Chess.BLACK)) {
+			if (!checkChess960KingCastleCondition(bbAllPieces, Chess.C1, getChess960KingFile() - 1,
+					getChess960QueensideRookFile(), Chess.BLACK)) {
 				return false;
 			}
 		}
-		if (m_chess960QueensideRookFile < Chess.D1) {
-			if (!checkChess960RookCastleCondition(bbAllPieces, m_chess960QueensideRookFile + 1, Chess.D1, m_chess960KingFile)) {
+		if (getChess960QueensideRookFile() < Chess.D1) {
+			if (!checkChess960RookCastleCondition(bbAllPieces, getChess960QueensideRookFile() + 1, Chess.D1,
+					getChess960KingFile())) {
 				return false;
 			}
-		} else if (m_chess960QueensideRookFile > Chess.D1) {
-			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.D1, m_chess960QueensideRookFile - 1, m_chess960KingFile)) {
+		} else if (getChess960QueensideRookFile() > Chess.D1) {
+			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.D1, getChess960QueensideRookFile() - 1,
+					getChess960KingFile())) {
 				return false;
 			}
 		}
@@ -2493,18 +2507,18 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private boolean checkChess960BlackShortCastle(long bbAllPieces, long bbTargets) {
 		if ((getCastles() & BLACK_SHORT_CASTLE) == 0 || (ofSquare(Chess.G8) & bbTargets) == 0L
-				|| !checkChess960KingCastleCondition(bbAllPieces, Chess.A8 + m_chess960KingFile + 1, Chess.A8 + Chess.G1,
-						Chess.A8 + m_chess960KingsideRookFile, Chess.WHITE)) {
+				|| !checkChess960KingCastleCondition(bbAllPieces, Chess.A8 + getChess960KingFile() + 1, Chess.A8 + Chess.G1,
+						Chess.A8 + getChess960KingsideRookFile(), Chess.WHITE)) {
 			return false;
 		}
-		if (Chess.A8 + m_chess960KingsideRookFile < Chess.F8) {
-			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.A8 + m_chess960KingsideRookFile + 1, Chess.F8,
-					Chess.A8 + m_chess960KingFile)) {
+		if (Chess.A8 + getChess960KingsideRookFile() < Chess.F8) {
+			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.A8 + getChess960KingsideRookFile() + 1, Chess.F8,
+					Chess.A8 + getChess960KingFile())) {
 				return false;
 			}
-		} else if (Chess.A8 + m_chess960KingsideRookFile > Chess.F8) {
-			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.F8, Chess.A8 + m_chess960KingsideRookFile - 1,
-					Chess.A8 + m_chess960KingFile)) {
+		} else if (Chess.A8 + getChess960KingsideRookFile() > Chess.F8) {
+			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.F8, Chess.A8 + getChess960KingsideRookFile() - 1,
+					Chess.A8 + getChess960KingFile())) {
 				return false;
 			}
 		}
@@ -2515,25 +2529,25 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if ((getCastles() & BLACK_LONG_CASTLE) == 0 || (ofSquare(Chess.C8) & bbTargets) == 0L) {
 			return false;
 		}
-		if (Chess.A8 + m_chess960KingFile < Chess.C8) {
-			if (!checkChess960KingCastleCondition(bbAllPieces, Chess.A8 + m_chess960KingFile + 1, Chess.C8,
-					Chess.A8 + m_chess960QueensideRookFile, Chess.WHITE)) {
+		if (Chess.A8 + getChess960KingFile() < Chess.C8) {
+			if (!checkChess960KingCastleCondition(bbAllPieces, Chess.A8 + getChess960KingFile() + 1, Chess.C8,
+					Chess.A8 + getChess960QueensideRookFile(), Chess.WHITE)) {
 				return false;
 			}
 		} else {
-			if (!checkChess960KingCastleCondition(bbAllPieces, Chess.C8, Chess.A8 + m_chess960KingFile - 1,
-					Chess.A8 + m_chess960QueensideRookFile, Chess.WHITE)) {
+			if (!checkChess960KingCastleCondition(bbAllPieces, Chess.C8, Chess.A8 + getChess960KingFile() - 1,
+					Chess.A8 + getChess960QueensideRookFile(), Chess.WHITE)) {
 				return false;
 			}
 		}
-		if (Chess.A8 + m_chess960QueensideRookFile < Chess.D8) {
-			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.A8 + m_chess960QueensideRookFile + 1, Chess.D8,
-					Chess.A8 + m_chess960KingFile)) {
+		if (Chess.A8 + getChess960QueensideRookFile() < Chess.D8) {
+			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.A8 + getChess960QueensideRookFile() + 1, Chess.D8,
+					Chess.A8 + getChess960KingFile())) {
 				return false;
 			}
-		} else if (Chess.A8 + m_chess960QueensideRookFile > Chess.D8) {
-			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.D8, Chess.A8 + m_chess960QueensideRookFile - 1,
-					Chess.A8 + m_chess960KingFile)) {
+		} else if (Chess.A8 + getChess960QueensideRookFile() > Chess.D8) {
+			if (!checkChess960RookCastleCondition(bbAllPieces, Chess.D8, Chess.A8 + getChess960QueensideRookFile() - 1,
+					Chess.A8 + getChess960KingFile())) {
 				return false;
 			}
 		}
@@ -2819,24 +2833,60 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 	@Override
 	public void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile) {
-		m_chess960KingFile = kingFile % 8;
-		m_chess960QueensideRookFile = queensideRookFile % 8;
-		m_chess960KingsideRookFile = kingsideRookFile % 8;
+		if (kingFile != Chess.NO_FILE) {
+			m_chess960CastlingFiles |= 1 << CHESS960_KING_FILE_FLAG_SHIFT;
+			m_chess960CastlingFiles &= ~CHESS960_KING_FILE_MASK;
+			m_chess960CastlingFiles |= (kingFile % 8) << CHESS960_KING_FILE_SHIFT;
+		} else {
+			m_chess960CastlingFiles &= ~(1 << CHESS960_KING_FILE_FLAG_SHIFT);
+		}
+		if (queensideRookFile != Chess.NO_FILE) {
+			m_chess960CastlingFiles |= 1 << CHESS960_QUEENSIDE_ROOK_FILE_FLAG_SHIFT;
+			m_chess960CastlingFiles &= ~CHESS960_QUEENSIDE_ROOK_FILE_MASK;
+			m_chess960CastlingFiles |= (queensideRookFile % 8) << CHESS960_QUEENSIDE_ROOK_FILE_SHIFT;
+		} else {
+			m_chess960CastlingFiles &= ~(1 << CHESS960_QUEENSIDE_ROOK_FILE_FLAG_SHIFT);
+		}
+		if (kingsideRookFile != Chess.NO_FILE) {
+			m_chess960CastlingFiles |= 1 << CHESS960_KINGSIDE_ROOK_FILE_FLAG_SHIFT;
+			m_chess960CastlingFiles &= ~CHESS960_KINGSIDE_ROOK_FILE_MASK;
+			m_chess960CastlingFiles |= (kingsideRookFile % 8) << CHESS960_KINGSIDE_ROOK_FILE_SHIFT;
+		} else {
+			m_chess960CastlingFiles &= ~(1 << CHESS960_KINGSIDE_ROOK_FILE_FLAG_SHIFT);
+		}
 	}
 
 	@Override
 	public int getChess960KingFile() {
-		return m_chess960KingFile;
+		if (m_variant == Variant.STANDARD) {
+			return Chess.NO_FILE;
+		}
+		if ((m_chess960CastlingFiles & CHESS960_KING_FILE_FLAG_MASK) != 0) {
+			return (m_chess960CastlingFiles & CHESS960_KING_FILE_MASK) >>> CHESS960_KING_FILE_SHIFT;
+		}
+		return Chess.NO_FILE;
 	}
 
 	@Override
 	public int getChess960QueensideRookFile() {
-		return m_chess960QueensideRookFile;
+		if (m_variant == Variant.STANDARD) {
+			return Chess.NO_FILE;
+		}
+		if ((m_chess960CastlingFiles & CHESS960_QUEENSIDE_ROOK_FILE_FLAG_MASK) != 0) {
+			return (m_chess960CastlingFiles & CHESS960_QUEENSIDE_ROOK_FILE_MASK) >>> CHESS960_QUEENSIDE_ROOK_FILE_SHIFT;
+		}
+		return Chess.NO_FILE;
 	}
 
 	@Override
 	public int getChess960KingsideRookFile() {
-		return m_chess960KingsideRookFile;
+		if (m_variant == Variant.STANDARD) {
+			return Chess.NO_FILE;
+		}
+		if ((m_chess960CastlingFiles & CHESS960_KINGSIDE_ROOK_FILE_FLAG_MASK) != 0) {
+			return (m_chess960CastlingFiles & CHESS960_KINGSIDE_ROOK_FILE_MASK) >>> CHESS960_KINGSIDE_ROOK_FILE_SHIFT;
+		}
+		return Chess.NO_FILE;
 	}
 
 	@Override
@@ -2965,14 +3015,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if (pos1.m_variant != pos2.m_variant) {
 			sb.append("m_variant differ").append(System.lineSeparator());
 		}
-		if (pos1.m_chess960KingFile != pos2.m_chess960KingFile) {
-			sb.append("m_chess960KingFile differ").append(System.lineSeparator());
+		if (pos1.getChess960KingFile() != pos2.getChess960KingFile()) {
+			sb.append("the chess960 king files differ").append(System.lineSeparator());
 		}
-		if (pos1.m_chess960QueensideRookFile != pos2.m_chess960QueensideRookFile) {
-			sb.append("m_chess960QueensideRookFile differ").append(System.lineSeparator());
+		if (pos1.getChess960QueensideRookFile() != pos2.getChess960QueensideRookFile()) {
+			sb.append("the chess960 queenside rook files differ").append(System.lineSeparator());
 		}
-		if (pos1.m_chess960KingsideRookFile != pos2.m_chess960KingsideRookFile) {
-			sb.append("m_chess960KingsideRookFile differ").append(System.lineSeparator());
+		if (pos1.getChess960KingsideRookFile() != pos2.getChess960KingsideRookFile()) {
+			sb.append("the chess960 kingside rook files differ").append(System.lineSeparator());
 		}
 		return sb.toString();
 	}
