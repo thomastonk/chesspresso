@@ -106,19 +106,20 @@ public class PGNWriter extends PGN {
 		m_out.println(TOK_TAG_BEGIN + TAG_RESULT + " " + TOK_QUOTE + game.getResultStr() + TOK_QUOTE + TOK_TAG_END);
 
 		String eloStr = game.getWhiteEloStr();
-		if (eloStr != null && !eloStr.isEmpty()) {
+		if (eloStr != null && !eloStr.isBlank()) {
 			m_out.println(TOK_TAG_BEGIN + TAG_WHITE_ELO + " " + TOK_QUOTE + game.getWhiteElo() + TOK_QUOTE + TOK_TAG_END);
 		}
 		eloStr = game.getBlackEloStr();
-		if (eloStr != null && !eloStr.isEmpty()) {
+		if (eloStr != null && !eloStr.isBlank()) {
 			m_out.println(TOK_TAG_BEGIN + TAG_BLACK_ELO + " " + TOK_QUOTE + game.getBlackElo() + TOK_QUOTE + TOK_TAG_END);
 		}
-
-		if (game.getEventDate() != null) {
+		String eventDateStr = game.getEventDate();
+		if (eventDateStr != null && !eventDateStr.isBlank()) {
 			m_out.println(TOK_TAG_BEGIN + TAG_EVENT_DATE + " " + TOK_QUOTE + game.getEventDate() + TOK_QUOTE + TOK_TAG_END);
 		}
-		if (game.getECO() != null) {
-			m_out.println(TOK_TAG_BEGIN + TAG_ECO + " " + TOK_QUOTE + game.getECO() + TOK_QUOTE + TOK_TAG_END);
+		String ecoStr = game.getECO();
+		if (ecoStr != null && !ecoStr.isBlank()) {
+			m_out.println(TOK_TAG_BEGIN + TAG_ECO + " " + TOK_QUOTE + ecoStr + TOK_QUOTE + TOK_TAG_END);
 		}
 		// TN: I think the following is nonsense: a FEN tag is needed if and only if the
 		// start position of the game is not the usual one; but getPosition doesn't give

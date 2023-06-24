@@ -88,6 +88,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 
 	public Game(Game game) {
 		this(game.getModel());
+		getPosition().setPlyOffset(game.getPlyOffset());
 	}
 
 	private Game(GameModel gameModel) {
@@ -110,7 +111,9 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	public Game getDeepCopy() {
-		return new Game(this.m_model.getDeepCopy());
+		Game copy = new Game(this.m_model.getDeepCopy());
+		copy.getPosition().setPlyOffset(getPlyOffset());
+		return copy;
 	}
 
 	/*
@@ -264,14 +267,16 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	/* At the moment this method does not protect its changes of the position by an algorithm.
 	 * This could by necessary in the future. */
 	public void setGameByDeepCopying(Game otherGame) throws InvalidFenException {
-		GameModel otherModel = otherGame.getModel();
-		String otherFen = otherModel.getHeaderModel().getTag(PGN.TAG_FEN);
-		String fen = otherFen != null ? otherFen : FEN.START_POSITION;
-		Position newPos = new Position(fen, false); // If this call throws, 'this' is unchanged!
-
 		if (this == otherGame) {
 			return;
 		}
+
+		GameModel otherModel = otherGame.getModel();
+		// This copy is needed, because the FEN header entry can be outdated. 
+		Game copy = otherGame.getDeepCopy();
+		copy.gotoStart();
+		String fen = copy.getPosition().getFEN();
+		Position newPos = new Position(fen, false); // If this throws, 'this' is unchanged!
 
 		m_cur = 0; // The order is important; this is always a valid value. 
 		m_model.getHeaderModel().setByCopying(otherModel.getHeaderModel());

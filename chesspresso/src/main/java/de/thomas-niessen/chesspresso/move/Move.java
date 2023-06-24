@@ -444,7 +444,7 @@ public class Move implements Serializable {
 		return m_move;
 	}
 
-	public int getPromo() {
+	public int getPromotionPiece() {
 		return Move.getPromotionPiece(m_move);
 	}
 
@@ -581,7 +581,7 @@ public class Move implements Serializable {
 				sb.append(isCapturing() ? "x" : "-");
 				sb.append(Chess.sqiToStr(getToSqi()));
 				if (isPromotion()) {
-					sb.append('=').append(Chess.pieceToChar(getPromo()));
+					sb.append('=').append(Chess.pieceToChar(getPromotionPiece()));
 				}
 			}
 			if (isMate()) {
@@ -629,7 +629,7 @@ public class Move implements Serializable {
 				}
 				sb.append(Chess.sqiToStr(getToSqi()));
 				if (isPromotion()) {
-					sb.append('=').append(Chess.pieceToChar(getPromo()));
+					sb.append('=').append(Chess.pieceToChar(getPromotionPiece()));
 				}
 			}
 			if (isMate()) {

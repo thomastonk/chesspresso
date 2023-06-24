@@ -1016,7 +1016,6 @@ public class FEN {
 					}
 				}
 			}
-			newFen.append(' ');
 		}
 
 		/* ========== 2nd field : to play ========== */
@@ -1024,16 +1023,16 @@ public class FEN {
 		if (fenParts.length > 1) {
 			String toPlay = fenParts[1].toLowerCase();
 			if (toPlay.equals("w")) {
-				newFen.append("b");
+				newFen.append(" b");
 			} else {
-				newFen.append("w");
+				newFen.append(" w");
 			}
-			newFen.append(' ');
 		}
 
 		/* ========== 3rd field : castles ========== */
 
 		if (fenParts.length > 2) {
+			newFen.append(' ');
 			String castles = fenParts[2];
 			if (castles.equals("-")) {
 				newFen.append(castles);
@@ -1047,12 +1046,12 @@ public class FEN {
 					}
 				}
 			}
-			newFen.append(' ');
 		}
 
 		/* ========== 4th field : ep square ========== */
 
 		if (fenParts.length > 3) {
+			newFen.append(' ');
 			String epSquare = fenParts[3];
 			if (epSquare.equals("-")) {
 				newFen.append(epSquare);
@@ -1068,19 +1067,18 @@ public class FEN {
 					}
 				}
 			}
-			newFen.append(' ');
 		}
 
 		/* ========== 5th field : half-move clock ==== */
 
 		if (fenParts.length > 4) {
-			newFen.append(fenParts[4]).append(' ');
+			newFen.append(' ').append(fenParts[4]);
 		}
 
 		/* ========== 6th field : full move number ========== */
 
 		if (fenParts.length > 5) {
-			newFen.append(fenParts[5]);
+			newFen.append(' ').append(fenParts[5]);
 		}
 
 		return newFen.toString();

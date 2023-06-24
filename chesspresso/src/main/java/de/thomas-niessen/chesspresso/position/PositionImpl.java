@@ -481,6 +481,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			setChess960CastlingFiles(position.getChess960KingFile(), position.getChess960QueensideRookFile(),
 					position.getChess960KingsideRookFile());
 		}
+		this.m_plyOffset = position.getPlyNumber();
 	}
 
 	/*
