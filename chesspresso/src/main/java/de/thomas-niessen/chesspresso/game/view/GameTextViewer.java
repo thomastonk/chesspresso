@@ -19,7 +19,10 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
@@ -30,6 +33,10 @@ import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -210,8 +217,12 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			}
 		});
 
-		// add key bindings
+		addKeyBindings();
+	}
 
+	// ======================================================================
+
+	private void addKeyBindings() {
 		InputMap inputMap = getInputMap(WHEN_IN_FOCUSED_WINDOW);
 		ActionMap actionMap = getActionMap();
 		{
@@ -246,9 +257,35 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			inputMap.put(KeyStroke.getKeyStroke("released END"), "end");
 			actionMap.put("end", goToEndAction);
 		}
-	}
+		{
+			// Make Ctrl+V available as an accelerator key in the surrounding frame.
+			inputMap.put(KeyStroke.getKeyStroke("control released V"), "control V");
+			actionMap.put("control V", new AbstractAction() {
 
-	// ======================================================================
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Window activeWindow = javax.swing.FocusManager.getCurrentManager().getActiveWindow();
+					if (activeWindow != null && activeWindow instanceof JFrame frame) {
+						JMenuBar menuBar = frame.getJMenuBar();
+						if (menuBar != null) {
+							for (int index = 0; index < menuBar.getMenuCount(); ++index) {
+								JMenu menu = menuBar.getMenu(index);
+								for (Component comp : menu.getMenuComponents()) {
+									if (comp instanceof JMenuItem item) {
+										if (item.getAccelerator()
+												.equals(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK))) {
+											item.doClick();
+											return;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			});
+		}
+	}
 
 	private class GoLeftAction extends AbstractAction {
 
