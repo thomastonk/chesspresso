@@ -28,7 +28,7 @@ import chesspresso.move.Move;
  * A PieceTracker is used for visualization of the moves of some pieces during a game
  * or game fragment.
  */
-public class PieceTracker {
+public class PieceTracker2 {
 
 	private final static boolean DEBUG = false;
 
@@ -41,7 +41,7 @@ public class PieceTracker {
 
 	private final Set<Integer> startingSquares;
 
-	public PieceTracker(Game game) {
+	public PieceTracker2(Game game) {
 		this.game = game;
 		startingSquares = new HashSet<>();
 	}
@@ -151,7 +151,7 @@ public class PieceTracker {
 	}
 
 	// Note: the set of tracked squares will be modified!
-	private static void addDecorations(PieceTracker pieceTracker, PositionView positionView, Set<Integer> trackedSquares,
+	private static void addDecorations(PieceTracker2 pieceTracker, PositionView positionView, Set<Integer> trackedSquares,
 			List<Move> moves, boolean isFutureMove, int chess960QueensideRookfile, int chess960KingsideRookfile) {
 		for (Move move : moves) {
 			if (DEBUG) {

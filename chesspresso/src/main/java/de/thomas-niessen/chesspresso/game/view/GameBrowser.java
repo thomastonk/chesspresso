@@ -134,6 +134,8 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_oneClickMoves = false;
 		addPopupToPositionView();
 
+		m_positionView.setPieceTracker(new PieceTracker(game));
+
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent componentEvent) {
@@ -350,13 +352,13 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		if (m_positionView == null) {
 			return;
 		}
-		m_positionView.removeDecorations(DecorationType.ARROW, Color.BLUE);
+		m_positionView.removeDecorations(DecorationType.ARROW, Color.BLUE, GameBrowser.this);
 		if (m_highlightLastMove) {
 			Move lastMove = m_game.getLastMove();
 			if (lastMove != null && lastMove.getShortMoveDesc() != Move.NULL_MOVE) {
 				if (!lastMove.isCastle() && !lastMove.isCastleChess960()) {
-					m_positionView.addDecoration(
-							DecorationFactory.getArrowDecoration(lastMove.getFromSqi(), lastMove.getToSqi(), Color.BLUE), false);
+					m_positionView.addDecoration(DecorationFactory.getArrowDecoration(lastMove.getFromSqi(), lastMove.getToSqi(),
+							Color.BLUE, GameBrowser.this), false);
 				} else {
 					int fromSquare, toSquare;
 					if (lastMove.isWhiteMove()) {
@@ -376,8 +378,10 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 							toSquare = Chess.D8;
 						}
 					}
-					m_positionView.addDecoration(DecorationFactory.getArrowDecoration(fromSquare, toSquare, Color.BLUE), false);
-					m_positionView.addDecoration(DecorationFactory.getArrowDecoration(toSquare, fromSquare, Color.BLUE), false);
+					m_positionView.addDecoration(
+							DecorationFactory.getArrowDecoration(fromSquare, toSquare, Color.BLUE, GameBrowser.this), false);
+					m_positionView.addDecoration(
+							DecorationFactory.getArrowDecoration(toSquare, fromSquare, Color.BLUE, GameBrowser.this), false);
 				}
 			}
 		}
@@ -629,11 +633,11 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	private void removeColorComments() {
 		m_positionView.removeChessbaseDecorations();
-		PieceTracker.removeAllTracks(m_positionView);
+		m_positionView.removeAllPieceTracking();
 	}
 
 	private void removeAllNumbers() {
-		m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY);
+		m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY, GameBrowser.this);
 	}
 
 	private void addPopupToPositionView() {
@@ -642,10 +646,20 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 			public void mouseClicked(MouseEvent event) {
 				if (SwingUtilities.isRightMouseButton(event)) {
 					JPopupMenu popup = new JPopupMenu();
-					JMenuItem trackPieceItem = new JMenuItem("Track the piece");
-					trackPieceItem.addActionListener(e -> PieceTracker
-							.showTrack(m_positionView.getSquare(event.getX(), event.getY()), m_game, m_positionView));
-					popup.add(trackPieceItem);
+					{
+						JMenuItem trackPieceItem = new JMenuItem("Track the piece");
+						trackPieceItem.addActionListener(e -> {
+							m_positionView.addToPieceTracking(m_positionView.getSquare(event.getX(), event.getY()));
+						});
+						popup.add(trackPieceItem);
+					}
+					{
+						JMenuItem trackPieceItem = new JMenuItem("Untrack the piece");
+						trackPieceItem.addActionListener(e -> {
+							m_positionView.removeFromPieceTracking(m_positionView.getSquare(event.getX(), event.getY()));
+						});
+						popup.add(trackPieceItem);
+					}
 					popup.add(new JSeparator());
 
 					JMenuItem deleteColorCommentsMenuItem = new JMenuItem("Remove color comments");
@@ -660,10 +674,10 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 						JMenuItem addNumberMenuItem = new JMenuItem("Set number " + iFinal);
 						addNumberMenuItem.addActionListener(e -> {
 							int square = m_positionView.getSquare(event.getX(), event.getY());
-							m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY,
+							m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY, GameBrowser.this,
 									d -> d.getType() == DecorationType.NUMBER_IN_SQUARE && d.getSquare() == square);
-							m_positionView.addDecoration(DecorationFactory.getNumberInSquare(square, Color.DARK_GRAY, iFinal),
-									true);
+							m_positionView.addDecoration(
+									DecorationFactory.getNumberInSquare(square, Color.DARK_GRAY, GameBrowser.this, iFinal), true);
 						});
 						popup.add(addNumberMenuItem);
 					}
@@ -671,7 +685,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 					JMenuItem removeNumberMenuItem = new JMenuItem("Remove number from square");
 					removeNumberMenuItem.addActionListener(e -> {
-						m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY,
+						m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY, GameBrowser.this,
 								d -> d.getType() == DecorationType.NUMBER_IN_SQUARE
 										&& d.getSquare() == m_positionView.getSquare(event.getX(), event.getY()));
 					});

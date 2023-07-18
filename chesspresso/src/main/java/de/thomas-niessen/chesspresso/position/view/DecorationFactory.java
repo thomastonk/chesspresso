@@ -38,67 +38,95 @@ public class DecorationFactory {
 	private DecorationFactory() {
 	}
 
-	static public Decoration getArrowDecoration(int from, int to, Color color) {
-		return new Arrow(from, to, color);
+	static public Decoration getArrowDecoration(int from, int to, Color color, Object owner) {
+		return new Arrow(from, to, color, owner);
 	}
 
-	static public Decoration getBorderDecoration(int square, Color color) {
-		return new Border(square, color);
+	static public Decoration getBorderDecoration(int square, Color color, Object owner) {
+		return new Border(square, color, owner);
 	}
 
-	static public Decoration getCircleDecoration(int square, Color color) {
-		return new Circle(square, color);
+	static public Decoration getCircleDecoration(int square, Color color, Object owner) {
+		return new Circle(square, color, owner);
 	}
 
-	static public Decoration getCrossMarkDecoration(int square, Color color) {
-		return new CrossMark(square, color);
+	static public Decoration getCrossMarkDecoration(int square, Color color, Object owner) {
+		return new CrossMark(square, color, owner);
 	}
 
-	static public Decoration getStrokeDecoration(int from, int to, Color color) {
-		return new Stroke(from, to, color);
+	static public Decoration getStrokeDecoration(int from, int to, Color color, Object owner) {
+		return new Stroke(from, to, color, owner);
 	}
 
-	static public Decoration getFramedAreaDecoration(Collection<Integer> squares, Color color) {
-		return new FramedArea(squares, color);
+	static public Decoration getFramedAreaDecoration(Collection<Integer> squares, Color color, Object owner) {
+		return new FramedArea(squares, color, owner);
 	}
 
-	static public Decoration getGrayHazeDecoration(Collection<Integer> squares) {
-		return new GrayHaze(squares);
+	static public Decoration getGrayHazeDecoration(Collection<Integer> squares, Object owner) {
+		return new GrayHaze(squares, owner);
 	}
 
-	static public Decoration getTriangleInCornerDecoration(int square, Color color) {
-		return new TriangleInCorner(square, color);
+	static public Decoration getTriangleInCornerDecoration(int square, Color color, Object owner) {
+		return new TriangleInCorner(square, color, owner);
 	}
 
-	static public Decoration getOneInCornerDecoration(int square, Color color) {
-		return new OneInCorner(square, color);
+	static public Decoration getOneInCornerDecoration(int square, Color color, Object owner) {
+		return new OneInCorner(square, color, owner);
 	}
 
-	static public Decoration getZeroInCornerDecoration(int square, Color color) {
-		return new ZeroInCorner(square, color);
+	static public Decoration getZeroInCornerDecoration(int square, Color color, Object owner) {
+		return new ZeroInCorner(square, color, owner);
 	}
 
-	static public Decoration getBarInCornerDecoration(int square, Color color) {
-		return new BarInCorner(square, color);
+	static public Decoration getBarInCornerDecoration(int square, Color color, Object owner) {
+		return new BarInCorner(square, color, owner);
 	}
 
-	static public Decoration getTextDecoration(int square, Color color, String text) {
-		return new Text(square, color, text);
+	static public Decoration getTextDecoration(int square, Color color, Object owner, String text) {
+		return new Text(square, color, owner, text);
 	}
 
-	static public Decoration getNumberInSquare(int square, Color color, int number) {
-		return new NumberInSquare(square, color, number);
+	static public Decoration getNumberInSquare(int square, Color color, Object owner, int number) {
+		return new NumberInSquare(square, color, owner, number);
 	}
 
-	static class Arrow implements Decoration {
+	abstract static class AbstractDecoration implements Decoration {
+
+		private final DecorationType type;
+		protected final Color color;
+		private final Object owner;
+
+		AbstractDecoration(DecorationType type, Color color, Object owner) {
+			this.type = type;
+			this.color = color;
+			this.owner = owner;
+		}
+
+		@Override
+		public DecorationType getType() {
+			return type;
+		}
+
+		@Override
+		public Color getColor() {
+			return color;
+		}
+
+		@Override
+		public Object getOwner() {
+			return owner;
+		}
+
+	}
+
+	static class Arrow extends AbstractDecoration {
 		private final int from;
 		private final int to;
-		private final Color color;
 
-		Arrow(int from, int to, Color color) {
+		Arrow(int from, int to, Color color, Object owner) {
+			super(DecorationType.ARROW, color, owner);
 			this.from = from;
 			this.to = to;
-			this.color = color;
 		}
 
 		@Override
@@ -148,25 +176,14 @@ public class DecorationFactory {
 			g2.draw(arrowBody);
 			g2.dispose();
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.ARROW;
-		}
 	}
 
-	static class Border implements Decoration {
+	static class Border extends AbstractDecoration {
 		private final int square;
-		private final Color color;
 
-		Border(int square, Color color) {
+		Border(int square, Color color, Object owner) {
+			super(DecorationType.BORDER, color, owner);
 			this.square = square;
-			this.color = color;
 		}
 
 		@Override
@@ -187,25 +204,14 @@ public class DecorationFactory {
 					square_row * squareSize + squareSize / 16, squareSize - squareSize / 8, squareSize - squareSize / 8,
 					squareSize / 8, squareSize / 8));
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.BORDER;
-		}
 	}
 
-	static class Circle implements Decoration {
+	static class Circle extends AbstractDecoration {
 		private final int square;
-		private final Color color;
 
-		Circle(int square, Color color) {
+		Circle(int square, Color color, Object owner) {
+			super(DecorationType.CIRCLE, color, owner);
 			this.square = square;
-			this.color = color;
 		}
 
 		@Override
@@ -225,25 +231,14 @@ public class DecorationFactory {
 					squareSize * square_row + squareSize / 2 - squareSize / 6, squareSize / 3, squareSize / 3);
 			g.fill(circle);
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.CIRCLE;
-		}
 	}
 
-	static class CrossMark implements Decoration {
+	static class CrossMark extends AbstractDecoration {
 		private final int square;
-		private final Color color;
 
-		CrossMark(int square, Color color) {
+		CrossMark(int square, Color color, Object owner) {
+			super(DecorationType.CROSS_MARK, color, owner);
 			this.square = square;
-			this.color = color;
 		}
 
 		@Override
@@ -264,27 +259,16 @@ public class DecorationFactory {
 			g.drawLine(squareSize * square_col + squareSize / 6, squareSize * (square_row + 1) - squareSize / 6,
 					squareSize * (square_col + 1) - squareSize / 6, squareSize * square_row + squareSize / 6);
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.CROSS_MARK;
-		}
 	}
 
-	static class Stroke implements Decoration {
+	static class Stroke extends AbstractDecoration {
 		private final int from;
 		private final int to;
-		private final Color color;
 
-		Stroke(int from, int to, Color color) {
+		Stroke(int from, int to, Color color, Object owner) {
+			super(DecorationType.STROKE, color, owner);
 			this.from = from;
 			this.to = to;
-			this.color = color;
 		}
 
 		@Override
@@ -307,30 +291,19 @@ public class DecorationFactory {
 			g.drawLine(squareSize * from_col + squareSize / 2, squareSize * from_row + squareSize / 2,
 					squareSize * to_col + squareSize / 2, squareSize * to_row + squareSize / 2);
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.STROKE;
-		}
 	}
 
-	static class FramedArea implements Decoration {
+	static class FramedArea extends AbstractDecoration {
 		private final Set<Integer> squares;
-		private final Color color;
 
-		FramedArea(Collection<Integer> squares, Color color) {
+		FramedArea(Collection<Integer> squares, Color color, Object owner) {
+			super(DecorationType.FRAMED_AREA, color, owner);
 			this.squares = new HashSet<>();
 			for (Integer square : squares) {
 				if (square >= Chess.A1 && square <= Chess.H8) {
 					this.squares.add(square);
 				}
 			}
-			this.color = color;
 		}
 
 		@Override
@@ -418,24 +391,15 @@ public class DecorationFactory {
 
 			g2.dispose();
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.FRAMED_AREA;
-		}
 	}
 
-	static class GrayHaze implements Decoration {
+	static class GrayHaze extends AbstractDecoration {
+		private final static Color COLOR = new Color(160, 160, 160, 160);
+
 		private final List<Integer> squares;
 
-		private final static Color color = new Color(160, 160, 160, 160);
-
-		GrayHaze(Collection<Integer> squares) {
+		GrayHaze(Collection<Integer> squares, Object owner) {
+			super(DecorationType.GRAY_HAZE, COLOR, owner);
 			this.squares = new ArrayList<>();
 			for (Integer square : squares) {
 				if (square >= Chess.A1 && square <= Chess.H8) {
@@ -460,25 +424,14 @@ public class DecorationFactory {
 				g.fillRect(square_col * squareSize, square_row * squareSize, squareSize, squareSize);
 			}
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.GRAY_HAZE;
-		}
 	}
 
-	static class TriangleInCorner implements Decoration {
+	static class TriangleInCorner extends AbstractDecoration {
 		private final int square;
-		private final Color color;
 
-		TriangleInCorner(int square, Color color) {
+		TriangleInCorner(int square, Color color, Object owner) {
+			super(DecorationType.TRIANGLE_IN_CORNER, color, owner);
 			this.square = square;
-			this.color = color;
 		}
 
 		@Override
@@ -507,25 +460,14 @@ public class DecorationFactory {
 			g2.fill(triangle);
 			g2.dispose();
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.TRIANGLE_IN_CORNER;
-		}
 	}
 
-	static class OneInCorner implements Decoration {
+	static class OneInCorner extends AbstractDecoration {
 		private final int square;
-		private final Color color;
 
-		OneInCorner(int square, Color color) {
+		OneInCorner(int square, Color color, Object owner) {
+			super(DecorationType.ONE_IN_CORNER, color, owner);
 			this.square = square;
-			this.color = color;
 		}
 
 		@Override
@@ -561,25 +503,14 @@ public class DecorationFactory {
 			g2.draw(one);
 			g2.dispose();
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.ONE_IN_CORNER;
-		}
 	}
 
-	static class ZeroInCorner implements Decoration {
+	static class ZeroInCorner extends AbstractDecoration {
 		private final int square;
-		private final Color color;
 
-		ZeroInCorner(int square, Color color) {
+		ZeroInCorner(int square, Color color, Object owner) {
+			super(DecorationType.ZERO_IN_CORNER, color, owner);
 			this.square = square;
-			this.color = color;
 		}
 
 		@Override
@@ -620,25 +551,14 @@ public class DecorationFactory {
 			g2.draw(zero);
 			g2.dispose();
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.ZERO_IN_CORNER;
-		}
 	}
 
-	static class BarInCorner implements Decoration {
+	static class BarInCorner extends AbstractDecoration {
 		private final int square;
-		private final Color color;
 
-		BarInCorner(int square, Color color) {
+		BarInCorner(int square, Color color, Object owner) {
+			super(DecorationType.BAR_IN_CORNER, color, owner);
 			this.square = square;
-			this.color = color;
 		}
 
 		@Override
@@ -672,26 +592,15 @@ public class DecorationFactory {
 			g2.draw(bar);
 			g2.dispose();
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.BAR_IN_CORNER;
-		}
 	}
 
-	static class Text implements Decoration {
+	static class Text extends AbstractDecoration {
 		private final int square;
-		private final Color color;
 		private final String text;
 
-		Text(int square, Color color, String text) {
+		Text(int square, Color color, Object owner, String text) {
+			super(DecorationType.TEXT, color, owner);
 			this.square = square;
-			this.color = color;
 			this.text = text;
 		}
 
@@ -718,27 +627,16 @@ public class DecorationFactory {
 			g2.drawString(text, x0, y0);
 			g2.dispose();
 		}
-
-		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.TEXT;
-		}
 	}
 
-	static class NumberInSquare implements Decoration {
+	static class NumberInSquare extends AbstractDecoration {
 
 		private final int square;
-		private final Color color;
 		private final int number;
 
-		NumberInSquare(int square, Color color, int number) {
+		NumberInSquare(int square, Color color, Object owner, int number) {
+			super(DecorationType.NUMBER_IN_SQUARE, color, owner);
 			this.square = square;
-			this.color = color;
 			this.number = number;
 		}
 
@@ -767,18 +665,8 @@ public class DecorationFactory {
 		}
 
 		@Override
-		public Color getColor() {
-			return color;
-		}
-
-		@Override
 		public int getSquare() {
 			return square;
-		}
-
-		@Override
-		public DecorationType getType() {
-			return DecorationType.NUMBER_IN_SQUARE;
 		}
 	}
 }

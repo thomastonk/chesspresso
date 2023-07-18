@@ -31,8 +31,10 @@ public interface Decoration {
 
 	void paint(Graphics2D g, int squareSize, int bottomPlayer);
 
+	DecorationType getType();
+
 	Color getColor();
 
-	DecorationType getType();
+	Object getOwner();
 
 }
