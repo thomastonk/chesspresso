@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import chesspresso.Chess;
-import chesspresso.Variant;
 import chesspresso.game.Game;
 import chesspresso.move.Move;
 
@@ -38,11 +37,15 @@ public class PieceTracker {
 	private final static Color PAST_COLOR_BLACK_PIECE = new Color(100, 100, 100); // a dark gray 
 
 	private final Game game;
+	private final int chess960QueensideRookFile; // a little bit of optimization
+	private final int chess960KingsideRookFile;
 
 	private final Set<Integer> startingSquares;
 
 	public PieceTracker(Game game) {
 		this.game = game;
+		chess960QueensideRookFile = game.getPosition().getChess960QueensideRookFile();
+		chess960KingsideRookFile = game.getPosition().getChess960KingsideRookFile();
 		startingSquares = new HashSet<>();
 	}
 
@@ -77,36 +80,34 @@ public class PieceTracker {
 				int fromSqi = move.getFromSqi();
 				currentSqi = fromSqi;
 			} else if (move.isCastle()) { // add rook movement during castling
-				if (copy.getVariant() == Variant.STANDARD) {
-					int fromSqi = Chess.NO_SQUARE;
-					boolean whiteMoved = copy.getPosition().getToPlay() == Chess.WHITE;
-					if (whiteMoved && move.isLongCastle() && currentSqi == Chess.D1) {
-						fromSqi = Chess.A1;
-					} else if (whiteMoved && move.isShortCastle() && currentSqi == Chess.F1) {
-						fromSqi = Chess.H1;
-					} else if (!whiteMoved && move.isLongCastle() && currentSqi == Chess.D8) {
-						fromSqi = Chess.A8;
-					} else if (!whiteMoved && move.isShortCastle() && currentSqi == Chess.F8) {
-						fromSqi = Chess.H8;
-					}
-					if (fromSqi != Chess.NO_SQUARE) {
-						currentSqi = fromSqi;
-					}
-				} else if (copy.getVariant() == Variant.CHESS960) {
-					int fromSqi = Chess.NO_SQUARE;
-					boolean whiteMoved = copy.getPosition().getToPlay() == Chess.WHITE;
-					if (whiteMoved && move.isLongCastle() && currentSqi == Chess.D1) {
-						fromSqi = copy.getPosition().getChess960QueensideRookFile();
-					} else if (whiteMoved && move.isShortCastle() && currentSqi == Chess.F1) {
-						fromSqi = copy.getPosition().getChess960KingsideRookFile();
-					} else if (!whiteMoved && move.isLongCastle() && currentSqi == Chess.D8) {
-						fromSqi = copy.getPosition().getChess960QueensideRookFile() + Chess.A8;
-					} else if (!whiteMoved && move.isShortCastle() && currentSqi == Chess.F8) {
-						fromSqi = copy.getPosition().getChess960KingsideRookFile() + Chess.A8;
-					}
-					if (fromSqi != Chess.NO_SQUARE) {
-						currentSqi = fromSqi;
-					}
+				int fromSqi = Chess.NO_SQUARE;
+				boolean whiteMoved = copy.getPosition().getToPlay() == Chess.WHITE;
+				if (whiteMoved && move.isLongCastle() && currentSqi == Chess.D1) {
+					fromSqi = Chess.A1;
+				} else if (whiteMoved && move.isShortCastle() && currentSqi == Chess.F1) {
+					fromSqi = Chess.H1;
+				} else if (!whiteMoved && move.isLongCastle() && currentSqi == Chess.D8) {
+					fromSqi = Chess.A8;
+				} else if (!whiteMoved && move.isShortCastle() && currentSqi == Chess.F8) {
+					fromSqi = Chess.H8;
+				}
+				if (fromSqi != Chess.NO_SQUARE) {
+					currentSqi = fromSqi;
+				}
+			} else if (move.isCastleChess960()) {
+				int fromSqi = Chess.NO_SQUARE;
+				boolean whiteMoved = copy.getPosition().getToPlay() == Chess.WHITE;
+				if (whiteMoved && move.isLongCastle() && currentSqi == Chess.D1) {
+					fromSqi = chess960QueensideRookFile;
+				} else if (whiteMoved && move.isShortCastle() && currentSqi == Chess.F1) {
+					fromSqi = chess960KingsideRookFile;
+				} else if (!whiteMoved && move.isLongCastle() && currentSqi == Chess.D8) {
+					fromSqi = chess960QueensideRookFile + Chess.A8;
+				} else if (!whiteMoved && move.isShortCastle() && currentSqi == Chess.F8) {
+					fromSqi = chess960KingsideRookFile + Chess.A8;
+				}
+				if (fromSqi != Chess.NO_SQUARE) {
+					currentSqi = fromSqi;
 				}
 			}
 			move = copy.getPosition().getLastMove();
@@ -136,8 +137,7 @@ public class PieceTracker {
 			for (int index = pastMoves.size() - 1; index >= 0; --index) {
 				pastMovesReversed.add(pastMoves.get(index));
 			}
-			addDecorations(this, positionView, currentStartingSquares, pastMovesReversed, false,
-					copy.getPosition().getChess960QueensideRookFile(), copy.getPosition().getChess960KingsideRookFile());
+			addDecorations(this, positionView, currentStartingSquares, pastMovesReversed, false);
 		}
 		{ // add decorations for moves to be made in the future
 			copy.gotoNode(game.getCurNode());
@@ -145,14 +145,13 @@ public class PieceTracker {
 			while (copy.goForward()) {
 				futureMoves.add(copy.getLastMove());
 			}
-			addDecorations(this, positionView, currentStartingSquares, futureMoves, true,
-					copy.getPosition().getChess960QueensideRookFile(), copy.getPosition().getChess960KingsideRookFile());
+			addDecorations(this, positionView, currentStartingSquares, futureMoves, true);
 		}
 	}
 
 	// Note: the set of tracked squares will be modified!
-	private static void addDecorations(PieceTracker pieceTracker, PositionView positionView, Set<Integer> trackedSquares,
-			List<Move> moves, boolean isFutureMove, int chess960QueensideRookfile, int chess960KingsideRookfile) {
+	private void addDecorations(PieceTracker pieceTracker, PositionView positionView, Set<Integer> trackedSquares,
+			List<Move> moves, boolean isFutureMove) {
 		for (Move move : moves) {
 			if (DEBUG) {
 				StringBuilder sb = new StringBuilder();
@@ -201,17 +200,17 @@ public class PieceTracker {
 				int fromSqi = Chess.NO_SQUARE;
 				int toSqi = Chess.NO_SQUARE;
 				boolean whiteMoved = move.isWhiteMove();
-				if (whiteMoved && move.isLongCastle() && trackedSquares.contains(chess960QueensideRookfile)) {
-					fromSqi = chess960QueensideRookfile;
+				if (whiteMoved && move.isLongCastle() && trackedSquares.contains(chess960QueensideRookFile)) {
+					fromSqi = chess960QueensideRookFile;
 					toSqi = Chess.D1;
-				} else if (whiteMoved && move.isShortCastle() && trackedSquares.contains(chess960KingsideRookfile)) {
-					fromSqi = chess960KingsideRookfile;
+				} else if (whiteMoved && move.isShortCastle() && trackedSquares.contains(chess960KingsideRookFile)) {
+					fromSqi = chess960KingsideRookFile;
 					toSqi = Chess.F1;
-				} else if (!whiteMoved && move.isLongCastle() && trackedSquares.contains(chess960QueensideRookfile + Chess.A8)) {
-					fromSqi = chess960QueensideRookfile + Chess.A8;
+				} else if (!whiteMoved && move.isLongCastle() && trackedSquares.contains(chess960QueensideRookFile + Chess.A8)) {
+					fromSqi = chess960QueensideRookFile + Chess.A8;
 					toSqi = Chess.D8;
-				} else if (!whiteMoved && move.isShortCastle() && trackedSquares.contains(chess960KingsideRookfile + Chess.A8)) {
-					fromSqi = chess960QueensideRookfile + Chess.A8;
+				} else if (!whiteMoved && move.isShortCastle() && trackedSquares.contains(chess960KingsideRookFile + Chess.A8)) {
+					fromSqi = chess960QueensideRookFile + Chess.A8;
 					toSqi = Chess.F8;
 				}
 				if (fromSqi != Chess.NO_SQUARE && toSqi != Chess.NO_SQUARE) {

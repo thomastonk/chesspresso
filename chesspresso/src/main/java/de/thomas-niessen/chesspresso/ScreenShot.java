@@ -25,8 +25,6 @@ public interface ScreenShot {
 	 * more methods need to be added. */
 	boolean doBoardScreenShot(String fileName);
 
-	/* The following methods are useful for abstract method. */
-
 	// https://docs.oracle.com/javase/tutorial/2d/images/saveimage.html
 	public static boolean saveScreenShot(Component c, String fileName) {
 		BufferedImage bufferedImage = getScreenShot(c);
