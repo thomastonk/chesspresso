@@ -178,10 +178,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		m_position.removePositionListener(this);
 		m_position = position;
 		m_position.addPositionListener(this);
-		if (m_pieceTracker != null) {
-			m_pieceTracker.removeAllPieces();
-			removeAllPieceTracking();
-		}
+		removeAllPieceTracking(true);
 	}
 
 	// ======================================================================
@@ -499,8 +496,11 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		}
 	}
 
-	public void removeAllPieceTracking() {
+	public void removeAllPieceTracking(boolean removeTrackedPieces) {
 		if (m_pieceTracker != null) {
+			if (removeTrackedPieces) {
+				m_pieceTracker.removeAllPieces();
+			}
 			removeDecorations(DecorationType.ARROW, null, m_pieceTracker);
 			repaint();
 		}
@@ -517,12 +517,9 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	// PositionListener
 
 	@Override
-	public void positionChanged(Position position) {
-		if (m_position != position) {
-			m_position = position;
-			if (m_pieceTracker != null) {
-				m_pieceTracker.removeAllPieces();
-			}
+	public void positionChanged(ChangeType type, short move, String fen) {
+		if (type.equals(ChangeType.START_POS_CHANGED)) {
+			removeAllPieceTracking(true);
 		}
 		updatePieceTracking();
 		repaint();

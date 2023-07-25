@@ -94,9 +94,11 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	private Game(GameModel gameModel) {
 		m_model = gameModel;
 		m_position = new Position();
-		m_position.setRelatedGame(this);
+		//		m_position.setRelatedGame(this);
+		m_position.addPositionListener(this);
 
 		String fen = m_model.getHeaderModel().getTag(PGN.TAG_FEN);
+		m_ignoreNotifications = true;
 		if (fen != null) {
 			try {
 				m_position.setPositionSnapshot(new Position(fen, false));
@@ -256,12 +258,15 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			m_model.getHeaderModel().setTag(PGN.TAG_ECO, "");
 			m_model.getHeaderModel().setTag(PGN.TAG_RESULT, "*");
 		}
-		m_model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
-		m_position.setPositionSnapshot(newPos);
-		m_model.getMoveModel().clear();
-		fireMoveModelChanged();
-		fireHeaderModelChanged();
-		m_position.firePositionChanged();
+		m_ignoreNotifications = true;
+		m_position.runAlgorithm(() -> {
+			m_model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
+			m_position.setPositionSnapshot(newPos);
+			m_model.getMoveModel().clear();
+			fireMoveModelChanged();
+			fireHeaderModelChanged();
+		});
+		m_ignoreNotifications = false;
 	}
 
 	/* At the moment this method does not protect its changes of the position by an algorithm.
@@ -278,15 +283,17 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		String fen = copy.getPosition().getFEN();
 		Position newPos = new Position(fen, false); // If this throws, 'this' is unchanged!
 
-		m_cur = 0; // The order is important; this is always a valid value. 
-		m_model.getHeaderModel().setByCopying(otherModel.getHeaderModel());
-		m_model.getMoveModel().setByCopying(otherModel.getMoveModel());
-		m_position.setPositionSnapshot(newPos);
+		m_ignoreNotifications = true;
+		m_position.runAlgorithm(() -> {
+			m_cur = 0; // The order is important; this is always a valid value. 
+			m_model.getHeaderModel().setByCopying(otherModel.getHeaderModel());
+			m_model.getMoveModel().setByCopying(otherModel.getMoveModel());
+			m_position.setPositionSnapshot(newPos);
+			m_alwaysAddLine = false;
+			fireHeaderModelChanged();
+			fireMoveModelChanged();
+		});
 		m_ignoreNotifications = false;
-		m_alwaysAddLine = false;
-		fireHeaderModelChanged();
-		fireMoveModelChanged();
-		m_position.firePositionChanged();
 	}
 
 	public String getEvent() {
@@ -1193,7 +1200,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 				for (int i = 0; i < moves.length; i++) {
 					if (moves[i] == move) {
 						m_cur = m_model.getMoveModel().goForward(m_cur, i);
-						return; // =====>
+						return;
 					}
 				}
 			}
@@ -1243,7 +1250,8 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			f.setAccessible(false);
 		}
 
-		m_position.setRelatedGame(this);
+		//		m_position.setRelatedGame(this);
+		m_position.addPositionListener(this);
 
 		try {
 			pgnRreader.parseGame(this);

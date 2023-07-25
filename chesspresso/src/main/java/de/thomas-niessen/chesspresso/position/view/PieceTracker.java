@@ -116,7 +116,7 @@ public class PieceTracker {
 	}
 
 	public void updateDecorations(PositionView positionView) {
-		positionView.removeAllPieceTracking();
+		positionView.removeAllPieceTracking(false);
 		if (startingSquares.isEmpty()) {
 			return;
 		}

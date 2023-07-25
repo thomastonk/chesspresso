@@ -21,10 +21,10 @@ import java.util.List;
 
 import chesspresso.Variant;
 import chesspresso.game.RelatedGame;
-import chesspresso.game.RelatedGame.ChangeType;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.position.PositionImpl.PosInternalState;
+import chesspresso.position.PositionListener.ChangeType;
 
 /**
  * Position is the public part of the whole position hierarchy. It handles the PositionListeners and delegates 
@@ -49,7 +49,6 @@ public final class Position implements MoveablePosition, Serializable {
 
 	private final MoveablePosition impl;
 	private final List<PositionListener> listeners = new ArrayList<>();
-	private RelatedGame relatedGame = null;
 	private int algorithmDepth;
 
 	public interface Algorithm {
@@ -73,33 +72,6 @@ public final class Position implements MoveablePosition, Serializable {
 	public Position(ImmutablePosition pos) {
 		this();
 		setPositionSnapshot(pos);
-	}
-
-	/**
-	 * This is a public method, but please don't use it! It shall only be used in the implementation of Game.
-	 * 
-	 * Note: A non-null related game can only be set, if it isn't set so far.
-	 */
-	public void setRelatedGame(RelatedGame relatedGame) {
-		if (this.relatedGame != null) {
-			throw new IllegalStateException("Position::setRelatedGame: the related game is already set!");
-		}
-		if (relatedGame == null) {
-			return;
-		}
-		if (relatedGame.checkCompatibility(this)) {
-			this.relatedGame = relatedGame;
-		} else {
-			throw new IllegalStateException("Position::setRelatedGame: the compatibility check failed!");
-		}
-	}
-
-	/**
-	 * This is a public method, but please don't use it! It shall only be used in the implementation of Game.
-	 * Its only use is to delete unnecessary references and thereby give the GC a chance.
-	 */
-	public void unsetRelatedGame() {
-		relatedGame = null;
 	}
 
 	public static Position createInitialPosition() {
@@ -136,8 +108,8 @@ public final class Position implements MoveablePosition, Serializable {
 		++algorithmDepth;
 	}
 
-	public boolean isOutsideAlgorithm() {
-		return algorithmDepth <= 0;
+	public boolean isInsideAlgorithm() {
+		return algorithmDepth > 0;
 	}
 
 	@Override
@@ -165,6 +137,7 @@ public final class Position implements MoveablePosition, Serializable {
 	@Override
 	public void setPositionSnapshot(ImmutablePosition position) {
 		impl.setPositionSnapshot(position);
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, getFEN());
 	}
 
 	@Override
@@ -517,7 +490,16 @@ public final class Position implements MoveablePosition, Serializable {
 
 	public final void addPositionListener(PositionListener listener) {
 		if (!listeners.contains(listener)) {
-			listeners.add(listener);
+			if (listener instanceof RelatedGame) {
+				// there is at most one RelatedGame and if so, it is the first element
+				if (!listeners.isEmpty() && listeners.get(0) instanceof RelatedGame && !listener.equals(listeners.get(0))) {
+					System.err.println("Position::addPositionListener: An attempt to set a second RelatedGame happened.");
+				} else {
+					listeners.add(0, listener);
+				}
+			} else {
+				listeners.add(listener);
+			}
 		}
 	}
 
@@ -525,32 +507,24 @@ public final class Position implements MoveablePosition, Serializable {
 		listeners.remove(listener);
 	}
 
-	/*
-	 * The following two firePositionChanged methods looks like a misconception, but
-	 * in fact this is a well-thought concept. The only thing one has to keep in mind
-	 * is to call the second one, if the RelatedGame needs to be informed. 
-	 * Note that the two positionChanged methods come from different interfaces.
-	 */
-
-	// This is the fire method for all changes NOT relevant to RelatedGame.
-	public void firePositionChanged() {
-		if (isOutsideAlgorithm()) {
+	private void firePositionChanged() {
+		if (!isInsideAlgorithm()) {
 			for (PositionListener listener : listeners) {
-				listener.positionChanged(this); // From the interface PositionListener!
+				listener.positionChanged(ChangeType.EXTENT_UNSPECIFIED, Move.NO_MOVE, null);
 			}
 		}
 	}
 
-	// This is the fire method for all changes relevant to RelatedGame (and the PositionListeners
-	// are informed, if necessary, as well).
 	private void firePositionChanged(ChangeType type, short move, String fen) {
-		// First: The order here is important, since PositionListeners may depend on relatedGame.
-		// Second: The relatedGame is indeed notified during algorithms. (Otherwise it would be
-		// necessary to inform RelatedGame about the algorithm end, which is impossible so far.)
-		if (relatedGame != null) {
-			relatedGame.positionChanged(type, move, fen); // From the interface RelatedGame!
+		if (isInsideAlgorithm()) { // inside an algorithm only the RelatedGame, which is always the first element, is informed
+			if (!listeners.isEmpty() && listeners.get(0) instanceof RelatedGame) {
+				listeners.get(0).positionChanged(type, move, fen);
+			}
+		} else {
+			for (PositionListener listener : listeners) {
+				listener.positionChanged(type, move, fen);
+			}
 		}
-		firePositionChanged();
 	}
 
 	@Override

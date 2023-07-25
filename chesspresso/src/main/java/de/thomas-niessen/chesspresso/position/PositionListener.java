@@ -15,6 +15,9 @@
 package chesspresso.position;
 
 public interface PositionListener {
-	/* The method informs the listener about some change of the position. */
-	void positionChanged(Position position);
+	enum ChangeType {
+		MOVE_DONE, MOVE_UNDONE, START_POS_CHANGED, EXTENT_UNSPECIFIED
+	}
+
+	void positionChanged(ChangeType type, short move, String fen);
 }

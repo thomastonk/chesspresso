@@ -57,7 +57,6 @@ import chesspresso.game.TraverseListener;
 import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
 import chesspresso.position.NAG;
-import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
 
 /**
@@ -481,7 +480,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	// PositionListener
 
 	@Override
-	public void positionChanged(Position pos) {
+	public void positionChanged(ChangeType type, short move, String fen) {
 		showCurrentGameNode();
 	}
 
@@ -639,7 +638,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 				maxPly = m_game.getNumOfPlies() + 1;
 			}
 			textCreator = new TreeLikeTextCreator();
-			m_game.getPosition().addPositionListener(e -> {
+			m_game.getPosition().addPositionListener((t, f, m) -> {
 				// this listener updates maxPly
 				if (m_game.isMainLine()) { // Is there a new mainline move?
 					if (maxPly < m_game.getCurrentPly()) {

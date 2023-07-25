@@ -612,7 +612,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	// PositionListner
 
 	@Override
-	public void positionChanged(Position pos) {
+	public void positionChanged(ChangeType type, short move, String fen) {
 		updateMovePane();
 		highlightLastMove();
 		if (m_positionView != null) {
@@ -633,7 +633,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	private void removeColorComments() {
 		m_positionView.removeChessbaseDecorations();
-		m_positionView.removeAllPieceTracking();
+		m_positionView.removeAllPieceTracking(false);
 	}
 
 	private void removeAllNumbers() {
@@ -745,6 +745,10 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		m_textViewer.setUserAction(userAction);
 
 		updateComponents();
+	}
+
+	public void removePieceTracking() {
+		m_positionView.removeAllPieceTracking(true);
 	}
 
 	private void updateComponents() {
