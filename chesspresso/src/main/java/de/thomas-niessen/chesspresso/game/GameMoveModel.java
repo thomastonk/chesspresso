@@ -496,7 +496,7 @@ class GameMoveModel implements Serializable {
 		}
 
 		if (comment == null || comment.length() == 0) {
-			return false; // =====>
+			return false;
 		}
 
 		makeSpace(index, comment.length() + 2, false);
@@ -534,7 +534,7 @@ class GameMoveModel implements Serializable {
 		}
 
 		if (comment == null || comment.length() == 0) {
-			return false; // =====>
+			return false;
 		}
 
 		// index = 0: comment before first move
@@ -802,7 +802,7 @@ class GameMoveModel implements Serializable {
 			} else if (move == NO_MOVE) {
 
 			} else if (level == 0) {
-				break; // =====>
+				break;
 			}
 			index--;
 		}
@@ -903,7 +903,7 @@ class GameMoveModel implements Serializable {
 				} else if (level == 0) {
 					index = -1;
 					break;
-				} // =====> move on level 0 -> not enough lines
+				} // move on level 0 -> not enough lines
 				index++;
 			}
 		}
@@ -925,7 +925,7 @@ class GameMoveModel implements Serializable {
 
 		index = goForward(index);
 		if (m_moves[index] == LINE_END) {
-			return 0; // =====>
+			return 0;
 		}
 
 		index++;

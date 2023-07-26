@@ -361,7 +361,7 @@ public final class PGNReader extends PGN {
 		for (int i = 0; i < m_lastTokenLength; i++) {
 			int digit = m_buf[i];
 			if (digit < '0' || digit > '9') {
-				return false; // =====>
+				return false;
 			}
 		}
 		return true;

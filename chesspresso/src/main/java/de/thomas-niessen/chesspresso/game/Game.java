@@ -94,7 +94,6 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	private Game(GameModel gameModel) {
 		m_model = gameModel;
 		m_position = new Position();
-		//		m_position.setRelatedGame(this);
 		m_position.addPositionListener(this);
 
 		String fen = m_model.getHeaderModel().getTag(PGN.TAG_FEN);
@@ -1058,11 +1057,11 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
-			return true; // =====>
+			return true;
 		}
 		if (!(obj instanceof Game game)) {
 			return false;
-		} // =====>
+		}
 		return game.getModel().equals(getModel());
 	}
 
@@ -1250,7 +1249,6 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			f.setAccessible(false);
 		}
 
-		//		m_position.setRelatedGame(this);
 		m_position.addPositionListener(this);
 
 		try {

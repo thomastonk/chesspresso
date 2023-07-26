@@ -1830,12 +1830,12 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public Move getLastMove() {
 		if (m_moveStackIndex == 0) {
-			return null; // =====>
+			return null;
 		}
 		short move = m_moveStack[m_moveStackIndex - 1];
 		boolean wasWhiteMove = (getToPlay() == Chess.BLACK);
 		if (Move.isCastle(move)) {
-			return Move.createCastle(move, isCheck(), isMate(), wasWhiteMove); // ======>
+			return Move.createCastle(move, isCheck(), isMate(), wasWhiteMove);
 		} else {
 			int from = Move.getFromSqi(move);
 			int to = Move.getToSqi(move);
@@ -2002,13 +2002,13 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		long bbSqi = ofSquare(sqi);
 
 		if ((QUEEN_ATTACKS[kingSqi] & bbSqi) == 0L) {
-			return NO_DIR; // =====>
+			return NO_DIR;
 		}
 
 		int kingDir = DIR[kingSqi][sqi];
 		long kingDirRim = RIM_BOARD[kingDir];
 		if ((kingDirRim & bbSqi) != 0L) {
-			return NO_DIR; // =====> nothing behind piece
+			return NO_DIR; // there is nothing behind piece
 		}
 
 		long bbTarget;
@@ -2018,12 +2018,12 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			bbTarget = ROOK_ATTACKS[kingSqi] & m_bbRooks & (color == Chess.WHITE ? m_bbBlacks : m_bbWhites);
 		}
 		if (bbTarget == 0L) {
-			return NO_DIR; // =====>
+			return NO_DIR;
 		}
 
 		long bbAllPieces = m_bbWhites | m_bbBlacks;
 		if ((SQUARES_BETWEEN[kingSqi][sqi] & bbAllPieces) != 0L) {
-			return NO_DIR; // =====>
+			return NO_DIR;
 		}
 
 		// System.out.println("now checking behind sqi");
@@ -2038,10 +2038,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			}
 			// ChBitBoard.printBoard(bb);
 			if ((bbTarget & bb) != 0L) {
-				return kingDir; // =====>
+				return kingDir;
 			}
 			if ((bbAllPieces & bb) != 0L) {
-				return NO_DIR; // =====>
+				return NO_DIR;
 			}
 		} while ((kingDirRim & bb) == 0L);
 		return NO_DIR;
@@ -2073,10 +2073,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		case Chess.QUEEN:
 			if ((piece == Chess.BISHOP && (BISHOP_ATTACKS[from] & bbTo) == 0)
 					|| (piece == Chess.ROOK && (ROOK_ATTACKS[from] & bbTo) == 0)) {
-				return false; // =====>
+				return false;
 			}
 			if (piece == Chess.QUEEN && (QUEEN_ATTACKS[from] & bbTo) == 0) {
-				return false; // =====>
+				return false;
 			}
 			long bbFrom = ofSquare(from);
 			int vector = DIR_SHIFT[DIR[from][to]];
@@ -2087,7 +2087,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			}
 			while (bbFrom != bbTo) {
 				if (((m_bbWhites | m_bbBlacks) & bbFrom) != 0) {
-					return false; // =====>
+					return false;
 				}
 				if (vector < 0) {
 					bbFrom >>>= -vector;
@@ -2095,7 +2095,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 					bbFrom <<= vector;
 				}
 			}
-			return true; // =====>
+			return true;
 		default:
 			throw new RuntimeException("Illegal piece: " + piece);
 		}
@@ -2120,7 +2120,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 		/*---------- knights ----------*/
 		if ((KNIGHT_ATTACKS[sqi] & bbAttackerPieces & m_bbKnights) != 0) {
-			return true; // =====>
+			return true;
 		}
 
 		/*---------- sliding pieces ----------*/
@@ -2130,7 +2130,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			// if (SQUARES_BETWEEN[from][sqi] == 0L) System.out.println("SQB is
 			// 0");
 			if ((SQUARES_BETWEEN[from][sqi] & bbAllPieces) == 0L) {
-				return true; // =====>
+				return true;
 			}
 			bbTargets &= bbTargets - 1;
 		}
@@ -2140,12 +2140,12 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			// inverse -> black_pawn_attacks
 			if (((BLACK_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns) != 0)
 					|| ((KING_ATTACKS[sqi] & ofSquare(m_whiteKing) & (~bbExclude)) != 0)) {
-				return true; // =====>
+				return true;
 			}
 		} else {
 			if (((WHITE_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns) != 0)
 					|| ((KING_ATTACKS[sqi] & ofSquare(m_blackKing) & (~bbExclude)) != 0)) {
-				return true; // =====>
+				return true;
 			}
 		}
 
@@ -2264,7 +2264,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				long destSquares = KNIGHT_ATTACKS[from] & (~bbToPlay) & bbTargets;
 				while (destSquares != 0L) {
 					if (moveIndex == -1) {
-						return 1; // =====>
+						return 1;
 					}
 					int to = getFirstSqi(destSquares);
 					m_moves[moveIndex++] = Move.getRegularMove(from, to, !isSquareEmpty(to));
@@ -2313,7 +2313,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 							// + "-" + Chess.sqiToStr(to));
 							if ((bb & bbTargets) != 0L) {
 								if (moveIndex == -1) {
-									return 1; // =====>
+									return 1;
 								}
 								if ((bb & bbNotToPlay) == 0L) {
 									m_moves[moveIndex++] = Move.getRegularMove(from, to, false);
@@ -2351,7 +2351,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				// System.out.println("move:"+ Chess.sqiToStr(from) + "-" +
 				// Chess.sqiToStr(to));
 				if (moveIndex == -1) {
-					return 1; // =====>
+					return 1;
 				}
 				m_moves[moveIndex++] = Move.getRegularMove(from, to, !isSquareEmpty(to));
 			}
@@ -2369,7 +2369,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 							&& (bbAllPieces & WHITE_SHORT_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.F1, Chess.BLACK, 0L)
 							&& !isAttacked(Chess.G1, Chess.BLACK, 0L)) {
 						if (moveIndex == -1) {
-							return 1; // =====>
+							return 1;
 						}
 						m_moves[moveIndex++] = Move.WHITE_SHORT_CASTLE;
 					}
@@ -2377,7 +2377,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 							&& (bbAllPieces & WHITE_LONG_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.D1, Chess.BLACK, 0L)
 							&& !isAttacked(Chess.C1, Chess.BLACK, 0L)) {
 						if (moveIndex == -1) {
-							return 1; // =====>
+							return 1;
 						}
 						m_moves[moveIndex++] = Move.WHITE_LONG_CASTLE;
 					}
@@ -2386,7 +2386,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 							&& (bbAllPieces & BLACK_SHORT_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.F8, Chess.WHITE, 0L)
 							&& !isAttacked(Chess.G8, Chess.WHITE, 0L)) {
 						if (moveIndex == -1) {
-							return 1; // =====>
+							return 1;
 						}
 						m_moves[moveIndex++] = Move.BLACK_SHORT_CASTLE;
 					}
@@ -2394,7 +2394,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 							&& (bbAllPieces & BLACK_LONG_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.D8, Chess.WHITE, 0L)
 							&& !isAttacked(Chess.C8, Chess.WHITE, 0L)) {
 						if (moveIndex == -1) {
-							return 1; // =====>
+							return 1;
 						}
 						m_moves[moveIndex++] = Move.BLACK_LONG_CASTLE;
 					}
@@ -2564,19 +2564,16 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			return moveIndex;
 		}
 
-		long bbToPlay, bbNotToPlay; // , bbAllPieces;
-		@SuppressWarnings("unused")
-		int thePawn, pawnMoveDir, secondRank, eighthRank;
+		long bbToPlay, bbNotToPlay;
+		int pawnMoveDir, secondRank, eighthRank;
 
 		if (getToPlay() == Chess.WHITE) {
-			thePawn = Chess.WHITE_PAWN;
 			bbToPlay = m_bbWhites;
 			bbNotToPlay = m_bbBlacks;
 			pawnMoveDir = N;
 			secondRank = 1;
 			eighthRank = 7;
 		} else {
-			thePawn = Chess.BLACK_PAWN;
 			bbToPlay = m_bbBlacks;
 			bbNotToPlay = m_bbWhites;
 			pawnMoveDir = S;
@@ -2610,7 +2607,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 					if (Chess.sqiToRow(to) == eighthRank) {
 						if ((bbTo & bbTargets) != 0L) {
 							if (moveIndex == -1) {
-								return 1; // =====>
+								return 1;
 							}
 							m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.QUEEN);
 							m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.ROOK);
@@ -2620,7 +2617,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 					} else {
 						if ((bbTo & bbTargets) != 0L) {
 							if (moveIndex == -1) {
-								return 1; // =====>
+								return 1;
 							}
 							m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.NO_PIECE);
 						}
@@ -2631,7 +2628,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 							// if single steps are
 							if (isSquareEmpty(to) && (ofSquare(to) & bbTargets) != 0L) {
 								if (moveIndex == -1) {
-									return 1; // =====>
+									return 1;
 								}
 								m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.NO_PIECE);
 							}
@@ -2649,7 +2646,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				int dir = DIR[from][to];
 				if (pinnedDir == NO_DIR || dir == NO_DIR || areDirectionsParallel(pinnedDir, dir)) {
 					if (moveIndex == -1) {
-						return 1; // =====>
+						return 1;
 					}
 					// int piece = getPiece(to);
 					if (Chess.sqiToRow(to) == eighthRank) {
@@ -2706,7 +2703,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		}
 
 		if (bbTargets == 0L) {
-			return new short[0]; // =====>
+			return new short[0];
 		}
 
 		int moveIndex = 0;

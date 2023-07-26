@@ -266,11 +266,11 @@ class GameHeaderModel implements Serializable {
 		try {
 			String whiteElo = getWhiteEloStr();
 			if (whiteElo == null) {
-				return 0; // =====>
+				return 0;
 			}
 			return Integer.parseInt(whiteElo);
 		} catch (NumberFormatException ex) {
-			return 0; // =====>
+			return 0;
 		}
 	}
 
@@ -278,11 +278,11 @@ class GameHeaderModel implements Serializable {
 		try {
 			String blackElo = getBlackEloStr();
 			if (blackElo == null) {
-				return 0; // =====>
+				return 0;
 			}
 			return Integer.parseInt(blackElo);
 		} catch (NumberFormatException ex) {
-			return 0; // =====>
+			return 0;
 		}
 	}
 

@@ -63,11 +63,11 @@ class GameModel implements Serializable {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
-			return true; // =====>
+			return true;
 		}
 		if (!(obj instanceof GameModel gameModel)) {
 			return false;
-		} // =====>
+		}
 		return gameModel.getMoveModel().equals(getMoveModel());
 	}
 

@@ -33,7 +33,7 @@ import chesspresso.position.PositionListener.ChangeType;
  * implementation a different kind of object was used.) 
  * 
  * The user can prevent the listeners from being informed of changes by using an Algorithm object in the method 
- * runAlgorithm. If so, the notification of the listeners is deactivated, and then the algorithm is run. 
+ * runAlgorithm. If so, the notification of the normal listeners is deactivated, and then the algorithm is run. 
  * Thereafter the notification of the listeners is activated again, unless the algorithm was run within another 
  * algorithm.
  * 
