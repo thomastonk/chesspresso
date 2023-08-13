@@ -1660,7 +1660,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		long bb = bbTargets;
 		while (bb != 0L) {
 			int from = getFirstSqi(bb);
-			if (((1 << fromSquarePawn) & SQUARES_BETWEEN[from][kingSquare]) == 0L) { // an attack from behind the fromSquarePawn is fine
+			if (((1L << fromSquarePawn) & SQUARES_BETWEEN[from][kingSquare]) == 0L) { // an attack from behind the fromSquarePawn is fine
 				if ((SQUARES_BETWEEN[from][kingSquare] & bbAllPieces & (~bbTargets)) == 0L) {
 					return true;
 				}
@@ -1673,7 +1673,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		bb = bbTargets;
 		while (bb != 0L) {
 			int from = getFirstSqi(bb);
-			if (((1 << fromSquarePawn) & SQUARES_BETWEEN[from][kingSquare]) == 0L) { // an attack from behind the fromSquarePawn is fine
+			if (((1L << fromSquarePawn) & SQUARES_BETWEEN[from][kingSquare]) == 0L) { // an attack from behind the fromSquarePawn is fine
 				if ((SQUARES_BETWEEN[from][kingSquare] & bbAllPieces & (~bbTargets)) == 0L) {
 					return true;
 				}
