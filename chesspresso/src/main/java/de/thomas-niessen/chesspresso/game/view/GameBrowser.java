@@ -633,7 +633,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	private void removeColorComments() {
 		m_positionView.removeChessbaseDecorations();
-		m_positionView.removeAllPieceTracking(false);
+		m_positionView.removeAllPieceTracking(true);
 	}
 
 	private void removeAllNumbers() {
