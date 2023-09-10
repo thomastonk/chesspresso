@@ -858,7 +858,7 @@ public class FEN {
 
 	public static String getFEN(ImmutablePosition pos, int numberOfParts) {
 		if (numberOfParts < 1) {
-			return null;
+			return "";
 		}
 		StringBuilder sb = new StringBuilder();
 
