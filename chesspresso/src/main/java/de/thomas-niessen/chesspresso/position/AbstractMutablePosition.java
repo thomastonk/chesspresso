@@ -165,6 +165,9 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 			if (entry.getKey() <= Chess.H7)
 				setStone(entry.getKey() + 8, entry.getValue());
 		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
 	}
 
 	@Override
@@ -179,6 +182,9 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 				setStone(entry.getKey() - 8, entry.getValue());
 			}
 		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
 	}
 
 	@Override
@@ -193,6 +199,9 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 				setStone(entry.getKey() - 1, entry.getValue());
 			}
 		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
 	}
 
 	@Override
@@ -207,6 +216,9 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 				setStone(entry.getKey() + 1, entry.getValue());
 			}
 		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
 	}
 
 	/*

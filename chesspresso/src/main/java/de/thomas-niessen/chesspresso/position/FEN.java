@@ -1020,8 +1020,9 @@ public class FEN {
 
 		/* ========== 2nd field : to play ========== */
 
+		String toPlay = "";
 		if (fenParts.length > 1) {
-			String toPlay = fenParts[1].toLowerCase();
+			toPlay = fenParts[1].toLowerCase();
 			if (toPlay.equals("w")) {
 				newFen.append(" b");
 			} else {
@@ -1069,16 +1070,35 @@ public class FEN {
 			}
 		}
 
-		/* ========== 5th field : half-move clock ==== */
+		/* ========== 5th & 6th field : half-move clock and full move number ==== */
 
-		if (fenParts.length > 4) {
-			newFen.append(' ').append(fenParts[4]);
-		}
-
-		/* ========== 6th field : full move number ========== */
-
-		if (fenParts.length > 5) {
-			newFen.append(' ').append(fenParts[5]);
+		if (fenParts.length == 5) { // half-move clock only
+			int hmc = 0;
+			try {
+				hmc = Integer.parseInt(fenParts[4]);
+			} catch (NumberFormatException ignore) {
+			}
+			if (toPlay.equals("w")) { // new fen has black to play 				
+				newFen.append(' ').append(hmc).append(' ').append((hmc + 2) / 2);
+			} else {
+				newFen.append(' ').append(hmc).append(' ').append((hmc + 3) / 2);
+			}
+		} else if (fenParts.length > 5) {
+			if (toPlay.equals("w")) { // new fen has black to play 
+				newFen.append(' ').append(fenParts[4]).append(' ').append(fenParts[5]);
+			} else { // new fen has white to play => an increase of the move number can be necessary
+				int hmc = 0;
+				int mn = 1;
+				try {
+					hmc = Integer.parseInt(fenParts[4]);
+					mn = Integer.parseInt(fenParts[5]);
+				} catch (NumberFormatException ignore) {
+				}
+				if (hmc > 2 * (mn - 1)) {
+					++mn; // increase
+				}
+				newFen.append(' ').append(hmc).append(' ').append(mn);
+			}
 		}
 
 		return newFen.toString();
