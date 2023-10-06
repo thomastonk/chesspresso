@@ -271,7 +271,8 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 								JMenu menu = menuBar.getMenu(index);
 								for (Component comp : menu.getMenuComponents()) {
 									if (comp instanceof JMenuItem item) {
-										if (item.getAccelerator()
+										KeyStroke accelerator = item.getAccelerator();
+										if (accelerator != null && accelerator
 												.equals(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK))) {
 											item.doClick();
 											return;
