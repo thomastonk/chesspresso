@@ -34,7 +34,7 @@ import chesspresso.position.PositionListener.ChangeType;
  * 
  * The user can prevent the listeners from being informed of changes by using an Algorithm object in the method 
  * runAlgorithm. If so, the notification of the normal listeners is deactivated, and then the algorithm is run. 
- * Thereafter the notification of the listeners is activated again, unless the algorithm was run within another 
+ * Thereafter, the notification of the listeners is activated again, unless the algorithm was run within another 
  * algorithm.
  * 
  * This class is not thread-safe.
@@ -488,7 +488,7 @@ public final class Position implements MoveablePosition, Serializable {
 
 	// everything for PositionListeners
 
-	public final void addPositionListener(PositionListener listener) {
+	public void addPositionListener(PositionListener listener) {
 		if (!listeners.contains(listener)) {
 			if (listener instanceof RelatedGame) {
 				// there is at most one RelatedGame and if so, it is the first element
@@ -503,7 +503,7 @@ public final class Position implements MoveablePosition, Serializable {
 		}
 	}
 
-	public final void removePositionListener(PositionListener listener) {
+	public void removePositionListener(PositionListener listener) {
 		listeners.remove(listener);
 	}
 

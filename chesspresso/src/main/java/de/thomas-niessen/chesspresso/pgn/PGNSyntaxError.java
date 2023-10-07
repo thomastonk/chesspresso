@@ -25,7 +25,7 @@ public class PGNSyntaxError extends java.lang.Exception {
 	public enum Severity {
 		ERROR("ERROR"), WARNING("WARNING"), MESSAGE("MESSAGE");
 
-		String desc;
+		final String desc;
 
 		Severity(String desc) {
 			this.desc = desc;

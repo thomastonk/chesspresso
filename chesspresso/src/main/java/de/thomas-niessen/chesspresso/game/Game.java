@@ -123,7 +123,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	 * are added. If newPlyOffset < Position::getPlyOffset or newPlyOffset >
 	 * Position::getPlyOffset + Game::getNumOfPlies, then null is returned. If
 	 * numOfPlies >= 0 and newPlyOffset + numOfPlies > getPlyOffset() +
-	 * getNumOfPlies(), then a fragment with less plies is returned.
+	 * getNumOfPlies(), then a fragment with fewer plies is returned.
 	 */
 	public Game getFragment(int newPlyOffset, int numOfPlies) {
 		if (newPlyOffset < m_position.getPlyOffset() || newPlyOffset > m_position.getPlyOffset() + getNumOfPlies()) {
@@ -269,7 +269,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	/* At the moment this method does not protect its changes of the position by an algorithm.
-	 * This could by necessary in the future. */
+	 * This could be necessary in the future. */
 	public void setGameByDeepCopying(Game otherGame) throws InvalidFenException {
 		if (this == otherGame) {
 			return;
@@ -981,7 +981,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	 * GameTextViewer.
 	 *
 	 * @param listener  the listener that receives events when arriving at nodes
-	 * @param withLines whether or not to include sub-lines of the main line.
+	 * @param withLines whether to include sublines of the mainline.
 	 */
 	public void traverse(TraverseListener listener, boolean withLines) {
 		m_position.runAlgorithm(() -> {
@@ -1124,9 +1124,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 
 	private static boolean checkComment(String comment, String otherComment) {
 		if (otherComment != null && !otherComment.isBlank()) {
-			if (comment == null || !comment.contains(otherComment)) {
-				return false;
-			}
+			return comment != null && comment.contains(otherComment);
 		}
 		return true;
 	}

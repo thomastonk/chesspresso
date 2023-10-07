@@ -102,8 +102,8 @@ public abstract class NAG {
 			"Black has a well protected king", // 73
 			"White has a poorly placed king", // 74
 			"Black has a poorly placed king", // 75
-			"White has a well placed king", // 76
-			"Black has a well placed king", // 77
+			"White has a well-placed king", // 76
+			"Black has a well-placed king", // 77
 			"White has a very weak pawn structure", // 78
 			"Black has a very weak pawn structure", // 79
 			"White has a moderately weak pawn structure", // 80

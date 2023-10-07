@@ -40,9 +40,9 @@ public interface TraverseListener {
 	void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
 			String fenBeforeMove);
 
-	/* This method is called before the first move of a new sub-line is executed. No call for the mainline. */
+	/* This method is called before the first move of a new subline is executed. No call for the mainline. */
 	void notifyLineStart(int level);
 
-	/* This method is called after the last move of a sub-line is executed. No call for the mainline. */
+	/* This method is called after the last move of a subline is executed. No call for the mainline. */
 	void notifyLineEnd(int level);
 }

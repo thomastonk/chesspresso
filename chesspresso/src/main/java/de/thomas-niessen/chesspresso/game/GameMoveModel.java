@@ -457,7 +457,7 @@ class GameMoveModel implements Serializable {
 		} else {
 			return false;
 		}
-		// TN: that's not the the same as
+		// TN: that's not the same as
 		// return removePreMoveComment(index) || addPreMoveComment(index, comment);
 		// because addPreMoveComment is not executed, if removePreMoveComment returns true
 	}
@@ -477,7 +477,7 @@ class GameMoveModel implements Serializable {
 		} else {
 			return false;
 		}
-		// TN: that's not the the same as
+		// TN: that's not the same as
 		// return removePostMoveComment(index) || addPostMoveComment(index, comment);
 		// because addPostMoveComment is not executed, if removePostMoveComment returns true
 	}

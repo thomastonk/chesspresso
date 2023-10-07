@@ -115,7 +115,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	 *
 	 * @param game            the game to be displayed
 	 * @param bottomPlayer    the player on the lower edge
-	 * @param editable        whether the game can be edited by the view
+	 * @param userAction      allowed user action
 	 * @param boardOnTheRight instead board on the left-hand side
 	 */
 	public GameBrowser(Game game, int bottomPlayer, UserAction userAction, boolean boardOnTheRight) {
@@ -648,24 +648,20 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 					JPopupMenu popup = new JPopupMenu();
 					{
 						JMenuItem trackPieceItem = new JMenuItem("Track the piece");
-						trackPieceItem.addActionListener(e -> {
-							m_positionView.addToPieceTracking(m_positionView.getSquare(event.getX(), event.getY()));
-						});
+						trackPieceItem.addActionListener(
+								e -> m_positionView.addToPieceTracking(m_positionView.getSquare(event.getX(), event.getY())));
 						popup.add(trackPieceItem);
 					}
 					{
 						JMenuItem trackPieceItem = new JMenuItem("Untrack the piece");
-						trackPieceItem.addActionListener(e -> {
-							m_positionView.removeFromPieceTracking(m_positionView.getSquare(event.getX(), event.getY()));
-						});
+						trackPieceItem.addActionListener(e -> m_positionView
+								.removeFromPieceTracking(m_positionView.getSquare(event.getX(), event.getY())));
 						popup.add(trackPieceItem);
 					}
 					popup.add(new JSeparator());
 
 					JMenuItem deleteColorCommentsMenuItem = new JMenuItem("Remove color comments");
-					deleteColorCommentsMenuItem.addActionListener(e -> {
-						removeColorComments();
-					});
+					deleteColorCommentsMenuItem.addActionListener(e -> removeColorComments());
 					popup.add(deleteColorCommentsMenuItem);
 					popup.add(new JSeparator());
 
@@ -684,17 +680,13 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 					popup.add(new JSeparator());
 
 					JMenuItem removeNumberMenuItem = new JMenuItem("Remove number from square");
-					removeNumberMenuItem.addActionListener(e -> {
-						m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY, GameBrowser.this,
-								d -> d.getType() == DecorationType.NUMBER_IN_SQUARE
-										&& d.getSquare() == m_positionView.getSquare(event.getX(), event.getY()));
-					});
+					removeNumberMenuItem.addActionListener(e -> m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE,
+							Color.DARK_GRAY, GameBrowser.this, d -> d.getType() == DecorationType.NUMBER_IN_SQUARE
+									&& d.getSquare() == m_positionView.getSquare(event.getX(), event.getY())));
 					popup.add(removeNumberMenuItem);
 
 					JMenuItem removeAllNumbersMenuItem = new JMenuItem("Remove all numbers from all squares");
-					removeAllNumbersMenuItem.addActionListener(e -> {
-						removeAllNumbers();
-					});
+					removeAllNumbersMenuItem.addActionListener(e -> removeAllNumbers());
 					popup.add(removeAllNumbersMenuItem);
 
 					popup.show(m_positionView, event.getX(), event.getY());

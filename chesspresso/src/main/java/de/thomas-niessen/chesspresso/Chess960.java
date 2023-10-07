@@ -120,34 +120,31 @@ public class Chess960 {
 		int king = -1, firstRook = -1, secondRook = -1, firstBishop = -1, secondBishop = -1;
 		for (int index = 0; index < 8; ++index) {
 			switch (pattern.charAt(index)) {
-			case 'K':
-				++kings;
-				king = index;
-				break;
-			case 'Q':
-				++queens;
-				break;
-			case 'R':
-				++rooks;
-				if (firstRook == -1) {
-					firstRook = index;
-				} else {
-					secondRook = index;
+				case 'K' -> {
+					++kings;
+					king = index;
 				}
-				break;
-			case 'B':
-				++bishops;
-				if (firstBishop == -1) {
-					firstBishop = index;
-				} else {
-					secondBishop = index;
+				case 'Q' -> ++queens;
+				case 'R' -> {
+					++rooks;
+					if (firstRook == -1) {
+						firstRook = index;
+					} else {
+						secondRook = index;
+					}
 				}
-				break;
-			case 'N':
-				++knights;
-				break;
-			default:
-				return false;
+				case 'B' -> {
+					++bishops;
+					if (firstBishop == -1) {
+						firstBishop = index;
+					} else {
+						secondBishop = index;
+					}
+				}
+				case 'N' -> ++knights;
+				default -> {
+					return false;
+				}
 			}
 		}
 		if (kings != 1 || queens != 1 || rooks != 2 || bishops != 2 || knights != 2) {

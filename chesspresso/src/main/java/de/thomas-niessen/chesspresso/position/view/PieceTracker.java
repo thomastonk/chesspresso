@@ -77,8 +77,7 @@ public class PieceTracker {
 		Move move = copy.getPosition().getLastMove();
 		while (copy.goBack()) {
 			if (move.getToSqi() == currentSqi) {
-				int fromSqi = move.getFromSqi();
-				currentSqi = fromSqi;
+				currentSqi = move.getFromSqi();
 			} else if (move.isCastle()) { // add rook movement during castling
 				int fromSqi = Chess.NO_SQUARE;
 				boolean whiteMoved = copy.getPosition().getToPlay() == Chess.WHITE;

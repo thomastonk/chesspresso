@@ -256,13 +256,9 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	public boolean checkEnPassantSquare() {
 		if (getSqiEP() != Chess.NO_SQUARE) {
 			if (getToPlay() == Chess.WHITE) {
-				if (getStone(getSqiEP() - Chess.NUM_OF_COLS) != Chess.pieceToStone(Chess.PAWN, Chess.BLACK)) {
-					return false;
-				}
+				return getStone(getSqiEP() - Chess.NUM_OF_COLS) == Chess.pieceToStone(Chess.PAWN, Chess.BLACK);
 			} else {
-				if (getStone(getSqiEP() + Chess.NUM_OF_COLS) != Chess.pieceToStone(Chess.PAWN, Chess.WHITE)) {
-					return false;
-				}
+				return getStone(getSqiEP() + Chess.NUM_OF_COLS) == Chess.pieceToStone(Chess.PAWN, Chess.WHITE);
 			}
 		}
 		return true;
@@ -278,10 +274,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
 				numOfBlackKings++;
 			}
 		}
-		if (numOfWhiteKings != 1 || numOfBlackKings != 1) {
-			return false;
-		}
-		return true;
+		return numOfWhiteKings == 1 && numOfBlackKings == 1;
 	}
 
 	public boolean checkPawnSquares() {

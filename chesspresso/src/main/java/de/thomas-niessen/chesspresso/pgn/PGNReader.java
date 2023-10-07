@@ -170,7 +170,7 @@ public final class PGNReader extends PGN {
 
 	// ======================================================================
 
-	protected void setInput(Reader reader, String name) {
+	private void setInput(Reader reader, String name) {
 		if (reader instanceof LineNumberReader) {
 			m_in = (LineNumberReader) reader;
 		} else {
@@ -329,16 +329,13 @@ public final class PGNReader extends PGN {
 		} else if (ch >= 0 && ch < s_isToken.length && s_isToken[ch]) {
 			m_lastToken = ch;
 		} else if (ch >= 0) {
-			for (;;) {
+			do {
 				if (m_lastTokenLength >= MAX_TOKEN_SIZE) {
 					syntaxError("Token too long");
 				}
 				m_buf[m_lastTokenLength++] = (char) ch;
 				ch = getChar();
-				if ((ch < 0) || (ch < s_isToken.length && s_isToken[ch])) {
-					break;
-				}
-			}
+			} while ((ch >= 0) && (ch >= s_isToken.length || !s_isToken[ch]));
 			m_pushedBack = true;
 			m_lastToken = TOK_IDENT;
 		}
@@ -412,14 +409,14 @@ public final class PGNReader extends PGN {
 			if (getNextToken() != TOK_STRING) {
 				syntaxError("Tag value expected");
 			}
-			String tagValue = getLastTokenAsString();
+			StringBuilder tagValue = new StringBuilder(getLastTokenAsString());
 
 			// compensate for quotes in tag values as produced e.g. by ChessBase
 			while (getNextToken() != TOK_TAG_END) {
-				tagValue = tagValue + " " + getLastTokenAsString();
+				tagValue.append(" ").append(getLastTokenAsString());
 			}
 
-			m_curGame.setTag(tagName, tagValue);
+			m_curGame.setTag(tagName, tagValue.toString());
 
 			if (getLastToken() != TOK_TAG_END) {
 				syntaxError(TOK_TAG_END + " expected");

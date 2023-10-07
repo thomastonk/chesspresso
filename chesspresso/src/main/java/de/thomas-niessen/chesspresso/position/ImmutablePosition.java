@@ -119,9 +119,9 @@ public interface ImmutablePosition {
 	int getHalfMoveClock();
 
 	/**
-	 * Return whether the current position is valid or a error code.
+	 * Return whether the current position is valid or an error code.
 	 *
-	 * @return whether the current position is valid or a error code
+	 * @return whether the current position is valid or an error code
 	 */
 	Validity getValidity();
 

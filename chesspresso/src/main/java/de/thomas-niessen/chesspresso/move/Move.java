@@ -31,7 +31,7 @@ import chesspresso.Chess;
  * SAN (and LAN) of the move can be printed without further assistance. Contains
  * all information of the short move plus information whether to skip rank
  * and file of the from square, check and mate information, the moving piece and
- * whether or not is is a white move.<br>
+ * whether is a white move.<br>
  * Internal representation is based on two shorts.
  * </ol>
  *
@@ -56,7 +56,7 @@ public class Move implements Serializable {
 	}
 
 	// TN: these comments are misleading and do not match the implementation.
-	// ((Better comments and an idea fore a less confusing implementation is
+	// ((Better comments and an idea for a less confusing implementation is
 	// noted in Fortschritt.txt.)
 	// ======================================================================
 	// move encoding (users of the class should abstract from implementation and
@@ -165,7 +165,7 @@ public class Move implements Serializable {
 	 *
 	 * @param fromSqi   the from square
 	 * @param toSqi     the to square
-	 * @param capturing whether or not it is a capturing move
+	 * @param capturing whether it is a capturing move
 	 */
 	public static short getRegularMove(int fromSqi, int toSqi, boolean capturing) {
 		if (capturing) {
@@ -180,7 +180,7 @@ public class Move implements Serializable {
 	 *
 	 * @param fromSqi        the from square
 	 * @param toSqi          the to square
-	 * @param capturing      whether or not it is a capturing move
+	 * @param capturing      whether it is a capturing move
 	 * @param promotionPiece set to a piece if it is a promotion move, set to
 	 *                       <code>No_PIECE</code> otherwise
 	 */

@@ -64,9 +64,7 @@ class GameHeaderModel implements Serializable {
 			return;
 		}
 		// standard tags
-		for (int i = 0; i < NUM_OF_STANDARD_TAGS; ++i) {
-			m_standardTags[i] = otherModel.m_standardTags[i];
-		}
+		System.arraycopy(otherModel.m_standardTags, 0, m_standardTags, 0, NUM_OF_STANDARD_TAGS);
 		// other tags
 		if (otherModel.m_otherTags == null) {
 			m_otherTags = null;
@@ -184,7 +182,7 @@ class GameHeaderModel implements Serializable {
 				if (tagName.equals(m_otherTags.get(index))) {
 					m_otherTags.remove(index);
 					m_otherTagValues.remove(index);
-					--index; // since removeIf is no choice here
+					--index; // since removeIf is not a choice here
 				}
 			}
 		}

@@ -416,12 +416,12 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 
 	@Override
-	public final int getWhitesKingSquare() {
+	public int getWhitesKingSquare() {
 		return m_whiteKing;
 	}
 
 	@Override
-	public final int getBlacksKingSquare() {
+	public int getBlacksKingSquare() {
 		return m_blackKing;
 	}
 
@@ -453,7 +453,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			m_numPositions++;
 		}
 
-		m_bakStack = new long[4 * bufferLength]; // on average, we need about 3.75 longs to backup a position
+		m_bakStack = new long[4 * bufferLength]; // on average, we need about 3.75 longs to back up a position
 		m_moveStack = new short[bufferLength];
 		clear();
 	}
@@ -491,7 +491,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public void clear() {
 		super.clear();
-		m_flags = 0l;
+		m_flags = 0L;
 	}
 
 	private void clearStacks() {
@@ -530,7 +530,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 
 	@Override
-	public final int getToPlay() {
+	public int getToPlay() {
 		return ((m_flags >>> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
 	}
 
@@ -539,17 +539,17 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	@Override
-	public final boolean isSquareEmpty(int sqi) {
+	public boolean isSquareEmpty(int sqi) {
 		return ((m_bbWhites | m_bbBlacks) & ofSquare(sqi)) == 0L;
 	}
 
 	@Override
-	public final int getCastles() {
+	public int getCastles() {
 		return (int) (m_flags >>> CASTLES_SHIFT) & CASTLES_MASK;
 	}
 
 	@Override
-	public final int getSqiEP() {
+	public int getSqiEP() {
 		return (int) ((m_flags >>> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
 	}
 
@@ -558,23 +558,23 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	@Override
-	public final int getHalfMoveClock() {
+	public int getHalfMoveClock() {
 		return (int) (m_flags >>> HALF_MOVE_CLOCK_SHIFT) & HALF_MOVE_CLOCK_MASK;
 	}
 
 	@Override
-	public final int getPlyNumber() {
+	public int getPlyNumber() {
 		int plies = (int) ((m_flags >>> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
 		return m_plyOffset + plies;
 	}
 
 	@Override
-	public final long getHashCode() {
+	public long getHashCode() {
 		return m_hashCode;
 	}
 
 	@Override
-	public final int getStone(int sqi) {
+	public int getStone(int sqi) {
 		if (PROFILE) {
 			m_numGetSquare++;
 		}
@@ -622,7 +622,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	@Override
-	public final int getPiece(int sqi) {
+	public int getPiece(int sqi) {
 		if (PROFILE) {
 			m_numGetSquare++;
 		}
@@ -650,7 +650,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	@Override
-	public final int getColor(int sqi) {
+	public int getColor(int sqi) {
 		if (PROFILE) {
 			m_numGetSquare++;
 		}
@@ -689,7 +689,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 
 	@Override
-	public final void setStone(int sqi, int stone) {
+	public void setStone(int sqi, int stone) {
 		setStone(sqi, stone, true);
 	}
 
@@ -842,7 +842,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				m_flags &= ~(CHECK_MASK << CHECK_SHIFT); // delete isCheck info
 				m_flags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT); // delete canMove info
 				// This is needed additionally:
-				m_flags &= ~(PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
+				m_flags &= ~((long) PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
 
 				// TN: What about the half move clock? The following line looks reasonable
 				// m_flags &= ~(HALF_MOVE_CLOCK_MASK << HALF_MOVE_CLOCK_SHIFT);
@@ -873,14 +873,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	@Override
-	public final void setCastles(int castles) {
+	public void setCastles(int castles) {
 		if (DEBUG) {
 			System.out.println("setCastles " + castles);
 		}
 		int oldCastles = getCastles();
 		if (oldCastles != castles) {
 			m_flags &= ~(CASTLES_MASK << CASTLES_SHIFT);
-			m_flags |= castles << CASTLES_SHIFT;
+			m_flags |= (long) castles << CASTLES_SHIFT;
 			/*---------- hash value ----------*/
 			m_hashCode ^= s_hashCastleMod[oldCastles];
 			m_hashCode ^= s_hashCastleMod[castles];
@@ -895,7 +895,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		}
 		if (getSqiEP() != sqiEP) {
 			m_flags &= ~(SQI_EP_MASK << SQI_EP_SHIFT);
-			m_flags |= (sqiEP - Chess.NO_SQUARE) << SQI_EP_SHIFT;
+			m_flags |= (long) (sqiEP - Chess.NO_SQUARE) << SQI_EP_SHIFT;
 
 			/*---------- hash value ----------*/
 			int hashColEP = getHashColEP();
@@ -929,13 +929,13 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			}
 			m_flags &= ~(HASH_COL_EP_MASK << HASH_COL_EP_SHIFT);
 			// encode column of ep square in hash code (NO_SQUARE if no ep)
-			m_flags |= (hashColEP - Chess.NO_SQUARE) << HASH_COL_EP_SHIFT;
+			m_flags |= (long) (hashColEP - Chess.NO_SQUARE) << HASH_COL_EP_SHIFT;
 			// System.out.println("hash code ep: " + m_hashCode);
 		}
 	}
 
 	@Override
-	public final void setToPlay(int toPlay) {
+	public void setToPlay(int toPlay) {
 		if (DEBUG) {
 			System.out.println("setToPlay " + toPlay);
 		}
@@ -945,7 +945,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	@Override
-	public final void toggleToPlay() {
+	public void toggleToPlay() {
 		if (DEBUG) {
 			System.out.println("toggleToPlay");
 		}
@@ -1753,7 +1753,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 
 	@Override
-	public final boolean isCheck() {
+	public boolean isCheck() {
 		if (PROFILE) {
 			m_numIsCheck++;
 		}
@@ -1944,7 +1944,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 * 
 	 * One might think that this undo/redo is a performance issue, but even after
 	 * more than one million calls within a real application, less than half a
-	 * second was spend here.
+	 * second was spent here.
 	 */
 	private Move getLastMovePiece(short move) throws IllegalMoveException {
 		if (!Move.isValid(move)) {
@@ -2056,21 +2056,23 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		int piece = getPiece(from);
 		long bbTo = ofSquare(to);
 		switch (piece) {
-		case Chess.NO_PIECE:
+		case Chess.NO_PIECE -> {
 			return false;
-		case Chess.PAWN:
+		}
+		case Chess.PAWN -> {
 			if (getToPlay() == Chess.WHITE) {
 				return (WHITE_PAWN_ATTACKS[from] & bbTo) != 0;
 			} else {
 				return (BLACK_PAWN_ATTACKS[from] & bbTo) != 0;
 			}
-		case Chess.KNIGHT:
+		}
+		case Chess.KNIGHT -> {
 			return (KNIGHT_ATTACKS[from] & bbTo) != 0;
-		case Chess.KING:
+		}
+		case Chess.KING -> {
 			return (KING_ATTACKS[from] & bbTo) != 0;
-		case Chess.BISHOP:
-		case Chess.ROOK:
-		case Chess.QUEEN:
+		}
+		case Chess.BISHOP, Chess.ROOK, Chess.QUEEN -> {
 			if ((piece == Chess.BISHOP && (BISHOP_ATTACKS[from] & bbTo) == 0)
 					|| (piece == Chess.ROOK && (ROOK_ATTACKS[from] & bbTo) == 0)) {
 				return false;
@@ -2096,8 +2098,8 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				}
 			}
 			return true;
-		default:
-			throw new RuntimeException("Illegal piece: " + piece);
+		}
+		default -> throw new RuntimeException("Illegal piece: " + piece);
 		}
 	}
 

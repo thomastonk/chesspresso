@@ -124,7 +124,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	public enum TextCreationType {
 		COMPACT("Compact"), TREE_LIKE("Tree-like"), PUZZLE_MODE("Puzzle mode");
 
-		String description;
+		final String description;
 
 		TextCreationType(String desc) {
 			description = desc;
@@ -150,7 +150,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	private Game m_game;
 	private TraverseListener textCreator;
 	private UserAction m_userAction;
-	private Component m_parent;
+	private final Component m_parent;
 	private int[] m_moveBegin, m_moveEnd;
 	private int[] m_moveNrBegin;
 	private int[] m_moveNode;
@@ -327,7 +327,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		 * would be necessary to decouple this action from the pane's caret, which is quite a lot to do. 
 		 */
 
-		private boolean up;
+		private final boolean up;
 
 		GoUpOrDownAction(boolean up) {
 			this.up = up;
@@ -406,17 +406,10 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 	public void setTextCreationType(TextCreationType type) {
 		switch (type) {
-		case COMPACT:
-			textCreator = new CompactTextCreator();
-			break;
-		case TREE_LIKE:
-			textCreator = new TreeLikeTextCreator();
-			break;
-		case PUZZLE_MODE:
-			textCreator = new PuzzleModeTextCreator();
-			break;
-		default:
-			throw new IllegalArgumentException("GameTextViewer::setTextCreationType: " + type);
+		case COMPACT -> textCreator = new CompactTextCreator();
+		case TREE_LIKE -> textCreator = new TreeLikeTextCreator();
+		case PUZZLE_MODE -> textCreator = new PuzzleModeTextCreator();
+		default -> throw new IllegalArgumentException("GameTextViewer::setTextCreationType: " + type);
 		}
 		createText();
 	}
@@ -705,7 +698,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	private synchronized void createText() {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			try {
-				SwingUtilities.invokeAndWait(() -> createTextOnEDT());
+				SwingUtilities.invokeAndWait(this::createTextOnEDT);
 			} catch (InvocationTargetException | InterruptedException e) {
 				System.err.println("GameTextViewer::createText: " + e);
 				e.printStackTrace();

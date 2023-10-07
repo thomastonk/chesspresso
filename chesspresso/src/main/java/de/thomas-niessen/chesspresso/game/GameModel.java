@@ -24,8 +24,8 @@ class GameModel implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	private GameHeaderModel m_headerModel;
-	private GameMoveModel m_moveModel;
+	private final GameHeaderModel m_headerModel;
+	private final GameMoveModel m_moveModel;
 
 	// =============================================================================
 

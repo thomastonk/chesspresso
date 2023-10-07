@@ -162,7 +162,7 @@ public class HTMLGameBrowser implements TraverseListener {
 	}
 
 	/**
-	 * Sets the name of an square image. The default names are set according to the
+	 * Sets the name of a square image. The default names are set according to the
 	 * following scheme: First letter is the color of the stone (b, w), second
 	 * letter the piece (k, q, r, b, n, p) third letter the square color (b, w),
 	 * extension is gif. now.gif and nob.gif are used for empty squares.<br>
@@ -170,7 +170,7 @@ public class HTMLGameBrowser implements TraverseListener {
 	 * black bishop on a black square.
 	 *
 	 * @param stone       the stone displayed
-	 * @param whiteSquare whether or not the square is white
+	 * @param whiteSquare whether the square is white
 	 * @param name        the name of the corresponding image
 	 */
 	@SuppressWarnings("unused")
@@ -186,7 +186,7 @@ public class HTMLGameBrowser implements TraverseListener {
 	 * Returns the name of the image.
 	 *
 	 * @param stone       the stone displayed
-	 * @param isWhite whether or not the square is white
+	 * @param isWhite whether the square is white
 	 */
 	private String getImageForStone(int stone, boolean isWhite) {
 		return m_imagePrefix + (isWhite ? m_wimgs[stone - Chess.MIN_STONE] : m_bimgs[stone - Chess.MIN_STONE]);
