@@ -278,6 +278,14 @@ public class Move implements Serializable {
 		return (move & PROMO_MASK) == EP_MOVE && (move & TYPE_MASK) == CAPTURING_MOVE;
 	}
 
+	public static int getEpCapturedPawnSquare(short move) {
+		if (isEPMove(move)) {
+			return Chess.coorToSqi(Chess.sqiToCol(getToSqi(move)), Chess.sqiToRow(getFromSqi(move)));
+		} else {
+			return Chess.NO_SQUARE;
+		}
+	}
+
 	public static boolean isCastle(short move) {
 		return (move & PROMO_MASK) == CASTLE_MOVE && move != NULL_MOVE;
 	}
