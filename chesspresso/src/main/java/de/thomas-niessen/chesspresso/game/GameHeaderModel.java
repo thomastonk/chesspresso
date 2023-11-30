@@ -113,7 +113,7 @@ class GameHeaderModel implements Serializable {
 		int index = getStandardTagIndex(tagName);
 		if (index != -1) {
 			m_standardTags[index] = tagValue;
-		} else if (!"PlyCount".equals(tagName)) {
+		} else if (!PGN.TAG_PLY_COUNT.equals(tagName)) {
 			if (m_otherTags == null) {
 				m_otherTags = new ArrayList<>();
 				m_otherTagValues = new ArrayList<>();

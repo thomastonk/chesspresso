@@ -1179,6 +1179,24 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	// ======================================================================
+
+	// Add a result, if game end with mate or stalemate.
+	public void updateResult() {
+		gotoStart();
+		gotoEndOfLine();
+		Position pos = getPosition();
+		if (pos.isMate()) {
+			if (pos.getToPlay() == Chess.WHITE) {
+				m_model.getHeaderModel().setTag(PGN.TAG_RESULT, PGN.RESULT_BLACK_WINS);
+			} else {
+				m_model.getHeaderModel().setTag(PGN.TAG_RESULT, PGN.RESULT_WHITE_WINS);
+			}
+		} else if (pos.isStaleMate()) {
+			m_model.getHeaderModel().setTag(PGN.TAG_RESULT, PGN.RESULT_DRAW);
+		}
+	}
+
+	// ======================================================================
 	// RelatedGame:
 
 	@Override

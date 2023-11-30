@@ -61,7 +61,9 @@ public class PgnToClipBoard implements ActionListener {
 			return;
 		}
 		try {
-			s = PGNWriter.writeToString(game.getDeepCopy());
+			Game copy = game.getDeepCopy();
+			copy.updateResult();
+			s = PGNWriter.writeToString(copy);
 		} catch (IllegalArgumentException ex) {
 			JOptionPane.showMessageDialog(parentSupplier.get(),
 					"Unable to generate PGN:" + System.lineSeparator() + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
