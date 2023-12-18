@@ -81,7 +81,7 @@ public class ChXBoardEngine {
 
 	public ChXBoardEngine(String command, String dir) throws IOException {
 		m_features = new Hashtable<>();
-		m_process = Runtime.getRuntime().exec(command, null, new File(dir));
+		m_process = Runtime.getRuntime().exec(new String[] { command }, null, new File(dir));
 		m_in = new BufferedReader(new InputStreamReader(m_process.getInputStream()));
 		m_out = new OutputStreamWriter(m_process.getOutputStream());
 		m_inAnalyzeMode = false;
