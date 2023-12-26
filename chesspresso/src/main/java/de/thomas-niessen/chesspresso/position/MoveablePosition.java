@@ -52,5 +52,7 @@ public interface MoveablePosition extends MutablePosition {
 
 	short getPieceMove(int piece, int colFrom, int rowFrom, int to);
 
+	long getAttackersBB(int sqi, int color);
+
 	PosInternalState getInternalState();
 }

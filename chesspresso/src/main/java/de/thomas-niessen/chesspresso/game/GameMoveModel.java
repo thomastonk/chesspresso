@@ -1124,110 +1124,104 @@ class GameMoveModel implements Serializable {
 
 		short[] newMoves = new short[m_moves.length];
 		int retVal = -1;
-		try {
-			// copy everything from the beginning that remains unchanged
-			int copyIndex = siblings.get(0);
-			while (Move.isSpecial(m_moves[copyIndex])) {
+		// copy everything from the beginning that remains unchanged
+		int copyIndex = siblings.get(0);
+		while (Move.isSpecial(m_moves[copyIndex])) {
+			--copyIndex;
+		}
+		if (m_moves[copyIndex - 1] == PRE_COMMENT_END) {
+			copyIndex -= 2;
+			while (m_moves[copyIndex] != PRE_COMMENT_START) {
 				--copyIndex;
 			}
-			if (m_moves[copyIndex - 1] == PRE_COMMENT_END) {
-				copyIndex -= 2;
-				while (m_moves[copyIndex] != PRE_COMMENT_START) {
-					--copyIndex;
-				}
-			}
-			System.arraycopy(m_moves, 0, newMoves, 0, copyIndex);
-			int copied = copyIndex;
-
-			// copy the first move of the promoted line
-			int startIndex = upVar.getKey() + 1;
-			int endIndex = startIndex;
-			while (Move.isSpecial(m_moves[endIndex])) {
-				++endIndex;
-			}
-			while (isNagValue(m_moves[endIndex + 1])) {
-				++endIndex;
-			}
-			if (m_moves[endIndex + 1] == POST_COMMENT_START) {
-				endIndex += 2;
-				while (m_moves[endIndex] != POST_COMMENT_END) {
-					++endIndex;
-				}
-			}
-			int length1 = endIndex - startIndex + 1;
-			System.arraycopy(m_moves, startIndex, newMoves, copied, length1);
-			if (moveNumberInVariation == 1) {
-				for (int l = copied; l < copied + length1; ++l) {
-					if (!Move.isSpecial(newMoves[l])) {
-						retVal = l;
-					}
-				}
-			}
-			copied += endIndex - startIndex + 1;
-
-			// copy the first move of the down-graded line
-			newMoves[copied] = LINE_START;
-			++copied;
-			System.arraycopy(m_moves, copyIndex, newMoves, copied, siblings.get(0) - copyIndex);
-			copied += siblings.get(0) - copyIndex;
-
-			// copy the rest of the down-graded line
-			int lastSiblingIndex = varModel.getVariation(siblings.get(siblings.size() - 1)).getValue() + 1;
-			int lastDownGradedLine = downVar.getValue();
-			System.arraycopy(m_moves, lastSiblingIndex, newMoves, copied, lastDownGradedLine - lastSiblingIndex + 1);
-			copied += lastDownGradedLine - lastSiblingIndex + 1;
-
-			// copy the siblings before the promoted line
-			for (Integer siblingStart : siblings) {
-				if (siblingStart < upVar.getKey()) { // predecessor
-					int seblingEnd = varModel.getVariation(siblingStart).getValue();
-					int length = seblingEnd - siblingStart + 1;
-					System.arraycopy(m_moves, siblingStart, newMoves, copied, length);
-					copied += length;
-				} else {
-					break;
-				}
-			}
-
-			// copy the siblings after the promoted line
-			for (int i = siblings.size() - 1; i >= 0; --i) {
-				int siblingStart = siblings.get(i);
-				if (siblingStart > upVar.getKey()) { // successor
-					int seblingEnd = varModel.getVariation(siblingStart).getValue();
-					int length = seblingEnd - siblingStart + 1;
-					System.arraycopy(m_moves, siblingStart, newMoves, copied, length);
-					copied += length;
-				} else {
-					break;
-				}
-			}
-
-			// copy the rest of the promoted line
-			int firstRestFromPromoted = endIndex + 1;
-			int lastRestFromPromoted = upVar.getValue();
-			int length = lastRestFromPromoted - firstRestFromPromoted + 1;
-			System.arraycopy(m_moves, firstRestFromPromoted, newMoves, copied, length);
-			if (moveNumberInVariation > 1) {
-				int counter = 1;
-				for (int j = copied; j < copied + length; ++j) {
-					if (!Move.isSpecial(newMoves[j])) {
-						++counter;
-						if (counter >= moveNumberInVariation) {
-							retVal = j;
-							break;
-						}
-					}
-				}
-			}
-			copied += length;
-
-			// copy everything after the changed lines
-			System.arraycopy(m_moves, copied, newMoves, copied, m_size - copied);
-
-		} catch (Exception ex) {
-			// TN: as long as this code is not tested enough, crashes are avoided.
-			retVal = -1;
 		}
+		System.arraycopy(m_moves, 0, newMoves, 0, copyIndex);
+		int copied = copyIndex;
+
+		// copy the first move of the promoted line
+		int startIndex = upVar.getKey() + 1;
+		int endIndex = startIndex;
+		while (Move.isSpecial(m_moves[endIndex])) {
+			++endIndex;
+		}
+		while (isNagValue(m_moves[endIndex + 1])) {
+			++endIndex;
+		}
+		if (m_moves[endIndex + 1] == POST_COMMENT_START) {
+			endIndex += 2;
+			while (m_moves[endIndex] != POST_COMMENT_END) {
+				++endIndex;
+			}
+		}
+		int length1 = endIndex - startIndex + 1;
+		System.arraycopy(m_moves, startIndex, newMoves, copied, length1);
+		if (moveNumberInVariation == 1) {
+			for (int l = copied; l < copied + length1; ++l) {
+				if (!Move.isSpecial(newMoves[l])) {
+					retVal = l;
+				}
+			}
+		}
+		copied += endIndex - startIndex + 1;
+
+		// copy the first move of the down-graded line
+		newMoves[copied] = LINE_START;
+		++copied;
+		System.arraycopy(m_moves, copyIndex, newMoves, copied, siblings.get(0) - copyIndex);
+		copied += siblings.get(0) - copyIndex;
+
+		// copy the rest of the down-graded line
+		int lastSiblingIndex = varModel.getVariation(siblings.get(siblings.size() - 1)).getValue() + 1;
+		int lastDownGradedLine = downVar.getValue();
+		System.arraycopy(m_moves, lastSiblingIndex, newMoves, copied, lastDownGradedLine - lastSiblingIndex + 1);
+		copied += lastDownGradedLine - lastSiblingIndex + 1;
+
+		// copy the siblings before the promoted line
+		for (Integer siblingStart : siblings) {
+			if (siblingStart < upVar.getKey()) { // predecessor
+				int seblingEnd = varModel.getVariation(siblingStart).getValue();
+				int length = seblingEnd - siblingStart + 1;
+				System.arraycopy(m_moves, siblingStart, newMoves, copied, length);
+				copied += length;
+			} else {
+				break;
+			}
+		}
+
+		// copy the siblings after the promoted line
+		for (int i = siblings.size() - 1; i >= 0; --i) {
+			int siblingStart = siblings.get(i);
+			if (siblingStart > upVar.getKey()) { // successor
+				int seblingEnd = varModel.getVariation(siblingStart).getValue();
+				int length = seblingEnd - siblingStart + 1;
+				System.arraycopy(m_moves, siblingStart, newMoves, copied, length);
+				copied += length;
+			} else {
+				break;
+			}
+		}
+
+		// copy the rest of the promoted line
+		int firstRestFromPromoted = endIndex + 1;
+		int lastRestFromPromoted = upVar.getValue();
+		int length = lastRestFromPromoted - firstRestFromPromoted + 1;
+		System.arraycopy(m_moves, firstRestFromPromoted, newMoves, copied, length);
+		if (moveNumberInVariation > 1) {
+			int counter = 1;
+			for (int j = copied; j < copied + length; ++j) {
+				if (!Move.isSpecial(newMoves[j])) {
+					++counter;
+					if (counter >= moveNumberInVariation) {
+						retVal = j;
+						break;
+					}
+				}
+			}
+		}
+		copied += length;
+
+		// copy everything after the changed lines
+		System.arraycopy(m_moves, copied, newMoves, copied, m_size - copied);
 
 		if (retVal >= 0) {
 			m_moves = newMoves;

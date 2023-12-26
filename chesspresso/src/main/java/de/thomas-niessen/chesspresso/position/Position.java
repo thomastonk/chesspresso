@@ -528,6 +528,11 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
+	public long getAttackersBB(int sqi, int color) {
+		return impl.getAttackersBB(sqi, color);
+	}
+
+	@Override
 	public PosInternalState getInternalState() {
 		return impl.getInternalState();
 	}

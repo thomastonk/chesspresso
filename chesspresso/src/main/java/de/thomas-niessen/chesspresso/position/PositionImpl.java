@@ -3036,10 +3036,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		return sb.toString();
 	}
 
+	@Override
+	public long getAttackersBB(int sqi, int color) {
+		return getDirectAttackers(sqi, color, false);
+	}
+
 	/*
 	 * This class is made only for tests!
 	 */
-
 	public class PosInternalState {
 		private final int bakIndex;
 		private final List<Long> bakStack = new ArrayList<>();
