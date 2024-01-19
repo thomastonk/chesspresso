@@ -57,6 +57,8 @@ public interface MutablePosition extends ImmutablePosition {
 
 	void moveAllRight();
 
+	void rotate90DegreesClockwise();
+
 	void moveUp(Collection<Integer> squares);
 
 	void moveDown(Collection<Integer> squares);
@@ -64,6 +66,16 @@ public interface MutablePosition extends ImmutablePosition {
 	void moveLeft(Collection<Integer> squares);
 
 	void moveRight(Collection<Integer> squares);
+
+	void rotate90DegreesClockwise(Collection<Integer> squares);
+
+	void flipAboutA1H8Diagonal();
+
+	void flipAboutA8H1Diagonal();
+
+	void flipAboutA1H8Diagonal(Collection<Integer> squares);
+
+	void flipAboutA8H1Diagonal(Collection<Integer> squares);
 
 	void invert();
 }

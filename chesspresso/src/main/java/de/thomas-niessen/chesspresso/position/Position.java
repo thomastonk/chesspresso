@@ -242,6 +242,12 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
+	public void rotate90DegreesClockwise() {
+		impl.rotate90DegreesClockwise();
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
 	public void moveUp(Collection<Integer> squares) {
 		impl.moveUp(squares);
 		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
@@ -262,6 +268,36 @@ public final class Position implements MoveablePosition, Serializable {
 	@Override
 	public void moveRight(Collection<Integer> squares) {
 		impl.moveRight(squares);
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
+	public void rotate90DegreesClockwise(Collection<Integer> squares) {
+		impl.rotate90DegreesClockwise(squares);
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
+	public final void flipAboutA1H8Diagonal() {
+		impl.flipAboutA1H8Diagonal();
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
+	public final void flipAboutA8H1Diagonal() {
+		impl.flipAboutA8H1Diagonal();
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
+	public final void flipAboutA1H8Diagonal(Collection<Integer> squares) {
+		impl.flipAboutA1H8Diagonal(squares);
+		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
+	}
+
+	@Override
+	public final void flipAboutA8H1Diagonal(Collection<Integer> squares) {
+		impl.flipAboutA8H1Diagonal(squares);
 		firePositionChanged(ChangeType.START_POS_CHANGED, Move.NO_MOVE, impl.getFEN());
 	}
 

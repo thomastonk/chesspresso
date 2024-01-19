@@ -416,6 +416,26 @@ public abstract class NAG {
 	public static final short PUNCTUATION_NAG_END = 8;
 	public static final short EVALUATION_NAG_BEGIN = 11;
 	public static final short EVALUATION_NAG_END = 21;
+	// named punctuation NAGs
+	public static final short EXCLAM_MARK = 1;
+	public static final short QUESTION_MARK = 2;
+	public static final short DOUBLE_EXCLAM_MARK = 3;
+	public static final short DOUBLE_QUESTION_MARK = 4;
+	public static final short EXCLAM_AND_QUESTION_MARK = 5;
+	public static final short QUESTION_AND_EXCLAM_MARK = 6;
+	public static final short BOX = 8;
+
+	// named evaluation NAGs
+	public static final short EQUAL_POSITION = 11;
+	public static final short UNCLEAR_POSITION = 13;
+	public static final short WHITE_IS_SLIGHTLY_BETTER = 14;
+	public static final short BLACK_IS_SLIGHTLY_BETTER = 15;
+	public static final short WHITE_IS_CLEARLY_BETTER = 16;
+	public static final short BLACK_IS_CLEARLY_BETTER = 17;
+	public static final short WHITE_IS_WINNING = 20;
+	public static final short BLACK_IS_WINNING = 21;
+	public static final short WHITE_IS_IN_ZUGZWANG = 22;
+	public static final short BLACK_IS_IN_ZUGZWANG = 23;
 
 	// TN added:
 	public static short[] getPunctuationNags() {

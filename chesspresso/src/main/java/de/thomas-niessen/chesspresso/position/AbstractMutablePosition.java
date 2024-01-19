@@ -155,6 +155,20 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	}
 
 	@Override
+	public final void rotate90DegreesClockwise() {
+		int[] stones = new int[64];
+		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+			stones[sqi] = getStone(sqi);
+		}
+		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+			setStone((((sqi >> 3) | (sqi << 3)) & 63) ^ 56, stones[sqi]);
+		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
+	}
+
+	@Override
 	public void moveUp(Collection<Integer> squares) {
 		Map<Integer, Integer> stonesMp = new HashMap<>();
 		for (Integer sqi : squares) {
@@ -215,6 +229,79 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 			if (entry.getKey() % 8 != 7) {
 				setStone(entry.getKey() + 1, entry.getValue());
 			}
+		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
+	}
+
+	@Override
+	public final void rotate90DegreesClockwise(Collection<Integer> squares) {
+		int[] stones = new int[64];
+		for (Integer sqi : squares) {
+			stones[sqi] = getStone(sqi);
+			setStone(sqi, Chess.NO_STONE);
+		}
+		for (Integer sqi : squares) {
+			setStone((((sqi >> 3) | (sqi << 3)) & 63) ^ 56, stones[sqi]);
+		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
+	}
+
+	@Override
+	public final void flipAboutA1H8Diagonal() {
+		int[] stones = new int[64];
+		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+			stones[sqi] = getStone(sqi);
+		}
+		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+			setStone(((sqi >> 3) | (sqi << 3)) & 63, stones[sqi]);
+		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
+	}
+
+	@Override
+	public final void flipAboutA8H1Diagonal() {
+		int[] stones = new int[64];
+		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+			stones[sqi] = getStone(sqi);
+		}
+		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+			setStone((((sqi >> 3) | (sqi << 3)) & 63) ^ 63, stones[sqi]);
+		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
+	}
+
+	@Override
+	public final void flipAboutA1H8Diagonal(Collection<Integer> squares) {
+		int[] stones = new int[64];
+		for (Integer sqi : squares) {
+			stones[sqi] = getStone(sqi);
+			setStone(sqi, Chess.NO_STONE);
+		}
+		for (Integer sqi : squares) {
+			setStone(((sqi >> 3) | (sqi << 3)) & 63, stones[sqi]);
+		}
+		setCastles(NO_CASTLES);
+		setSqiEP(Chess.NO_SQUARE);
+		setHalfMoveClock(0);
+	}
+
+	@Override
+	public final void flipAboutA8H1Diagonal(Collection<Integer> squares) {
+		int[] stones = new int[64];
+		for (Integer sqi : squares) {
+			stones[sqi] = getStone(sqi);
+			setStone(sqi, Chess.NO_STONE);
+		}
+		for (Integer sqi : squares) {
+			setStone((((sqi >> 3) | (sqi << 3)) & 63) ^ 63, stones[sqi]);
 		}
 		setCastles(NO_CASTLES);
 		setSqiEP(Chess.NO_SQUARE);
