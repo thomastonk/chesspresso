@@ -170,7 +170,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
 	@Override
 	public void moveUp(Collection<Integer> squares) {
-		Map<Integer, Integer> stonesMp = new HashMap<>();
+		Map<Integer, Integer> stonesMp = HashMap.newHashMap(squares.size());
 		for (Integer sqi : squares) {
 			stonesMp.put(sqi, getStone(sqi));
 			setStone(sqi, Chess.NO_STONE);
@@ -186,7 +186,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
 	@Override
 	public void moveDown(Collection<Integer> squares) {
-		Map<Integer, Integer> stonesMp = new HashMap<>();
+		Map<Integer, Integer> stonesMp = HashMap.newHashMap(squares.size());
 		for (Integer sqi : squares) {
 			stonesMp.put(sqi, getStone(sqi));
 			setStone(sqi, Chess.NO_STONE);
@@ -203,7 +203,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
 	@Override
 	public void moveLeft(Collection<Integer> squares) {
-		Map<Integer, Integer> stonesMp = new HashMap<>();
+		Map<Integer, Integer> stonesMp = HashMap.newHashMap(squares.size());
 		for (Integer sqi : squares) {
 			stonesMp.put(sqi, getStone(sqi));
 			setStone(sqi, Chess.NO_STONE);
@@ -220,7 +220,7 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
 	@Override
 	public void moveRight(Collection<Integer> squares) {
-		Map<Integer, Integer> stonesMp = new HashMap<>();
+		Map<Integer, Integer> stonesMp = HashMap.newHashMap(squares.size());
 		for (Integer sqi : squares) {
 			stonesMp.put(sqi, getStone(sqi));
 			setStone(sqi, Chess.NO_STONE);
