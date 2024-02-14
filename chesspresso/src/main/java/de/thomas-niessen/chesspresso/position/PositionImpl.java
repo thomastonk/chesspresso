@@ -32,8 +32,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	private final static boolean PROFILE = false;
 
 	private static long m_numIsAttacked = 0;
-	private static long m_numDirectAttackers = 0;
-	private static long m_numGetAllAttackers = 0;
+	private static long m_numAllAttackers = 0;
 	private static long m_numIsCheck = 0;
 	private static long m_numIsMate = 0;
 	private static long m_numIsStaleMate = 0;
@@ -1574,6 +1573,115 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		return Validity.IS_VALID;
 	}
 
+	/**
+	 * The implementation partly overlaps with getValidity.
+	 */
+	@Override
+	public boolean checkExtendedValidity() {
+		if (!super.checkExtendedValidity()) {
+			return false;
+		}
+		// First check the checks.
+		int attackedKingSquare = getToPlay() == Chess.WHITE ? getWhitesKingSquare() : getBlacksKingSquare();
+		long allAttackersBB = getAttackersBB(attackedKingSquare, getNotToPlay());
+		int countAttackers = Long.bitCount(allAttackersBB);
+		if (countAttackers > 2) { // There is not triple check.
+			return false;
+		}
+		if (countAttackers > 0) { // Check double checks and checks of unmoved pawns.
+			long diagonalAttackersBB = getDiagonalAttackers(attackedKingSquare, getNotToPlay(), false);
+			long straightAttackersBB = getStraightAttackers(attackedKingSquare, getNotToPlay(), false);
+			int countDiagonalAttackers = Long.bitCount(diagonalAttackersBB);
+			int countStraightAttackers = Long.bitCount(straightAttackersBB);
+			if (countDiagonalAttackers >= 2 || countStraightAttackers >= 2) {
+				return false; // There is no double-check with two diagonal or straight attackers, resp.
+			}
+
+			int attacker1 = Chess.NO_PIECE;
+			int attacker2 = Chess.NO_PIECE;
+			for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
+				if ((allAttackersBB & (1L << sqi)) != 0L) {
+					if (attacker1 == Chess.NO_PIECE) {
+						attacker1 = getPiece(sqi);
+					} else {
+						attacker2 = getPiece(sqi);
+						break;
+					}
+				}
+			}
+			if (attacker1 == attacker2) { // There is no double-check by the same kind of pieces.
+				return false;
+			}
+			if (attacker1 == Chess.PAWN && attacker2 == Chess.KNIGHT) {
+				return false;
+			}
+			if (attacker1 == Chess.KNIGHT && attacker2 == Chess.PAWN) {
+				return false;
+			}
+			if (getToPlay() == Chess.WHITE) {
+				if (Chess.sqiToRow(getWhitesKingSquare()) == 5 && (attacker1 == Chess.PAWN || attacker2 == Chess.PAWN)) {
+					return false;
+				}
+			} else {
+				if (Chess.sqiToRow(getBlacksKingSquare()) == 2 && (attacker1 == Chess.PAWN || attacker2 == Chess.PAWN)) {
+					return false;
+				}
+			}
+		}
+		if (m_variant == Variant.STANDARD) {
+			// Check bishops on first and eight rank.
+			if (getStone(Chess.A1) == Chess.WHITE_BISHOP && getStone(Chess.B2) == Chess.WHITE_PAWN) {
+				return false;
+			}
+			if (getStone(Chess.H1) == Chess.WHITE_BISHOP && getStone(Chess.G2) == Chess.WHITE_PAWN) {
+				return false;
+			}
+			for (int sqi = Chess.B1; sqi <= Chess.G1; ++sqi) {
+				if (sqi == Chess.C1 || sqi == Chess.F1) {
+					continue;
+				}
+				if (getStone(sqi) == Chess.WHITE_BISHOP && getStone(sqi + 7) == Chess.WHITE_PAWN
+						&& getStone(sqi + 9) == Chess.WHITE_PAWN) {
+					return false;
+				}
+			}
+			if (getStone(Chess.A8) == Chess.BLACK_BISHOP && getStone(Chess.B7) == Chess.BLACK_PAWN) {
+				return false;
+			}
+			if (getStone(Chess.H8) == Chess.BLACK_BISHOP && getStone(Chess.G7) == Chess.BLACK_PAWN) {
+				return false;
+			}
+			for (int sqi = Chess.B8; sqi <= Chess.G8; ++sqi) {
+				if (sqi == Chess.C8 || sqi == Chess.F8) {
+					continue;
+				}
+				if (getStone(sqi) == Chess.BLACK_BISHOP && getStone(sqi - 7) == Chess.BLACK_PAWN
+						&& getStone(sqi - 9) == Chess.BLACK_PAWN) {
+					return false;
+				}
+			}
+		}
+		// Check illegal pawn configurations.
+		if (getStone(Chess.A2) == Chess.WHITE_PAWN && getStone(Chess.B2) == Chess.WHITE_PAWN
+				&& getStone(Chess.A3) == Chess.WHITE_PAWN) {
+			return false;
+		}
+		if (getStone(Chess.H2) == Chess.WHITE_PAWN && getStone(Chess.G2) == Chess.WHITE_PAWN
+				&& getStone(Chess.H3) == Chess.WHITE_PAWN) {
+			return false;
+		}
+		if (getStone(Chess.A7) == Chess.BLACK_PAWN && getStone(Chess.B7) == Chess.BLACK_PAWN
+				&& getStone(Chess.A6) == Chess.BLACK_PAWN) {
+			return false;
+		}
+		if (getStone(Chess.H7) == Chess.BLACK_PAWN && getStone(Chess.G7) == Chess.BLACK_PAWN
+				&& getStone(Chess.H6) == Chess.BLACK_PAWN) {
+			return false;
+		}
+
+		return true;
+	}
+
 	private boolean isKingNotToMoveAttacked() {
 		int kingSquare = (getToPlay() == Chess.WHITE ? m_blackKing : m_whiteKing);
 		return isAttacked(kingSquare, getToPlay(), 0L);
@@ -1961,7 +2069,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		int colFrom = Chess.NO_COL;
 		int rowFrom = Chess.NO_ROW;
 
-		long bb = getBitBoard(stone) & getDirectAttackers(to, getToPlay(), false) & ~ofSquare(from);
+		long bb = getBitBoard(stone) & getAllAttackers(to, getToPlay(), false) & ~ofSquare(from);
 		if (!isCapturing) {
 			bb &= (~m_bbPawns);
 		}
@@ -2154,9 +2262,9 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		return false;
 	}
 
-	private long getDirectAttackers(int sqi, int color, boolean includeInbetweenSquares) {
+	private long getAllAttackers(int sqi, int color, boolean includeInbetweenSquares) {
 		if (PROFILE) {
-			m_numDirectAttackers++;
+			++m_numAllAttackers;
 		}
 
 		long attackers = 0L;
@@ -2199,55 +2307,66 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		return attackers;
 	}
 
-	private long getAllAttackers(int sqi, int color) {
-		if (PROFILE) {
-			m_numGetAllAttackers++;
-		}
-
+	/*
+	 * Count only diagonal attackers: queens, bishops and pawns. 
+	 */
+	private long getDiagonalAttackers(int sqi, int color, boolean includeInbetweenSquares) {
 		long attackers = 0L;
 		long bbAttackerPieces = (color == Chess.WHITE ? m_bbWhites : m_bbBlacks);
 		long bbAllPieces = m_bbWhites | m_bbBlacks;
 
-		/*---------- knights ----------*/
-		attackers |= KNIGHT_ATTACKS[sqi] & bbAttackerPieces & m_bbKnights;
-
 		/*---------- sliding pieces ----------*/
-		long bbTargets = BISHOP_ATTACKS[sqi] & m_bbBishops & bbAttackerPieces;
-		long bb = bbTargets;
-		while (bb != 0L) {
-			int from = getFirstSqi(bb);
-			if ((SQUARES_BETWEEN[from][sqi] & bbAllPieces & (~bbTargets)) == 0L) {
+		long bbTargets = (BISHOP_ATTACKS[sqi] & m_bbBishops) & bbAttackerPieces;
+		while (bbTargets != 0L) {
+			int from = getFirstSqi(bbTargets);
+			long squaresInBetween = SQUARES_BETWEEN[from][sqi];
+			if ((squaresInBetween & bbAllPieces) == 0L) {
 				attackers |= ofSquare(from);
+				if (includeInbetweenSquares) {
+					attackers |= squaresInBetween;
+				}
 			}
-			bb &= bb - 1;
+			bbTargets &= bbTargets - 1;
 		}
 
-		bbTargets = ROOK_ATTACKS[sqi] & m_bbRooks & bbAttackerPieces;
-		bb = bbTargets;
-		while (bb != 0L) {
-			int from = getFirstSqi(bb);
-			if ((SQUARES_BETWEEN[from][sqi] & bbAllPieces & (~bbTargets)) == 0L) {
-				attackers |= ofSquare(from);
-			}
-			bb &= bb - 1;
-		}
-
-		/*---------- pawns & king ----------*/
+		/*---------- pawns ----------------*/
 		if (color == Chess.WHITE) {
 			// inverse -> black_pawn_attacks
 			attackers |= BLACK_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns;
-			attackers |= KING_ATTACKS[sqi] & ofSquare(m_whiteKing);
 			if (sqi == getSqiEP()) {
 				attackers |= BLACK_PAWN_ATTACKS[sqi - Chess.NUM_OF_COLS] & bbAttackerPieces & m_bbPawns;
 			}
 		} else {
 			attackers |= WHITE_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns;
-			attackers |= KING_ATTACKS[sqi] & ofSquare(m_blackKing);
 			if (sqi == getSqiEP()) {
 				attackers |= WHITE_PAWN_ATTACKS[sqi + Chess.NUM_OF_COLS] & bbAttackerPieces & m_bbPawns;
 			}
 		}
 
+		return attackers;
+	}
+
+	/*
+	 * Count only vertical and horizontal attackers: queens and rooks. 
+	 */
+	private long getStraightAttackers(int sqi, int color, boolean includeInbetweenSquares) {
+		long attackers = 0L;
+		long bbAttackerPieces = (color == Chess.WHITE ? m_bbWhites : m_bbBlacks);
+		long bbAllPieces = m_bbWhites | m_bbBlacks;
+
+		/*---------- sliding pieces ----------*/
+		long bbTargets = (ROOK_ATTACKS[sqi] & m_bbRooks) & bbAttackerPieces;
+		while (bbTargets != 0L) {
+			int from = getFirstSqi(bbTargets);
+			long squaresInBetween = SQUARES_BETWEEN[from][sqi];
+			if ((squaresInBetween & bbAllPieces) == 0L) {
+				attackers |= ofSquare(from);
+				if (includeInbetweenSquares) {
+					attackers |= squaresInBetween;
+				}
+			}
+			bbTargets &= bbTargets - 1;
+		}
 		return attackers;
 	}
 
@@ -2713,11 +2832,11 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		long bbToPlay = (getToPlay() == Chess.WHITE ? m_bbWhites : m_bbBlacks);
 		if (isCheck()) {
 			moveIndex = getAllKingMoves(moveIndex, bbTargets, false);
-			long attackers = getDirectAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(), false);
+			long attackers = getAllAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(), false);
 			// ChBitBoard.printBoard(attackers);
 			if (isExactlyOneBitSet(attackers)) {
 				// System.out.println("investigate piece moves");
-				attackers = getDirectAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(), true);
+				attackers = getAllAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(), true);
 				bbTargets &= attackers;
 				bbPawnTargets &= attackers;
 				moveIndex = getAllKnightMoves(moveIndex, bbTargets);
@@ -2761,10 +2880,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				if (getAllKingMoves(-1, ~0L, false) > 0) {
 					canMove = true;
 				} else {
-					long attackers = getDirectAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(),
+					long attackers = getAllAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(),
 							false);
 					if (isExactlyOneBitSet(attackers)) {
-						attackers = getDirectAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(),
+						attackers = getAllAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(),
 								true);
 						canMove = (getAllKnightMoves(-1, attackers) > 0) || (getAllPawnMoves(-1, attackers) > 0)
 								|| (getAllSlidingMoves(-1, attackers, m_bbBishops & (~m_bbRooks) & bbToPlay, Chess.BISHOP) > 0)
@@ -2803,21 +2922,6 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				* (numOfBitsSet(m_bbRooks & (~m_bbBishops) & m_bbWhites) - numOfBitsSet(m_bbRooks & (~m_bbBishops) & m_bbBlacks));
 		value += 900 * (numOfBitsSet(m_bbRooks & m_bbBishops & m_bbWhites) - numOfBitsSet(m_bbRooks & m_bbBishops & m_bbBlacks));
 		// System.out.println(value);
-		return (getToPlay() == Chess.WHITE ? value : -value);
-	}
-
-	@SuppressWarnings("unused")
-	private double getDomination() {
-		int[] SQUARE_IMPORTANCE = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 4, 6, 6, 4, 2, 1, 1, 2, 5, 10, 10, 5, 1,
-				1, 1, 2, 5, 10, 10, 5, 1, 1, 1, 2, 4, 6, 6, 4, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-
-		double value = 0;
-		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
-			long bbWhiteAttackers = getAllAttackers(sqi, Chess.WHITE);
-			long bbBlackAttackers = getAllAttackers(sqi, Chess.BLACK);
-			int score = sign(numOfBitsSet(bbWhiteAttackers) - numOfBitsSet(bbBlackAttackers));
-			value += SQUARE_IMPORTANCE[sqi] * score;
-		}
 		return (getToPlay() == Chess.WHITE ? value : -value);
 	}
 
@@ -3038,7 +3142,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public long getAttackersBB(int sqi, int color) {
-		return getDirectAttackers(sqi, color, false);
+		return getAllAttackers(sqi, color, false);
 	}
 
 	/*

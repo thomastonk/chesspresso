@@ -253,6 +253,11 @@ public abstract class AbstractPosition implements ImmutablePosition {
 		return Validity.IS_VALID;
 	}
 
+	@Override
+	public boolean checkExtendedValidity() {
+		return true;
+	}
+
 	public boolean checkEnPassantSquare() {
 		if (getSqiEP() != Chess.NO_SQUARE) {
 			if (getToPlay() == Chess.WHITE) {

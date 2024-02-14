@@ -353,6 +353,11 @@ public final class Position implements MoveablePosition, Serializable {
 	}
 
 	@Override
+	public boolean checkExtendedValidity() {
+		return impl.checkExtendedValidity();
+	}
+
+	@Override
 	public String getFEN() {
 		return impl.getFEN();
 	}

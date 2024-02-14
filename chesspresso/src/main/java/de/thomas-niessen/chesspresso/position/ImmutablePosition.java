@@ -125,6 +125,12 @@ public interface ImmutablePosition {
 	 */
 	Validity getValidity();
 
+	/**
+	 * Returns false if the position within the variant is not reachable. Returns 
+	 * true if no reason for false was discovered.
+	 */
+	boolean checkExtendedValidity();
+
 	// ======================================================================
 	// FEN
 
