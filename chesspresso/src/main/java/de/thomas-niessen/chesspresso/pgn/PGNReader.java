@@ -433,9 +433,10 @@ public final class PGNReader extends PGN {
 		if (variant != null) {
 			variant = variant.toLowerCase();
 			if ((variant.contains("chess") && variant.contains("960"))
-					|| (variant.contains("fischer") && variant.contains("random"))) {
+					|| (variant.contains("fischer") && variant.contains("random")) || variant.contains("freestyle")) {
 				return Variant.CHESS960;
-			} else if (variant.contains("standard") || variant.contains("three-check") || variant.contains("normal")) {
+			} else if (variant.contains("standard") || variant.contains("three-check") || variant.contains("normal")
+					|| variant.equals("chess")) {
 				// lichess and tcec values 
 				return Variant.STANDARD;
 			} else {
