@@ -24,23 +24,23 @@ import java.io.PrintStream;
  */
 public class PGNSimpleErrorHandler implements PGNErrorHandler {
 
-	private final PrintStream m_out;
+	private final PrintStream printStream;
 
 	/* ================================================================================ */
 
 	public PGNSimpleErrorHandler(PrintStream out) {
-		m_out = out;
+		printStream = out;
 	}
 
 	/* ================================================================================ */
 
 	@Override
 	public void handleError(PGNSyntaxError error) {
-		m_out.println(error);
+		printStream.println(error);
 	}
 
 	@Override
 	public void handleWarning(PGNSyntaxError warning) {
-		m_out.println(warning);
+		printStream.println(warning);
 	}
 }

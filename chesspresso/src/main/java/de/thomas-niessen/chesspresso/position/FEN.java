@@ -25,11 +25,11 @@ import chesspresso.position.ImmutablePosition.Validity;
 
 public class FEN {
 
-	private static final char[] fenChars = { 'K', 'P', 'Q', 'R', 'B', 'N', '-', 'n', 'b', 'r', 'q', 'p', 'k' };
+	private static final char[] FEN_CHARS = { 'K', 'P', 'Q', 'R', 'B', 'N', '-', 'n', 'b', 'r', 'q', 'p', 'k' };
 
 	public static int fenCharToStone(char ch) {
 		for (int stone = Chess.MIN_STONE; stone <= Chess.MAX_STONE; stone++) {
-			if (fenChars[stone - Chess.MIN_STONE] == ch) {
+			if (FEN_CHARS[stone - Chess.MIN_STONE] == ch) {
 				return stone;
 			}
 		}
@@ -38,7 +38,7 @@ public class FEN {
 
 	public static char stoneToFenChar(int stone) {
 		if (stone >= Chess.MIN_STONE && stone <= Chess.MAX_STONE) {
-			return fenChars[stone - Chess.MIN_STONE];
+			return FEN_CHARS[stone - Chess.MIN_STONE];
 		} else {
 			return '?';
 		}

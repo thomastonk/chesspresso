@@ -57,61 +57,53 @@ public abstract class AbstractPosition implements ImmutablePosition {
 	protected static final long
 	//        HASH_ALL_MASK       = 0x7FFFFFFF007FFFFFL,
 	HASH_ALL_MASK = 0x7FFFFFFFFF7FFFFFL;
-	protected static long HASH_TOPLAY_MASK = 0x7FFFFFFFFF7FFFFFL;
+	protected static final long HASH_TOPLAY_MASK = 0x7FFFFFFFFF7FFFFFL;
 	protected static final long HASH_TOPLAY_MULT = 0x800000L;
 	//        HASH_CASTLE_MASK    = 0x7FFFFFFFF0FFFFFFL,
 	//        HASH_CASTLE_MULT    =          0x1000000L,
 	//        HASH_ENPASSANT_MASK = 0x7FFFFFFF0FFFFFFFL,
 	//        HASH_ENPASSANT_MULT =         0x10000000L;
 
-	protected static final long[][] s_hashMod;
-	protected static final long[] s_hashCastleMod;
-	protected static final long[] s_hashEPMod;
+	protected static final long[][] HASH_MOD;
+	protected static final long[] HASH_CASTLE_MOD;
+	protected static final long[] HASH_EP_MOD;
 
 	static {
-		//        Random random = new Random(100);
-		//        s_hashMod = new long[Chess.NUM_OF_SQUARES][];
-		//        for (int i=0; i<Chess.NUM_OF_SQUARES; i++) {
-		//            s_hashMod[i] = new long[Chess.MAX_STONE - Chess.MIN_STONE + 1];
-		//            for (int j=0; j<Chess.MAX_STONE - Chess.MIN_STONE; j++) {
-		//                s_hashMod[i][j] = random.nextLong() & HASH_ALL_MASK;
-		//            }
-		//        }
 		long randomNumber = 100L;
 
-		s_hashMod = new long[Chess.NUM_OF_SQUARES][];
+		HASH_MOD = new long[Chess.NUM_OF_SQUARES][];
 		for (int i = 0; i < Chess.NUM_OF_SQUARES; i++) {
-			s_hashMod[i] = new long[Chess.MAX_STONE - Chess.MIN_STONE + 1];
+			HASH_MOD[i] = new long[Chess.MAX_STONE - Chess.MIN_STONE + 1];
 			for (int j = 0; j < Chess.MAX_STONE - Chess.MIN_STONE + 1; j++) {
 				// this is how random is implemented, except that random is masked
 				// to 48 significant bits only (NSA?)
 				// we re-implemented it here to guarantee that the implementation does
 				// not change since hash keys might be externalized
 				randomNumber = (randomNumber * 0x5DEECE66DL + 0xBL);
-				s_hashMod[i][j] = randomNumber & HASH_ALL_MASK;
+				HASH_MOD[i][j] = randomNumber & HASH_ALL_MASK;
 			}
 		}
 
-		s_hashCastleMod = new long[16];
-		s_hashCastleMod[0] = 0L; // NO_CASTLES -> no change in hashCode
+		HASH_CASTLE_MOD = new long[16];
+		HASH_CASTLE_MOD[0] = 0L; // NO_CASTLES -> no change in hashCode
 		for (int i = 1; i < 16; i++) {
 			randomNumber = (randomNumber * 0x5DEECE66DL + 0xBL);
-			s_hashCastleMod[i] = randomNumber & HASH_ALL_MASK;
+			HASH_CASTLE_MOD[i] = randomNumber & HASH_ALL_MASK;
 		}
 
-		s_hashEPMod = new long[8]; // sqiEP == NO_SQUARE -> must be 0
+		HASH_EP_MOD = new long[8]; // sqiEP == NO_SQUARE -> must be 0
 		for (int i = 0; i < 8; i++) {
 			randomNumber = (randomNumber * 0x5DEECE66DL + 0xBL);
-			s_hashEPMod[i] = randomNumber & HASH_ALL_MASK;
+			HASH_EP_MOD[i] = randomNumber & HASH_ALL_MASK;
 		}
 	}
 
-	private static long s_startPositionHashCode = 0L;
+	private static long startPositionHashCode = 0L;
 
 	protected static long getStartPositionHashCode() {
 		// must be done after the bitboards are initialized in ChPosition -> cannot
 		// be done static of ChAbstractPosition
-		if (s_startPositionHashCode == 0L) {
+		if (startPositionHashCode == 0L) {
 			// TN: this is the old version, which cannot be applied, since LightWeightPosition's implementation is not complete.
 			//			AbstractMutablePosition startPos = new LightWeightPosition();
 			// 			FEN.initFromFEN(startPos, FEN.START_POSITION);
@@ -121,9 +113,9 @@ public abstract class AbstractPosition implements ImmutablePosition {
 			} catch (InvalidFenException e) {
 				return 0L;
 			}
-			s_startPositionHashCode = new PositionImpl(startPos).getHashCode(); // do after bitBoard init
+			startPositionHashCode = new PositionImpl(startPos).getHashCode(); // do after bitBoard init
 		}
-		return s_startPositionHashCode;
+		return startPositionHashCode;
 	}
 
 	public static boolean isWhiteToPlay(long hashCode) {
@@ -141,13 +133,13 @@ public abstract class AbstractPosition implements ImmutablePosition {
 		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 			int stone = getStone(sqi);
 			if (stone != Chess.NO_STONE) {
-				hashCode ^= s_hashMod[sqi][stone - Chess.MIN_STONE];
+				hashCode ^= HASH_MOD[sqi][stone - Chess.MIN_STONE];
 			}
 		}
 
 		/*---------- castles ----------*/
 		//        System.out.println(getCastles());
-		hashCode ^= s_hashCastleMod[getCastles()];
+		hashCode ^= HASH_CASTLE_MOD[getCastles()];
 
 		/*---------- en passant square ----------*/
 		int sqiEP = getSqiEP();
@@ -166,7 +158,7 @@ public abstract class AbstractPosition implements ImmutablePosition {
 			}
 		}
 		if (sqiEP != Chess.NO_COL) {
-			hashCode ^= s_hashEPMod[Chess.sqiToCol(sqiEP)];
+			hashCode ^= HASH_EP_MOD[Chess.sqiToCol(sqiEP)];
 		}
 
 		/*---------- to play ----------*/

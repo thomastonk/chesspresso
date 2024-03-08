@@ -24,33 +24,33 @@ class GameModel implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	private final GameHeaderModel m_headerModel;
-	private final GameMoveModel m_moveModel;
+	private final GameHeaderModel headerModel;
+	private final GameMoveModel moveModel;
 
 	// =============================================================================
 
 	GameModel() {
-		m_headerModel = new GameHeaderModel();
-		m_moveModel = new GameMoveModel();
+		headerModel = new GameHeaderModel();
+		moveModel = new GameMoveModel();
 	}
 
 	GameModel(GameHeaderModel headerModel, GameMoveModel moveModel) {
-		m_headerModel = headerModel;
-		m_moveModel = moveModel;
+		this.headerModel = headerModel;
+		this.moveModel = moveModel;
 	}
 
 	public GameModel getDeepCopy() {
-		return new GameModel(m_headerModel.getDeepCopy(), m_moveModel.getDeepCopy());
+		return new GameModel(headerModel.getDeepCopy(), moveModel.getDeepCopy());
 	}
 
 	// =============================================================================
 
 	GameHeaderModel getHeaderModel() {
-		return m_headerModel;
+		return headerModel;
 	}
 
 	GameMoveModel getMoveModel() {
-		return m_moveModel;
+		return moveModel;
 	}
 
 	// =============================================================================
@@ -75,6 +75,6 @@ class GameModel implements Serializable {
 
 	@Override
 	public String toString() {
-		return m_headerModel.toString();
+		return headerModel.toString();
 	}
 }

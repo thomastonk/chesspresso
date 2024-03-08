@@ -42,15 +42,15 @@ class GameHeaderModel implements Serializable {
 
 	// =============================================================================
 
-	private String[] m_standardTags;
-	private List<String> m_otherTags;
-	private List<String> m_otherTagValues;
+	private String[] standardTags;
+	private List<String> otherTags;
+	private List<String> otherTagValues;
 
 	// =============================================================================
 
 	GameHeaderModel() {
-		m_standardTags = new String[NUM_OF_STANDARD_TAGS];
-		m_otherTags = null;
+		standardTags = new String[NUM_OF_STANDARD_TAGS];
+		otherTags = null;
 	}
 
 	GameHeaderModel getDeepCopy() {
@@ -64,22 +64,22 @@ class GameHeaderModel implements Serializable {
 			return;
 		}
 		// standard tags
-		System.arraycopy(otherModel.m_standardTags, 0, m_standardTags, 0, NUM_OF_STANDARD_TAGS);
+		System.arraycopy(otherModel.standardTags, 0, standardTags, 0, NUM_OF_STANDARD_TAGS);
 		// other tags
-		if (otherModel.m_otherTags == null) {
-			m_otherTags = null;
-			m_otherTagValues = null;
+		if (otherModel.otherTags == null) {
+			otherTags = null;
+			otherTagValues = null;
 		} else {
-			if (m_otherTags == null) {
-				m_otherTags = new ArrayList<>();
-				m_otherTagValues = new ArrayList<>();
+			if (otherTags == null) {
+				otherTags = new ArrayList<>();
+				otherTagValues = new ArrayList<>();
 			} else {
-				m_otherTags.clear();
-				m_otherTagValues.clear();
+				otherTags.clear();
+				otherTagValues.clear();
 			}
-			for (int i = 0; i < otherModel.m_otherTags.size(); ++i) {
-				m_otherTags.add(otherModel.m_otherTags.get(i));
-				m_otherTagValues.add(otherModel.m_otherTagValues.get(i));
+			for (int i = 0; i < otherModel.otherTags.size(); ++i) {
+				otherTags.add(otherModel.otherTags.get(i));
+				otherTagValues.add(otherModel.otherTagValues.get(i));
 			}
 		}
 	}
@@ -98,10 +98,10 @@ class GameHeaderModel implements Serializable {
 	String getTag(String tagName) {
 		int index = getStandardTagIndex(tagName);
 		if (index != -1) {
-			return m_standardTags[index];
-		} else if (m_otherTags != null) {
-			index = m_otherTags.indexOf(tagName);
-			return (index == -1 ? null : m_otherTagValues.get(index));
+			return standardTags[index];
+		} else if (otherTags != null) {
+			index = otherTags.indexOf(tagName);
+			return (index == -1 ? null : otherTagValues.get(index));
 		} else {
 			return null;
 		}
@@ -112,26 +112,26 @@ class GameHeaderModel implements Serializable {
 		// So far, it is only treated in PGNWriter::writeHeader.
 		int index = getStandardTagIndex(tagName);
 		if (index != -1) {
-			m_standardTags[index] = tagValue;
+			standardTags[index] = tagValue;
 		} else if (!PGN.TAG_PLY_COUNT.equals(tagName)) {
-			if (m_otherTags == null) {
-				m_otherTags = new ArrayList<>();
-				m_otherTagValues = new ArrayList<>();
+			if (otherTags == null) {
+				otherTags = new ArrayList<>();
+				otherTagValues = new ArrayList<>();
 			}
-			index = m_otherTags.indexOf(tagName);
+			index = otherTags.indexOf(tagName);
 			if (index == -1) {
-				m_otherTags.add(tagName);
-				m_otherTagValues.add(tagValue); // append
+				otherTags.add(tagName);
+				otherTagValues.add(tagValue); // append
 			} else {
-				m_otherTagValues.set(index, tagValue); // replace
+				otherTagValues.set(index, tagValue); // replace
 			}
 		}
 	}
 
 	String[] getTags() {
-		int numOfTags = (m_otherTags == null ? 0 : m_otherTags.size());
+		int numOfTags = (otherTags == null ? 0 : otherTags.size());
 		for (int i = 0; i < NUM_OF_STANDARD_TAGS; i++) {
-			if (m_standardTags[i] != null) {
+			if (standardTags[i] != null) {
 				numOfTags++;
 			}
 		}
@@ -139,29 +139,29 @@ class GameHeaderModel implements Serializable {
 		String[] tags = new String[numOfTags];
 		int index = 0;
 		for (int i = 0; i < NUM_OF_STANDARD_TAGS; i++) {
-			if (m_standardTags[i] != null) {
+			if (standardTags[i] != null) {
 				tags[index++] = TAG_NAMES[i];
 			}
 		}
-		if (m_otherTags != null) {
-			for (String m_otherTag : m_otherTags) {
-				tags[index++] = m_otherTag;
+		if (otherTags != null) {
+			for (String otherTag : otherTags) {
+				tags[index++] = otherTag;
 			}
 		}
 		return tags;
 	}
 
 	String[] getOtherTags() {
-		int numOfTags = (m_otherTags == null ? 0 : m_otherTags.size());
+		int numOfTags = (otherTags == null ? 0 : otherTags.size());
 
 		if (numOfTags == 0) {
 			return null;
 		} else {
 			String[] tags = new String[numOfTags];
 			int index = 0;
-			if (m_otherTags != null) {
-				for (String m_otherTag : m_otherTags) {
-					tags[index++] = m_otherTag;
+			if (otherTags != null) {
+				for (String otherTag : otherTags) {
+					tags[index++] = otherTag;
 				}
 			}
 			return tags;
@@ -169,19 +169,19 @@ class GameHeaderModel implements Serializable {
 	}
 
 	void clearTags() {
-		m_standardTags = new String[NUM_OF_STANDARD_TAGS];
-		m_otherTags = null;
+		standardTags = new String[NUM_OF_STANDARD_TAGS];
+		otherTags = null;
 	}
 
 	void removeTag(String tagName) {
 		int standardIndex = getStandardTagIndex(tagName);
 		if (standardIndex != -1) {
-			m_standardTags[standardIndex] = "";
-		} else if (m_otherTags != null && tagName != null) {
-			for (int index = 0; index < m_otherTags.size(); ++index) {
-				if (tagName.equals(m_otherTags.get(index))) {
-					m_otherTags.remove(index);
-					m_otherTagValues.remove(index);
+			standardTags[standardIndex] = "";
+		} else if (otherTags != null && tagName != null) {
+			for (int index = 0; index < otherTags.size(); ++index) {
+				if (tagName.equals(otherTags.get(index))) {
+					otherTags.remove(index);
+					otherTagValues.remove(index);
 					--index; // since removeIf is not a choice here
 				}
 			}
@@ -193,7 +193,7 @@ class GameHeaderModel implements Serializable {
 	// convenience methods for tags
 
 	private String getStandardTag(int index) {
-		String tag = m_standardTags[index];
+		String tag = standardTags[index];
 		return tag == null ? "" : tag;
 	}
 
@@ -288,29 +288,29 @@ class GameHeaderModel implements Serializable {
 
 	boolean contains(GameHeaderModel other) {
 		for (int index = 0; index < NUM_OF_STANDARD_TAGS; ++index) {
-			String value = other.m_standardTags[index];
-			if (value != null && !value.isEmpty() && !value.equals(m_standardTags[index])) {
+			String value = other.standardTags[index];
+			if (value != null && !value.isEmpty() && !value.equals(standardTags[index])) {
 				return false;
 			}
 		}
-		if (other.m_otherTags == null) {
+		if (other.otherTags == null) {
 			return true;
 		}
-		if (m_otherTags == null) {
-			return other.m_otherTags.size() == 0;
+		if (otherTags == null) {
+			return other.otherTags.size() == 0;
 		}
-		for (int index = 0; index < other.m_otherTags.size(); ++index) {
-			String value = other.m_otherTagValues.get(index);
+		for (int index = 0; index < other.otherTags.size(); ++index) {
+			String value = other.otherTagValues.get(index);
 			if (value != null && !value.isEmpty()) {
-				String otherTag = other.m_otherTags.get(index);
+				String otherTag = other.otherTags.get(index);
 				if (otherTag == null) {
 					continue;
 				}
 				boolean checked = false;
-				for (int i = 0; i < m_otherTags.size(); ++i) {
-					String tag = m_otherTags.get(i);
+				for (int i = 0; i < otherTags.size(); ++i) {
+					String tag = otherTags.get(i);
 					if (otherTag.equals(tag)) {
-						if (!Objects.equals(other.m_otherTagValues.get(index), m_otherTagValues.get(i))) {
+						if (!Objects.equals(other.otherTagValues.get(index), otherTagValues.get(i))) {
 							return false;
 						}
 						checked = true;

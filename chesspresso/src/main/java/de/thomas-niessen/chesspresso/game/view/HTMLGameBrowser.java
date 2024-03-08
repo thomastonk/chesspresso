@@ -33,88 +33,88 @@ import chesspresso.position.Position;
  */
 public class HTMLGameBrowser implements TraverseListener {
 
-	private StringBuffer m_moves;
-	private StringBuffer m_posData;
-	private StringBuffer m_lastData;
-	private Game m_game;
-	private int m_moveNumber;
-	private boolean m_showMoveNumber;
-	private int[] m_lasts;
+	private StringBuffer moves;
+	private StringBuffer posData;
+	private StringBuffer lastData;
+	private Game game;
+	private int moveNumber;
+	private boolean showMoveNumber;
+	private int[] lasts;
 
 	// ======================================================================
 	// TraverseListener Methods
 
 	@Override
 	public void notifyLineStart(int level) {
-		m_moves.append(" (");
-		m_showMoveNumber = true;
-		m_lasts[level + 1] = m_lasts[level];
+		moves.append(" (");
+		showMoveNumber = true;
+		lasts[level + 1] = lasts[level];
 	}
 
 	@Override
 	public void notifyLineEnd(int level) {
-		m_moves.append(") ");
-		m_showMoveNumber = true;
+		moves.append(") ");
+		showMoveNumber = true;
 	}
 
 	private void addPosData(ImmutablePosition pos) {
-		m_posData.append("  sq[").append(m_moveNumber).append("] = new Array(");
+		posData.append("  sq[").append(moveNumber).append("] = new Array(");
 		for (int row = Chess.NUM_OF_ROWS - 1; row >= 0; row--) {
 			for (int col = 0; col < Chess.NUM_OF_COLS; col++) {
 				int sqi = Chess.coorToSqi(col, row);
 				if (sqi != Chess.A8) {
-					m_posData.append(",");
+					posData.append(",");
 				}
-				m_posData.append(pos.getStone(sqi) - Chess.MIN_STONE);
+				posData.append(pos.getStone(sqi) - Chess.MIN_STONE);
 			}
 		}
-		m_posData.append(");\n");
+		posData.append(");\n");
 	}
 
 	@Override
 	public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
 			String fenBeforeMove) {
-		ImmutablePosition pos = m_game.getPosition();
+		ImmutablePosition pos = game.getPosition();
 
 		boolean isMainLine = (level == 0);
 		String type = isMainLine ? "main" : "line";
 
 		if (preMoveComment != null) {
-			m_moves.append("<span class=\"comment\">").append(preMoveComment).append("</span> ");
+			moves.append("<span class=\"comment\">").append(preMoveComment).append("</span> ");
 		}
 
-		m_moves.append("<a name=\"").append(m_moveNumber).append("\" class=\"").append(type).append("\" href=\"javascript:go(")
-				.append(m_moveNumber).append(")\">");
-		if (m_showMoveNumber) {
-			m_moves.append(plyNumber / 2 + 1).append(".");
+		moves.append("<a name=\"").append(moveNumber).append("\" class=\"").append(type).append("\" href=\"javascript:go(")
+				.append(moveNumber).append(")\">");
+		if (showMoveNumber) {
+			moves.append(plyNumber / 2 + 1).append(".");
 		}
-		m_showMoveNumber = Chess.isWhitePly(plyNumber + 1);
+		showMoveNumber = Chess.isWhitePly(plyNumber + 1);
 
-		m_moves.append(move.toString());
+		moves.append(move.toString());
 		if (nags != null) {
 			for (short nag : nags) {
-				m_moves.append(NAG.getShortString(nag));
+				moves.append(NAG.getShortString(nag));
 			}
-			m_showMoveNumber = true;
+			showMoveNumber = true;
 		}
-		m_moves.append("</a> ");
+		moves.append("</a> ");
 		if (postMoveComment != null) {
-			m_moves.append("<span class=\"comment\">").append(postMoveComment).append("</span> ");
+			moves.append("<span class=\"comment\">").append(postMoveComment).append("</span> ");
 		}
 
 		addPosData(pos);
-		m_lastData.append(",").append(m_lasts[level]);
-		m_lasts[level] = m_moveNumber;
+		lastData.append(",").append(lasts[level]);
+		lasts[level] = moveNumber;
 
-		m_moveNumber++;
+		moveNumber++;
 	}
 
 	// ======================================================================
 
-	private final String[] m_wimgs;
-	private final String[] m_bimgs;
-	private String m_imagePrefix;
-	private String m_styleFilename;
+	private final String[] wimgs;
+	private final String[] bimgs;
+	private String imagePrefix;
+	private String styleFilename;
 
 	// ======================================================================
 
@@ -122,12 +122,12 @@ public class HTMLGameBrowser implements TraverseListener {
 	 * Create a new HTMLGameBrowser with default settings.
 	 */
 	public HTMLGameBrowser() {
-		m_wimgs = new String[] { "wkw.gif", "wpw.gif", "wqw.gif", "wrw.gif", "wbw.gif", "wnw.gif", "now.gif", "bnw.gif",
-				"bbw.gif", "brw.gif", "bqw.gif", "bpw.gif", "bkw.gif" };
-		m_bimgs = new String[] { "wkb.gif", "wpb.gif", "wqb.gif", "wrb.gif", "wbb.gif", "wnb.gif", "nob.gif", "bnb.gif",
-				"bbb.gif", "brb.gif", "bqb.gif", "bpb.gif", "bkb.gif" };
-		m_imagePrefix = "";
-		m_styleFilename = null;
+		wimgs = new String[] { "wkw.gif", "wpw.gif", "wqw.gif", "wrw.gif", "wbw.gif", "wnw.gif", "now.gif", "bnw.gif", "bbw.gif",
+				"brw.gif", "bqw.gif", "bpw.gif", "bkw.gif" };
+		bimgs = new String[] { "wkb.gif", "wpb.gif", "wqb.gif", "wrb.gif", "wbb.gif", "wnb.gif", "nob.gif", "bnb.gif", "bbb.gif",
+				"brb.gif", "bqb.gif", "bpb.gif", "bkb.gif" };
+		imagePrefix = "";
+		styleFilename = null;
 	}
 
 	// ======================================================================
@@ -148,7 +148,7 @@ public class HTMLGameBrowser implements TraverseListener {
 	 */
 	@SuppressWarnings("unused")
 	private void setStyleFilename(String styleFilename) {
-		m_styleFilename = styleFilename;
+		this.styleFilename = styleFilename;
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class HTMLGameBrowser implements TraverseListener {
 	 */
 	@SuppressWarnings("unused")
 	private void setImagePrefix(String imagePrefix) {
-		m_imagePrefix = imagePrefix;
+		this.imagePrefix = imagePrefix;
 	}
 
 	/**
@@ -176,9 +176,9 @@ public class HTMLGameBrowser implements TraverseListener {
 	@SuppressWarnings("unused")
 	private void setStoneImageName(int stone, boolean whiteSquare, String name) {
 		if (whiteSquare) {
-			m_wimgs[stone - Chess.MIN_STONE] = name;
+			wimgs[stone - Chess.MIN_STONE] = name;
 		} else {
-			m_bimgs[stone - Chess.MIN_STONE] = name;
+			bimgs[stone - Chess.MIN_STONE] = name;
 		}
 	}
 
@@ -189,7 +189,7 @@ public class HTMLGameBrowser implements TraverseListener {
 	 * @param isWhite whether the square is white
 	 */
 	private String getImageForStone(int stone, boolean isWhite) {
-		return m_imagePrefix + (isWhite ? m_wimgs[stone - Chess.MIN_STONE] : m_bimgs[stone - Chess.MIN_STONE]);
+		return imagePrefix + (isWhite ? wimgs[stone - Chess.MIN_STONE] : bimgs[stone - Chess.MIN_STONE]);
 	}
 
 	// ======================================================================
@@ -215,28 +215,28 @@ public class HTMLGameBrowser implements TraverseListener {
 	public synchronized void produceHTML(OutputStream outStream, Game game, boolean contentOnly) {
 		PrintStream out = new PrintStream(outStream);
 
-		m_moves = new StringBuffer();
-		m_posData = new StringBuffer();
-		m_lastData = new StringBuffer();
-		m_game = game;
-		m_moveNumber = 0;
-		m_showMoveNumber = true;
-		m_lasts = new int[100];
-		m_lasts[0] = 0;
+		moves = new StringBuffer();
+		posData = new StringBuffer();
+		lastData = new StringBuffer();
+		this.game = game;
+		moveNumber = 0;
+		showMoveNumber = true;
+		lasts = new int[100];
+		lasts[0] = 0;
 
-		m_posData.append("  sq = new Array(").append(game.getNumOfPlies()).append("); ");
-		m_lastData.append("  last=new Array(0");
+		posData.append("  sq = new Array(").append(game.getNumOfPlies()).append("); ");
+		lastData.append("  last=new Array(0");
 
-		m_game.gotoStart();
-		addPosData(m_game.getPosition());
-		m_moveNumber++;
+		game.gotoStart();
+		addPosData(game.getPosition());
+		moveNumber++;
 
-		m_moves.append("<h4>").append(m_game).append("</h4>");
+		moves.append("<h4>").append(game).append("</h4>");
 
 		game.traverse(this, true);
 
-		m_moves.append(" ").append(game.getResultStr());
-		m_lastData.append(");");
+		moves.append(" ").append(game.getResultStr());
+		lastData.append(");");
 
 		if (!contentOnly) {
 			out.println(
@@ -245,8 +245,8 @@ public class HTMLGameBrowser implements TraverseListener {
 			out.println("<html>");
 			out.println("<head>");
 			out.println("<meta name=\"generator\" content=\"Chesspresso\" />");
-			out.println("<title>" + m_game + "</title>");
-			if (m_styleFilename == null) {
+			out.println("<title>" + game + "</title>");
+			if (styleFilename == null) {
 				out.println("<style type=\"text/css\">");
 				out.println("   .main {text-decoration:none}");
 				out.println("   .line {text-decoration:none}");
@@ -256,7 +256,7 @@ public class HTMLGameBrowser implements TraverseListener {
 				out.println("  span.comment {font-style:italic}");
 				out.println("</style>");
 			} else {
-				out.println("<link rel=\"stylesheet\" href=\"" + m_styleFilename + "\" type=\"text/css\" />");
+				out.println("<link rel=\"stylesheet\" href=\"" + styleFilename + "\" type=\"text/css\" />");
 			}
 
 			out.println("<script language=\"JavaScript\">");
@@ -272,14 +272,12 @@ public class HTMLGameBrowser implements TraverseListener {
 				}
 			}
 			out.println(");");
-
-			//        out.println("function go(num) {window.document.anchors[moveNumber-1].style.background=\"white\"; if (num<0) moveNumber=0; else if (num>" + (m_moveNumber - 1) + ") moveNumber=" + (m_moveNumber - 1) + "; else moveNumber=num; for(i=0;i<64;i++){if ((Math.floor(i/8)%2)==(i%2)) window.document.images[i].src=wimgs[sq[num][i]]; else window.document.images[i].src=bimgs[sq[num][i]];}; window.document.anchors[moveNumber-1].style.background=\"black\";}");
 			out.println("  function go(num) {");
 			// TO_DO style for selected move
 			out.println(
 					"    if (moveNumber>0) {window.document.anchors[moveNumber-1].style.background=\"white\"; window.document.anchors[moveNumber-1].style.color=\"black\";}");
 			out.println("    if (num<0) moveNumber=0;");
-			out.println("    else if (num>" + (m_moveNumber - 1) + ") moveNumber=" + (m_moveNumber - 1) + ";");
+			out.println("    else if (num>" + (moveNumber - 1) + ") moveNumber=" + (moveNumber - 1) + ";");
 			out.println("    else moveNumber=num;");
 			out.println("    for(i=0;i<64;i++){");
 			out.println("      if ((Math.floor(i/8)%2)==(i%2)) offset=0; else offset=13;");
@@ -290,11 +288,11 @@ public class HTMLGameBrowser implements TraverseListener {
 			out.println("  }");
 			out.println("  function gotoStart() {go(0);}");
 			out.println("  function goBackward() {go(last[moveNumber]);}");
-			out.println("  function goForward() {for (i=" + m_moveNumber
+			out.println("  function goForward() {for (i=" + moveNumber
 					+ "; i>moveNumber; i--) if (last[i]==moveNumber) {go(i); break;}}");
-			out.println("  function gotoEnd() {go(" + (m_moveNumber - 1) + ");}");
-			out.println(m_posData.toString());
-			out.println(m_lastData.toString());
+			out.println("  function gotoEnd() {go(" + (moveNumber - 1) + ");}");
+			out.println(posData.toString());
+			out.println(lastData.toString());
 			out.println("</script>");
 			out.println();
 
@@ -326,7 +324,7 @@ public class HTMLGameBrowser implements TraverseListener {
 		out.println();
 
 		out.println("</td><td valign=\"top\">");
-		out.println(m_moves.toString());
+		out.println(moves.toString());
 		out.println("</td</tr></table>");
 
 		if (!contentOnly) {

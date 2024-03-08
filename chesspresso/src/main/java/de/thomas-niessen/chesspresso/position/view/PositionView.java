@@ -59,21 +59,21 @@ import chesspresso.position.view.Decoration.DecorationType;
  */
 @SuppressWarnings("serial")
 public class PositionView extends JPanel implements PositionListener, MouseListener, MouseMotionListener, ScreenShot {
-	private Position m_position;
-	private int m_bottom;
-	private boolean m_showCoordinates;
-	private boolean m_decorationsEnabled; // restricts Chessbase decorations within the local MouseListener only
-	private UserAction m_userAction;
-	private Color m_whiteSquareColor;
-	private Color m_blackSquareColor;
-	private Color m_whiteColor;
-	private Color m_blackColor;
-	private boolean m_solidStones;
+	private Position position;
+	private int bottomPlayer;
+	private boolean showCoordinates;
+	private boolean decorationsEnabled; // restricts Chessbase decorations within the local MouseListener only
+	private UserAction userAction;
+	private Color whiteSquareColor;
+	private Color blackSquareColor;
+	private Color whiteColor;
+	private Color blackColor;
+	private boolean solidStones;
 
-	private int m_draggedFrom;
-	private int m_draggedStone;
-	private int m_draggedX, m_draggedY;
-	private PositionMotionListener m_positionMotionListener;
+	private int draggedFrom;
+	private int draggedStone;
+	private int draggedX, draggedY;
+	private PositionMotionListener positionMotionListener;
 
 	private static final Color WHITE_SQUARE_DEFAULT_COLOR = new Color(232, 219, 200);
 	private static final Color BLACK_SQUARE_DEFAULT_COLOR = new Color(224, 175, 100);
@@ -105,11 +105,11 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 	private static final int SQUARE_OFFSET = 4;
 
-	final private Map<Integer, Paint> m_backgroundPaints = new HashMap<>();
+	final private Map<Integer, Paint> backgroundPaints = new HashMap<>();
 
-	final private Object m_decorationToken = new Object();
-	final private List<Decoration> m_lowerLevel = new ArrayList<>(); // below the figure symbols
-	final private List<Decoration> m_upperLevel = new ArrayList<>(); // above the figure symbols
+	final private Object decorationToken = new Object();
+	final private List<Decoration> lowerLevel = new ArrayList<>(); // below the figure symbols
+	final private List<Decoration> upperLevel = new ArrayList<>(); // above the figure symbols
 
 	private static final Color GREEN_TRANSPARENT = new Color(0.f, 1.f, 0.f, 0.6f);
 	private static final Color YELLOW_TRANSPARENT = new Color(1.f, 1.f, 0.f, 0.6f);
@@ -118,7 +118,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	private static final String DEFAULT_FONT_NAME = "CS Chess Merida Unicode";
 	private static final int DEFAULT_FONT_SIZE = 32;
 
-	private PieceTracker m_pieceTracker = null;
+	private PieceTracker pieceTracker = null;
 
 	// ======================================================================
 
@@ -151,125 +151,125 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	 * @param fontSize     the font size
 	 */
 	public PositionView(Position position, int bottomPlayer, UserAction userAction, int fontSize) {
-		m_position = position;
-		m_bottom = bottomPlayer;
-		m_showCoordinates = false;
-		m_decorationsEnabled = false;
-		m_userAction = userAction;
-		m_whiteSquareColor = WHITE_SQUARE_DEFAULT_COLOR;
-		m_blackSquareColor = BLACK_SQUARE_DEFAULT_COLOR;
-		m_whiteColor = Color.BLACK;
-		m_blackColor = Color.BLACK;
-		m_solidStones = true;
+		this.position = position;
+		this.bottomPlayer = bottomPlayer;
+		showCoordinates = false;
+		decorationsEnabled = false;
+		this.userAction = userAction;
+		whiteSquareColor = WHITE_SQUARE_DEFAULT_COLOR;
+		blackSquareColor = BLACK_SQUARE_DEFAULT_COLOR;
+		whiteColor = Color.BLACK;
+		blackColor = Color.BLACK;
+		solidStones = true;
 
 		setFont(new Font(DEFAULT_FONT_NAME, Font.PLAIN, fontSize));
 		// If this font is not available, Java's logical font "Dialog" will be chosen.
 
-		m_draggedStone = Chess.NO_STONE;
-		m_draggedFrom = Chess.NO_SQUARE;
-		m_positionMotionListener = null;
-		m_position.addPositionListener(this); // Seybold: when do we remove it?
+		draggedStone = Chess.NO_STONE;
+		draggedFrom = Chess.NO_SQUARE;
+		positionMotionListener = null;
+		position.addPositionListener(this); // Seybold: when do we remove it?
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
 
 	// ======================================================================
 	public void setPosition(Position position) {
-		m_position.removePositionListener(this);
-		m_position = position;
-		m_position.addPositionListener(this);
+		this.position.removePositionListener(this);
+		this.position = position;
+		this.position.addPositionListener(this);
 		removeAllPieceTracking(true);
 	}
 
 	// ======================================================================
 	public void setImmutablePosition(Position position) {
-		m_position = position;
+		this.position = position;
 	}
 
 	// ======================================================================
 
 	public int getBottomPlayer() {
-		return m_bottom;
+		return bottomPlayer;
 	}
 
 	public void setBottomPlayer(int player) {
-		if (player != m_bottom) {
-			m_bottom = player;
+		if (player != bottomPlayer) {
+			bottomPlayer = player;
 			repaint();
 		}
 	}
 
 	public void setShowCoordinates(boolean showCoordinates) {
-		m_showCoordinates = showCoordinates;
+		this.showCoordinates = showCoordinates;
 	}
 
 	public void setDecorationsEnabled(boolean enable) {
-		m_decorationsEnabled = enable;
+		decorationsEnabled = enable;
 	}
 
 	public void setUserAction(UserAction userAction) {
-		m_userAction = userAction;
+		this.userAction = userAction;
 	}
 
 	public Color getWhiteSquareColor() {
-		return m_whiteSquareColor;
+		return whiteSquareColor;
 	}
 
 	public Color getBlackSquareColor() {
-		return m_blackSquareColor;
+		return blackSquareColor;
 	}
 
 	public Color getWhiteColor() {
-		return m_whiteColor;
+		return whiteColor;
 	}
 
 	public Color getBlackColor() {
-		return m_blackColor;
+		return blackColor;
 	}
 
 	public boolean getSolidStones() {
-		return m_solidStones;
+		return solidStones;
 	}
 
 	public void setWhiteSquareColor(Color color) {
-		if (m_whiteSquareColor == color) {
+		if (whiteSquareColor == color) {
 			return;
 		}
-		m_whiteSquareColor = color;
+		whiteSquareColor = color;
 		repaint();
 	}
 
 	public void setBlackSquareColor(Color color) {
-		if (m_blackSquareColor == color) {
+		if (blackSquareColor == color) {
 			return;
 		}
-		m_blackSquareColor = color;
+		blackSquareColor = color;
 		repaint();
 	}
 
 	public void setWhiteSquareColorToDefault() {
-		m_whiteSquareColor = WHITE_SQUARE_DEFAULT_COLOR;
+		whiteSquareColor = WHITE_SQUARE_DEFAULT_COLOR;
 		repaint();
 	}
 
 	public void setBlackSquareColorToDefault() {
-		m_blackSquareColor = BLACK_SQUARE_DEFAULT_COLOR;
+		blackSquareColor = BLACK_SQUARE_DEFAULT_COLOR;
 		repaint();
 	}
 
 	public void setWhiteColor(Color color) {
-		if (m_whiteColor == color) {
+		if (whiteColor == color) {
 			return;
 		}
-		m_whiteColor = color;
+		whiteColor = color;
 		repaint();
 	}
 
 	public void setBlackColor(Color color) {
-		if (m_blackColor == color) {
+		if (blackColor == color) {
 			return;
 		}
-		m_blackColor = color;
+		blackColor = color;
 		repaint();
 	}
 
@@ -289,10 +289,10 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	public void setSolidStones(boolean solid) {
-		if (solid == m_solidStones) {
+		if (solid == solidStones) {
 			return;
 		}
-		m_solidStones = solid;
+		solidStones = solid;
 		repaint();
 	}
 
@@ -300,11 +300,11 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	 * Flip board.
 	 */
 	public void flip() {
-		setBottomPlayer(Chess.otherPlayer(m_bottom));
+		setBottomPlayer(Chess.otherPlayer(bottomPlayer));
 	}
 
 	public Position getPosition() {
-		return m_position;
+		return position;
 	}
 
 	@Override
@@ -340,7 +340,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 		int y0 = y / squareSize;
 		int x0 = x / squareSize;
-		if (m_bottom == Chess.WHITE) {
+		if (bottomPlayer == Chess.WHITE) {
 			return Chess.NUM_OF_COLS * (Chess.NUM_OF_ROWS - 1 - y0) + x0;
 		} else {
 			return Chess.NUM_OF_COLS * y0 + Chess.NUM_OF_COLS - 1 - x0;
@@ -349,9 +349,9 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 	public void setOrRemovePaint(int sqi, Paint paint) {
 		if (paint == null) {
-			m_backgroundPaints.remove(sqi);
+			backgroundPaints.remove(sqi);
 		} else {
-			m_backgroundPaints.put(sqi, paint);
+			backgroundPaints.put(sqi, paint);
 		}
 		repaint();
 	}
@@ -359,24 +359,24 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	public void setHighlight(int sqi, boolean highlight) {
 		if (highlight) {
 			if (Chess.isWhiteSquare(sqi)) {
-				m_backgroundPaints.put(sqi, HIGHLIGHT_PAINT_WHITE);
+				backgroundPaints.put(sqi, HIGHLIGHT_PAINT_WHITE);
 			} else {
-				m_backgroundPaints.put(sqi, HIGHLIGHT_PAINT_BLACK);
+				backgroundPaints.put(sqi, HIGHLIGHT_PAINT_BLACK);
 			}
 		} else {
-			m_backgroundPaints.remove(sqi);
+			backgroundPaints.remove(sqi);
 		}
 		repaint();
 	}
 
 	public void toggleHighlight(int sqi) {
-		if (m_backgroundPaints.containsKey(sqi)) {
-			m_backgroundPaints.remove(sqi);
+		if (backgroundPaints.containsKey(sqi)) {
+			backgroundPaints.remove(sqi);
 		} else {
 			if (Chess.isWhiteSquare(sqi)) {
-				m_backgroundPaints.put(sqi, HIGHLIGHT_PAINT_WHITE);
+				backgroundPaints.put(sqi, HIGHLIGHT_PAINT_WHITE);
 			} else {
-				m_backgroundPaints.put(sqi, HIGHLIGHT_PAINT_BLACK);
+				backgroundPaints.put(sqi, HIGHLIGHT_PAINT_BLACK);
 			}
 		}
 		repaint();
@@ -384,10 +384,10 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 	public void removeAllHighlighting() {
 		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
-			Paint paint = m_backgroundPaints.get(sqi);
+			Paint paint = backgroundPaints.get(sqi);
 			if (paint != null) {
 				if (paint == HIGHLIGHT_PAINT_WHITE || paint == HIGHLIGHT_PAINT_BLACK) {
-					m_backgroundPaints.remove(sqi);
+					backgroundPaints.remove(sqi);
 				}
 			}
 		}
@@ -396,11 +396,11 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 	public void addDecoration(Decoration decoration, boolean onTop) {
 		if (decoration != null) {
-			synchronized (m_decorationToken) {
+			synchronized (decorationToken) {
 				if (onTop) {
-					m_upperLevel.add(decoration);
+					upperLevel.add(decoration);
 				} else {
-					m_lowerLevel.add(decoration);
+					lowerLevel.add(decoration);
 				}
 			}
 			repaint();
@@ -408,38 +408,38 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	}
 
 	public void removeAllDecorations() {
-		synchronized (m_decorationToken) {
-			m_lowerLevel.clear();
-			m_upperLevel.clear();
+		synchronized (decorationToken) {
+			lowerLevel.clear();
+			upperLevel.clear();
 		}
 		repaint();
 	}
 
 	public void removeDecorations(Decoration.DecorationType type, Color color, Object owner) {
 		if (type != null) {
-			synchronized (m_decorationToken) {
+			synchronized (decorationToken) {
 				if (owner == null) {
 					if (color != null) {
-						m_lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
-						m_upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
+						lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
+						upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color));
 					} else {
 						try {
-							m_lowerLevel.removeIf(d -> d.getType().equals(type));
-							m_upperLevel.removeIf(d -> d.getType().equals(type));
+							lowerLevel.removeIf(d -> d.getType().equals(type));
+							upperLevel.removeIf(d -> d.getType().equals(type));
 						} catch (NullPointerException ex) {
 							ex.printStackTrace();
 						}
 					}
 				} else { // owner != null 
 					if (color != null) {
-						m_lowerLevel.removeIf(
+						lowerLevel.removeIf(
 								d -> d.getType().equals(type) && d.getColor().equals(color) && d.getOwner().equals(owner));
-						m_upperLevel.removeIf(
+						upperLevel.removeIf(
 								d -> d.getType().equals(type) && d.getColor().equals(color) && d.getOwner().equals(owner));
 					} else {
 						try {
-							m_lowerLevel.removeIf(d -> d.getType().equals(type) && d.getOwner().equals(owner));
-							m_upperLevel.removeIf(d -> d.getType().equals(type) && d.getOwner().equals(owner));
+							lowerLevel.removeIf(d -> d.getType().equals(type) && d.getOwner().equals(owner));
+							upperLevel.removeIf(d -> d.getType().equals(type) && d.getOwner().equals(owner));
 						} catch (NullPointerException ex) {
 							ex.printStackTrace();
 						}
@@ -452,14 +452,14 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 	public void removeDecorations(Decoration.DecorationType type, Color color, Object owner, Predicate<Decoration> predicate) {
 		if (type != null) {
-			synchronized (m_decorationToken) {
+			synchronized (decorationToken) {
 				if (color != null) {
-					m_lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
-					m_upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
+					lowerLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
+					upperLevel.removeIf(d -> d.getType().equals(type) && d.getColor().equals(color) && predicate.test(d));
 				} else {
 					try {
-						m_lowerLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
-						m_upperLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
+						lowerLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
+						upperLevel.removeIf(d -> d.getType().equals(type) && predicate.test(d));
 					} catch (NullPointerException ex) {
 						ex.printStackTrace();
 					}
@@ -478,37 +478,37 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	 */
 
 	public void setPieceTracker(PieceTracker pieceTracker) {
-		m_pieceTracker = pieceTracker;
+		this.pieceTracker = pieceTracker;
 		repaint();
 	}
 
 	public void addToPieceTracking(int sqi) {
-		if (m_pieceTracker != null) {
-			m_pieceTracker.addPiece(sqi);
+		if (pieceTracker != null) {
+			pieceTracker.addPiece(sqi);
 			updatePieceTracking();
 		}
 	}
 
 	public void removeFromPieceTracking(int sqi) {
-		if (m_pieceTracker != null) {
-			m_pieceTracker.removePiece(sqi);
+		if (pieceTracker != null) {
+			pieceTracker.removePiece(sqi);
 			updatePieceTracking();
 		}
 	}
 
 	public void removeAllPieceTracking(boolean removeTrackedPieces) {
-		if (m_pieceTracker != null) {
+		if (pieceTracker != null) {
 			if (removeTrackedPieces) {
-				m_pieceTracker.removeAllPieces();
+				pieceTracker.removeAllPieces();
 			}
-			removeDecorations(DecorationType.ARROW, null, m_pieceTracker);
+			removeDecorations(DecorationType.ARROW, null, pieceTracker);
 			repaint();
 		}
 	}
 
 	public void updatePieceTracking() {
-		if (m_pieceTracker != null) {
-			m_pieceTracker.updateDecorations(this);
+		if (pieceTracker != null) {
+			pieceTracker.updateDecorations(this);
 			repaint();
 		}
 	}
@@ -528,7 +528,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	// ======================================================================
 
 	public void setPositionMotionListener(PositionMotionListener listener) {
-		m_positionMotionListener = listener;
+		positionMotionListener = listener;
 	}
 
 	@Override
@@ -545,37 +545,37 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if (m_userAction == UserAction.DISABLED) {
+		if (userAction == UserAction.DISABLED) {
 			return;
 		}
 		if (Mouse.isSpecial(e) || SwingUtilities.isRightMouseButton(e)) {
 			if (e.isAltDown()) {
-				m_draggedFrom = getSquare(e.getX(), e.getY());
+				draggedFrom = getSquare(e.getX(), e.getY());
 			}
 			return;
 		}
-		if (m_positionMotionListener == null) {
+		if (positionMotionListener == null) {
 			return;
 		}
-		m_draggedFrom = getSquare(e.getX(), e.getY());
-		if (m_positionMotionListener.isDragAllowed(m_position, m_draggedFrom)) {
-			m_draggedStone = m_position.getStone(m_draggedFrom);
-			m_draggedX = e.getX();
-			m_draggedY = e.getY();
+		draggedFrom = getSquare(e.getX(), e.getY());
+		if (positionMotionListener.isDragAllowed(position, draggedFrom)) {
+			draggedStone = position.getStone(draggedFrom);
+			draggedX = e.getX();
+			draggedY = e.getY();
 			repaint();
 		} else {
-			m_positionMotionListener.squareClicked(m_position, m_draggedFrom, e);
-			m_draggedFrom = Chess.NO_SQUARE;
+			positionMotionListener.squareClicked(position, draggedFrom, e);
+			draggedFrom = Chess.NO_SQUARE;
 		}
 	}
 
 	private void drawChessbaseDecorations(MouseEvent e) {
-		if (m_decorationsEnabled) {
-			if (e.isAltDown() && m_draggedFrom != Chess.NO_SQUARE) {
+		if (decorationsEnabled) {
+			if (e.isAltDown() && draggedFrom != Chess.NO_SQUARE) {
 				int draggedTo = getSquare(e.getX(), e.getY());
 				if (draggedTo == Chess.NO_SQUARE) {
 					return;
-				} else if (draggedTo == m_draggedFrom) {
+				} else if (draggedTo == draggedFrom) {
 					if (e.isControlDown() || e.isMetaDown()) {
 						setOrRemovePaint(draggedTo, YELLOW_TRANSPARENT);
 					} else if (e.isShiftDown()) {
@@ -585,24 +585,25 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 					}
 				} else { // arrows
 					if (e.isControlDown() || e.isMetaDown()) {
-						addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, YELLOW_TRANSPARENT,
+						addDecoration(DecorationFactory.getArrowDecoration(draggedFrom, draggedTo, YELLOW_TRANSPARENT,
 								PositionView.this), true);
 					} else if (e.isShiftDown()) {
-						addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, RED_TRANSPARENT,
-								PositionView.this), true);
+						addDecoration(
+								DecorationFactory.getArrowDecoration(draggedFrom, draggedTo, RED_TRANSPARENT, PositionView.this),
+								true);
 					} else {
-						addDecoration(DecorationFactory.getArrowDecoration(m_draggedFrom, draggedTo, GREEN_TRANSPARENT,
+						addDecoration(DecorationFactory.getArrowDecoration(draggedFrom, draggedTo, GREEN_TRANSPARENT,
 								PositionView.this), true);
 					}
 				}
 			}
-			m_draggedFrom = Chess.NO_SQUARE; // otherwise paint draws there an empty square
+			draggedFrom = Chess.NO_SQUARE; // otherwise paint draws there an empty square
 			repaint();
 		}
 	}
 
 	public void removeChessbaseDecorations() {
-		m_backgroundPaints.values()
+		backgroundPaints.values()
 				.removeIf(p -> p.equals(YELLOW_TRANSPARENT) || p.equals(RED_TRANSPARENT) || p.equals(GREEN_TRANSPARENT));
 		removeDecorations(DecorationType.ARROW, YELLOW_TRANSPARENT, PositionView.this);
 		removeDecorations(DecorationType.ARROW, RED_TRANSPARENT, PositionView.this);
@@ -611,54 +612,54 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (m_userAction == UserAction.DISABLED) {
+		if (userAction == UserAction.DISABLED) {
 			return;
 		}
 		if (Mouse.isSpecial(e)) {
 			if (e.isAltDown()) {
 				drawChessbaseDecorations(e);
 			}
-			if (m_draggedStone != Chess.NO_STONE) {
-				m_draggedFrom = Chess.NO_SQUARE;
-				m_draggedStone = Chess.NO_STONE;
+			if (draggedStone != Chess.NO_STONE) {
+				draggedFrom = Chess.NO_SQUARE;
+				draggedStone = Chess.NO_STONE;
 				repaint();
 			}
 			return;
 		}
-		if (m_positionMotionListener == null || m_userAction == UserAction.NAVIGABLE) {
+		if (positionMotionListener == null || userAction == UserAction.NAVIGABLE) {
 			return;
 		}
-		if (m_draggedFrom != Chess.NO_SQUARE) {
+		if (draggedFrom != Chess.NO_SQUARE) {
 			int draggedTo = getSquare(e.getX(), e.getY());
 			if (draggedTo != Chess.NO_SQUARE) {
-				if (m_draggedFrom == draggedTo) {
-					m_positionMotionListener.squareClicked(m_position, m_draggedFrom, e);
+				if (draggedFrom == draggedTo) {
+					positionMotionListener.squareClicked(position, draggedFrom, e);
 				} else {
-					m_positionMotionListener.dragged(m_position, m_draggedFrom, draggedTo, e);
+					positionMotionListener.dragged(position, draggedFrom, draggedTo, e);
 				}
 			}
-			m_draggedFrom = Chess.NO_SQUARE;
-			m_draggedStone = Chess.NO_STONE;
+			draggedFrom = Chess.NO_SQUARE;
+			draggedStone = Chess.NO_STONE;
 			repaint();
 		}
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if (m_userAction == UserAction.DISABLED) {
+		if (userAction == UserAction.DISABLED) {
 			return;
 		}
 		if (Mouse.isSpecial(e)) {
-			if (m_draggedStone != Chess.NO_STONE) {
-				m_draggedFrom = Chess.NO_SQUARE;
-				m_draggedStone = Chess.NO_STONE;
+			if (draggedStone != Chess.NO_STONE) {
+				draggedFrom = Chess.NO_SQUARE;
+				draggedStone = Chess.NO_STONE;
 				repaint();
 			}
 			return;
 		}
-		if (m_draggedFrom != Chess.NO_SQUARE) {
-			m_draggedX = e.getX();
-			m_draggedY = e.getY();
+		if (draggedFrom != Chess.NO_SQUARE) {
+			draggedX = e.getX();
+			draggedY = e.getY();
 			repaint();
 		}
 	}
@@ -691,40 +692,40 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		// First step: draw the background.
 		for (int y = 0; y < Chess.NUM_OF_ROWS; y++) {
 			for (int x = 0; x < Chess.NUM_OF_COLS; x++) {
-				int sqi = (m_bottom == Chess.WHITE ? Chess.coorToSqi(x, Chess.NUM_OF_ROWS - y - 1)
+				int sqi = (bottomPlayer == Chess.WHITE ? Chess.coorToSqi(x, Chess.NUM_OF_ROWS - y - 1)
 						: Chess.coorToSqi(Chess.NUM_OF_COLS - x - 1, y));
-				if (m_backgroundPaints.containsKey(sqi)) {
-					g2.setPaint(m_backgroundPaints.get(sqi));
+				if (backgroundPaints.containsKey(sqi)) {
+					g2.setPaint(backgroundPaints.get(sqi));
 				} else if (Chess.isWhiteSquare(sqi)) {
-					graphics.setColor(m_whiteSquareColor);
+					graphics.setColor(whiteSquareColor);
 				} else {
-					graphics.setColor(m_blackSquareColor);
+					graphics.setColor(blackSquareColor);
 				}
 				graphics.fillRect(x * squareSize, y * squareSize, squareSize, squareSize);
 			}
 		}
 
 		// Second step: draw letters and numbers, if needed.
-		if (m_showCoordinates) {
+		if (showCoordinates) {
 			drawCoordinates(g2);
 		}
 
 		// Third step: draw the layer below the stones.
-		synchronized (m_decorationToken) {
-			for (Decoration decoration : m_lowerLevel) {
-				decoration.paint(g2, squareSize, m_bottom);
+		synchronized (decorationToken) {
+			for (Decoration decoration : lowerLevel) {
+				decoration.paint(g2, squareSize, bottomPlayer);
 			}
 		}
 
 		// Fourth step: get the stone and paint over the background with white color.
 		for (int y = 0; y < Chess.NUM_OF_ROWS; y++) {
 			for (int x = 0; x < Chess.NUM_OF_COLS; x++) {
-				int sqi = (m_bottom == Chess.WHITE ? Chess.coorToSqi(x, Chess.NUM_OF_ROWS - y - 1)
+				int sqi = (bottomPlayer == Chess.WHITE ? Chess.coorToSqi(x, Chess.NUM_OF_ROWS - y - 1)
 						: Chess.coorToSqi(Chess.NUM_OF_COLS - x - 1, y));
-				int stone = (sqi == m_draggedFrom ? Chess.NO_STONE : m_position.getStone(sqi));
+				int stone = (sqi == draggedFrom ? Chess.NO_STONE : position.getStone(sqi));
 				boolean stoneIsWhite = Chess.stoneToColor(stone) == Chess.WHITE;
-				graphics.setColor(stoneIsWhite ? m_whiteColor : m_blackColor);
-				if (m_solidStones) {
+				graphics.setColor(stoneIsWhite ? whiteColor : blackColor);
+				if (solidStones) {
 					stone = Chess.pieceToStone(Chess.stoneToPiece(stone), Chess.BLACK);
 				}
 				FontRenderContext frc = g2.getFontRenderContext();
@@ -752,27 +753,27 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		}
 
 		// Fifth step: draw the layer above the stones.
-		synchronized (m_decorationToken) {
-			for (Decoration decoration : m_upperLevel) {
-				decoration.paint(g2, squareSize, m_bottom);
+		synchronized (decorationToken) {
+			for (Decoration decoration : upperLevel) {
+				decoration.paint(g2, squareSize, bottomPlayer);
 			}
 		}
 
 		// Drag & Drop
-		if (m_draggedStone != Chess.NO_STONE) {
+		if (draggedStone != Chess.NO_STONE) {
 			// That's the old implementation. The first line does nothing, because the two
 			// colors are equal.
-			//			graphics.setColor(Chess.stoneToColor(m_draggedStone) == Chess.WHITE ? m_whiteColor : m_blackColor);
-			//			graphics.drawString(getStringForStone(m_draggedStone, true), m_draggedX - size / 2, m_draggedY + size / 2);
+			//			graphics.setColor(Chess.stoneToColor(draggedStone) == Chess.WHITE ? whiteColor : blackColor);
+			//			graphics.drawString(getStringForStone(draggedStone, true), draggedX - size / 2, draggedY + size / 2);
 			// End of old implementation.
 			// NEW: Again first the background
 			FontRenderContext frc = g2.getFontRenderContext();
 			GlyphVector gv = getFont().createGlyphVector(frc,
-					getStringForStone(m_draggedStone, Chess.stoneToColor(m_draggedStone) == Chess.WHITE));
+					getStringForStone(draggedStone, Chess.stoneToColor(draggedStone) == Chess.WHITE));
 
 			final Shape shape = gv.getOutline();
-			int transX = m_draggedX - squareSize / 2;
-			int transY = m_draggedY + squareSize / 2;
+			int transX = draggedX - squareSize / 2;
+			int transY = draggedY + squareSize / 2;
 			final AffineTransform trans = AffineTransform.getTranslateInstance(transX, transY);
 			final Shape shapeCentered = trans.createTransformedShape(shape);
 			final Area shapeArea = new Area(shapeCentered);
@@ -782,9 +783,9 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 				g2.fill(part);
 			}
 			// and then the piece itself
-			g2.setColor(Chess.stoneToColor(m_draggedStone) == Chess.WHITE ? m_whiteColor : m_blackColor);
-			graphics.drawString(getStringForStone(m_draggedStone, Chess.stoneToColor(m_draggedStone) == Chess.WHITE),
-					m_draggedX - squareSize / 2, m_draggedY + squareSize / 2);
+			g2.setColor(Chess.stoneToColor(draggedStone) == Chess.WHITE ? whiteColor : blackColor);
+			graphics.drawString(getStringForStone(draggedStone, Chess.stoneToColor(draggedStone) == Chess.WHITE),
+					draggedX - squareSize / 2, draggedY + squareSize / 2);
 		}
 	}
 
@@ -827,37 +828,37 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		Font newFont = new Font(Font.DIALOG, Font.PLAIN, 14);
 		g2.setFont(newFont);
 		int squareSize = getFont().getSize() + SQUARE_OFFSET;
-		if (m_bottom == Chess.WHITE) { // a-h in the bottom line, 1-8 in the rightmost file from bottom to top
+		if (bottomPlayer == Chess.WHITE) { // a-h in the bottom line, 1-8 in the rightmost file from bottom to top
 			for (int x = 0; x < Chess.NUM_OF_COLS; x++) {
 				if (x % 2 == 0) {
-					g2.setColor(m_whiteSquareColor);
+					g2.setColor(whiteSquareColor);
 				} else {
-					g2.setColor(m_blackSquareColor);
+					g2.setColor(blackSquareColor);
 				}
 				g2.drawChars(letters[x], 0, 1, x * squareSize + 1, 8 * squareSize - 3);
 			}
 			for (int y = 0; y < Chess.NUM_OF_ROWS; y++) {
 				if (y % 2 == 0) {
-					g2.setColor(m_whiteSquareColor);
+					g2.setColor(whiteSquareColor);
 				} else {
-					g2.setColor(m_blackSquareColor);
+					g2.setColor(blackSquareColor);
 				}
 				g2.drawChars(numbers[Chess.NUM_OF_ROWS - 1 - y], 0, 1, 8 * squareSize - 10, y * squareSize + 14);
 			}
 		} else { //h-a in the bottom line, 1-8 in the rightmost file from top to bottom
 			for (int x = 0; x < Chess.NUM_OF_COLS; x++) {
 				if (x % 2 == 0) {
-					g2.setColor(m_whiteSquareColor);
+					g2.setColor(whiteSquareColor);
 				} else {
-					g2.setColor(m_blackSquareColor);
+					g2.setColor(blackSquareColor);
 				}
 				g2.drawChars(letters[Chess.NUM_OF_COLS - 1 - x], 0, 1, x * squareSize + 2, 8 * squareSize - 2);
 			}
 			for (int y = 0; y < Chess.NUM_OF_ROWS; y++) {
 				if (y % 2 == 0) {
-					g2.setColor(m_whiteSquareColor);
+					g2.setColor(whiteSquareColor);
 				} else {
-					g2.setColor(m_blackSquareColor);
+					g2.setColor(blackSquareColor);
 				}
 				g2.drawChars(numbers[y], 0, 1, 8 * squareSize - 12, y * squareSize + 16);
 			}

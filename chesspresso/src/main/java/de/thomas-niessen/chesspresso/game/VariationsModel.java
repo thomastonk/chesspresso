@@ -25,9 +25,8 @@ import java.util.TreeMap;
 /*
  * TN: I introduced this class to encapsulate the code for modifications of
  * the variations like they appeared first in promoting/grading up a variation.
- * Start point is always the short[] m_moves from GameMoveModel, which contains
- * moves, comments, NAGs and the line structure information (and which should
- * one day be named m_nodes).
+ * Start point is always the short[] nodes from GameMoveModel, which contains
+ * moves, comments, NAGs and the line structure information.
  */
 public class VariationsModel {
 

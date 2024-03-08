@@ -61,7 +61,7 @@ public class PositionViewProperties extends JDialog {
 
 	// ======================================================================
 
-	private final PositionView m_positionView;
+	private final PositionView positionView;
 
 	public PositionViewProperties(Frame parent, boolean modal) {
 		super(parent, modal);
@@ -69,14 +69,14 @@ public class PositionViewProperties extends JDialog {
 
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-		m_positionView = new PositionView(Position.createInitialPosition());
-		m_positionView.setShowCoordinates(true);
-		panel.add(m_positionView);
-		m_positionFrame.add(panel, BorderLayout.CENTER);
+		positionView = new PositionView(Position.createInitialPosition());
+		positionView.setShowCoordinates(true);
+		panel.add(positionView);
+		positionFrame.add(panel, BorderLayout.CENTER);
 
-		Font font = m_positionView.getFont();
+		Font font = positionView.getFont();
 		teFontSize.setText(Integer.toString(font.getSize()));
-		cbSolid.setSelected(m_positionView.getSolidStones());
+		cbSolid.setSelected(positionView.getSolidStones());
 
 		Font[] allFonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
 		for (Font f : allFonts) {
@@ -104,15 +104,15 @@ public class PositionViewProperties extends JDialog {
 			Font font = (Font) cbFonts.getSelectedItem();
 			if (font != null) {
 				int fontSize = Integer.parseInt(teFontSize.getText());
-				m_positionView.setFont(font.deriveFont(Font.PLAIN, fontSize));
+				positionView.setFont(font.deriveFont(Font.PLAIN, fontSize));
 			}
-			m_positionView.setSolidStones(cbSolid.isSelected());
+			positionView.setSolidStones(cbSolid.isSelected());
 		} catch (NumberFormatException ignore) {
 		}
 	}
 
 	public PositionView getPositionView() {
-		return m_positionView;
+		return positionView;
 	}
 
 	// ======================================================================
@@ -130,7 +130,7 @@ public class PositionViewProperties extends JDialog {
 		cbFonts = new JComboBox<>();
 		teFontSize = new JTextField(3);
 		cbSolid = new JCheckBox();
-		m_positionFrame = new JPanel();
+		positionFrame = new JPanel();
 
 		setTitle("Position View Properties");
 		addWindowListener(new WindowAdapter() {
@@ -207,9 +207,9 @@ public class PositionViewProperties extends JDialog {
 
 		getContentPane().add(jPanel1, BorderLayout.NORTH);
 
-		m_positionFrame.setLayout(new BorderLayout());
+		positionFrame.setLayout(new BorderLayout());
 
-		getContentPane().add(m_positionFrame, BorderLayout.CENTER);
+		getContentPane().add(positionFrame, BorderLayout.CENTER);
 
 	}
 
@@ -222,31 +222,31 @@ public class PositionViewProperties extends JDialog {
 	}
 
 	private void butBlackSquareActionPerformed(ActionEvent evt) {
-		JColorChooser colorChooser = new JColorChooser(m_positionView.getBlackSquareColor());
+		JColorChooser colorChooser = new JColorChooser(positionView.getBlackSquareColor());
 		JDialog dialog = JColorChooser.createDialog(this, "Black Square Color", true, colorChooser, null, null);
 		dialog.setVisible(true);
-		m_positionView.setBlackSquareColor(colorChooser.getColor());
+		positionView.setBlackSquareColor(colorChooser.getColor());
 	}
 
 	private void butWhiteSquareActionPerformed(ActionEvent evt) {
-		JColorChooser colorChooser = new JColorChooser(m_positionView.getWhiteSquareColor());
+		JColorChooser colorChooser = new JColorChooser(positionView.getWhiteSquareColor());
 		JDialog dialog = JColorChooser.createDialog(this, "White Square Color", true, colorChooser, null, null);
 		dialog.setVisible(true);
-		m_positionView.setWhiteSquareColor(colorChooser.getColor());
+		positionView.setWhiteSquareColor(colorChooser.getColor());
 	}
 
 	private void butBlackActionPerformed(ActionEvent evt) {
-		JColorChooser colorChooser = new JColorChooser(m_positionView.getBlackColor());
+		JColorChooser colorChooser = new JColorChooser(positionView.getBlackColor());
 		JDialog dialog = JColorChooser.createDialog(this, "Black Color", true, colorChooser, null, null);
 		dialog.setVisible(true);
-		m_positionView.setBlackColor(colorChooser.getColor());
+		positionView.setBlackColor(colorChooser.getColor());
 	}
 
 	private void butWhiteActionPerformed(ActionEvent evt) {
-		JColorChooser colorChooser = new JColorChooser(m_positionView.getWhiteColor());
+		JColorChooser colorChooser = new JColorChooser(positionView.getWhiteColor());
 		JDialog dialog = JColorChooser.createDialog(this, "White Color", true, colorChooser, null, null);
 		dialog.setVisible(true);
-		m_positionView.setWhiteColor(colorChooser.getColor());
+		positionView.setWhiteColor(colorChooser.getColor());
 	}
 
 	private void closeDialog(WindowEvent evt) {
@@ -262,7 +262,7 @@ public class PositionViewProperties extends JDialog {
 	private JPanel jPanel2;
 	private JButton butWhiteSquare;
 	private JComboBox<Font> cbFonts;
-	private JPanel m_positionFrame;
+	private JPanel positionFrame;
 	private JPanel jPanel1;
 	private JPanel jPanel6;
 	private JCheckBox cbSolid;

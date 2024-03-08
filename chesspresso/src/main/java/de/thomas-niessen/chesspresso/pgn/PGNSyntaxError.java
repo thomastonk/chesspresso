@@ -34,44 +34,44 @@ public class PGNSyntaxError extends java.lang.Exception {
 
 	// ======================================================================
 
-	private final Severity m_severity;
-	private final String m_filename;
-	private final int m_lineNumber;
-	private final String m_lastToken;
+	private final Severity severity;
+	private final String filename;
+	private final int lineNumber;
+	private final String lastToken;
 
 	// ======================================================================
 
 	public PGNSyntaxError(Severity severity, String msg, String filename, int lineNumber, String lastToken) {
 		super(msg);
-		m_severity = severity;
-		m_filename = filename;
-		m_lineNumber = lineNumber;
-		m_lastToken = lastToken;
+		this.severity = severity;
+		this.filename = filename;
+		this.lineNumber = lineNumber;
+		this.lastToken = lastToken;
 	}
 
 	// ======================================================================
 
 	public Severity getSeverity() {
-		return m_severity;
+		return severity;
 	}
 
 	public String getFilename() {
-		return m_filename;
+		return filename;
 	}
 
 	public int getLineNumber() {
-		return m_lineNumber;
+		return lineNumber;
 	}
 
 	public String getLastToken() {
-		return m_lastToken;
+		return lastToken;
 	}
 
 	// ======================================================================
 
 	@Override
 	public String toString() {
-		return m_severity.desc + ": " + m_filename + ":" + m_lineNumber + ": near " + m_lastToken + ": " + getMessage();
+		return severity.desc + ": " + filename + ":" + lineNumber + ": near " + lastToken + ": " + getMessage();
 	}
 
 }

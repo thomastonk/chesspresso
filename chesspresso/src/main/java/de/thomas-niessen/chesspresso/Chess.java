@@ -36,7 +36,10 @@ package chesspresso;
  * @author Bernhard Seybold
  * 
  */
-public abstract class Chess {
+public class Chess {
+
+	private Chess() {
+	}
 
 	/* ========== squares, coordinates ========== */
 
@@ -299,7 +302,7 @@ public abstract class Chess {
 			WHITE_BISHOP = -2, WHITE_KNIGHT = -1, BLACK_KING = 6, BLACK_PAWN = 5, BLACK_QUEEN = 4, BLACK_ROOK = 3,
 			BLACK_BISHOP = 2, BLACK_KNIGHT = 1, NO_STONE = NO_PIECE;
 
-	public static final char[] pieceChars = { ' ', 'N', 'B', 'R', 'Q', 'P', 'K' };
+	public static final char[] PIECE_CHARS = { ' ', 'N', 'B', 'R', 'Q', 'P', 'K' };
 
 	/**
 	 * Extracts the color of a stone.
@@ -374,8 +377,8 @@ public abstract class Chess {
 	 *         illegal
 	 */
 	public static int charToPiece(char ch) {
-		for (int piece = 0; piece < pieceChars.length; piece++) {
-			if (pieceChars[piece] == ch) {
+		for (int piece = 0; piece < PIECE_CHARS.length; piece++) {
+			if (PIECE_CHARS[piece] == ch) {
 				return piece;
 			}
 		}
@@ -393,7 +396,7 @@ public abstract class Chess {
 		if (piece < 0 || piece > MAX_PIECE) {
 			return '?';
 		}
-		return pieceChars[piece];
+		return PIECE_CHARS[piece];
 	}
 
 	/**
@@ -405,9 +408,9 @@ public abstract class Chess {
 	 */
 	public static char stoneToChar(int stone) {
 		if (stone < 0) {
-			return pieceChars[-stone];
+			return PIECE_CHARS[-stone];
 		} else {
-			return pieceChars[stone];
+			return PIECE_CHARS[stone];
 		}
 	}
 

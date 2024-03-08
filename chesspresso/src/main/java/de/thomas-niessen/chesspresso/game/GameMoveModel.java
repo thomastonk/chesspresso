@@ -56,29 +56,29 @@ class GameMoveModel implements Serializable {
 
 	// ======================================================================
 
-	private short[] m_moves; // TN: a much better/consistent name would be m_nodes!
-	private int m_size;
-	private int m_hashCode;
-	private boolean m_hasComment;
+	private short[] nodes;
+	private int size;
+	private int hashCode;
+	private boolean hasComment;
 
 	// ======================================================================
 
 	GameMoveModel() {
-		m_moves = new short[32];
-		m_moves[0] = LINE_START;
-		m_moves[1] = LINE_END;
-		m_size = 2;
-		m_hashCode = 0;
-		m_hasComment = false;
+		nodes = new short[32];
+		nodes[0] = LINE_START;
+		nodes[1] = LINE_END;
+		size = 2;
+		hashCode = 0;
+		hasComment = false;
 	}
 
 	void clear() {
-		Arrays.fill(m_moves, (short) 0);
-		m_moves[0] = LINE_START;
-		m_moves[1] = LINE_END;
-		m_size = 2;
-		m_hashCode = 0;
-		m_hasComment = false;
+		Arrays.fill(nodes, (short) 0);
+		nodes[0] = LINE_START;
+		nodes[1] = LINE_END;
+		size = 2;
+		hashCode = 0;
+		hasComment = false;
 	}
 
 	GameMoveModel getDeepCopy() {
@@ -92,10 +92,10 @@ class GameMoveModel implements Serializable {
 		if (this == otherModel) {
 			return;
 		}
-		m_moves = Arrays.copyOf(otherModel.m_moves, otherModel.m_moves.length);
-		m_size = otherModel.m_size;
-		m_hashCode = otherModel.m_hashCode;
-		m_hasComment = otherModel.m_hasComment;
+		nodes = Arrays.copyOf(otherModel.nodes, otherModel.nodes.length);
+		size = otherModel.size;
+		hashCode = otherModel.hashCode;
+		hasComment = otherModel.hasComment;
 	}
 
 	// ======================================================================
@@ -105,11 +105,11 @@ class GameMoveModel implements Serializable {
 		if (index < 0) {
 			throw new IllegalArgumentException("Illegal index " + index);
 		}
-		if (index >= m_size) {
-			throw new IllegalArgumentException("Illegal index " + index + " m_size=" + m_size);
+		if (index >= size) {
+			throw new IllegalArgumentException("Illegal index " + index + " size=" + size);
 		}
-		if (m_moves[index] != LINE_START && !isMoveValue(m_moves[index])) {
-			throw new IllegalArgumentException("No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
+		if (nodes[index] != LINE_START && !isMoveValue(nodes[index])) {
+			throw new IllegalArgumentException("No move at index " + index + " (value=" + valueToString(nodes[index]) + ")");
 		}
 	}
 
@@ -134,7 +134,7 @@ class GameMoveModel implements Serializable {
 	// ======================================================================
 
 	private void changed() {
-		m_hashCode = 0;
+		hashCode = 0;
 	}
 
 	// ======================================================================
@@ -156,7 +156,7 @@ class GameMoveModel implements Serializable {
 		short value;
 		do {
 			index++;
-			value = m_moves[index];
+			value = nodes[index];
 			if (value == nagValue) {
 				return true;
 			}
@@ -173,13 +173,13 @@ class GameMoveModel implements Serializable {
 			}
 		}
 		if (EXTRA_CHECKS) {
-			if (!isMoveValue(m_moves[index])) {
-				throw new IllegalArgumentException("No move at index " + index + " move=" + valueToString(m_moves[index]));
+			if (!isMoveValue(nodes[index])) {
+				throw new IllegalArgumentException("No move at index " + index + " move=" + valueToString(nodes[index]));
 			}
 		}
 
 		int num = 0;
-		while (isNagValue(m_moves[index + 1])) {
+		while (isNagValue(nodes[index + 1])) {
 			index++;
 			num++;
 		}
@@ -189,7 +189,7 @@ class GameMoveModel implements Serializable {
 			short[] nags = new short[num];
 			// collect nags from back to front (most recently added last)
 			for (int i = 0; i < num; i++) {
-				nags[i] = getNagForValue(m_moves[index - i]);
+				nags[i] = getNagForValue(nodes[index - i]);
 			}
 			Arrays.sort(nags); // in order to get !,? etc before =, +- etc
 			return nags;
@@ -210,13 +210,13 @@ class GameMoveModel implements Serializable {
 		}
 
 		if (EXTRA_CHECKS) {
-			if (!isMoveValue(m_moves[index])) {
-				throw new IllegalArgumentException("No move at index " + index + " val=" + valueToString(m_moves[index]));
+			if (!isMoveValue(nodes[index])) {
+				throw new IllegalArgumentException("No move at index " + index + " val=" + valueToString(nodes[index]));
 			}
 		}
 
 		makeSpace(index + 1, 1, false); // most recent nag first
-		m_moves[index + 1] = getValueForNag(nag);
+		nodes[index + 1] = getValueForNag(nag);
 		changed();
 
 		if (DEBUG) {
@@ -238,8 +238,8 @@ class GameMoveModel implements Serializable {
 		}
 
 		if (EXTRA_CHECKS) {
-			if (!isMoveValue(m_moves[index])) {
-				throw new IllegalArgumentException("No move at index " + index + " val=" + valueToString(m_moves[index]));
+			if (!isMoveValue(nodes[index])) {
+				throw new IllegalArgumentException("No move at index " + index + " val=" + valueToString(nodes[index]));
 			}
 		}
 
@@ -248,13 +248,13 @@ class GameMoveModel implements Serializable {
 		boolean changed = false;
 		do {
 			index++;
-			value = m_moves[index];
+			value = nodes[index];
 			if (value == nagValue) {
-				while (isNagValue(m_moves[index + 1])) {
-					m_moves[index] = m_moves[index + 1];
+				while (isNagValue(nodes[index + 1])) {
+					nodes[index] = nodes[index + 1];
 					index++;
 				}
-				m_moves[index] = NO_MOVE;
+				nodes[index] = NO_MOVE;
 				changed = true;
 				break;
 			}
@@ -302,17 +302,17 @@ class GameMoveModel implements Serializable {
 	boolean removeAllNags() {
 		// This simple method has caused many problems; change with utmost care.
 		boolean changed = false;
-		for (int index = 0; index < m_size; ++index) {
-			if (m_moves[index] == PRE_COMMENT_START) {
-				while (m_moves[index] != PRE_COMMENT_END) { // treat the comment as one char
+		for (int index = 0; index < size; ++index) {
+			if (nodes[index] == PRE_COMMENT_START) {
+				while (nodes[index] != PRE_COMMENT_END) { // treat the comment as one char
 					++index;
 				}
-			} else if (m_moves[index] == POST_COMMENT_START) {
-				while (m_moves[index] != POST_COMMENT_END) { // treat the comment as one char
+			} else if (nodes[index] == POST_COMMENT_START) {
+				while (nodes[index] != POST_COMMENT_END) { // treat the comment as one char
 					++index;
 				}
-			} else if (isNagValue(m_moves[index])) {
-				m_moves[index] = NO_MOVE;
+			} else if (isNagValue(nodes[index])) {
+				nodes[index] = NO_MOVE;
 				changed = true;
 			}
 		}
@@ -322,66 +322,65 @@ class GameMoveModel implements Serializable {
 	// ======================================================================
 
 	boolean hasComment() {
-		return m_hasComment;
+		return hasComment;
 	}
 
 	private int skipPreComment(int index) {
-		if (m_moves[index] == PRE_COMMENT_START) {
-			while (m_moves[index] != PRE_COMMENT_END) {
+		if (nodes[index] == PRE_COMMENT_START) {
+			while (nodes[index] != PRE_COMMENT_END) {
 				index++;
 			}
-		} else if (m_moves[index] == PRE_COMMENT_END) {
-			while (m_moves[index] != PRE_COMMENT_START) {
+		} else if (nodes[index] == PRE_COMMENT_END) {
+			while (nodes[index] != PRE_COMMENT_START) {
 				index--;
 			}
 		} else {
 			throw new IllegalArgumentException(
-					"No comment starts or ends at index " + index + " move " + valueToString(m_moves[index]));
+					"No comment starts or ends at index " + index + " move " + valueToString(nodes[index]));
 		}
 		return index;
 	}
 
 	private int skipPostComment(int index) {
-		if (m_moves[index] == POST_COMMENT_START) {
-			while (m_moves[index] != POST_COMMENT_END) {
+		if (nodes[index] == POST_COMMENT_START) {
+			while (nodes[index] != POST_COMMENT_END) {
 				index++;
 			}
-		} else if (m_moves[index] == POST_COMMENT_END) {
-			while (m_moves[index] != POST_COMMENT_START) {
+		} else if (nodes[index] == POST_COMMENT_END) {
+			while (nodes[index] != POST_COMMENT_START) {
 				index--;
 			}
 		} else {
 			throw new IllegalArgumentException(
-					"No comment starts or ends at index " + index + " move " + valueToString(m_moves[index]));
+					"No comment starts or ends at index " + index + " move " + valueToString(nodes[index]));
 		}
 		return index;
 	}
 
 	String getPreMoveComment(int index) {
 		if (EXTRA_CHECKS) {
-			if (!isMoveValue(m_moves[index]) && index != 0) {
-				throw new IllegalArgumentException(
-						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
+			if (!isMoveValue(nodes[index]) && index != 0) {
+				throw new IllegalArgumentException("No move at index " + index + " (value=" + valueToString(nodes[index]) + ")");
 			}
 		}
-		if (index - 1 >= 0 && m_moves[index - 1] == PRE_COMMENT_END) {
+		if (index - 1 >= 0 && nodes[index - 1] == PRE_COMMENT_END) {
 			index -= 2;
 			StringBuilder sb = new StringBuilder();
-			while (m_moves[index] != PRE_COMMENT_START) {
-				sb.insert(0, (char) m_moves[index]);
+			while (nodes[index] != PRE_COMMENT_START) {
+				sb.insert(0, (char) nodes[index]);
 				--index;
 			}
 			return sb.toString();
 		} else if (index == 0) {
 			index = 1;
-			while (m_moves[index] == NO_MOVE) {
+			while (nodes[index] == NO_MOVE) {
 				++index;
 			}
-			if (m_moves[index] == PRE_COMMENT_START) {
+			if (nodes[index] == PRE_COMMENT_START) {
 				++index;
 				StringBuilder sb = new StringBuilder();
-				while (m_moves[index] != PRE_COMMENT_END) {
-					sb.append((char) m_moves[index]);
+				while (nodes[index] != PRE_COMMENT_END) {
+					sb.append((char) nodes[index]);
 					++index;
 				}
 				return sb.toString();
@@ -392,9 +391,8 @@ class GameMoveModel implements Serializable {
 
 	String getPostMoveComment(int index) {
 		if (EXTRA_CHECKS) {
-			if (!isMoveValue(m_moves[index]) && index != 0) {
-				throw new IllegalArgumentException(
-						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
+			if (!isMoveValue(nodes[index]) && index != 0) {
+				throw new IllegalArgumentException("No move at index " + index + " (value=" + valueToString(nodes[index]) + ")");
 			}
 		}
 
@@ -406,15 +404,15 @@ class GameMoveModel implements Serializable {
 		}
 
 		// skip all nags and NO_MOVEs (which are deleted NAGs)
-		while (isNagValue(m_moves[index + 1]) || m_moves[index + 1] == NO_MOVE) {
+		while (isNagValue(nodes[index + 1]) || nodes[index + 1] == NO_MOVE) {
 			index++;
 		}
 
-		if (m_moves[index + 1] == POST_COMMENT_START) {
+		if (nodes[index + 1] == POST_COMMENT_START) {
 			index += 2;
 			StringBuilder sb = new StringBuilder();
-			while (m_moves[index] != POST_COMMENT_END) {
-				sb.append((char) m_moves[index]);
+			while (nodes[index] != POST_COMMENT_END) {
+				sb.append((char) nodes[index]);
 				index++;
 			}
 			return sb.toString();
@@ -427,15 +425,15 @@ class GameMoveModel implements Serializable {
 	 * Returns the index of the first move or -1, if no move exists.
 	 */
 	private int getFirstMoveIndex() {
-		short move = m_moves[1];
+		short move = nodes[1];
 		if (move == LINE_END) { // No move, no comment
 			return -1;
 		}
 		int index = 1;
-		while (m_moves[index] == NO_MOVE) {
+		while (nodes[index] == NO_MOVE) {
 			++index;
 		}
-		if (m_moves[index] == PRE_COMMENT_START) {
+		if (nodes[index] == PRE_COMMENT_START) {
 			return skipPreComment(index) + 1;
 		} else {
 			return index;
@@ -452,7 +450,7 @@ class GameMoveModel implements Serializable {
 		boolean remChange = removePreMoveComment(index);
 		boolean addChange = addPreMoveComment(index, comment);
 		if (remChange || addChange) {
-			m_hasComment = true;
+			hasComment = true;
 			return true;
 		} else {
 			return false;
@@ -472,7 +470,7 @@ class GameMoveModel implements Serializable {
 		boolean remChange = removePostMoveComment(index);
 		boolean addChange = addPostMoveComment(index, comment);
 		if (remChange || addChange) {
-			m_hasComment = true;
+			hasComment = true;
 			return true;
 		} else {
 			return false;
@@ -489,9 +487,8 @@ class GameMoveModel implements Serializable {
 		}
 
 		if (EXTRA_CHECKS) {
-			if (!isMoveValue(m_moves[index])) {
-				throw new IllegalArgumentException(
-						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
+			if (!isMoveValue(nodes[index])) {
+				throw new IllegalArgumentException("No move at index " + index + " (value=" + valueToString(nodes[index]) + ")");
 			}
 		}
 
@@ -500,19 +497,19 @@ class GameMoveModel implements Serializable {
 		}
 
 		makeSpace(index, comment.length() + 2, false);
-		m_moves[index] = PRE_COMMENT_START;
+		nodes[index] = PRE_COMMENT_START;
 		for (int i = 0; i < comment.length(); i++) {
 			short sh = (short) comment.charAt(i);
 			if ((sh >= 32 && sh <= 126) || (sh >= 192 && sh <= 255)) {// these are the legal chars in PGN
-				m_moves[index + 1 + i] = sh;
+				nodes[index + 1 + i] = sh;
 			} else {
-				m_moves[index + 1 + i] = '?';
+				nodes[index + 1 + i] = '?';
 			}
 		}
-		m_moves[index + comment.length() + 1] = PRE_COMMENT_END;
+		nodes[index + comment.length() + 1] = PRE_COMMENT_END;
 		changed();
 
-		m_hasComment = true;
+		hasComment = true;
 
 		if (DEBUG) {
 			write(System.out);
@@ -527,9 +524,8 @@ class GameMoveModel implements Serializable {
 		}
 
 		if (EXTRA_CHECKS) {
-			if (index != 0 && !isMoveValue(m_moves[index])) {
-				throw new IllegalArgumentException(
-						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
+			if (index != 0 && !isMoveValue(nodes[index])) {
+				throw new IllegalArgumentException("No move at index " + index + " (value=" + valueToString(nodes[index]) + ")");
 			}
 		}
 
@@ -539,24 +535,24 @@ class GameMoveModel implements Serializable {
 
 		// index = 0: comment before first move
 		if (index != 0) {
-			while (isNagValue(m_moves[index + 1])) {
+			while (isNagValue(nodes[index + 1])) {
 				index++;
 			}
 		}
 		makeSpace(index + 1, comment.length() + 2, false);
-		m_moves[index + 1] = POST_COMMENT_START;
+		nodes[index + 1] = POST_COMMENT_START;
 		for (int i = 0; i < comment.length(); i++) {
 			short sh = (short) comment.charAt(i);
 			if ((sh >= 32 && sh <= 126) || (sh >= 192 && sh <= 255)) {// these are the legal chars in PGN
-				m_moves[index + 2 + i] = sh;
+				nodes[index + 2 + i] = sh;
 			} else {
-				m_moves[index + 2 + i] = '?';
+				nodes[index + 2 + i] = '?';
 			}
 		}
-		m_moves[index + comment.length() + 2] = POST_COMMENT_END;
+		nodes[index + comment.length() + 2] = POST_COMMENT_END;
 		changed();
 
-		m_hasComment = true;
+		hasComment = true;
 
 		if (DEBUG) {
 			write(System.out);
@@ -571,16 +567,15 @@ class GameMoveModel implements Serializable {
 		}
 
 		if (EXTRA_CHECKS) {
-			if (!isMoveValue(m_moves[index])) {
-				throw new IllegalArgumentException(
-						"No move at index " + index + " (value=" + valueToString(m_moves[index]) + ")");
+			if (!isMoveValue(nodes[index])) {
+				throw new IllegalArgumentException("No move at index " + index + " (value=" + valueToString(nodes[index]) + ")");
 			}
 		}
 
 		boolean isChanged = false;
-		if (m_moves[index - 1] == PRE_COMMENT_END) {
+		if (nodes[index - 1] == PRE_COMMENT_END) {
 			for (int i = skipPreComment(index - 1); i < index; i++) {
-				m_moves[i] = NO_MOVE;
+				nodes[i] = NO_MOVE;
 			}
 			isChanged = true;
 		}
@@ -589,10 +584,10 @@ class GameMoveModel implements Serializable {
 		}
 		// TN added:
 		if (isChanged) {
-			m_hasComment = false;
-			for (int i = 0; i < m_size; ++i) {
-				if (m_moves[i] == PRE_COMMENT_START || m_moves[i] == POST_COMMENT_START) {
-					m_hasComment = true;
+			hasComment = false;
+			for (int i = 0; i < size; ++i) {
+				if (nodes[i] == PRE_COMMENT_START || nodes[i] == POST_COMMENT_START) {
+					hasComment = true;
 					break;
 				}
 			}
@@ -616,23 +611,23 @@ class GameMoveModel implements Serializable {
 				return false;
 			}
 		}
-		while (isNagValue(m_moves[index + 1]) || (m_moves[index + 1] == NO_MOVE)) {
+		while (isNagValue(nodes[index + 1]) || (nodes[index + 1] == NO_MOVE)) {
 			++index;
 		}
 
 		boolean isChanged = false;
-		if (m_moves[index + 1] == POST_COMMENT_START) {
+		if (nodes[index + 1] == POST_COMMENT_START) {
 			for (int i = skipPostComment(index + 1); i > index; i--) {
-				m_moves[i] = NO_MOVE;
+				nodes[i] = NO_MOVE;
 			}
 			isChanged = true;
 		}
 		if (isChanged) {
 			changed();
-			m_hasComment = false;
-			for (int i = 0; i < m_size; ++i) {
-				if (m_moves[i] == PRE_COMMENT_START || m_moves[i] == POST_COMMENT_START) {
-					m_hasComment = true;
+			hasComment = false;
+			for (int i = 0; i < size; ++i) {
+				if (nodes[i] == PRE_COMMENT_START || nodes[i] == POST_COMMENT_START) {
+					hasComment = true;
 					break;
 				}
 			}
@@ -646,33 +641,33 @@ class GameMoveModel implements Serializable {
 
 	void setEmptyGameComment(String comment) {
 		if (comment != null && !comment.isEmpty()) {
-			m_moves = new short[Math.max(32, comment.length() + 4)];
-			m_moves[0] = LINE_START;
-			m_moves[1] = PRE_COMMENT_START;
+			nodes = new short[Math.max(32, comment.length() + 4)];
+			nodes[0] = LINE_START;
+			nodes[1] = PRE_COMMENT_START;
 			for (int i = 0; i < comment.length(); i++) {
-				m_moves[2 + i] = (short) comment.charAt(i);
+				nodes[2 + i] = (short) comment.charAt(i);
 			}
-			m_moves[comment.length() + 2] = PRE_COMMENT_END;
-			m_moves[comment.length() + 3] = LINE_END;
-			m_size = comment.length() + 4;
-			m_hasComment = true;
+			nodes[comment.length() + 2] = PRE_COMMENT_END;
+			nodes[comment.length() + 3] = LINE_END;
+			size = comment.length() + 4;
+			hasComment = true;
 		} else {
-			m_moves = new short[32];
-			m_moves[0] = LINE_START;
-			m_moves[1] = LINE_END;
-			m_size = 2;
-			m_hashCode = 0;
-			m_hasComment = false;
+			nodes = new short[32];
+			nodes[0] = LINE_START;
+			nodes[1] = LINE_END;
+			size = 2;
+			hashCode = 0;
+			hasComment = false;
 		}
 	}
 
 	String getEmptyGameComment() {
 		if (getTotalNumOfPlies() == 0) {
-			if (m_moves[1] == PRE_COMMENT_START) {
+			if (nodes[1] == PRE_COMMENT_START) {
 				int index = 2;
 				StringBuilder sb = new StringBuilder();
-				while (m_moves[index] != PRE_COMMENT_END) {
-					sb.append((char) m_moves[index]);
+				while (nodes[index] != PRE_COMMENT_END) {
+					sb.append((char) nodes[index]);
 					++index;
 				}
 				return sb.toString();
@@ -684,8 +679,8 @@ class GameMoveModel implements Serializable {
 	// ======================================================================
 
 	boolean hasLines() {
-		for (int i = 1; i < m_size; i++) {
-			if (m_moves[i] == LINE_START) {
+		for (int i = 1; i < size; i++) {
+			if (nodes[i] == LINE_START) {
 				return true;
 			}
 		}
@@ -695,8 +690,8 @@ class GameMoveModel implements Serializable {
 	int getTotalNumOfPlies() {
 		boolean inComment = false;
 		int num = 0;
-		for (int i = 0; i < m_size; i++) {
-			short move = m_moves[i];
+		for (int i = 0; i < size; i++) {
+			short move = nodes[i];
 			if (move == PRE_COMMENT_START || move == POST_COMMENT_START) {
 				inComment = true;
 				continue;
@@ -715,8 +710,8 @@ class GameMoveModel implements Serializable {
 	int getTotalCommentSize() {
 		boolean inComment = false;
 		int num = 0;
-		for (int i = 0; i < m_size; i++) {
-			short move = m_moves[i];
+		for (int i = 0; i < size; i++) {
+			short move = nodes[i];
 			if (move == PRE_COMMENT_END || move == POST_COMMENT_END) {
 				inComment = false;
 			}
@@ -731,8 +726,8 @@ class GameMoveModel implements Serializable {
 	}
 
 	short getMove(int index) {
-		if (index >= 0 && index < m_size) {
-			short move = m_moves[index];
+		if (index >= 0 && index < size) {
+			short move = nodes[index];
 			return (isMoveValue(move) ? move : NO_MOVE);
 		} else {
 			return NO_MOVE;
@@ -747,7 +742,7 @@ class GameMoveModel implements Serializable {
 	boolean isMainLine(int index) {
 		int level = 0;
 		for (int i = 0; i <= index; ++i) {
-			short node = m_moves[i];
+			short node = nodes[i];
 			if (node == LINE_START) {
 				++level;
 			} else if (node == LINE_END) {
@@ -777,7 +772,7 @@ class GameMoveModel implements Serializable {
 		index--;
 		int level = 0;
 		while (index > 0) {
-			short move = m_moves[index];
+			short move = nodes[index];
 			if (move == LINE_START) {
 				level--;
 				if (level == -1) {
@@ -832,8 +827,8 @@ class GameMoveModel implements Serializable {
 
 		index++;
 		int level = 0;
-		while (index < m_size - 1) {
-			short move = m_moves[index];
+		while (index < size - 1) {
+			short move = nodes[index];
 			if (move == LINE_START) {
 				level++;
 			} else if (move == LINE_END) {
@@ -873,11 +868,11 @@ class GameMoveModel implements Serializable {
 		}
 
 		index = goForward(index);
-		if (m_moves[index] != LINE_END && whichLine > 0) {
+		if (nodes[index] != LINE_END && whichLine > 0) {
 			index++;
 			int level = 0;
-			while (index < m_size - 1) {
-				short move = m_moves[index];
+			while (index < size - 1) {
+				short move = nodes[index];
 				if (move == LINE_START) {
 					level++;
 					if (level == 1) {
@@ -924,15 +919,15 @@ class GameMoveModel implements Serializable {
 		}
 
 		index = goForward(index);
-		if (m_moves[index] == LINE_END) {
+		if (nodes[index] == LINE_END) {
 			return 0;
 		}
 
 		index++;
 		int numOfMoves = 1;
 		int level = 0;
-		while (index < m_size && level >= 0) {
-			short move = m_moves[index];
+		while (index < size && level >= 0) {
+			short move = nodes[index];
 			if (move == LINE_START) {
 				level++;
 			} else if (move == LINE_END) {
@@ -971,7 +966,7 @@ class GameMoveModel implements Serializable {
 			checkLegalCursor(index);
 		}
 
-		boolean nextMove = isMoveValue(m_moves[goForward(index)]);
+		boolean nextMove = isMoveValue(nodes[goForward(index)]);
 		if (DEBUG) {
 			System.out.println("  --> " + nextMove);
 		}
@@ -981,31 +976,31 @@ class GameMoveModel implements Serializable {
 	// ======================================================================
 
 	private int findEarliestNoMove(int index) {
-		while (index > 1 && m_moves[index - 1] == NO_MOVE) {
+		while (index > 1 && nodes[index - 1] == NO_MOVE) {
 			--index;
 		}
 		return index;
 	}
 
 	private int findLatestNoMove(int index) {
-		while (index > 0 && m_moves[index + 1] == NO_MOVE) {
+		while (index > 0 && nodes[index + 1] == NO_MOVE) {
 			++index;
 		}
 		return index;
 	}
 
-	private void enlarge(int index, int size) {
+	private void enlarge(int index, int addSize) {
 		if (DEBUG) {
-			System.out.println("enlarge " + index + " " + size);
+			System.out.println("enlarge " + index + " " + addSize);
 			write(System.out);
 		}
 
-		short[] newMoves = new short[m_moves.length + size];
-		System.arraycopy(m_moves, 0, newMoves, 0, index);
-		System.arraycopy(m_moves, index, newMoves, index + size, m_size - index);
-		java.util.Arrays.fill(newMoves, index, index + size, NO_MOVE);
-		m_moves = newMoves;
-		m_size += size;
+		short[] newNodes = new short[nodes.length + addSize];
+		System.arraycopy(nodes, 0, newNodes, 0, index);
+		System.arraycopy(nodes, index, newNodes, index + addSize, this.size - index);
+		java.util.Arrays.fill(newNodes, index, index + addSize, NO_MOVE);
+		nodes = newNodes;
+		this.size += addSize;
 		if (DEBUG) {
 			write(System.out);
 		}
@@ -1018,21 +1013,21 @@ class GameMoveModel implements Serializable {
 		}
 
 		if (EXTRA_CHECKS) {
-			if (index < 1 || index >= m_size) {
-				throw new IllegalArgumentException("Index out of bounds " + index + " (size=" + m_size + ")");
+			if (index < 1 || index >= size) {
+				throw new IllegalArgumentException("Index out of bounds " + index + " (size=" + size + ")");
 			}
 		}
 
 		for (int i = 0; i < spaceNeeded; i++) {
-			if (m_moves[index + i] != NO_MOVE) {
+			if (nodes[index + i] != NO_MOVE) {
 				// not enough space, make it
-				if (m_size + spaceNeeded - i >= m_moves.length) {
+				if (size + spaceNeeded - i >= nodes.length) {
 					int size = (spaceNeeded - i < 8 && possiblyMakeMore ? 8 : spaceNeeded - i);
 					enlarge(index, size);
 				} else {
-					System.arraycopy(m_moves, index + i, m_moves, index + spaceNeeded, m_size - (index + i));
-					java.util.Arrays.fill(m_moves, index + i, index + spaceNeeded, NO_MOVE);
-					m_size += spaceNeeded - i;
+					System.arraycopy(nodes, index + i, nodes, index + spaceNeeded, size - (index + i));
+					java.util.Arrays.fill(nodes, index + i, index + spaceNeeded, NO_MOVE);
+					size += spaceNeeded - i;
 				}
 				break;
 			}
@@ -1055,8 +1050,8 @@ class GameMoveModel implements Serializable {
 		if (hasNextMove(index)) { // move opens a new line
 			index = goForward(index); // go to the move for which an alternative is entered
 			index = goForward(index); // go to the following move or to the line's end
-			if (m_moves[index - 1] == PRE_COMMENT_END) { // go before of a pre move comment
-				while (m_moves[index - 1] != PRE_COMMENT_START) {
+			if (nodes[index - 1] == PRE_COMMENT_END) { // go before of a pre move comment
+				while (nodes[index - 1] != PRE_COMMENT_START) {
 					--index;
 				}
 				--index;
@@ -1064,9 +1059,9 @@ class GameMoveModel implements Serializable {
 			index = findEarliestNoMove(index); // go to left border of a no move zone
 
 			makeSpace(index, 3, true);
-			m_moves[index] = LINE_START;
-			m_moves[index + 1] = move;
-			m_moves[findLatestNoMove(index + 2)] = LINE_END; // set to the right border of no move zone
+			nodes[index] = LINE_START;
+			nodes[index + 1] = move;
+			nodes[findLatestNoMove(index + 2)] = LINE_END; // set to the right border of no move zone
 			if (DEBUG) {
 				write(System.out);
 			}
@@ -1079,7 +1074,7 @@ class GameMoveModel implements Serializable {
 			index = goForward(index); // go to line's end
 			index = findEarliestNoMove(index); // go to left border of a no move zone
 			makeSpace(index, 1, true);
-			m_moves[index] = move;
+			nodes[index] = move;
 			if (DEBUG) {
 				write(System.out);
 			}
@@ -1101,7 +1096,7 @@ class GameMoveModel implements Serializable {
 			checkLegalCursor(index);
 		}
 
-		VariationsModel varModel = new VariationsModel(m_moves, m_size);
+		VariationsModel varModel = new VariationsModel(nodes, size);
 		Map.Entry<Integer, Integer> upVar = varModel.getVariation(index);
 		List<Integer> siblings = varModel.getSiblings(upVar.getKey());
 		Map.Entry<Integer, Integer> downVar = varModel.getVariation(siblings.get(0) - 1);
@@ -1111,50 +1106,50 @@ class GameMoveModel implements Serializable {
 		int k = index;
 		int level = 0;
 		while (level >= 0) {
-			if (!Move.isSpecial(m_moves[k])) {
+			if (!Move.isSpecial(nodes[k])) {
 				++moveNumberInVariation;
-			} else if (m_moves[k] == LINE_START) {
+			} else if (nodes[k] == LINE_START) {
 				--level;
-			} else if (m_moves[k] == LINE_END) {
+			} else if (nodes[k] == LINE_END) {
 				++level;
 			}
 			--k;
 
 		}
 
-		short[] newMoves = new short[m_moves.length];
+		short[] newMoves = new short[nodes.length];
 		int retVal = -1;
 		// copy everything from the beginning that remains unchanged
 		int copyIndex = siblings.get(0);
-		while (Move.isSpecial(m_moves[copyIndex])) {
+		while (Move.isSpecial(nodes[copyIndex])) {
 			--copyIndex;
 		}
-		if (m_moves[copyIndex - 1] == PRE_COMMENT_END) {
+		if (nodes[copyIndex - 1] == PRE_COMMENT_END) {
 			copyIndex -= 2;
-			while (m_moves[copyIndex] != PRE_COMMENT_START) {
+			while (nodes[copyIndex] != PRE_COMMENT_START) {
 				--copyIndex;
 			}
 		}
-		System.arraycopy(m_moves, 0, newMoves, 0, copyIndex);
+		System.arraycopy(nodes, 0, newMoves, 0, copyIndex);
 		int copied = copyIndex;
 
 		// copy the first move of the promoted line
 		int startIndex = upVar.getKey() + 1;
 		int endIndex = startIndex;
-		while (Move.isSpecial(m_moves[endIndex])) {
+		while (Move.isSpecial(nodes[endIndex])) {
 			++endIndex;
 		}
-		while (isNagValue(m_moves[endIndex + 1])) {
+		while (isNagValue(nodes[endIndex + 1])) {
 			++endIndex;
 		}
-		if (m_moves[endIndex + 1] == POST_COMMENT_START) {
+		if (nodes[endIndex + 1] == POST_COMMENT_START) {
 			endIndex += 2;
-			while (m_moves[endIndex] != POST_COMMENT_END) {
+			while (nodes[endIndex] != POST_COMMENT_END) {
 				++endIndex;
 			}
 		}
 		int length1 = endIndex - startIndex + 1;
-		System.arraycopy(m_moves, startIndex, newMoves, copied, length1);
+		System.arraycopy(nodes, startIndex, newMoves, copied, length1);
 		if (moveNumberInVariation == 1) {
 			for (int l = copied; l < copied + length1; ++l) {
 				if (!Move.isSpecial(newMoves[l])) {
@@ -1167,13 +1162,13 @@ class GameMoveModel implements Serializable {
 		// copy the first move of the down-graded line
 		newMoves[copied] = LINE_START;
 		++copied;
-		System.arraycopy(m_moves, copyIndex, newMoves, copied, siblings.get(0) - copyIndex);
+		System.arraycopy(nodes, copyIndex, newMoves, copied, siblings.get(0) - copyIndex);
 		copied += siblings.get(0) - copyIndex;
 
 		// copy the rest of the down-graded line
 		int lastSiblingIndex = varModel.getVariation(siblings.get(siblings.size() - 1)).getValue() + 1;
 		int lastDownGradedLine = downVar.getValue();
-		System.arraycopy(m_moves, lastSiblingIndex, newMoves, copied, lastDownGradedLine - lastSiblingIndex + 1);
+		System.arraycopy(nodes, lastSiblingIndex, newMoves, copied, lastDownGradedLine - lastSiblingIndex + 1);
 		copied += lastDownGradedLine - lastSiblingIndex + 1;
 
 		// copy the siblings before the promoted line
@@ -1181,7 +1176,7 @@ class GameMoveModel implements Serializable {
 			if (siblingStart < upVar.getKey()) { // predecessor
 				int seblingEnd = varModel.getVariation(siblingStart).getValue();
 				int length = seblingEnd - siblingStart + 1;
-				System.arraycopy(m_moves, siblingStart, newMoves, copied, length);
+				System.arraycopy(nodes, siblingStart, newMoves, copied, length);
 				copied += length;
 			} else {
 				break;
@@ -1194,7 +1189,7 @@ class GameMoveModel implements Serializable {
 			if (siblingStart > upVar.getKey()) { // successor
 				int seblingEnd = varModel.getVariation(siblingStart).getValue();
 				int length = seblingEnd - siblingStart + 1;
-				System.arraycopy(m_moves, siblingStart, newMoves, copied, length);
+				System.arraycopy(nodes, siblingStart, newMoves, copied, length);
 				copied += length;
 			} else {
 				break;
@@ -1205,7 +1200,7 @@ class GameMoveModel implements Serializable {
 		int firstRestFromPromoted = endIndex + 1;
 		int lastRestFromPromoted = upVar.getValue();
 		int length = lastRestFromPromoted - firstRestFromPromoted + 1;
-		System.arraycopy(m_moves, firstRestFromPromoted, newMoves, copied, length);
+		System.arraycopy(nodes, firstRestFromPromoted, newMoves, copied, length);
 		if (moveNumberInVariation > 1) {
 			int counter = 1;
 			for (int j = copied; j < copied + length; ++j) {
@@ -1221,10 +1216,10 @@ class GameMoveModel implements Serializable {
 		copied += length;
 
 		// copy everything after the changed lines
-		System.arraycopy(m_moves, copied, newMoves, copied, m_size - copied);
+		System.arraycopy(nodes, copied, newMoves, copied, size - copied);
 
 		if (retVal >= 0) {
-			m_moves = newMoves;
+			nodes = newMoves;
 		}
 		return retVal;
 	}
@@ -1242,7 +1237,7 @@ class GameMoveModel implements Serializable {
 
 		// go to the next move
 		index = goForward(index);
-		if (m_moves[index] == LINE_END) {
+		if (nodes[index] == LINE_END) {
 			return false;
 		}
 
@@ -1250,8 +1245,8 @@ class GameMoveModel implements Serializable {
 		boolean deleteLineEnd = false;
 
 		boolean inComment = false;
-		while (index < m_size) {
-			short move = m_moves[index];
+		while (index < size) {
+			short move = nodes[index];
 			if (!inComment && move == LINE_START) {
 				level++;
 			} else if (!inComment && move == LINE_END) {
@@ -1263,11 +1258,11 @@ class GameMoveModel implements Serializable {
 			}
 			if (level == -1) {
 				if (deleteLineEnd) {
-					m_moves[index] = NO_MOVE;
+					nodes[index] = NO_MOVE;
 				}
 				break;
 			}
-			m_moves[index] = NO_MOVE;
+			nodes[index] = NO_MOVE;
 			index++;
 		}
 		changed();
@@ -1296,7 +1291,7 @@ class GameMoveModel implements Serializable {
 		// comments where introduced.		
 		// Go back to next LINE_START:
 		for (int i = index - 1; i >= 0; --i) {
-			short move = m_moves[i];
+			short move = nodes[i];
 			if (move == LINE_START) {
 				index = i;
 				deleteLineEnd = true;
@@ -1306,8 +1301,8 @@ class GameMoveModel implements Serializable {
 		}
 
 		boolean inComment = false;
-		while (index < m_size) {
-			short move = m_moves[index];
+		while (index < size) {
+			short move = nodes[index];
 			if (!inComment && move == LINE_START) {
 				level++;
 			} else if (!inComment && move == LINE_END) {
@@ -1319,11 +1314,11 @@ class GameMoveModel implements Serializable {
 			}
 			if (level == -1) {
 				if (deleteLineEnd) {
-					m_moves[index] = NO_MOVE;
+					nodes[index] = NO_MOVE;
 				}
 				break;
 			}
-			m_moves[index] = NO_MOVE;
+			nodes[index] = NO_MOVE;
 			index++;
 		}
 		changed();
@@ -1342,13 +1337,13 @@ class GameMoveModel implements Serializable {
 
 		boolean changed = false;
 		int level = -1; // 0 is mainline
-		for (int index = 0; index < m_size; ++index) {
-			short move = m_moves[index];
+		for (int index = 0; index < size; ++index) {
+			short move = nodes[index];
 			if (move == LINE_START) {
 				++level;
 			}
 			if (level > 0) {
-				m_moves[index] = NO_MOVE;
+				nodes[index] = NO_MOVE;
 				changed = true;
 			}
 			if (move == LINE_END) {
@@ -1373,8 +1368,8 @@ class GameMoveModel implements Serializable {
 		}
 
 		int newSize = 0;
-		for (int i = 0; i < m_size; i++) {
-			if (m_moves[i] != NO_MOVE) {
+		for (int i = 0; i < size; i++) {
+			if (nodes[i] != NO_MOVE) {
 				newSize++;
 			}
 		}
@@ -1382,8 +1377,8 @@ class GameMoveModel implements Serializable {
 		short[] newMoves = new short[newSize + 1];
 		int j = 0;
 		boolean inComment = false;
-		for (int i = 0; i < m_size; i++) {
-			short move = m_moves[i];
+		for (int i = 0; i < size; i++) {
+			short move = nodes[i];
 			if (move == PRE_COMMENT_START || move == POST_COMMENT_START) {
 				inComment = true;
 			} else if (move == PRE_COMMENT_END || move == POST_COMMENT_END) {
@@ -1397,9 +1392,9 @@ class GameMoveModel implements Serializable {
 			}
 		}
 
-		m_moves = newMoves;
-		m_moves[newSize] = LINE_END;
-		m_size = newSize;
+		nodes = newMoves;
+		nodes[newSize] = LINE_END;
+		size = newSize;
 
 		if (DEBUG) {
 			write(System.out);
@@ -1433,15 +1428,15 @@ class GameMoveModel implements Serializable {
 
 	void write(PrintStream out) {
 		boolean inComment = false;
-		for (int i = 0; i < m_size; i++) {
-			short move = m_moves[i];
+		for (int i = 0; i < size; i++) {
+			short move = nodes[i];
 			if (move == PRE_COMMENT_END || move == POST_COMMENT_END) {
 				inComment = false;
 			}
 			if (inComment) {
 				out.print((char) move);
 			} else {
-				out.print(valueToString(m_moves[i]));
+				out.print(valueToString(nodes[i]));
 				out.print(" ");
 			}
 			if ((i % 20) == 19) {
@@ -1457,14 +1452,14 @@ class GameMoveModel implements Serializable {
 	// ======================================================================
 
 	long getHashCode() {
-		if (m_hashCode == 0) {
+		if (hashCode == 0) {
 			int shift = 0;
 			for (int index = 0;; index = goForward(index)) {
-				if (m_moves[index] == LINE_END) {
+				if (nodes[index] == LINE_END) {
 					break;
 				}
 				short move = getMove(index);
-				m_hashCode ^= (long) move << shift;
+				hashCode ^= (long) move << shift;
 				if (shift == 12) {
 					shift = 0;
 				} else {
@@ -1472,7 +1467,7 @@ class GameMoveModel implements Serializable {
 				}
 			}
 		}
-		return m_hashCode;
+		return hashCode;
 	}
 
 	@Override
@@ -1491,8 +1486,8 @@ class GameMoveModel implements Serializable {
 
 		int index1 = 0, index2 = 0;
 		for (;;) {
-			short move1 = m_moves[index1];
-			short move2 = gameMoveModel.m_moves[index2];
+			short move1 = nodes[index1];
+			short move2 = gameMoveModel.nodes[index2];
 			if (move1 == LINE_END && move2 == LINE_END) {
 				return true;
 			}

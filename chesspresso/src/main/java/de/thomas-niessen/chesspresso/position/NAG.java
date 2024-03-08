@@ -20,7 +20,10 @@ package chesspresso.position;
  * @author Bernhard Seybold
  * 
  */
-public abstract class NAG {
+public class NAG {
+
+	private NAG() {
+	}
 
 	// allow higher nags
 	public static final short NUM_OF_NAGS = 256;

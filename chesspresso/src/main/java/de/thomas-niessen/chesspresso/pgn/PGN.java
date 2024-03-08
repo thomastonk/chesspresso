@@ -28,7 +28,10 @@ import chesspresso.Chess;
  * @author Bernhard Seybold
  * 
  */
-public abstract class PGN {
+public class PGN {
+
+	private PGN() {
+	}
 
 	// ======================================================================
 	// pgn date

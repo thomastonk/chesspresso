@@ -31,19 +31,19 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	private final static boolean DEBUG = false;
 	private final static boolean PROFILE = false;
 
-	private static long m_numIsAttacked = 0;
-	private static long m_numAllAttackers = 0;
-	private static long m_numIsCheck = 0;
-	private static long m_numIsMate = 0;
-	private static long m_numIsStaleMate = 0;
-	private static long m_numGetAllMoves = 0;
-	private static long m_numPositions = 0;
-	private static long m_numGetPinnedDirection = 0;
-	private static long m_numDoMove = 0;
-	private static long m_numLongsBackuped = 0;
-	private static long m_numUndoMove = 0;
-	private static long m_numSet = 0;
-	private static long m_numGetSquare = 0;
+	private static long numIsAttacked = 0;
+	private static long numAllAttackers = 0;
+	private static long numIsCheck = 0;
+	private static long numIsMate = 0;
+	private static long numIsStaleMate = 0;
+	private static long numGetAllMoves = 0;
+	private static long numPositions = 0;
+	private static long numGetPinnedDirection = 0;
+	private static long numDoMove = 0;
+	private static long numLongsBackuped = 0;
+	private static long numUndoMove = 0;
+	private static long numSet = 0;
+	private static long numGetSquare = 0;
 
 	/*
 	 * =========================================================================
@@ -52,22 +52,22 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	// put here for performance (inlining)
 	// do before hashing!
 
-	private final static long[] s_ofCol, s_ofRow, s_ofSquare;
+	private final static long[] S_OF_COL, S_OF_ROW, S_OF_SQUARE;
 
 	static {
-		s_ofCol = new long[Chess.NUM_OF_COLS];
+		S_OF_COL = new long[Chess.NUM_OF_COLS];
 		for (int col = 0; col < Chess.NUM_OF_COLS; col++) {
-			s_ofCol[col] = 0x0101010101010101L << col;
+			S_OF_COL[col] = 0x0101010101010101L << col;
 		}
 
-		s_ofRow = new long[Chess.NUM_OF_ROWS];
+		S_OF_ROW = new long[Chess.NUM_OF_ROWS];
 		for (int row = 0; row < Chess.NUM_OF_ROWS; row++) {
-			s_ofRow[row] = 255L << (8 * row);
+			S_OF_ROW[row] = 255L << (8 * row);
 		}
 
-		s_ofSquare = new long[Chess.NUM_OF_SQUARES];
+		S_OF_SQUARE = new long[Chess.NUM_OF_SQUARES];
 		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
-			s_ofSquare[sqi] = 1L << sqi;
+			S_OF_SQUARE[sqi] = 1L << sqi;
 		}
 	}
 
@@ -86,15 +86,15 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	private static long ofSquare(int sqi) {
-		return s_ofSquare[sqi];
+		return S_OF_SQUARE[sqi];
 	}
 
 	private static long ofCol(int col) {
-		return s_ofCol[col];
+		return S_OF_COL[col];
 	}
 
 	private static long ofRow(int row) {
-		return s_ofRow[row];
+		return S_OF_ROW[row];
 	}
 
 	private static int getFirstSqi(long bb) {
@@ -357,7 +357,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	/*
 	 * =========================================================================
 	 */
-	// settings for information flags in m_flags
+	// settings for information flags in myFlags
 
 	private final static int
 	// FLAG_UNKNOWN = 0,
@@ -375,25 +375,25 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 * =========================================================================
 	 */
 
-	private long m_bbWhites, m_bbBlacks, m_bbPawns, m_bbKnights, m_bbBishops, m_bbRooks;
-	private int m_whiteKing = Chess.NO_SQUARE, m_blackKing = Chess.NO_SQUARE; // actually only a short (6 bit) is needed
-	private long m_flags;
-	private long m_hashCode;
+	private long mybbWhites, mybbBlacks, mybbPawns, mybbKnights, mybbBishops, mybbRooks;
+	private int myWhiteKing = Chess.NO_SQUARE, myBlackKing = Chess.NO_SQUARE; // actually only a short (6 bit) is needed
+	private long myFlags;
+	private long myHashCode;
 
-	private long[] m_bakStack;
-	private int m_bakIndex;
-	private short[] m_moveStack;
-	private int m_moveStackIndex;
+	private long[] myBakStack;
+	private int myBakIndex;
+	private short[] myMoveStack;
+	private int myMoveStackIndex;
 
-	private final short[] m_moves = new short[256]; // buffer for getAllMoves,
+	private final short[] allMoves = new short[256]; // buffer for getAllMoves,
 	// allocated once for efficiency
 	// TN: Is 256 large enough? It is said that
 	// "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1"
 	// has the largest number of possible moves: 218! So, 256 should always work.
 
-	private Variant m_variant = Variant.STANDARD;
+	private Variant myVariant = Variant.STANDARD;
 
-	private int m_chess960CastlingFiles = 0;
+	private int chess960CastlingFiles = 0;
 
 	// The coding is as follows: The three final bits are used as flags which indicate whether the corresponding
 	// file is set or not. Then three bits are left free for a possible Double Fischer Random Chess implementation.
@@ -416,27 +416,27 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public int getWhitesKingSquare() {
-		return m_whiteKing;
+		return myWhiteKing;
 	}
 
 	@Override
 	public int getBlacksKingSquare() {
-		return m_blackKing;
+		return myBlackKing;
 	}
 
 	@Override
 	public long getAllPawnsBB() {
-		return m_bbPawns;
+		return mybbPawns;
 	}
 
 	@Override
 	public long getWhitePawnsBB() {
-		return m_bbPawns & m_bbWhites;
+		return mybbPawns & mybbWhites;
 	}
 
 	@Override
 	public long getBlackPawnsBB() {
-		return m_bbPawns & m_bbBlacks;
+		return mybbPawns & mybbBlacks;
 	}
 
 	/*
@@ -449,11 +449,11 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	PositionImpl(int bufferLength) {
 		if (PROFILE) {
-			m_numPositions++;
+			numPositions++;
 		}
 
-		m_bakStack = new long[4 * bufferLength]; // on average, we need about 3.75 longs to back up a position
-		m_moveStack = new short[bufferLength];
+		myBakStack = new long[4 * bufferLength]; // on average, we need about 3.75 longs to back up a position
+		myMoveStack = new short[bufferLength];
 		clear();
 	}
 
@@ -475,12 +475,12 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	public void setPositionSnapshot(ImmutablePosition position) {
 		clear(); // Needed. Because there is no direct way to reset the ply number.
 		super.setPositionSnapshot(position);
-		this.m_variant = position.getVariant();
-		if (m_variant == Variant.CHESS960) {
+		this.myVariant = position.getVariant();
+		if (myVariant == Variant.CHESS960) {
 			setChess960CastlingFiles(position.getChess960KingFile(), position.getChess960QueensideRookFile(),
 					position.getChess960KingsideRookFile());
 		}
-		this.m_plyOffset = position.getPlyNumber();
+		this.plyOffset = position.getPlyNumber();
 	}
 
 	/*
@@ -490,25 +490,25 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public void clear() {
 		super.clear();
-		m_flags = 0L;
+		myFlags = 0L;
 	}
 
 	private void clearStacks() {
 		int index = 0;
-		while (index < m_bakStack.length && m_bakStack[index] != 0L) {
-			m_bakStack[index] = 0L;
+		while (index < myBakStack.length && myBakStack[index] != 0L) {
+			myBakStack[index] = 0L;
 			++index;
 		}
-		m_bakIndex = 0;
+		myBakIndex = 0;
 		index = 0;
-		while (index < m_moveStack.length && m_moveStack[index] != 0) {
-			m_moveStack[index] = 0;
+		while (index < myMoveStack.length && myMoveStack[index] != 0) {
+			myMoveStack[index] = 0;
 			++index;
 		}
-		m_moveStackIndex = 0;
+		myMoveStackIndex = 0;
 		index = 0;
-		while (index < m_moves.length && m_moves[index] != 0) {
-			m_moves[index] = 0;
+		while (index < allMoves.length && allMoves[index] != 0) {
+			allMoves[index] = 0;
 			++index;
 		}
 	}
@@ -530,88 +530,88 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public int getToPlay() {
-		return ((m_flags >>> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
+		return ((myFlags >>> TO_PLAY_SHIFT) & TO_PLAY_MASK) == 0 ? Chess.WHITE : Chess.BLACK;
 	}
 
 	private int getNotToPlay() {
-		return ((m_flags >>> TO_PLAY_SHIFT) & TO_PLAY_MASK) != 0 ? Chess.WHITE : Chess.BLACK;
+		return ((myFlags >>> TO_PLAY_SHIFT) & TO_PLAY_MASK) != 0 ? Chess.WHITE : Chess.BLACK;
 	}
 
 	@Override
 	public boolean isSquareEmpty(int sqi) {
-		return ((m_bbWhites | m_bbBlacks) & ofSquare(sqi)) == 0L;
+		return ((mybbWhites | mybbBlacks) & ofSquare(sqi)) == 0L;
 	}
 
 	@Override
 	public int getCastles() {
-		return (int) (m_flags >>> CASTLES_SHIFT) & CASTLES_MASK;
+		return (int) (myFlags >>> CASTLES_SHIFT) & CASTLES_MASK;
 	}
 
 	@Override
 	public int getSqiEP() {
-		return (int) ((m_flags >>> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
+		return (int) ((myFlags >>> SQI_EP_SHIFT) & SQI_EP_MASK) + Chess.NO_SQUARE;
 	}
 
 	private int getHashColEP() {
-		return (int) ((m_flags >>> HASH_COL_EP_SHIFT) & HASH_COL_EP_MASK) + Chess.NO_SQUARE;
+		return (int) ((myFlags >>> HASH_COL_EP_SHIFT) & HASH_COL_EP_MASK) + Chess.NO_SQUARE;
 	}
 
 	@Override
 	public int getHalfMoveClock() {
-		return (int) (m_flags >>> HALF_MOVE_CLOCK_SHIFT) & HALF_MOVE_CLOCK_MASK;
+		return (int) (myFlags >>> HALF_MOVE_CLOCK_SHIFT) & HALF_MOVE_CLOCK_MASK;
 	}
 
 	@Override
 	public int getPlyNumber() {
-		int plies = (int) ((m_flags >>> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
-		return m_plyOffset + plies;
+		int plies = (int) ((myFlags >>> PLY_NUMBER_SHIFT) & PLY_NUMBER_MASK);
+		return plyOffset + plies;
 	}
 
 	@Override
 	public long getHashCode() {
-		return m_hashCode;
+		return myHashCode;
 	}
 
 	@Override
 	public int getStone(int sqi) {
 		if (PROFILE) {
-			m_numGetSquare++;
+			numGetSquare++;
 		}
 
 		long bbSqi = ofSquare(sqi);
-		if ((m_bbWhites & bbSqi) != 0L) {
-			if ((m_bbPawns & bbSqi) != 0L) {
+		if ((mybbWhites & bbSqi) != 0L) {
+			if ((mybbPawns & bbSqi) != 0L) {
 				return Chess.WHITE_PAWN;
 			}
-			if ((m_bbBishops & bbSqi) != 0L) {
-				return ((m_bbRooks & bbSqi) != 0L ? Chess.WHITE_QUEEN : Chess.WHITE_BISHOP);
+			if ((mybbBishops & bbSqi) != 0L) {
+				return ((mybbRooks & bbSqi) != 0L ? Chess.WHITE_QUEEN : Chess.WHITE_BISHOP);
 			}
-			if ((m_bbKnights & bbSqi) != 0L) {
+			if ((mybbKnights & bbSqi) != 0L) {
 				return Chess.WHITE_KNIGHT;
 			}
 			// TN: old implementation (failed, when the board had no kings during setup):
-			//	    if (sqi == m_whiteKing)
+			//	    if (sqi == myWhiteKing)
 			//		return Chess.WHITE_KING;
 			//	    return Chess.WHITE_ROOK;
-			if ((m_bbRooks & bbSqi) != 0L) {
+			if ((mybbRooks & bbSqi) != 0L) {
 				return Chess.WHITE_ROOK;
 			}
 			return Chess.WHITE_KING;
-		} else if ((m_bbBlacks & bbSqi) != 0L) {
-			if ((m_bbPawns & bbSqi) != 0L) {
+		} else if ((mybbBlacks & bbSqi) != 0L) {
+			if ((mybbPawns & bbSqi) != 0L) {
 				return Chess.BLACK_PAWN;
 			}
-			if ((m_bbBishops & bbSqi) != 0L) {
-				return ((m_bbRooks & bbSqi) != 0L ? Chess.BLACK_QUEEN : Chess.BLACK_BISHOP);
+			if ((mybbBishops & bbSqi) != 0L) {
+				return ((mybbRooks & bbSqi) != 0L ? Chess.BLACK_QUEEN : Chess.BLACK_BISHOP);
 			}
-			if ((m_bbKnights & bbSqi) != 0L) {
+			if ((mybbKnights & bbSqi) != 0L) {
 				return Chess.BLACK_KNIGHT;
 			}
 			// TN: old implementation (failed, when the board had no kings during setup):
-			//	    if (sqi == m_blackKing)
+			//	    if (sqi == myBlackKing)
 			//		return Chess.BLACK_KING;
 			//	    return Chess.BLACK_ROOK;
-			if ((m_bbRooks & bbSqi) != 0L) {
+			if ((mybbRooks & bbSqi) != 0L) {
 				return Chess.BLACK_ROOK;
 			}
 			return Chess.BLACK_KING;
@@ -623,26 +623,23 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public int getPiece(int sqi) {
 		if (PROFILE) {
-			m_numGetSquare++;
+			numGetSquare++;
 		}
 
 		long bbSqi = ofSquare(sqi);
-		if ((m_bbPawns & bbSqi) != 0L) {
+		if ((mybbPawns & bbSqi) != 0L) {
 			return Chess.PAWN;
 		}
-		if ((m_bbKnights & bbSqi) != 0L) {
+		if ((mybbKnights & bbSqi) != 0L) {
 			return Chess.KNIGHT;
 		}
-		if ((m_bbBishops & bbSqi) != 0L) {
-			return ((m_bbRooks & bbSqi) != 0L ? Chess.QUEEN : Chess.BISHOP);
+		if ((mybbBishops & bbSqi) != 0L) {
+			return ((mybbRooks & bbSqi) != 0L ? Chess.QUEEN : Chess.BISHOP);
 		}
-		if ((m_bbRooks & bbSqi) != 0L) {
+		if ((mybbRooks & bbSqi) != 0L) {
 			return Chess.ROOK;
 		}
-		// TN: Once more the old implementation fails during setup:
-		//	if (sqi == m_whiteKing || sqi == m_blackKing)
-		//	    return Chess.KING;
-		if (((m_bbWhites & bbSqi) != 0L && sqi == m_whiteKing) || ((m_bbBlacks & bbSqi) != 0L && sqi == m_blackKing)) {
+		if (((mybbWhites & bbSqi) != 0L && sqi == myWhiteKing) || ((mybbBlacks & bbSqi) != 0L && sqi == myBlackKing)) {
 			return Chess.KING;
 		}
 		return Chess.NO_PIECE;
@@ -651,14 +648,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public int getColor(int sqi) {
 		if (PROFILE) {
-			m_numGetSquare++;
+			numGetSquare++;
 		}
 
 		long bbSqi = ofSquare(sqi);
-		if ((m_bbWhites & bbSqi) != 0L) {
+		if ((mybbWhites & bbSqi) != 0L) {
 			return Chess.WHITE;
 		}
-		if ((m_bbBlacks & bbSqi) != 0L) {
+		if ((mybbBlacks & bbSqi) != 0L) {
 			return Chess.BLACK;
 		}
 		return Chess.NOBODY;
@@ -667,18 +664,18 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	private long getBitBoard(int stone) {
 		return switch (stone) {
 		case Chess.NO_STONE -> 0L;
-		case Chess.WHITE_KING -> ofSquare(m_whiteKing);
-		case Chess.WHITE_PAWN -> m_bbPawns & m_bbWhites;
-		case Chess.WHITE_KNIGHT -> m_bbKnights & m_bbWhites;
-		case Chess.WHITE_BISHOP -> m_bbBishops & (~m_bbRooks) & m_bbWhites;
-		case Chess.WHITE_ROOK -> m_bbRooks & (~m_bbBishops) & m_bbWhites;
-		case Chess.WHITE_QUEEN -> m_bbBishops & m_bbRooks & m_bbWhites;
-		case Chess.BLACK_KING -> ofSquare(m_blackKing);
-		case Chess.BLACK_PAWN -> m_bbPawns & m_bbBlacks;
-		case Chess.BLACK_KNIGHT -> m_bbKnights & m_bbBlacks;
-		case Chess.BLACK_BISHOP -> m_bbBishops & (~m_bbRooks) & m_bbBlacks;
-		case Chess.BLACK_ROOK -> m_bbRooks & (~m_bbBishops) & m_bbBlacks;
-		case Chess.BLACK_QUEEN -> m_bbBishops & m_bbRooks & m_bbBlacks;
+		case Chess.WHITE_KING -> ofSquare(myWhiteKing);
+		case Chess.WHITE_PAWN -> mybbPawns & mybbWhites;
+		case Chess.WHITE_KNIGHT -> mybbKnights & mybbWhites;
+		case Chess.WHITE_BISHOP -> mybbBishops & (~mybbRooks) & mybbWhites;
+		case Chess.WHITE_ROOK -> mybbRooks & (~mybbBishops) & mybbWhites;
+		case Chess.WHITE_QUEEN -> mybbBishops & mybbRooks & mybbWhites;
+		case Chess.BLACK_KING -> ofSquare(myBlackKing);
+		case Chess.BLACK_PAWN -> mybbPawns & mybbBlacks;
+		case Chess.BLACK_KNIGHT -> mybbKnights & mybbBlacks;
+		case Chess.BLACK_BISHOP -> mybbBishops & (~mybbRooks) & mybbBlacks;
+		case Chess.BLACK_ROOK -> mybbRooks & (~mybbBishops) & mybbBlacks;
+		case Chess.BLACK_QUEEN -> mybbBishops & mybbRooks & mybbBlacks;
 		default -> throw new IllegalArgumentException("Unknown stone in PpsitionImpl::getBitBoard: " + stone);
 		};
 	}
@@ -694,7 +691,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private void setStone(int sqi, int stone, boolean clearStacksAndFlags) {
 		if (PROFILE) {
-			m_numSet++;
+			numSet++;
 		}
 
 		if (DEBUG) {
@@ -702,10 +699,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		}
 
 		/*---------- remove an old king on another square ----------*/
-		if (stone == Chess.WHITE_KING && m_whiteKing != Chess.NO_SQUARE && m_whiteKing != sqi) {
-			setStone(m_whiteKing, Chess.NO_STONE);
-		} else if (stone == Chess.BLACK_KING && m_blackKing != Chess.NO_SQUARE && m_blackKing != sqi) {
-			setStone(m_blackKing, Chess.NO_STONE);
+		if (stone == Chess.WHITE_KING && myWhiteKing != Chess.NO_SQUARE && myWhiteKing != sqi) {
+			setStone(myWhiteKing, Chess.NO_STONE);
+		} else if (stone == Chess.BLACK_KING && myBlackKing != Chess.NO_SQUARE && myBlackKing != sqi) {
+			setStone(myBlackKing, Chess.NO_STONE);
 		}
 
 		int old = getStone(sqi);
@@ -717,54 +714,54 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			case Chess.NO_STONE:
 				break;
 			case Chess.WHITE_KING:
-				m_bbWhites &= ~bbSqi;
-				m_whiteKing = Chess.NO_SQUARE;
+				mybbWhites &= ~bbSqi;
+				myWhiteKing = Chess.NO_SQUARE;
 				break;
 			case Chess.WHITE_PAWN:
-				m_bbWhites &= ~bbSqi;
-				m_bbPawns &= ~bbSqi;
+				mybbWhites &= ~bbSqi;
+				mybbPawns &= ~bbSqi;
 				break;
 			case Chess.WHITE_KNIGHT:
-				m_bbWhites &= ~bbSqi;
-				m_bbKnights &= ~bbSqi;
+				mybbWhites &= ~bbSqi;
+				mybbKnights &= ~bbSqi;
 				break;
 			case Chess.WHITE_BISHOP:
-				m_bbWhites &= ~bbSqi;
-				m_bbBishops &= ~bbSqi;
+				mybbWhites &= ~bbSqi;
+				mybbBishops &= ~bbSqi;
 				break;
 			case Chess.WHITE_ROOK:
-				m_bbWhites &= ~bbSqi;
-				m_bbRooks &= ~bbSqi;
+				mybbWhites &= ~bbSqi;
+				mybbRooks &= ~bbSqi;
 				break;
 			case Chess.WHITE_QUEEN:
-				m_bbWhites &= ~bbSqi;
-				m_bbBishops &= ~bbSqi;
-				m_bbRooks &= ~bbSqi;
+				mybbWhites &= ~bbSqi;
+				mybbBishops &= ~bbSqi;
+				mybbRooks &= ~bbSqi;
 				break;
 			case Chess.BLACK_KING:
-				m_bbBlacks &= ~bbSqi;
-				m_blackKing = Chess.NO_SQUARE;
+				mybbBlacks &= ~bbSqi;
+				myBlackKing = Chess.NO_SQUARE;
 				break;
 			case Chess.BLACK_PAWN:
-				m_bbBlacks &= ~bbSqi;
-				m_bbPawns &= ~bbSqi;
+				mybbBlacks &= ~bbSqi;
+				mybbPawns &= ~bbSqi;
 				break;
 			case Chess.BLACK_KNIGHT:
-				m_bbBlacks &= ~bbSqi;
-				m_bbKnights &= ~bbSqi;
+				mybbBlacks &= ~bbSqi;
+				mybbKnights &= ~bbSqi;
 				break;
 			case Chess.BLACK_BISHOP:
-				m_bbBlacks &= ~bbSqi;
-				m_bbBishops &= ~bbSqi;
+				mybbBlacks &= ~bbSqi;
+				mybbBishops &= ~bbSqi;
 				break;
 			case Chess.BLACK_ROOK:
-				m_bbBlacks &= ~bbSqi;
-				m_bbRooks &= ~bbSqi;
+				mybbBlacks &= ~bbSqi;
+				mybbRooks &= ~bbSqi;
 				break;
 			case Chess.BLACK_QUEEN:
-				m_bbBlacks &= ~bbSqi;
-				m_bbBishops &= ~bbSqi;
-				m_bbRooks &= ~bbSqi;
+				mybbBlacks &= ~bbSqi;
+				mybbBishops &= ~bbSqi;
+				mybbRooks &= ~bbSqi;
 				break;
 			}
 
@@ -773,81 +770,80 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			case Chess.NO_STONE:
 				break;
 			case Chess.WHITE_KING:
-				m_bbWhites |= bbSqi;
-				m_whiteKing = sqi;
+				mybbWhites |= bbSqi;
+				myWhiteKing = sqi;
 				break;
 			case Chess.WHITE_PAWN:
-				m_bbWhites |= bbSqi;
-				m_bbPawns |= bbSqi;
+				mybbWhites |= bbSqi;
+				mybbPawns |= bbSqi;
 				break;
 			case Chess.WHITE_KNIGHT:
-				m_bbWhites |= bbSqi;
-				m_bbKnights |= bbSqi;
+				mybbWhites |= bbSqi;
+				mybbKnights |= bbSqi;
 				break;
 			case Chess.WHITE_BISHOP:
-				m_bbWhites |= bbSqi;
-				m_bbBishops |= bbSqi;
+				mybbWhites |= bbSqi;
+				mybbBishops |= bbSqi;
 				break;
 			case Chess.WHITE_ROOK:
-				m_bbWhites |= bbSqi;
-				m_bbRooks |= bbSqi;
+				mybbWhites |= bbSqi;
+				mybbRooks |= bbSqi;
 				break;
 			case Chess.WHITE_QUEEN:
-				m_bbWhites |= bbSqi;
-				m_bbBishops |= bbSqi;
-				m_bbRooks |= bbSqi;
+				mybbWhites |= bbSqi;
+				mybbBishops |= bbSqi;
+				mybbRooks |= bbSqi;
 				break;
 			case Chess.BLACK_KING:
-				m_bbBlacks |= bbSqi;
-				m_blackKing = sqi;
+				mybbBlacks |= bbSqi;
+				myBlackKing = sqi;
 				break;
 			case Chess.BLACK_PAWN:
-				m_bbBlacks |= bbSqi;
-				m_bbPawns |= bbSqi;
+				mybbBlacks |= bbSqi;
+				mybbPawns |= bbSqi;
 				break;
 			case Chess.BLACK_KNIGHT:
-				m_bbBlacks |= bbSqi;
-				m_bbKnights |= bbSqi;
+				mybbBlacks |= bbSqi;
+				mybbKnights |= bbSqi;
 				break;
 			case Chess.BLACK_BISHOP:
-				m_bbBlacks |= bbSqi;
-				m_bbBishops |= bbSqi;
+				mybbBlacks |= bbSqi;
+				mybbBishops |= bbSqi;
 				break;
 			case Chess.BLACK_ROOK:
-				m_bbBlacks |= bbSqi;
-				m_bbRooks |= bbSqi;
+				mybbBlacks |= bbSqi;
+				mybbRooks |= bbSqi;
 				break;
 			case Chess.BLACK_QUEEN:
-				m_bbBlacks |= bbSqi;
-				m_bbBishops |= bbSqi;
-				m_bbRooks |= bbSqi;
+				mybbBlacks |= bbSqi;
+				mybbBishops |= bbSqi;
+				mybbRooks |= bbSqi;
 				break;
 			}
 
 			/*---------- hash value ----------*/
 			if (old != Chess.NO_STONE) {
-				m_hashCode ^= s_hashMod[sqi][old - Chess.MIN_STONE];
+				myHashCode ^= HASH_MOD[sqi][old - Chess.MIN_STONE];
 			}
 			if (stone != Chess.NO_STONE) {
-				m_hashCode ^= s_hashMod[sqi][stone - Chess.MIN_STONE];
-				// System.out.println("hash code set: " + m_hashCode);
+				myHashCode ^= HASH_MOD[sqi][stone - Chess.MIN_STONE];
 			}
 
 			if (clearStacksAndFlags) {
 				clearStacks();
-				/*---------- delete position properties in m_flags ----------*/
-				// TN: This is taken from doMove. m_flags = 0l; is not the right idea, because tests showed that
+				/*---------- delete position properties in myFlags ----------*/
+				// TN: This is taken from doMove. myFlags = 0l; is not the right idea, because tests showed that
 				// for some reason the value of the hash code will later be changed!
-				m_flags &= ~(CHECK_MASK << CHECK_SHIFT); // delete isCheck info
-				m_flags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT); // delete canMove info
+				myFlags &= ~(CHECK_MASK << CHECK_SHIFT); // delete isCheck info
+				myFlags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT); // delete canMove info
 				// This is needed additionally:
-				m_flags &= ~((long) PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
+				myFlags &= ~((long) PLY_NUMBER_MASK << PLY_NUMBER_SHIFT);
 
 				// TN: What about the half move clock? The following line looks reasonable
-				// m_flags &= ~(HALF_MOVE_CLOCK_MASK << HALF_MOVE_CLOCK_SHIFT);
+				// myFlags &= ~(HALF_MOVE_CLOCK_MASK << HALF_MOVE_CLOCK_SHIFT);
 				// but then the tests fail!
 				// TN: And what about castles? With the following line
-				// m_flags &= ~(CASTLES_MASK << CASTLES_SHIFT);
+				// myFlags &= ~(CASTLES_MASK << CASTLES_SHIFT);
 				// at least AbstractMutablePosition::invert fails!
 			}
 		}
@@ -858,7 +854,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if (DEBUG) {
 			System.out.println("incPlyNumber");
 		}
-		m_flags += 1L << PLY_NUMBER_SHIFT;
+		myFlags += 1L << PLY_NUMBER_SHIFT;
 	}
 
 	@Override
@@ -867,8 +863,8 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if (DEBUG) {
 			System.out.println("setHalfMoveClock " + halfMoveClock);
 		}
-		m_flags &= ~(HALF_MOVE_CLOCK_MASK << HALF_MOVE_CLOCK_SHIFT);
-		m_flags |= (long) halfMoveClock << HALF_MOVE_CLOCK_SHIFT;
+		myFlags &= ~(HALF_MOVE_CLOCK_MASK << HALF_MOVE_CLOCK_SHIFT);
+		myFlags |= (long) halfMoveClock << HALF_MOVE_CLOCK_SHIFT;
 	}
 
 	@Override
@@ -878,12 +874,11 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		}
 		int oldCastles = getCastles();
 		if (oldCastles != castles) {
-			m_flags &= ~(CASTLES_MASK << CASTLES_SHIFT);
-			m_flags |= (long) castles << CASTLES_SHIFT;
+			myFlags &= ~(CASTLES_MASK << CASTLES_SHIFT);
+			myFlags |= (long) castles << CASTLES_SHIFT;
 			/*---------- hash value ----------*/
-			m_hashCode ^= s_hashCastleMod[oldCastles];
-			m_hashCode ^= s_hashCastleMod[castles];
-			// System.out.println("hash code castles: " + m_hashCode);
+			myHashCode ^= HASH_CASTLE_MOD[oldCastles];
+			myHashCode ^= HASH_CASTLE_MOD[castles];
 		}
 	}
 
@@ -893,13 +888,13 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			System.out.println("setSqiEP " + sqiEP);
 		}
 		if (getSqiEP() != sqiEP) {
-			m_flags &= ~(SQI_EP_MASK << SQI_EP_SHIFT);
-			m_flags |= (long) (sqiEP - Chess.NO_SQUARE) << SQI_EP_SHIFT;
+			myFlags &= ~(SQI_EP_MASK << SQI_EP_SHIFT);
+			myFlags |= (long) (sqiEP - Chess.NO_SQUARE) << SQI_EP_SHIFT;
 
 			/*---------- hash value ----------*/
 			int hashColEP = getHashColEP();
 			if (hashColEP != Chess.NO_SQUARE) {
-				m_hashCode ^= s_hashEPMod[hashColEP];
+				myHashCode ^= HASH_EP_MOD[hashColEP];
 			}
 
 			hashColEP = (sqiEP == Chess.NO_COL ? Chess.NO_COL : Chess.sqiToCol(sqiEP));
@@ -914,22 +909,21 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			if (sqiEP != Chess.NO_COL) {
 				if (sqiEP < Chess.A4) { // test is independent of whether toplay
 					// is set before or afterwards
-					if ((WHITE_PAWN_ATTACKS[sqiEP] & m_bbPawns & m_bbBlacks) == 0L) {
+					if ((WHITE_PAWN_ATTACKS[sqiEP] & mybbPawns & mybbBlacks) == 0L) {
 						hashColEP = Chess.NO_COL;
 					}
 				} else {
-					if ((BLACK_PAWN_ATTACKS[sqiEP] & m_bbPawns & m_bbWhites) == 0L) {
+					if ((BLACK_PAWN_ATTACKS[sqiEP] & mybbPawns & mybbWhites) == 0L) {
 						hashColEP = Chess.NO_COL;
 					}
 				}
 				if (hashColEP != Chess.NO_COL) {
-					m_hashCode ^= s_hashEPMod[hashColEP];
+					myHashCode ^= HASH_EP_MOD[hashColEP];
 				}
 			}
-			m_flags &= ~(HASH_COL_EP_MASK << HASH_COL_EP_SHIFT);
+			myFlags &= ~(HASH_COL_EP_MASK << HASH_COL_EP_SHIFT);
 			// encode column of ep square in hash code (NO_SQUARE if no ep)
-			m_flags |= (long) (hashColEP - Chess.NO_SQUARE) << HASH_COL_EP_SHIFT;
-			// System.out.println("hash code ep: " + m_hashCode);
+			myFlags |= (long) (hashColEP - Chess.NO_SQUARE) << HASH_COL_EP_SHIFT;
 		}
 	}
 
@@ -948,10 +942,9 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if (DEBUG) {
 			System.out.println("toggleToPlay");
 		}
-		m_flags ^= (TO_PLAY_MASK << TO_PLAY_SHIFT);
+		myFlags ^= (TO_PLAY_MASK << TO_PLAY_SHIFT);
 		/*---------- hash value ----------*/
-		m_hashCode ^= HASH_TOPLAY_MULT;
-		// System.out.println("hash code toPlay: " + m_hashCode);
+		myHashCode ^= HASH_TOPLAY_MULT;
 	}
 
 	private void setMove(short move) throws IllegalMoveException {
@@ -969,43 +962,43 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				if (getToPlay() == Chess.WHITE) {
 					if (Move.isShortCastle(move)) {
 						//			squaresChanged = WHITE_SHORT_CASTLE_KING_CHANGE_MASK | WHITE_SHORT_CASTLE_ROOK_CHANGE_MASK;
-						m_bbWhites ^= WHITE_SHORT_CASTLE_KING_CHANGE_MASK | WHITE_SHORT_CASTLE_ROOK_CHANGE_MASK;
-						m_whiteKing = Chess.G1;
-						m_bbRooks ^= WHITE_SHORT_CASTLE_ROOK_CHANGE_MASK;
-						m_hashCode ^= s_hashMod[Chess.E1][Chess.WHITE_KING - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.F1][Chess.WHITE_ROOK - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.G1][Chess.WHITE_KING - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.H1][Chess.WHITE_ROOK - Chess.MIN_STONE];
+						mybbWhites ^= WHITE_SHORT_CASTLE_KING_CHANGE_MASK | WHITE_SHORT_CASTLE_ROOK_CHANGE_MASK;
+						myWhiteKing = Chess.G1;
+						mybbRooks ^= WHITE_SHORT_CASTLE_ROOK_CHANGE_MASK;
+						myHashCode ^= HASH_MOD[Chess.E1][Chess.WHITE_KING - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.F1][Chess.WHITE_ROOK - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.G1][Chess.WHITE_KING - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.H1][Chess.WHITE_ROOK - Chess.MIN_STONE];
 					} else {
 						//			squaresChanged = WHITE_LONG_CASTLE_KING_CHANGE_MASK | WHITE_LONG_CASTLE_ROOK_CHANGE_MASK;
-						m_bbWhites ^= WHITE_LONG_CASTLE_KING_CHANGE_MASK | WHITE_LONG_CASTLE_ROOK_CHANGE_MASK;
-						m_whiteKing = Chess.C1;
-						m_bbRooks ^= WHITE_LONG_CASTLE_ROOK_CHANGE_MASK;
-						m_hashCode ^= s_hashMod[Chess.E1][Chess.WHITE_KING - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.D1][Chess.WHITE_ROOK - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.C1][Chess.WHITE_KING - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.A1][Chess.WHITE_ROOK - Chess.MIN_STONE];
+						mybbWhites ^= WHITE_LONG_CASTLE_KING_CHANGE_MASK | WHITE_LONG_CASTLE_ROOK_CHANGE_MASK;
+						myWhiteKing = Chess.C1;
+						mybbRooks ^= WHITE_LONG_CASTLE_ROOK_CHANGE_MASK;
+						myHashCode ^= HASH_MOD[Chess.E1][Chess.WHITE_KING - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.D1][Chess.WHITE_ROOK - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.C1][Chess.WHITE_KING - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.A1][Chess.WHITE_ROOK - Chess.MIN_STONE];
 					}
 					excludeCastles(WHITE_CASTLE);
 				} else {
 					if (Move.isShortCastle(move)) {
 						//			squaresChanged = BLACK_SHORT_CASTLE_KING_CHANGE_MASK | BLACK_SHORT_CASTLE_ROOK_CHANGE_MASK;
-						m_bbBlacks ^= BLACK_SHORT_CASTLE_KING_CHANGE_MASK | BLACK_SHORT_CASTLE_ROOK_CHANGE_MASK;
-						m_blackKing = Chess.G8;
-						m_bbRooks ^= BLACK_SHORT_CASTLE_ROOK_CHANGE_MASK;
-						m_hashCode ^= s_hashMod[Chess.E8][Chess.BLACK_KING - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.F8][Chess.BLACK_ROOK - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.G8][Chess.BLACK_KING - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.H8][Chess.BLACK_ROOK - Chess.MIN_STONE];
+						mybbBlacks ^= BLACK_SHORT_CASTLE_KING_CHANGE_MASK | BLACK_SHORT_CASTLE_ROOK_CHANGE_MASK;
+						myBlackKing = Chess.G8;
+						mybbRooks ^= BLACK_SHORT_CASTLE_ROOK_CHANGE_MASK;
+						myHashCode ^= HASH_MOD[Chess.E8][Chess.BLACK_KING - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.F8][Chess.BLACK_ROOK - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.G8][Chess.BLACK_KING - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.H8][Chess.BLACK_ROOK - Chess.MIN_STONE];
 					} else {
 						//			squaresChanged = BLACK_LONG_CASTLE_KING_CHANGE_MASK | BLACK_LONG_CASTLE_ROOK_CHANGE_MASK;
-						m_bbBlacks ^= BLACK_LONG_CASTLE_KING_CHANGE_MASK | BLACK_LONG_CASTLE_ROOK_CHANGE_MASK;
-						m_blackKing = Chess.C8;
-						m_bbRooks ^= BLACK_LONG_CASTLE_ROOK_CHANGE_MASK;
-						m_hashCode ^= s_hashMod[Chess.E8][Chess.BLACK_KING - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.D8][Chess.BLACK_ROOK - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.C8][Chess.BLACK_KING - Chess.MIN_STONE];
-						m_hashCode ^= s_hashMod[Chess.A8][Chess.BLACK_ROOK - Chess.MIN_STONE];
+						mybbBlacks ^= BLACK_LONG_CASTLE_KING_CHANGE_MASK | BLACK_LONG_CASTLE_ROOK_CHANGE_MASK;
+						myBlackKing = Chess.C8;
+						mybbRooks ^= BLACK_LONG_CASTLE_ROOK_CHANGE_MASK;
+						myHashCode ^= HASH_MOD[Chess.E8][Chess.BLACK_KING - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.D8][Chess.BLACK_ROOK - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.C8][Chess.BLACK_KING - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[Chess.A8][Chess.BLACK_ROOK - Chess.MIN_STONE];
 					}
 					excludeCastles(BLACK_CASTLE);
 				}
@@ -1077,53 +1070,52 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						int pawnSqi = getSqiEP() + (getToPlay() == Chess.WHITE ? -Chess.NUM_OF_COLS : Chess.NUM_OF_COLS);
 						notBBTo = ~ofSquare(pawnSqi);
 						//			squaresChanged |= ~notBBTo;
-						m_hashCode ^= s_hashMod[pawnSqi][(getToPlay() == Chess.WHITE ? Chess.BLACK_PAWN : Chess.WHITE_PAWN)
+						myHashCode ^= HASH_MOD[pawnSqi][(getToPlay() == Chess.WHITE ? Chess.BLACK_PAWN : Chess.WHITE_PAWN)
 								- Chess.MIN_STONE];
 					} else {
 						notBBTo = ~bbTo;
 						int capturedStone = getStone(Move.getToSqi(move));
-						m_hashCode ^= s_hashMod[sqiTo][capturedStone - Chess.MIN_STONE];
+						myHashCode ^= HASH_MOD[sqiTo][capturedStone - Chess.MIN_STONE];
 					}
 					// this.printBoard(notBBTo);
 					// remove all bits -> faster than switching?
-					m_bbWhites &= notBBTo;
-					m_bbBlacks &= notBBTo;
-					m_bbPawns &= notBBTo;
-					m_bbKnights &= notBBTo;
-					m_bbBishops &= notBBTo;
-					m_bbRooks &= notBBTo;
-					// this.printBoard(m_bbWhites);this.printBoard(m_bbBlacks);this.printBoard(m_bbPawns);
+					mybbWhites &= notBBTo;
+					mybbBlacks &= notBBTo;
+					mybbPawns &= notBBTo;
+					mybbKnights &= notBBTo;
+					mybbBishops &= notBBTo;
+					mybbRooks &= notBBTo;
 					increaseHalfMoveClock = false;
 				}
 				if (Move.isPromotion(move)) {
 					int promotionStone = Chess.pieceToStone(Move.getPromotionPiece(move), getToPlay());
 					if (getToPlay() == Chess.WHITE) {
-						m_bbWhites ^= bbFromTo;
-						m_bbPawns ^= bbFrom;
-						m_hashCode ^= s_hashMod[sqiFrom][Chess.WHITE_PAWN - Chess.MIN_STONE];
+						mybbWhites ^= bbFromTo;
+						mybbPawns ^= bbFrom;
+						myHashCode ^= HASH_MOD[sqiFrom][Chess.WHITE_PAWN - Chess.MIN_STONE];
 						switch (promotionStone) {
-						case Chess.WHITE_KNIGHT -> m_bbKnights ^= bbTo;
-						case Chess.WHITE_BISHOP -> m_bbBishops ^= bbTo;
-						case Chess.WHITE_ROOK -> m_bbRooks ^= bbTo;
+						case Chess.WHITE_KNIGHT -> mybbKnights ^= bbTo;
+						case Chess.WHITE_BISHOP -> mybbBishops ^= bbTo;
+						case Chess.WHITE_ROOK -> mybbRooks ^= bbTo;
 						case Chess.WHITE_QUEEN -> {
-							m_bbBishops ^= bbTo;
-							m_bbRooks ^= bbTo;
+							mybbBishops ^= bbTo;
+							mybbRooks ^= bbTo;
 						}
 						default -> throw new IllegalMoveException(
 								"Move " + ((getPlyNumber() + 1) / 2 + 1) + ": illegal promotion stone (" + promotionStone + ", "
 										+ Chess.stoneToChar(promotionStone) + ")");
 						}
 					} else {
-						m_bbBlacks ^= bbFromTo;
-						m_bbPawns ^= bbFrom;
-						m_hashCode ^= s_hashMod[sqiFrom][Chess.BLACK_PAWN - Chess.MIN_STONE];
+						mybbBlacks ^= bbFromTo;
+						mybbPawns ^= bbFrom;
+						myHashCode ^= HASH_MOD[sqiFrom][Chess.BLACK_PAWN - Chess.MIN_STONE];
 						switch (promotionStone) {
-						case Chess.BLACK_KNIGHT -> m_bbKnights ^= bbTo;
-						case Chess.BLACK_BISHOP -> m_bbBishops ^= bbTo;
-						case Chess.BLACK_ROOK -> m_bbRooks ^= bbTo;
+						case Chess.BLACK_KNIGHT -> mybbKnights ^= bbTo;
+						case Chess.BLACK_BISHOP -> mybbBishops ^= bbTo;
+						case Chess.BLACK_ROOK -> mybbRooks ^= bbTo;
 						case Chess.BLACK_QUEEN -> {
-							m_bbBishops ^= bbTo;
-							m_bbRooks ^= bbTo;
+							mybbBishops ^= bbTo;
+							mybbRooks ^= bbTo;
 						}
 						default -> {
 							System.out.println("PositionImpl::setMove: IllegalMoveException at " + this);
@@ -1134,7 +1126,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						}
 						}
 					}
-					m_hashCode ^= s_hashMod[sqiTo][promotionStone - Chess.MIN_STONE];
+					myHashCode ^= HASH_MOD[sqiTo][promotionStone - Chess.MIN_STONE];
 					increaseHalfMoveClock = false;
 				} else {
 					int stone = getStone(Move.getFromSqi(move));
@@ -1147,72 +1139,72 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						throw new IllegalMoveException(message);
 					}
 					case Chess.WHITE_KING -> {
-						m_bbWhites ^= bbFromTo;
-						m_whiteKing = sqiTo;
+						mybbWhites ^= bbFromTo;
+						myWhiteKing = sqiTo;
 					}
 					case Chess.WHITE_PAWN -> {
-						m_bbWhites ^= bbFromTo;
-						m_bbPawns ^= bbFromTo;
+						mybbWhites ^= bbFromTo;
+						mybbPawns ^= bbFromTo;
 						increaseHalfMoveClock = false;
 						if (sqiTo - sqiFrom == 2 * Chess.NUM_OF_COLS) {
 							sqiEP = sqiTo - Chess.NUM_OF_COLS;
 						}
 					}
 					case Chess.WHITE_KNIGHT -> {
-						m_bbWhites ^= bbFromTo;
-						m_bbKnights ^= bbFromTo;
+						mybbWhites ^= bbFromTo;
+						mybbKnights ^= bbFromTo;
 					}
 					case Chess.WHITE_BISHOP -> {
-						m_bbWhites ^= bbFromTo;
-						m_bbBishops ^= bbFromTo;
+						mybbWhites ^= bbFromTo;
+						mybbBishops ^= bbFromTo;
 					}
 					case Chess.WHITE_ROOK -> {
-						m_bbWhites ^= bbFromTo;
-						m_bbRooks ^= bbFromTo;
+						mybbWhites ^= bbFromTo;
+						mybbRooks ^= bbFromTo;
 					}
 					case Chess.WHITE_QUEEN -> {
-						m_bbWhites ^= bbFromTo;
-						m_bbBishops ^= bbFromTo;
-						m_bbRooks ^= bbFromTo;
+						mybbWhites ^= bbFromTo;
+						mybbBishops ^= bbFromTo;
+						mybbRooks ^= bbFromTo;
 					}
 					case Chess.BLACK_KING -> {
-						m_bbBlacks ^= bbFromTo;
-						m_blackKing = sqiTo;
+						mybbBlacks ^= bbFromTo;
+						myBlackKing = sqiTo;
 					}
 					case Chess.BLACK_PAWN -> {
-						m_bbBlacks ^= bbFromTo;
-						m_bbPawns ^= bbFromTo;
+						mybbBlacks ^= bbFromTo;
+						mybbPawns ^= bbFromTo;
 						increaseHalfMoveClock = false;
 						if (sqiFrom - sqiTo == 2 * Chess.NUM_OF_COLS) {
 							sqiEP = sqiTo + Chess.NUM_OF_COLS;
 						}
 					}
 					case Chess.BLACK_KNIGHT -> {
-						m_bbBlacks ^= bbFromTo;
-						m_bbKnights ^= bbFromTo;
+						mybbBlacks ^= bbFromTo;
+						mybbKnights ^= bbFromTo;
 					}
 					case Chess.BLACK_BISHOP -> {
-						m_bbBlacks ^= bbFromTo;
-						m_bbBishops ^= bbFromTo;
+						mybbBlacks ^= bbFromTo;
+						mybbBishops ^= bbFromTo;
 					}
 					case Chess.BLACK_ROOK -> {
-						m_bbBlacks ^= bbFromTo;
-						m_bbRooks ^= bbFromTo;
+						mybbBlacks ^= bbFromTo;
+						mybbRooks ^= bbFromTo;
 					}
 					case Chess.BLACK_QUEEN -> {
-						m_bbBlacks ^= bbFromTo;
-						m_bbBishops ^= bbFromTo;
-						m_bbRooks ^= bbFromTo;
+						mybbBlacks ^= bbFromTo;
+						mybbBishops ^= bbFromTo;
+						mybbRooks ^= bbFromTo;
 					}
 					}
-					m_hashCode ^= s_hashMod[sqiFrom][stone - Chess.MIN_STONE];
-					m_hashCode ^= s_hashMod[sqiTo][stone - Chess.MIN_STONE];
+					myHashCode ^= HASH_MOD[sqiFrom][stone - Chess.MIN_STONE];
+					myHashCode ^= HASH_MOD[sqiTo][stone - Chess.MIN_STONE];
 				}
 
 				/*---------- update castles ----------*/
 				int castles = getCastles();
 				if (castles != NO_CASTLES) {
-					if (m_variant == Variant.STANDARD) {
+					if (myVariant == Variant.STANDARD) {
 						if (sqiFrom == Chess.A1) {
 							castles &= ~WHITE_LONG_CASTLE;
 						} else if (sqiFrom == Chess.H1) {
@@ -1279,32 +1271,30 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		}
 
 		/*---------- store move in stack ----------*/
-		int index = m_moveStackIndex;
+		int index = myMoveStackIndex;
 		checkMoveStack();
-		m_moveStack[index] = move;
-		m_moveStackIndex++;
+		myMoveStack[index] = move;
+		myMoveStackIndex++;
 	}
 
 	private void checkMoveStack() {
-		if (m_moveStackIndex >= m_moveStack.length) {
-			short[] newMoveStack = new short[m_moveStack.length * 2];
-			System.arraycopy(m_moveStack, 0, newMoveStack, 0, m_moveStack.length);
-			m_moveStack = newMoveStack;
-			// if (index >= m_moveStack.length) System.out.println("Too big");
+		if (myMoveStackIndex >= myMoveStack.length) {
+			short[] newMoveStack = new short[myMoveStack.length * 2];
+			System.arraycopy(myMoveStack, 0, newMoveStack, 0, myMoveStack.length);
+			myMoveStack = newMoveStack;
 		}
 	}
 
 	private void checkBackupStack() {
-		if (m_bakIndex + 7 >= m_bakStack.length) {
-			long[] oldBak = m_bakStack;
-			m_bakStack = new long[2 * oldBak.length];
-			System.arraycopy(oldBak, 0, m_bakStack, 0, oldBak.length);
-			// System.out.println(m_bakIndex + " " + m_bakStack.length);
+		if (myBakIndex + 7 >= myBakStack.length) {
+			long[] oldBak = myBakStack;
+			myBakStack = new long[2 * oldBak.length];
+			System.arraycopy(oldBak, 0, myBakStack, 0, oldBak.length);
 		}
 	}
 
 	private long getAllFlags(int changeMask) {
-		long allFlags = (((m_flags << 6) | m_whiteKing) << 6) | m_blackKing;
+		long allFlags = (((myFlags << 6) | myWhiteKing) << 6) | myBlackKing;
 		return (allFlags << 5) | changeMask;
 	}
 
@@ -1312,26 +1302,26 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	private void takeBaseline() {
 		checkBackupStack();
 
-		m_bakStack[m_bakIndex++] = m_hashCode;
-		m_bakStack[m_bakIndex++] = m_bbWhites;
-		m_bakStack[m_bakIndex++] = m_bbPawns;
-		m_bakStack[m_bakIndex++] = m_bbKnights;
-		m_bakStack[m_bakIndex++] = m_bbBishops;
-		m_bakStack[m_bakIndex++] = m_bbRooks;
+		myBakStack[myBakIndex++] = myHashCode;
+		myBakStack[myBakIndex++] = mybbWhites;
+		myBakStack[myBakIndex++] = mybbPawns;
+		myBakStack[myBakIndex++] = mybbKnights;
+		myBakStack[myBakIndex++] = mybbBishops;
+		myBakStack[myBakIndex++] = mybbRooks;
 
 		int changeMask = 0x1F;
-		long bakFlags = (((m_flags << 6) | m_whiteKing) << 6) | m_blackKing;
-		m_bakStack[m_bakIndex++] = (bakFlags << 5) | changeMask;
-		m_bakStack[m_bakIndex] = 0L; // prevent redos
+		long bakFlags = (((myFlags << 6) | myWhiteKing) << 6) | myBlackKing;
+		myBakStack[myBakIndex++] = (bakFlags << 5) | changeMask;
+		myBakStack[myBakIndex] = 0L; // prevent redos
 
 		checkMoveStack();
-		m_moveStack[m_moveStackIndex++] = OTHER_CHANGE_MOVE;
+		myMoveStack[myMoveStackIndex++] = OTHER_CHANGE_MOVE;
 	}
 
 	@Override
 	public void doMove(short move) throws IllegalMoveException {
 		if (PROFILE) {
-			m_numDoMove++;
+			numDoMove++;
 		}
 
 		if (!Move.isValid(move)) {
@@ -1342,18 +1332,18 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		checkBackupStack();
 
 		/*---------- take baseline ----------*/
-		long bakWhites = m_bbWhites;
-		long bakPawns = m_bbPawns;
-		long bakKnights = m_bbKnights;
-		long bakBishops = m_bbBishops;
-		long bakRooks = m_bbRooks;
-		long bakFlags = (((m_flags << 6) | m_whiteKing) << 6) | m_blackKing;
+		long bakWhites = mybbWhites;
+		long bakPawns = mybbPawns;
+		long bakKnights = mybbKnights;
+		long bakBishops = mybbBishops;
+		long bakRooks = mybbRooks;
+		long bakFlags = (((myFlags << 6) | myWhiteKing) << 6) | myBlackKing;
 
-		m_bakStack[m_bakIndex++] = m_hashCode;
+		myBakStack[myBakIndex++] = myHashCode;
 
-		/*---------- delete position properties in m_flags ----------*/
-		m_flags &= ~(CHECK_MASK << CHECK_SHIFT); // delete isCheck info
-		m_flags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT); // delete canMove info
+		/*---------- delete position properties in myFlags ----------*/
+		myFlags &= ~(CHECK_MASK << CHECK_SHIFT); // delete isCheck info
+		myFlags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT); // delete canMove info
 
 		/*---------- move pieces ----------*/
 		setMove(move);
@@ -1363,35 +1353,35 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		// on average, we need about 3.75 longs per position (instead of 7 if we back up all)
 		// (hashCode, flags, 1/2 whites, 1 piece bb, plus sometimes another piece bb for captures, promotions, castles)
 		int changeMask = 0;
-		if (bakWhites != m_bbWhites) {
-			m_bakStack[m_bakIndex++] = bakWhites;
+		if (bakWhites != mybbWhites) {
+			myBakStack[myBakIndex++] = bakWhites;
 			changeMask++;
 		}
 		changeMask <<= 1;
-		if (bakPawns != m_bbPawns) {
-			m_bakStack[m_bakIndex++] = bakPawns;
+		if (bakPawns != mybbPawns) {
+			myBakStack[myBakIndex++] = bakPawns;
 			changeMask++;
 		}
 		changeMask <<= 1;
-		if (bakKnights != m_bbKnights) {
-			m_bakStack[m_bakIndex++] = bakKnights;
+		if (bakKnights != mybbKnights) {
+			myBakStack[myBakIndex++] = bakKnights;
 			changeMask++;
 		}
 		changeMask <<= 1;
-		if (bakBishops != m_bbBishops) {
-			m_bakStack[m_bakIndex++] = bakBishops;
+		if (bakBishops != mybbBishops) {
+			myBakStack[myBakIndex++] = bakBishops;
 			changeMask++;
 		}
 		changeMask <<= 1;
-		if (bakRooks != m_bbRooks) {
-			m_bakStack[m_bakIndex++] = bakRooks;
+		if (bakRooks != mybbRooks) {
+			myBakStack[myBakIndex++] = bakRooks;
 			changeMask++;
 		}
-		m_bakStack[m_bakIndex++] = (bakFlags << 5) | changeMask;
-		m_bakStack[m_bakIndex] = 0L;
+		myBakStack[myBakIndex++] = (bakFlags << 5) | changeMask;
+		myBakStack[myBakIndex] = 0L;
 
 		if (PROFILE) {
-			m_numLongsBackuped += numOfBitsSet(changeMask) + 2;
+			numLongsBackuped += numOfBitsSet(changeMask) + 2;
 		}
 
 		if (DEBUG) {
@@ -1401,68 +1391,68 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public boolean canUndoMove() {
-		return m_bakIndex > 0;
+		return myBakIndex > 0;
 	}
 
 	@Override
 	public boolean undoMove() {
 		if (PROFILE) {
-			m_numUndoMove++;
+			numUndoMove++;
 		}
 
-		if (m_bakIndex > 0) {
+		if (myBakIndex > 0) {
 
 			/*---------- reset pieces ----------*/
-			long allFlags = m_bakStack[--m_bakIndex];
+			long allFlags = myBakStack[--myBakIndex];
 			int changeMask = (int) (allFlags & 0x1F);
 			allFlags >>>= 5;
 
 			int newChangeMask = 0;
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbRooks;
-				m_bbRooks = m_bakStack[--m_bakIndex];
+				myBakStack[myBakIndex] = mybbRooks;
+				mybbRooks = myBakStack[--myBakIndex];
 				newChangeMask++;
 			}
 			changeMask >>>= 1;
 			newChangeMask <<= 1;
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbBishops;
-				m_bbBishops = m_bakStack[--m_bakIndex];
+				myBakStack[myBakIndex] = mybbBishops;
+				mybbBishops = myBakStack[--myBakIndex];
 				newChangeMask++;
 			}
 			changeMask >>>= 1;
 			newChangeMask <<= 1;
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbKnights;
-				m_bbKnights = m_bakStack[--m_bakIndex];
+				myBakStack[myBakIndex] = mybbKnights;
+				mybbKnights = myBakStack[--myBakIndex];
 				newChangeMask++;
 			}
 			changeMask >>>= 1;
 			newChangeMask <<= 1;
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbPawns;
-				m_bbPawns = m_bakStack[--m_bakIndex];
+				myBakStack[myBakIndex] = mybbPawns;
+				mybbPawns = myBakStack[--myBakIndex];
 				newChangeMask++;
 			}
 			changeMask >>>= 1;
 			newChangeMask <<= 1;
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbWhites;
-				m_bbWhites = m_bakStack[--m_bakIndex];
+				myBakStack[myBakIndex] = mybbWhites;
+				mybbWhites = myBakStack[--myBakIndex];
 				newChangeMask++;
 			}
-			m_bakStack[m_bakIndex] = m_hashCode;
-			m_hashCode = m_bakStack[--m_bakIndex];
-			m_bakStack[m_bakIndex] = getAllFlags(newChangeMask);
+			myBakStack[myBakIndex] = myHashCode;
+			myHashCode = myBakStack[--myBakIndex];
+			myBakStack[myBakIndex] = getAllFlags(newChangeMask);
 
-			m_blackKing = (int) (allFlags & 0x3F);
+			myBlackKing = (int) (allFlags & 0x3F);
 			allFlags >>>= 6;
-			m_whiteKing = (int) (allFlags & 0x3F);
+			myWhiteKing = (int) (allFlags & 0x3F);
 			allFlags >>>= 6;
-			m_flags = allFlags;
-			m_bbBlacks = ((1L << m_blackKing) | m_bbPawns | m_bbKnights | m_bbBishops | m_bbRooks) & (~m_bbWhites);
+			myFlags = allFlags;
+			mybbBlacks = ((1L << myBlackKing) | mybbPawns | mybbKnights | mybbBishops | mybbRooks) & (~mybbWhites);
 
-			m_moveStackIndex--;
+			myMoveStackIndex--;
 
 			if (DEBUG) {
 				System.out.println("Last move undone.");
@@ -1476,7 +1466,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public boolean canRedoMove() {
-		return m_bakIndex < m_bakStack.length && m_bakStack[m_bakIndex] != 0;
+		return myBakIndex < myBakStack.length && myBakStack[myBakIndex] != 0;
 	}
 
 	@Override
@@ -1484,56 +1474,56 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if (canRedoMove()) {
 
 			/*---------- reset pieces ----------*/
-			long allFlags = m_bakStack[m_bakIndex];
+			long allFlags = myBakStack[myBakIndex];
 			int changeMask = (int) (allFlags & 0x1F);
 			allFlags >>>= 5;
 
 			int newChangeMask = 0;
-			m_bakStack[m_bakIndex] = m_hashCode;
-			m_hashCode = m_bakStack[++m_bakIndex];
+			myBakStack[myBakIndex] = myHashCode;
+			myHashCode = myBakStack[++myBakIndex];
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbWhites;
-				m_bbWhites = m_bakStack[++m_bakIndex];
+				myBakStack[myBakIndex] = mybbWhites;
+				mybbWhites = myBakStack[++myBakIndex];
 				newChangeMask++;
 			}
 			changeMask >>>= 1;
 			newChangeMask <<= 1;
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbPawns;
-				m_bbPawns = m_bakStack[++m_bakIndex];
+				myBakStack[myBakIndex] = mybbPawns;
+				mybbPawns = myBakStack[++myBakIndex];
 				newChangeMask++;
 			}
 			changeMask >>>= 1;
 			newChangeMask <<= 1;
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbKnights;
-				m_bbKnights = m_bakStack[++m_bakIndex];
+				myBakStack[myBakIndex] = mybbKnights;
+				mybbKnights = myBakStack[++myBakIndex];
 				newChangeMask++;
 			}
 			changeMask >>>= 1;
 			newChangeMask <<= 1;
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbBishops;
-				m_bbBishops = m_bakStack[++m_bakIndex];
+				myBakStack[myBakIndex] = mybbBishops;
+				mybbBishops = myBakStack[++myBakIndex];
 				newChangeMask++;
 			}
 			changeMask >>>= 1;
 			newChangeMask <<= 1;
 			if ((changeMask & 1) != 0) {
-				m_bakStack[m_bakIndex] = m_bbRooks;
-				m_bbRooks = m_bakStack[++m_bakIndex];
+				myBakStack[myBakIndex] = mybbRooks;
+				mybbRooks = myBakStack[++myBakIndex];
 				newChangeMask++;
 			}
-			m_bakStack[m_bakIndex++] = getAllFlags(newChangeMask);
+			myBakStack[myBakIndex++] = getAllFlags(newChangeMask);
 
-			m_blackKing = (int) (allFlags & 0x3F);
+			myBlackKing = (int) (allFlags & 0x3F);
 			allFlags >>>= 6;
-			m_whiteKing = (int) (allFlags & 0x3F);
+			myWhiteKing = (int) (allFlags & 0x3F);
 			allFlags >>>= 6;
-			m_flags = allFlags;
-			m_bbBlacks = ((1L << m_blackKing) | m_bbPawns | m_bbKnights | m_bbBishops | m_bbRooks) & (~m_bbWhites);
+			myFlags = allFlags;
+			mybbBlacks = ((1L << myBlackKing) | mybbPawns | mybbKnights | mybbBishops | mybbRooks) & (~mybbWhites);
 
-			m_moveStackIndex++;
+			myMoveStackIndex++;
 
 			if (DEBUG) {
 				System.out.println("Last move redone.");
@@ -1628,7 +1618,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				}
 			}
 		}
-		if (m_variant == Variant.STANDARD) {
+		if (myVariant == Variant.STANDARD) {
 			// Check bishops on first and eight rank.
 			if (getStone(Chess.A1) == Chess.WHITE_BISHOP && getStone(Chess.B2) == Chess.WHITE_PAWN) {
 				return false;
@@ -1683,13 +1673,13 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	private boolean isKingNotToMoveAttacked() {
-		int kingSquare = (getToPlay() == Chess.WHITE ? m_blackKing : m_whiteKing);
+		int kingSquare = (getToPlay() == Chess.WHITE ? myBlackKing : myWhiteKing);
 		return isAttacked(kingSquare, getToPlay(), 0L);
 	}
 
 	private boolean isKingAttackedByUnmovedPawn() {
 		if (getToPlay() == Chess.WHITE) {
-			int kingSquare = m_whiteKing;
+			int kingSquare = myWhiteKing;
 			if (Chess.sqiToRow(kingSquare) == 5) {
 				int col = Chess.sqiToCol(kingSquare);
 				if (col == 0) { // king on a6
@@ -1701,7 +1691,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				}
 			}
 		} else {
-			int kingSquare = m_blackKing;
+			int kingSquare = myBlackKing;
 			if (Chess.sqiToRow(kingSquare) == 2) {
 				int col = Chess.sqiToCol(kingSquare);
 				if (col == 0) { // king on a3
@@ -1718,7 +1708,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private boolean isKingAttackedByTwoPawns() {
 		if (getToPlay() == Chess.WHITE) {
-			int kingSquare = m_whiteKing;
+			int kingSquare = myWhiteKing;
 			int col = Chess.sqiToCol(kingSquare);
 			if (col == 0 || col == 7) {
 				return false;
@@ -1729,7 +1719,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			}
 			return getStone(kingSquare + 7) == Chess.BLACK_PAWN && getStone(kingSquare + 9) == Chess.BLACK_PAWN;
 		} else {
-			int kingSquare = m_blackKing;
+			int kingSquare = myBlackKing;
 			int col = Chess.sqiToCol(kingSquare);
 			if (col == 0 || col == 7) {
 				return false;
@@ -1752,19 +1742,19 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		// The implementation is according to ideas from getAllAttackers.
 
 		int kingSquare = getToPlay() == Chess.BLACK ? getBlacksKingSquare() : getWhitesKingSquare();
-		long bbAttackerPieces = (getToPlay() == Chess.BLACK ? m_bbWhites : m_bbBlacks);
+		long bbAttackerPieces = (getToPlay() == Chess.BLACK ? mybbWhites : mybbBlacks);
 
 		/*---------- knights ----------*/
-		if ((KNIGHT_ATTACKS[kingSquare] & bbAttackerPieces & m_bbKnights) != 0L) {
+		if ((KNIGHT_ATTACKS[kingSquare] & bbAttackerPieces & mybbKnights) != 0L) {
 			// a knight attack is never caused by the double step
 			return true;
 		}
 
 		int fromSquarePawn = getToPlay() == Chess.BLACK ? getSqiEP() - 8 : getSqiEP() + 8;
-		long bbAllPieces = m_bbWhites | m_bbBlacks;
+		long bbAllPieces = mybbWhites | mybbBlacks;
 
 		/*---------- bishops ----------*/
-		long bbTargets = BISHOP_ATTACKS[kingSquare] & m_bbBishops & bbAttackerPieces;
+		long bbTargets = BISHOP_ATTACKS[kingSquare] & mybbBishops & bbAttackerPieces;
 		long bb = bbTargets;
 		while (bb != 0L) {
 			int from = getFirstSqi(bb);
@@ -1777,7 +1767,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		}
 
 		/*---------- rooks -----------*/
-		bbTargets = ROOK_ATTACKS[kingSquare] & m_bbRooks & bbAttackerPieces;
+		bbTargets = ROOK_ATTACKS[kingSquare] & mybbRooks & bbAttackerPieces;
 		bb = bbTargets;
 		while (bb != 0L) {
 			int from = getFirstSqi(bb);
@@ -1791,7 +1781,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 		/*---------- pawns -----------*/
 		if (getToPlay() == Chess.WHITE) {
-			bbTargets = WHITE_PAWN_ATTACKS[kingSquare] & bbAttackerPieces & m_bbPawns;
+			bbTargets = WHITE_PAWN_ATTACKS[kingSquare] & bbAttackerPieces & mybbPawns;
 			bb = bbTargets;
 			while (bb != 0L) {
 				int from = getFirstSqi(bb);
@@ -1801,7 +1791,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				bb &= bb - 1;
 			}
 		} else {
-			bbTargets = BLACK_PAWN_ATTACKS[kingSquare] & bbAttackerPieces & m_bbPawns;
+			bbTargets = BLACK_PAWN_ATTACKS[kingSquare] & bbAttackerPieces & mybbPawns;
 			bb = bbTargets;
 			while (bb != 0L) {
 				int from = getFirstSqi(bb);
@@ -1819,14 +1809,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	public void internalValidate() throws IllegalPositionException {
 		super.internalValidate();
 
-		if (m_whiteKing < 0 || m_whiteKing >= Chess.NUM_OF_SQUARES) {
-			throw new IllegalPositionException("White king square illegal: " + m_whiteKing);
+		if (myWhiteKing < 0 || myWhiteKing >= Chess.NUM_OF_SQUARES) {
+			throw new IllegalPositionException("White king square illegal: " + myWhiteKing);
 		}
-		if (m_blackKing < 0 || m_blackKing >= Chess.NUM_OF_SQUARES) {
-			throw new IllegalPositionException("White king square illegal: " + m_blackKing);
+		if (myBlackKing < 0 || myBlackKing >= Chess.NUM_OF_SQUARES) {
+			throw new IllegalPositionException("White king square illegal: " + myBlackKing);
 		}
 
-		int kingSquare = (getToPlay() == Chess.WHITE ? m_blackKing : m_whiteKing);
+		int kingSquare = (getToPlay() == Chess.WHITE ? myBlackKing : myWhiteKing);
 		if (isAttacked(kingSquare, getToPlay(), 0L)) {
 			throw new IllegalPositionException("King " + Chess.sqiToStr(kingSquare) + " is in check without having the move.");
 		}
@@ -1836,19 +1826,19 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			long diff = getHashCode() - super.getHashCode();
 			System.out.println("Difference " + diff);
 			for (int i = 0; i < Chess.NUM_OF_SQUARES; i++) {
-				for (int j = 0; j < s_hashMod[i].length; j++) {
-					if (s_hashMod[i][j] == diff) {
+				for (int j = 0; j < HASH_MOD[i].length; j++) {
+					if (HASH_MOD[i][j] == diff) {
 						System.out.println("Diff is sqi=" + i + " stone=" + (j - Chess.MIN_STONE));
 					}
 				}
 			}
 			for (int i = 0; i < 16; i++) {
-				if (s_hashCastleMod[i] == diff) {
+				if (HASH_CASTLE_MOD[i] == diff) {
 					System.out.println("Diff is castle " + i);
 				}
 			}
 			for (int i = 0; i < 8; i++) {
-				if (s_hashEPMod[i] == diff) {
+				if (HASH_EP_MOD[i] == diff) {
 					System.out.println("Diff is sqiEP " + i);
 				}
 			}
@@ -1863,10 +1853,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public boolean isCheck() {
 		if (PROFILE) {
-			m_numIsCheck++;
+			numIsCheck++;
 		}
 
-		int cacheInfo = (int) (m_flags >>> CHECK_SHIFT) & CHECK_MASK;
+		int cacheInfo = (int) (myFlags >>> CHECK_SHIFT) & CHECK_MASK;
 		if (cacheInfo == FLAG_YES) {
 			return true;
 		} else if (cacheInfo == FLAG_NO) {
@@ -1874,12 +1864,12 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		} else {
 			boolean isCheck;
 			if (getToPlay() == Chess.WHITE) {
-				isCheck = isAttacked(m_whiteKing, Chess.BLACK, 0L);
+				isCheck = isAttacked(myWhiteKing, Chess.BLACK, 0L);
 			} else {
-				isCheck = isAttacked(m_blackKing, Chess.WHITE, 0L);
+				isCheck = isAttacked(myBlackKing, Chess.WHITE, 0L);
 			}
-			m_flags &= ~(CHECK_MASK << CHECK_SHIFT);
-			m_flags |= (isCheck ? FLAG_YES : FLAG_NO) << CHECK_SHIFT;
+			myFlags &= ~(CHECK_MASK << CHECK_SHIFT);
+			myFlags |= (isCheck ? FLAG_YES : FLAG_NO) << CHECK_SHIFT;
 			return isCheck;
 		}
 	}
@@ -1892,7 +1882,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public boolean isMate() {
 		if (PROFILE) {
-			m_numIsMate++;
+			numIsMate++;
 		}
 
 		return isCheck() && !canMove();
@@ -1901,7 +1891,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public boolean isStaleMate() {
 		if (PROFILE) {
-			m_numIsStaleMate++;
+			numIsStaleMate++;
 		}
 
 		return !isCheck() && !canMove();
@@ -1909,18 +1899,18 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public boolean isInsufficientMaterial() {
-		return m_bbPawns == 0L && m_bbRooks == 0L && Long.bitCount(m_bbKnights) + Long.bitCount(m_bbBishops) <= 1;
+		return mybbPawns == 0L && mybbRooks == 0L && Long.bitCount(mybbKnights) + Long.bitCount(mybbBishops) <= 1;
 	}
 
 	@Override
 	public int getNumberOfPieces() {
-		int numberOfPieces = Long.bitCount(m_bbPawns) + Long.bitCount(m_bbKnights); // pawns and knights
-		numberOfPieces += Long.bitCount(m_bbRooks) + Long.bitCount(m_bbBishops) - Long.bitCount(m_bbRooks & m_bbBishops);
+		int numberOfPieces = Long.bitCount(mybbPawns) + Long.bitCount(mybbKnights); // pawns and knights
+		numberOfPieces += Long.bitCount(mybbRooks) + Long.bitCount(mybbBishops) - Long.bitCount(mybbRooks & mybbBishops);
 		// (rooks and queens) + (bishops and queens) - queens
-		if (m_whiteKing != Chess.NO_SQUARE) {
+		if (myWhiteKing != Chess.NO_SQUARE) {
 			++numberOfPieces;
 		}
-		if (m_blackKing != Chess.NO_SQUARE) {
+		if (myBlackKing != Chess.NO_SQUARE) {
 			++numberOfPieces;
 		}
 		return numberOfPieces;
@@ -1932,15 +1922,15 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	@Override
 	public short getLastShortMove() {
-		return (m_moveStackIndex <= 0 ? Move.NO_MOVE : m_moveStack[m_moveStackIndex - 1]);
+		return (myMoveStackIndex <= 0 ? Move.NO_MOVE : myMoveStack[myMoveStackIndex - 1]);
 	}
 
 	@Override
 	public Move getLastMove() {
-		if (m_moveStackIndex == 0) {
+		if (myMoveStackIndex == 0) {
 			return null;
 		}
-		short move = m_moveStack[m_moveStackIndex - 1];
+		short move = myMoveStack[myMoveStackIndex - 1];
 		boolean wasWhiteMove = (getToPlay() == Chess.BLACK);
 		if (Move.isCastle(move)) {
 			return Move.createCastle(move, isCheck(), isMate(), wasWhiteMove);
@@ -2071,7 +2061,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 		long bb = getBitBoard(stone) & getAllAttackers(to, getToPlay(), false) & ~ofSquare(from);
 		if (!isCapturing) {
-			bb &= (~m_bbPawns);
+			bb &= (~mybbPawns);
 		}
 		if (bb != 0L) {
 			if ((bb & ofCol(Chess.sqiToCol(from))) == 0L) {
@@ -2103,10 +2093,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 **/
 	private int getPinnedDirection(int sqi, int color) {
 		if (PROFILE) {
-			m_numGetPinnedDirection++;
+			numGetPinnedDirection++;
 		}
 
-		int kingSqi = (color == Chess.WHITE ? m_whiteKing : m_blackKing);
+		int kingSqi = (color == Chess.WHITE ? myWhiteKing : myBlackKing);
 		long bbSqi = ofSquare(sqi);
 
 		if ((QUEEN_ATTACKS[kingSqi] & bbSqi) == 0L) {
@@ -2121,15 +2111,15 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 		long bbTarget;
 		if (isDiagonal(kingDir)) {
-			bbTarget = BISHOP_ATTACKS[kingSqi] & m_bbBishops & (color == Chess.WHITE ? m_bbBlacks : m_bbWhites);
+			bbTarget = BISHOP_ATTACKS[kingSqi] & mybbBishops & (color == Chess.WHITE ? mybbBlacks : mybbWhites);
 		} else {
-			bbTarget = ROOK_ATTACKS[kingSqi] & m_bbRooks & (color == Chess.WHITE ? m_bbBlacks : m_bbWhites);
+			bbTarget = ROOK_ATTACKS[kingSqi] & mybbRooks & (color == Chess.WHITE ? mybbBlacks : mybbWhites);
 		}
 		if (bbTarget == 0L) {
 			return NO_DIR;
 		}
 
-		long bbAllPieces = m_bbWhites | m_bbBlacks;
+		long bbAllPieces = mybbWhites | mybbBlacks;
 		if ((SQUARES_BETWEEN[kingSqi][sqi] & bbAllPieces) != 0L) {
 			return NO_DIR;
 		}
@@ -2196,7 +2186,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				bbFrom <<= vector;
 			}
 			while (bbFrom != bbTo) {
-				if (((m_bbWhites | m_bbBlacks) & bbFrom) != 0) {
+				if (((mybbWhites | mybbBlacks) & bbFrom) != 0) {
 					return false;
 				}
 				if (vector < 0) {
@@ -2217,7 +2207,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private boolean isAttacked(int sqi, int attacker, long bbExclude) {
 		if (PROFILE) {
-			m_numIsAttacked++;
+			numIsAttacked++;
 		}
 
 		// only to print sqi, otherwise not needed
@@ -2225,16 +2215,16 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			throw new IllegalArgumentException("Illegal sqi: " + sqi);
 		}
 
-		long bbAttackerPieces = (attacker == Chess.WHITE ? m_bbWhites : m_bbBlacks) & (~bbExclude);
-		long bbAllPieces = (m_bbWhites | m_bbBlacks) & (~bbExclude);
+		long bbAttackerPieces = (attacker == Chess.WHITE ? mybbWhites : mybbBlacks) & (~bbExclude);
+		long bbAllPieces = (mybbWhites | mybbBlacks) & (~bbExclude);
 
 		/*---------- knights ----------*/
-		if ((KNIGHT_ATTACKS[sqi] & bbAttackerPieces & m_bbKnights) != 0) {
+		if ((KNIGHT_ATTACKS[sqi] & bbAttackerPieces & mybbKnights) != 0) {
 			return true;
 		}
 
 		/*---------- sliding pieces ----------*/
-		long bbTargets = ((BISHOP_ATTACKS[sqi] & m_bbBishops) | (ROOK_ATTACKS[sqi] & m_bbRooks)) & bbAttackerPieces;
+		long bbTargets = ((BISHOP_ATTACKS[sqi] & mybbBishops) | (ROOK_ATTACKS[sqi] & mybbRooks)) & bbAttackerPieces;
 		while (bbTargets != 0L) {
 			int from = getFirstSqi(bbTargets);
 			// if (SQUARES_BETWEEN[from][sqi] == 0L) System.out.println("SQB is
@@ -2248,13 +2238,13 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		/*---------- king & pawns ----------*/
 		if (attacker == Chess.WHITE) {
 			// inverse -> black_pawn_attacks
-			if (((BLACK_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns) != 0)
-					|| ((KING_ATTACKS[sqi] & ofSquare(m_whiteKing) & (~bbExclude)) != 0)) {
+			if (((BLACK_PAWN_ATTACKS[sqi] & bbAttackerPieces & mybbPawns) != 0)
+					|| ((KING_ATTACKS[sqi] & ofSquare(myWhiteKing) & (~bbExclude)) != 0)) {
 				return true;
 			}
 		} else {
-			if (((WHITE_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns) != 0)
-					|| ((KING_ATTACKS[sqi] & ofSquare(m_blackKing) & (~bbExclude)) != 0)) {
+			if (((WHITE_PAWN_ATTACKS[sqi] & bbAttackerPieces & mybbPawns) != 0)
+					|| ((KING_ATTACKS[sqi] & ofSquare(myBlackKing) & (~bbExclude)) != 0)) {
 				return true;
 			}
 		}
@@ -2264,18 +2254,18 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private long getAllAttackers(int sqi, int color, boolean includeInbetweenSquares) {
 		if (PROFILE) {
-			++m_numAllAttackers;
+			++numAllAttackers;
 		}
 
 		long attackers = 0L;
-		long bbAttackerPieces = (color == Chess.WHITE ? m_bbWhites : m_bbBlacks);
-		long bbAllPieces = m_bbWhites | m_bbBlacks;
+		long bbAttackerPieces = (color == Chess.WHITE ? mybbWhites : mybbBlacks);
+		long bbAllPieces = mybbWhites | mybbBlacks;
 
 		/*---------- knights ----------*/
-		attackers |= KNIGHT_ATTACKS[sqi] & bbAttackerPieces & m_bbKnights;
+		attackers |= KNIGHT_ATTACKS[sqi] & bbAttackerPieces & mybbKnights;
 
 		/*---------- sliding pieces ----------*/
-		long bbTargets = ((BISHOP_ATTACKS[sqi] & m_bbBishops) | (ROOK_ATTACKS[sqi] & m_bbRooks)) & bbAttackerPieces;
+		long bbTargets = ((BISHOP_ATTACKS[sqi] & mybbBishops) | (ROOK_ATTACKS[sqi] & mybbRooks)) & bbAttackerPieces;
 		while (bbTargets != 0L) {
 			int from = getFirstSqi(bbTargets);
 			long squaresInBetween = SQUARES_BETWEEN[from][sqi];
@@ -2291,16 +2281,16 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		/*---------- pawns & king ----------*/
 		if (color == Chess.WHITE) {
 			// inverse -> black_pawn_attacks
-			attackers |= BLACK_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns;
-			attackers |= KING_ATTACKS[sqi] & ofSquare(m_whiteKing);
+			attackers |= BLACK_PAWN_ATTACKS[sqi] & bbAttackerPieces & mybbPawns;
+			attackers |= KING_ATTACKS[sqi] & ofSquare(myWhiteKing);
 			if (sqi == getSqiEP()) {
-				attackers |= BLACK_PAWN_ATTACKS[sqi - Chess.NUM_OF_COLS] & bbAttackerPieces & m_bbPawns;
+				attackers |= BLACK_PAWN_ATTACKS[sqi - Chess.NUM_OF_COLS] & bbAttackerPieces & mybbPawns;
 			}
 		} else {
-			attackers |= WHITE_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns;
-			attackers |= KING_ATTACKS[sqi] & ofSquare(m_blackKing);
+			attackers |= WHITE_PAWN_ATTACKS[sqi] & bbAttackerPieces & mybbPawns;
+			attackers |= KING_ATTACKS[sqi] & ofSquare(myBlackKing);
 			if (sqi == getSqiEP()) {
-				attackers |= WHITE_PAWN_ATTACKS[sqi + Chess.NUM_OF_COLS] & bbAttackerPieces & m_bbPawns;
+				attackers |= WHITE_PAWN_ATTACKS[sqi + Chess.NUM_OF_COLS] & bbAttackerPieces & mybbPawns;
 			}
 		}
 
@@ -2312,11 +2302,11 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 	private long getDiagonalAttackers(int sqi, int color, boolean includeInbetweenSquares) {
 		long attackers = 0L;
-		long bbAttackerPieces = (color == Chess.WHITE ? m_bbWhites : m_bbBlacks);
-		long bbAllPieces = m_bbWhites | m_bbBlacks;
+		long bbAttackerPieces = (color == Chess.WHITE ? mybbWhites : mybbBlacks);
+		long bbAllPieces = mybbWhites | mybbBlacks;
 
 		/*---------- sliding pieces ----------*/
-		long bbTargets = (BISHOP_ATTACKS[sqi] & m_bbBishops) & bbAttackerPieces;
+		long bbTargets = (BISHOP_ATTACKS[sqi] & mybbBishops) & bbAttackerPieces;
 		while (bbTargets != 0L) {
 			int from = getFirstSqi(bbTargets);
 			long squaresInBetween = SQUARES_BETWEEN[from][sqi];
@@ -2332,14 +2322,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		/*---------- pawns ----------------*/
 		if (color == Chess.WHITE) {
 			// inverse -> black_pawn_attacks
-			attackers |= BLACK_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns;
+			attackers |= BLACK_PAWN_ATTACKS[sqi] & bbAttackerPieces & mybbPawns;
 			if (sqi == getSqiEP()) {
-				attackers |= BLACK_PAWN_ATTACKS[sqi - Chess.NUM_OF_COLS] & bbAttackerPieces & m_bbPawns;
+				attackers |= BLACK_PAWN_ATTACKS[sqi - Chess.NUM_OF_COLS] & bbAttackerPieces & mybbPawns;
 			}
 		} else {
-			attackers |= WHITE_PAWN_ATTACKS[sqi] & bbAttackerPieces & m_bbPawns;
+			attackers |= WHITE_PAWN_ATTACKS[sqi] & bbAttackerPieces & mybbPawns;
 			if (sqi == getSqiEP()) {
-				attackers |= WHITE_PAWN_ATTACKS[sqi + Chess.NUM_OF_COLS] & bbAttackerPieces & m_bbPawns;
+				attackers |= WHITE_PAWN_ATTACKS[sqi + Chess.NUM_OF_COLS] & bbAttackerPieces & mybbPawns;
 			}
 		}
 
@@ -2351,11 +2341,11 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 */
 	private long getStraightAttackers(int sqi, int color, boolean includeInbetweenSquares) {
 		long attackers = 0L;
-		long bbAttackerPieces = (color == Chess.WHITE ? m_bbWhites : m_bbBlacks);
-		long bbAllPieces = m_bbWhites | m_bbBlacks;
+		long bbAttackerPieces = (color == Chess.WHITE ? mybbWhites : mybbBlacks);
+		long bbAllPieces = mybbWhites | mybbBlacks;
 
 		/*---------- sliding pieces ----------*/
-		long bbTargets = (ROOK_ATTACKS[sqi] & m_bbRooks) & bbAttackerPieces;
+		long bbTargets = (ROOK_ATTACKS[sqi] & mybbRooks) & bbAttackerPieces;
 		while (bbTargets != 0L) {
 			int from = getFirstSqi(bbTargets);
 			long squaresInBetween = SQUARES_BETWEEN[from][sqi];
@@ -2375,10 +2365,10 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			return moveIndex;
 		}
 
-		long bbToPlay = (getToPlay() == Chess.WHITE ? m_bbWhites : m_bbBlacks);
+		long bbToPlay = (getToPlay() == Chess.WHITE ? mybbWhites : mybbBlacks);
 
 		/*---------- knights moves ----------*/
-		long bbPieces = m_bbKnights & bbToPlay;
+		long bbPieces = mybbKnights & bbToPlay;
 		while (bbPieces != 0L) {
 			int from = getFirstSqi(bbPieces);
 			if (getPinnedDirection(from, getToPlay()) == NO_DIR) {
@@ -2388,7 +2378,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						return 1;
 					}
 					int to = getFirstSqi(destSquares);
-					m_moves[moveIndex++] = Move.getRegularMove(from, to, !isSquareEmpty(to));
+					allMoves[moveIndex++] = Move.getRegularMove(from, to, !isSquareEmpty(to));
 					destSquares &= destSquares - 1;
 				}
 			}
@@ -2403,8 +2393,8 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			return moveIndex;
 		}
 
-		long bbToPlay = (getToPlay() == Chess.WHITE ? m_bbWhites : m_bbBlacks);
-		long bbNotToPlay = (getToPlay() == Chess.WHITE ? m_bbBlacks : m_bbWhites);
+		long bbToPlay = (getToPlay() == Chess.WHITE ? mybbWhites : mybbBlacks);
+		long bbNotToPlay = (getToPlay() == Chess.WHITE ? mybbBlacks : mybbWhites);
 
 		int dirStep = (piece == Chess.QUEEN ? 1 : 2);
 		int startDir = (piece == Chess.ROOK ? S : SW);
@@ -2437,9 +2427,9 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 									return 1;
 								}
 								if ((bb & bbNotToPlay) == 0L) {
-									m_moves[moveIndex++] = Move.getRegularMove(from, to, false);
+									allMoves[moveIndex++] = Move.getRegularMove(from, to, false);
 								} else {
-									m_moves[moveIndex++] = Move.getRegularMove(from, to, true);
+									allMoves[moveIndex++] = Move.getRegularMove(from, to, true);
 									break;
 								}
 							} else if ((bb & bbNotToPlay) != 0) {
@@ -2459,11 +2449,11 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			return moveIndex;
 		}
 
-		long bbToPlay = (getToPlay() == Chess.WHITE ? m_bbWhites : m_bbBlacks);
-		long bbAllPieces = m_bbWhites | m_bbBlacks;
+		long bbToPlay = (getToPlay() == Chess.WHITE ? mybbWhites : mybbBlacks);
+		long bbAllPieces = mybbWhites | mybbBlacks;
 
 		/*---------- regular king moves ----------*/
-		int from = (getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing);
+		int from = (getToPlay() == Chess.WHITE ? myWhiteKing : myBlackKing);
 		long bbFrom = ofSquare(from);
 		long destSquares = KING_ATTACKS[from] & (~bbToPlay) & bbTargets;
 		while (destSquares != 0L) {
@@ -2474,7 +2464,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 				if (moveIndex == -1) {
 					return 1;
 				}
-				m_moves[moveIndex++] = Move.getRegularMove(from, to, !isSquareEmpty(to));
+				allMoves[moveIndex++] = Move.getRegularMove(from, to, !isSquareEmpty(to));
 			}
 			destSquares &= destSquares - 1;
 		}
@@ -2482,7 +2472,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		/*---------- castles ----------*/
 		if (withCastles) {
 			int castles = getCastles();
-			if (m_variant == Variant.STANDARD) {
+			if (myVariant == Variant.STANDARD) {
 				if (getToPlay() == Chess.WHITE) {
 					// don't need to exclude anything for isAttack since other check
 					// would fail in those cases
@@ -2492,7 +2482,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.WHITE_SHORT_CASTLE;
+						allMoves[moveIndex++] = Move.WHITE_SHORT_CASTLE;
 					}
 					if ((castles & WHITE_LONG_CASTLE) != 0 && (ofSquare(Chess.C1) & bbTargets) != 0L
 							&& (bbAllPieces & WHITE_LONG_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.D1, Chess.BLACK, 0L)
@@ -2500,7 +2490,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.WHITE_LONG_CASTLE;
+						allMoves[moveIndex++] = Move.WHITE_LONG_CASTLE;
 					}
 				} else {
 					if ((castles & BLACK_SHORT_CASTLE) != 0 && (ofSquare(Chess.G8) & bbTargets) != 0L
@@ -2509,7 +2499,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.BLACK_SHORT_CASTLE;
+						allMoves[moveIndex++] = Move.BLACK_SHORT_CASTLE;
 					}
 					if ((castles & BLACK_LONG_CASTLE) != 0 && (ofSquare(Chess.C8) & bbTargets) != 0L
 							&& (bbAllPieces & BLACK_LONG_CASTLE_EMPTY_MASK) == 0L && !isAttacked(Chess.D8, Chess.WHITE, 0L)
@@ -2517,7 +2507,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.BLACK_LONG_CASTLE;
+						allMoves[moveIndex++] = Move.BLACK_LONG_CASTLE;
 					}
 				}
 			} else { // Chess960
@@ -2526,14 +2516,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, getChess960KingFile(),
+						allMoves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, getChess960KingFile(),
 								getChess960KingsideRookFile());
 					}
 					if (checkChess960WhiteLongCastle(bbAllPieces, bbTargets)) {
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, getChess960KingFile(),
+						allMoves[moveIndex++] = Move.getChess960Castle(Chess.WHITE, getChess960KingFile(),
 								getChess960QueensideRookFile());
 					}
 				} else {
@@ -2541,14 +2531,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, getChess960KingFile(),
+						allMoves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, getChess960KingFile(),
 								getChess960KingsideRookFile());
 					}
 					if (checkChess960BlackLongCastle(bbAllPieces, bbTargets)) {
 						if (moveIndex == -1) {
 							return 1;
 						}
-						m_moves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, getChess960KingFile(),
+						allMoves[moveIndex++] = Move.getChess960Castle(Chess.BLACK, getChess960KingFile(),
 								getChess960QueensideRookFile());
 					}
 				}
@@ -2689,14 +2679,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		int pawnMoveDir, secondRank, eighthRank;
 
 		if (getToPlay() == Chess.WHITE) {
-			bbToPlay = m_bbWhites;
-			bbNotToPlay = m_bbBlacks;
+			bbToPlay = mybbWhites;
+			bbNotToPlay = mybbBlacks;
 			pawnMoveDir = N;
 			secondRank = 1;
 			eighthRank = 7;
 		} else {
-			bbToPlay = m_bbBlacks;
-			bbNotToPlay = m_bbWhites;
+			bbToPlay = mybbBlacks;
+			bbNotToPlay = mybbWhites;
 			pawnMoveDir = S;
 			secondRank = 6;
 			eighthRank = 0;
@@ -2707,7 +2697,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		if (getSqiEP() != Chess.NO_SQUARE) {
 			int epPawnSqi = sqiEP + (getToPlay() == Chess.WHITE ? -Chess.NUM_OF_COLS : Chess.NUM_OF_COLS);
 			// TN: Old: if ((bbTargets & ofSquare(epPawnSqi)) != 0) {
-			if ((bbTargets & ofSquare(epPawnSqi)) != 0 && (bbNotToPlay & m_bbPawns & ofSquare(epPawnSqi)) != 0) {
+			if ((bbTargets & ofSquare(epPawnSqi)) != 0 && (bbNotToPlay & mybbPawns & ofSquare(epPawnSqi)) != 0) {
 				// TN: Seybold's comments are unclear.
 				bbTargets |= ofSquare(sqiEP); // pawn cannot move on ep square
 				// without capturing (blocked by ep pawn), so adding it is safe
@@ -2715,7 +2705,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			}
 		}
 
-		long bbPieces = m_bbPawns & bbToPlay;
+		long bbPieces = mybbPawns & bbToPlay;
 		while (bbPieces != 0L) {
 			int from = getFirstSqi(bbPieces);
 
@@ -2730,17 +2720,17 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 							if (moveIndex == -1) {
 								return 1;
 							}
-							m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.QUEEN);
-							m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.ROOK);
-							m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.BISHOP);
-							m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.KNIGHT);
+							allMoves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.QUEEN);
+							allMoves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.ROOK);
+							allMoves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.BISHOP);
+							allMoves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.KNIGHT);
 						}
 					} else {
 						if ((bbTo & bbTargets) != 0L) {
 							if (moveIndex == -1) {
 								return 1;
 							}
-							m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.NO_PIECE);
+							allMoves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.NO_PIECE);
 						}
 						if (Chess.sqiToRow(from) == secondRank) {
 							to += DIR_SHIFT[pawnMoveDir];
@@ -2751,7 +2741,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 								if (moveIndex == -1) {
 									return 1;
 								}
-								m_moves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.NO_PIECE);
+								allMoves[moveIndex++] = Move.getPawnMove(from, to, false, Chess.NO_PIECE);
 							}
 						}
 					}
@@ -2771,15 +2761,15 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 					}
 					// int piece = getPiece(to);
 					if (Chess.sqiToRow(to) == eighthRank) {
-						m_moves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.QUEEN);
-						m_moves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.ROOK);
-						m_moves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.BISHOP);
-						m_moves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.KNIGHT);
+						allMoves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.QUEEN);
+						allMoves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.ROOK);
+						allMoves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.BISHOP);
+						allMoves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.KNIGHT);
 					} else if (to == sqiEP && isSquareEmpty(sqiEP)) {
-						m_moves[moveIndex++] = Move.getEPMove(from, to);
-						m_enPassantFlag = true;
+						allMoves[moveIndex++] = Move.getEPMove(from, to);
+						myEnPassantFlag = true;
 					} else {
-						m_moves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.NO_PIECE);
+						allMoves[moveIndex++] = Move.getPawnMove(from, to, true, Chess.NO_PIECE);
 					}
 				}
 				destSquares &= destSquares - 1;
@@ -2805,14 +2795,14 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	}
 
 	public short[] getAllCapturingMoves() {
-		long bbTargets = getToPlay() == Chess.WHITE ? m_bbBlacks : m_bbWhites;
+		long bbTargets = getToPlay() == Chess.WHITE ? mybbBlacks : mybbWhites;
 		// can include sqiEP safely since no pawn can move on sqi if it is set
 		long bbPawnTargets = (getSqiEP() == Chess.NO_SQUARE ? bbTargets : bbTargets | ofSquare(getSqiEP()));
 		return getAllMoves(bbTargets, bbPawnTargets);
 	}
 
 	public short[] getAllNonCapturingMoves() {
-		long bbTargets = getToPlay() == Chess.WHITE ? ~m_bbBlacks : ~m_bbWhites;
+		long bbTargets = getToPlay() == Chess.WHITE ? ~mybbBlacks : ~mybbWhites;
 		// can exclude sqiEP safely since no pawn can move on sqi if it is set
 		long bbPawnTargets = (getSqiEP() == Chess.NO_SQUARE ? bbTargets : bbTargets & (~ofSquare(getSqiEP())));
 		return getAllMoves(bbTargets, bbPawnTargets);
@@ -2820,7 +2810,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 	private short[] getAllMoves(long bbTargets, long bbPawnTargets) {
 		if (PROFILE) {
-			m_numGetAllMoves++;
+			numGetAllMoves++;
 		}
 
 		if (bbTargets == 0L) {
@@ -2829,79 +2819,75 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 
 		int moveIndex = 0;
 
-		long bbToPlay = (getToPlay() == Chess.WHITE ? m_bbWhites : m_bbBlacks);
+		long bbToPlay = (getToPlay() == Chess.WHITE ? mybbWhites : mybbBlacks);
 		if (isCheck()) {
 			moveIndex = getAllKingMoves(moveIndex, bbTargets, false);
-			long attackers = getAllAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(), false);
+			long attackers = getAllAttackers((getToPlay() == Chess.WHITE ? myWhiteKing : myBlackKing), getNotToPlay(), false);
 			// ChBitBoard.printBoard(attackers);
 			if (isExactlyOneBitSet(attackers)) {
 				// System.out.println("investigate piece moves");
-				attackers = getAllAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(), true);
+				attackers = getAllAttackers((getToPlay() == Chess.WHITE ? myWhiteKing : myBlackKing), getNotToPlay(), true);
 				bbTargets &= attackers;
 				bbPawnTargets &= attackers;
 				moveIndex = getAllKnightMoves(moveIndex, bbTargets);
-				moveIndex = getAllSlidingMoves(moveIndex, bbTargets, m_bbBishops & (~m_bbRooks) & bbToPlay, Chess.BISHOP);
-				moveIndex = getAllSlidingMoves(moveIndex, bbTargets, m_bbRooks & (~m_bbBishops) & bbToPlay, Chess.ROOK);
-				moveIndex = getAllSlidingMoves(moveIndex, bbTargets, m_bbRooks & m_bbBishops & bbToPlay, Chess.QUEEN);
-				// moveIndex = getAllSlidingMoves(moveIndex, bbTargets,
-				// m_bbBishops & bbToPlay, SW);
-				// moveIndex = getAllSlidingMoves(moveIndex, bbTargets,
-				// m_bbRooks & bbToPlay, S);
+				moveIndex = getAllSlidingMoves(moveIndex, bbTargets, mybbBishops & (~mybbRooks) & bbToPlay, Chess.BISHOP);
+				moveIndex = getAllSlidingMoves(moveIndex, bbTargets, mybbRooks & (~mybbBishops) & bbToPlay, Chess.ROOK);
+				moveIndex = getAllSlidingMoves(moveIndex, bbTargets, mybbRooks & mybbBishops & bbToPlay, Chess.QUEEN);
 				moveIndex = getAllPawnMoves(moveIndex, bbPawnTargets);
 			} else { // double check
 				// printBoard(attackers);
 			}
 		} else {
 			moveIndex = getAllKnightMoves(moveIndex, bbTargets);
-			moveIndex = getAllSlidingMoves(moveIndex, bbTargets, m_bbBishops & (~m_bbRooks) & bbToPlay, Chess.BISHOP);
-			moveIndex = getAllSlidingMoves(moveIndex, bbTargets, m_bbRooks & (~m_bbBishops) & bbToPlay, Chess.ROOK);
-			moveIndex = getAllSlidingMoves(moveIndex, bbTargets, m_bbRooks & m_bbBishops & bbToPlay, Chess.QUEEN);
+			moveIndex = getAllSlidingMoves(moveIndex, bbTargets, mybbBishops & (~mybbRooks) & bbToPlay, Chess.BISHOP);
+			moveIndex = getAllSlidingMoves(moveIndex, bbTargets, mybbRooks & (~mybbBishops) & bbToPlay, Chess.ROOK);
+			moveIndex = getAllSlidingMoves(moveIndex, bbTargets, mybbRooks & mybbBishops & bbToPlay, Chess.QUEEN);
 			moveIndex = getAllKingMoves(moveIndex, bbTargets, true);
 			moveIndex = getAllPawnMoves(moveIndex, bbPawnTargets);
 		}
 
 		short[] onlyTheMoves = new short[moveIndex];
-		System.arraycopy(m_moves, 0, onlyTheMoves, 0, moveIndex);
+		System.arraycopy(allMoves, 0, onlyTheMoves, 0, moveIndex);
 
 		return onlyTheMoves;
 	}
 
 	private boolean canMove() {
-		int cacheInfo = (int) (m_flags >>> CAN_MOVE_SHIFT) & CAN_MOVE_MASK;
+		int cacheInfo = (int) (myFlags >>> CAN_MOVE_SHIFT) & CAN_MOVE_MASK;
 		if (cacheInfo == FLAG_YES) {
 			return true;
 		} else if (cacheInfo == FLAG_NO) {
 			return false;
 		} else {
 			boolean canMove = false;
-			long bbToPlay = (getToPlay() == Chess.WHITE ? m_bbWhites : m_bbBlacks);
+			long bbToPlay = (getToPlay() == Chess.WHITE ? mybbWhites : mybbBlacks);
 			if (isCheck()) {
 				// ChBitBoard.printBoard(bbTargets);
 				if (getAllKingMoves(-1, ~0L, false) > 0) {
 					canMove = true;
 				} else {
-					long attackers = getAllAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(),
+					long attackers = getAllAttackers((getToPlay() == Chess.WHITE ? myWhiteKing : myBlackKing), getNotToPlay(),
 							false);
 					if (isExactlyOneBitSet(attackers)) {
-						attackers = getAllAttackers((getToPlay() == Chess.WHITE ? m_whiteKing : m_blackKing), getNotToPlay(),
+						attackers = getAllAttackers((getToPlay() == Chess.WHITE ? myWhiteKing : myBlackKing), getNotToPlay(),
 								true);
 						canMove = (getAllKnightMoves(-1, attackers) > 0) || (getAllPawnMoves(-1, attackers) > 0)
-								|| (getAllSlidingMoves(-1, attackers, m_bbBishops & (~m_bbRooks) & bbToPlay, Chess.BISHOP) > 0)
-								|| (getAllSlidingMoves(-1, attackers, m_bbRooks & (~m_bbBishops) & bbToPlay, Chess.ROOK) > 0)
-								|| (getAllSlidingMoves(-1, attackers, m_bbRooks & m_bbBishops & bbToPlay, Chess.QUEEN) > 0);
+								|| (getAllSlidingMoves(-1, attackers, mybbBishops & (~mybbRooks) & bbToPlay, Chess.BISHOP) > 0)
+								|| (getAllSlidingMoves(-1, attackers, mybbRooks & (~mybbBishops) & bbToPlay, Chess.ROOK) > 0)
+								|| (getAllSlidingMoves(-1, attackers, mybbRooks & mybbBishops & bbToPlay, Chess.QUEEN) > 0);
 					}
 				}
 			} else {
 				long bbTargets = ~0L;
 				canMove = (getAllKnightMoves(-1, bbTargets) > 0) || (getAllPawnMoves(-1, bbTargets) > 0)
-						|| (getAllSlidingMoves(-1, bbTargets, m_bbBishops & (~m_bbRooks) & bbToPlay, Chess.BISHOP) > 0)
-						|| (getAllSlidingMoves(-1, bbTargets, m_bbRooks & (~m_bbBishops) & bbToPlay, Chess.ROOK) > 0)
-						|| (getAllSlidingMoves(-1, bbTargets, m_bbRooks & m_bbBishops & bbToPlay, Chess.QUEEN) > 0)
+						|| (getAllSlidingMoves(-1, bbTargets, mybbBishops & (~mybbRooks) & bbToPlay, Chess.BISHOP) > 0)
+						|| (getAllSlidingMoves(-1, bbTargets, mybbRooks & (~mybbBishops) & bbToPlay, Chess.ROOK) > 0)
+						|| (getAllSlidingMoves(-1, bbTargets, mybbRooks & mybbBishops & bbToPlay, Chess.QUEEN) > 0)
 						|| (getAllKingMoves(-1, bbTargets, false) > 0);
 				// don't test castling since it cannot be the only move
 			}
-			m_flags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT);
-			m_flags |= (canMove ? FLAG_YES : FLAG_NO) << CAN_MOVE_SHIFT;
+			myFlags &= ~(CAN_MOVE_MASK << CAN_MOVE_SHIFT);
+			myFlags |= (canMove ? FLAG_YES : FLAG_NO) << CAN_MOVE_SHIFT;
 			return canMove;
 		}
 	}
@@ -2913,26 +2899,25 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@SuppressWarnings("unused")
 	private int getMaterial() {
 		int value = 0;
-		// if ((m_bbPawns & m_bbWhites) != 0L) System.out.println("not null");
-		value += 100 * (numOfBitsSet(m_bbPawns & m_bbWhites) - numOfBitsSet(m_bbPawns & m_bbBlacks));
-		value += 300 * (numOfBitsSet(m_bbKnights & m_bbWhites) - numOfBitsSet(m_bbKnights & m_bbBlacks));
+		value += 100 * (numOfBitsSet(mybbPawns & mybbWhites) - numOfBitsSet(mybbPawns & mybbBlacks));
+		value += 300 * (numOfBitsSet(mybbKnights & mybbWhites) - numOfBitsSet(mybbKnights & mybbBlacks));
 		value += 325
-				* (numOfBitsSet(m_bbBishops & (~m_bbRooks) & m_bbWhites) - numOfBitsSet(m_bbBishops & (~m_bbRooks) & m_bbBlacks));
+				* (numOfBitsSet(mybbBishops & (~mybbRooks) & mybbWhites) - numOfBitsSet(mybbBishops & (~mybbRooks) & mybbBlacks));
 		value += 500
-				* (numOfBitsSet(m_bbRooks & (~m_bbBishops) & m_bbWhites) - numOfBitsSet(m_bbRooks & (~m_bbBishops) & m_bbBlacks));
-		value += 900 * (numOfBitsSet(m_bbRooks & m_bbBishops & m_bbWhites) - numOfBitsSet(m_bbRooks & m_bbBishops & m_bbBlacks));
+				* (numOfBitsSet(mybbRooks & (~mybbBishops) & mybbWhites) - numOfBitsSet(mybbRooks & (~mybbBishops) & mybbBlacks));
+		value += 900 * (numOfBitsSet(mybbRooks & mybbBishops & mybbWhites) - numOfBitsSet(mybbRooks & mybbBishops & mybbBlacks));
 		// System.out.println(value);
 		return (getToPlay() == Chess.WHITE ? value : -value);
 	}
 
 	@Override
 	public Variant getVariant() {
-		return m_variant;
+		return myVariant;
 	}
 
 	@Override
 	public void setChess960() {
-		m_variant = Variant.CHESS960;
+		myVariant = Variant.CHESS960;
 	}
 
 	/**
@@ -2947,64 +2932,64 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	@Override
 	public void setChess960CastlingFiles(int kingFile, int queensideRookFile, int kingsideRookFile) {
 		if (kingFile != Chess.NO_FILE) {
-			m_chess960CastlingFiles |= 1 << CHESS960_KING_FILE_FLAG_SHIFT;
-			m_chess960CastlingFiles &= ~CHESS960_KING_FILE_MASK;
-			m_chess960CastlingFiles |= (kingFile % 8) << CHESS960_KING_FILE_SHIFT;
+			chess960CastlingFiles |= 1 << CHESS960_KING_FILE_FLAG_SHIFT;
+			chess960CastlingFiles &= ~CHESS960_KING_FILE_MASK;
+			chess960CastlingFiles |= (kingFile % 8) << CHESS960_KING_FILE_SHIFT;
 		} else {
-			m_chess960CastlingFiles &= ~(1 << CHESS960_KING_FILE_FLAG_SHIFT);
+			chess960CastlingFiles &= ~(1 << CHESS960_KING_FILE_FLAG_SHIFT);
 		}
 		if (queensideRookFile != Chess.NO_FILE) {
-			m_chess960CastlingFiles |= 1 << CHESS960_QUEENSIDE_ROOK_FILE_FLAG_SHIFT;
-			m_chess960CastlingFiles &= ~CHESS960_QUEENSIDE_ROOK_FILE_MASK;
-			m_chess960CastlingFiles |= (queensideRookFile % 8) << CHESS960_QUEENSIDE_ROOK_FILE_SHIFT;
+			chess960CastlingFiles |= 1 << CHESS960_QUEENSIDE_ROOK_FILE_FLAG_SHIFT;
+			chess960CastlingFiles &= ~CHESS960_QUEENSIDE_ROOK_FILE_MASK;
+			chess960CastlingFiles |= (queensideRookFile % 8) << CHESS960_QUEENSIDE_ROOK_FILE_SHIFT;
 		} else {
-			m_chess960CastlingFiles &= ~(1 << CHESS960_QUEENSIDE_ROOK_FILE_FLAG_SHIFT);
+			chess960CastlingFiles &= ~(1 << CHESS960_QUEENSIDE_ROOK_FILE_FLAG_SHIFT);
 		}
 		if (kingsideRookFile != Chess.NO_FILE) {
-			m_chess960CastlingFiles |= 1 << CHESS960_KINGSIDE_ROOK_FILE_FLAG_SHIFT;
-			m_chess960CastlingFiles &= ~CHESS960_KINGSIDE_ROOK_FILE_MASK;
-			m_chess960CastlingFiles |= (kingsideRookFile % 8) << CHESS960_KINGSIDE_ROOK_FILE_SHIFT;
+			chess960CastlingFiles |= 1 << CHESS960_KINGSIDE_ROOK_FILE_FLAG_SHIFT;
+			chess960CastlingFiles &= ~CHESS960_KINGSIDE_ROOK_FILE_MASK;
+			chess960CastlingFiles |= (kingsideRookFile % 8) << CHESS960_KINGSIDE_ROOK_FILE_SHIFT;
 		} else {
-			m_chess960CastlingFiles &= ~(1 << CHESS960_KINGSIDE_ROOK_FILE_FLAG_SHIFT);
+			chess960CastlingFiles &= ~(1 << CHESS960_KINGSIDE_ROOK_FILE_FLAG_SHIFT);
 		}
 	}
 
 	@Override
 	public int getChess960KingFile() {
-		if (m_variant == Variant.STANDARD) {
+		if (myVariant == Variant.STANDARD) {
 			return Chess.NO_FILE;
 		}
-		if ((m_chess960CastlingFiles & CHESS960_KING_FILE_FLAG_MASK) != 0) {
-			return (m_chess960CastlingFiles & CHESS960_KING_FILE_MASK) >>> CHESS960_KING_FILE_SHIFT;
+		if ((chess960CastlingFiles & CHESS960_KING_FILE_FLAG_MASK) != 0) {
+			return (chess960CastlingFiles & CHESS960_KING_FILE_MASK) >>> CHESS960_KING_FILE_SHIFT;
 		}
 		return Chess.NO_FILE;
 	}
 
 	@Override
 	public int getChess960QueensideRookFile() {
-		if (m_variant == Variant.STANDARD) {
+		if (myVariant == Variant.STANDARD) {
 			return Chess.NO_FILE;
 		}
-		if ((m_chess960CastlingFiles & CHESS960_QUEENSIDE_ROOK_FILE_FLAG_MASK) != 0) {
-			return (m_chess960CastlingFiles & CHESS960_QUEENSIDE_ROOK_FILE_MASK) >>> CHESS960_QUEENSIDE_ROOK_FILE_SHIFT;
+		if ((chess960CastlingFiles & CHESS960_QUEENSIDE_ROOK_FILE_FLAG_MASK) != 0) {
+			return (chess960CastlingFiles & CHESS960_QUEENSIDE_ROOK_FILE_MASK) >>> CHESS960_QUEENSIDE_ROOK_FILE_SHIFT;
 		}
 		return Chess.NO_FILE;
 	}
 
 	@Override
 	public int getChess960KingsideRookFile() {
-		if (m_variant == Variant.STANDARD) {
+		if (myVariant == Variant.STANDARD) {
 			return Chess.NO_FILE;
 		}
-		if ((m_chess960CastlingFiles & CHESS960_KINGSIDE_ROOK_FILE_FLAG_MASK) != 0) {
-			return (m_chess960CastlingFiles & CHESS960_KINGSIDE_ROOK_FILE_MASK) >>> CHESS960_KINGSIDE_ROOK_FILE_SHIFT;
+		if ((chess960CastlingFiles & CHESS960_KINGSIDE_ROOK_FILE_FLAG_MASK) != 0) {
+			return (chess960CastlingFiles & CHESS960_KINGSIDE_ROOK_FILE_MASK) >>> CHESS960_KINGSIDE_ROOK_FILE_SHIFT;
 		}
 		return Chess.NO_FILE;
 	}
 
 	@Override
 	public short getMove(int from, int to, int promoPiece) {
-		if (m_variant != Variant.CHESS960) {
+		if (myVariant != Variant.CHESS960) {
 			return super.getMove(from, to, promoPiece);
 		} else {
 			// as super.getMove: no validation!
@@ -3038,95 +3023,95 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	private static String internalCompare(PositionImpl pos1, PositionImpl pos2) {
 		StringBuilder sb = new StringBuilder("Internal compare:").append(System.lineSeparator());
 
-		if (pos1.m_bbWhites != pos2.m_bbWhites) {
-			sb.append("m_bbWhites differ").append(System.lineSeparator());
+		if (pos1.mybbWhites != pos2.mybbWhites) {
+			sb.append("mybbWhites differ").append(System.lineSeparator());
 		}
-		if (pos1.m_bbBlacks != pos2.m_bbBlacks) {
-			sb.append("m_bbBlacks differ").append(System.lineSeparator());
+		if (pos1.mybbBlacks != pos2.mybbBlacks) {
+			sb.append("mybbBlacks differ").append(System.lineSeparator());
 		}
-		if (pos1.m_bbPawns != pos2.m_bbPawns) {
-			sb.append("m_bbPawns differ").append(System.lineSeparator());
+		if (pos1.mybbPawns != pos2.mybbPawns) {
+			sb.append("mybbPawns differ").append(System.lineSeparator());
 		}
-		if (pos1.m_bbKnights != pos2.m_bbKnights) {
-			sb.append("m_bbKnights differ").append(System.lineSeparator());
+		if (pos1.mybbKnights != pos2.mybbKnights) {
+			sb.append("mybbKnights differ").append(System.lineSeparator());
 		}
-		if (pos1.m_bbBishops != pos2.m_bbBishops) {
-			sb.append("m_bbBishops differ").append(System.lineSeparator());
+		if (pos1.mybbBishops != pos2.mybbBishops) {
+			sb.append("mybbBishops differ").append(System.lineSeparator());
 		}
-		if (pos1.m_bbRooks != pos2.m_bbRooks) {
-			sb.append("m_bbRooks differ").append(System.lineSeparator());
+		if (pos1.mybbRooks != pos2.mybbRooks) {
+			sb.append("mybbRooks differ").append(System.lineSeparator());
 		}
-		if (pos1.m_whiteKing != pos2.m_whiteKing) {
-			sb.append("m_whiteKing differ").append(System.lineSeparator());
+		if (pos1.myWhiteKing != pos2.myWhiteKing) {
+			sb.append("myWhiteKing differ").append(System.lineSeparator());
 		}
-		if (pos1.m_blackKing != pos2.m_blackKing) {
-			sb.append("m_blackKing differ").append(System.lineSeparator());
+		if (pos1.myBlackKing != pos2.myBlackKing) {
+			sb.append("myBlackKing differ").append(System.lineSeparator());
 		}
-		if (pos1.m_flags != pos2.m_flags) {
-			sb.append("m_flags differ").append(System.lineSeparator());
+		if (pos1.myFlags != pos2.myFlags) {
+			sb.append("myFlags differ").append(System.lineSeparator());
 		}
-		if (pos1.m_hashCode != pos2.m_hashCode) {
-			sb.append("m_hashCode differ").append(System.lineSeparator());
+		if (pos1.myHashCode != pos2.myHashCode) {
+			sb.append("myHashCode differ").append(System.lineSeparator());
 		}
 		// array:
-		if (pos1.m_bakStack.length != pos2.m_bakStack.length) {
-			sb.append("m_bakStack lengths differ").append(System.lineSeparator());
-			for (int i = 0; i < Math.min(pos1.m_bakStack.length, pos2.m_bakStack.length); ++i) {
-				if (pos1.m_bakStack[i] != pos2.m_bakStack[i]) {
-					sb.append("m_bakStack[").append(i).append("] differ: ").append(pos1.m_bakStack[i]).append(" vs ")
-							.append(pos2.m_bakStack[i]).append(System.lineSeparator());
+		if (pos1.myBakStack.length != pos2.myBakStack.length) {
+			sb.append("myBakStack lengths differ").append(System.lineSeparator());
+			for (int i = 0; i < Math.min(pos1.myBakStack.length, pos2.myBakStack.length); ++i) {
+				if (pos1.myBakStack[i] != pos2.myBakStack[i]) {
+					sb.append("myBakStack[").append(i).append("] differ: ").append(pos1.myBakStack[i]).append(" vs ")
+							.append(pos2.myBakStack[i]).append(System.lineSeparator());
 				}
 			}
 		} else {
-			for (int i = 0; i < pos1.m_bakStack.length; ++i) {
-				if (pos1.m_bakStack[i] != pos2.m_bakStack[i]) {
-					sb.append("m_bakStack[").append(i).append("] differ: ").append(pos1.m_bakStack[i]).append(" vs ")
-							.append(pos2.m_bakStack[i]).append(System.lineSeparator());
+			for (int i = 0; i < pos1.myBakStack.length; ++i) {
+				if (pos1.myBakStack[i] != pos2.myBakStack[i]) {
+					sb.append("myBakStack[").append(i).append("] differ: ").append(pos1.myBakStack[i]).append(" vs ")
+							.append(pos2.myBakStack[i]).append(System.lineSeparator());
 				}
 			}
 		}
-		if (pos1.m_bakIndex != pos2.m_bakIndex) {
-			sb.append("m_bakIndex differ").append(System.lineSeparator());
+		if (pos1.myBakIndex != pos2.myBakIndex) {
+			sb.append("myBakIndex differ").append(System.lineSeparator());
 		}
 		// array:
-		if (pos1.m_moveStack.length != pos2.m_moveStack.length) {
-			sb.append("m_moveStack lengths differ").append(System.lineSeparator());
-			for (int i = 0; i < Math.min(pos1.m_moveStack.length, pos2.m_moveStack.length); ++i) {
-				if (pos1.m_moveStack[i] != pos2.m_moveStack[i]) {
-					sb.append("m_moveStack[").append(i).append("] differ: ").append(Move.getString(pos1.m_moveStack[i]))
-							.append(" vs ").append(Move.getString(pos2.m_moveStack[i])).append(System.lineSeparator());
+		if (pos1.myMoveStack.length != pos2.myMoveStack.length) {
+			sb.append("myMoveStack lengths differ").append(System.lineSeparator());
+			for (int i = 0; i < Math.min(pos1.myMoveStack.length, pos2.myMoveStack.length); ++i) {
+				if (pos1.myMoveStack[i] != pos2.myMoveStack[i]) {
+					sb.append("myMoveStack[").append(i).append("] differ: ").append(Move.getString(pos1.myMoveStack[i]))
+							.append(" vs ").append(Move.getString(pos2.myMoveStack[i])).append(System.lineSeparator());
 				}
 			}
 		} else {
-			for (int i = 0; i < pos1.m_moveStack.length; ++i) {
-				if (pos1.m_moveStack[i] != pos2.m_moveStack[i]) {
-					sb.append("m_moveStack[").append(i).append("] differ: ").append(Move.getString(pos1.m_moveStack[i]))
-							.append(" vs ").append(Move.getString(pos2.m_moveStack[i])).append(System.lineSeparator());
+			for (int i = 0; i < pos1.myMoveStack.length; ++i) {
+				if (pos1.myMoveStack[i] != pos2.myMoveStack[i]) {
+					sb.append("myMoveStack[").append(i).append("] differ: ").append(Move.getString(pos1.myMoveStack[i]))
+							.append(" vs ").append(Move.getString(pos2.myMoveStack[i])).append(System.lineSeparator());
 				}
 			}
 		}
-		if (pos1.m_moveStackIndex != pos2.m_moveStackIndex) {
-			sb.append("m_moveStackIndex differ").append(System.lineSeparator());
+		if (pos1.myMoveStackIndex != pos2.myMoveStackIndex) {
+			sb.append("myMoveStackIndex differ").append(System.lineSeparator());
 		}
 		// array:
-		if (pos1.m_moves.length != pos2.m_moves.length) {
-			sb.append("m_moves lengths differ").append(System.lineSeparator());
-			for (int i = 0; i < Math.min(pos1.m_moves.length, pos2.m_moves.length); ++i) {
-				if (pos1.m_moves[i] != pos2.m_moves[i]) {
-					sb.append("m_moves[").append(i).append("] differ: ").append(Move.getString(pos1.m_moves[i])).append(" vs ")
-							.append(Move.getString(pos2.m_moves[i])).append(System.lineSeparator());
+		if (pos1.allMoves.length != pos2.allMoves.length) {
+			sb.append("myMoves lengths differ").append(System.lineSeparator());
+			for (int i = 0; i < Math.min(pos1.allMoves.length, pos2.allMoves.length); ++i) {
+				if (pos1.allMoves[i] != pos2.allMoves[i]) {
+					sb.append("allMoves[").append(i).append("] differ: ").append(Move.getString(pos1.allMoves[i])).append(" vs ")
+							.append(Move.getString(pos2.allMoves[i])).append(System.lineSeparator());
 				}
 			}
 		} else {
-			for (int i = 0; i < pos1.m_moves.length; ++i) {
-				if (pos1.m_moves[i] != pos2.m_moves[i]) {
-					sb.append("m_moves[").append(i).append("] differ: ").append(Move.getString(pos1.m_moves[i])).append(" vs ")
-							.append(Move.getString(pos2.m_moves[i])).append(System.lineSeparator());
+			for (int i = 0; i < pos1.allMoves.length; ++i) {
+				if (pos1.allMoves[i] != pos2.allMoves[i]) {
+					sb.append("allMoves[").append(i).append("] differ: ").append(Move.getString(pos1.allMoves[i])).append(" vs ")
+							.append(Move.getString(pos2.allMoves[i])).append(System.lineSeparator());
 				}
 			}
 		}
-		if (pos1.m_variant != pos2.m_variant) {
-			sb.append("m_variant differ").append(System.lineSeparator());
+		if (pos1.myVariant != pos2.myVariant) {
+			sb.append("myVariant differ").append(System.lineSeparator());
 		}
 		if (pos1.getChess960KingFile() != pos2.getChess960KingFile()) {
 			sb.append("the chess960 king files differ").append(System.lineSeparator());
@@ -3161,22 +3146,22 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 		private final List<Short> moveStack = new ArrayList<>();
 
 		public PosInternalState() {
-			bakIndex = m_bakIndex;
-			for (long l : m_bakStack) {
+			bakIndex = myBakIndex;
+			for (long l : myBakStack) {
 				if (l == 0L) {
 					break;
 				} else {
 					bakStack.add(l);
 				}
 			}
-			bbWhites = m_bbWhites;
-			bbBlacks = m_bbBlacks;
-			bbPawns = m_bbPawns;
-			bbKnights = m_bbKnights;
-			bbBishops = m_bbBishops;
-			bbRooks = m_bbRooks;
-			moveStackIndex = m_moveStackIndex;
-			for (short s : m_moveStack) {
+			bbWhites = mybbWhites;
+			bbBlacks = mybbBlacks;
+			bbPawns = mybbPawns;
+			bbKnights = mybbKnights;
+			bbBishops = mybbBishops;
+			bbRooks = mybbRooks;
+			moveStackIndex = myMoveStackIndex;
+			for (short s : myMoveStack) {
 				if (s == 0) {
 					break;
 				} else {
@@ -3258,7 +3243,7 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 	 * The following flag is set in getAllPawnMoves if and only if an en passant move is
 	 * created. This is done in order to detect the en passant possibility in getEpFEN below.
 	 */
-	private boolean m_enPassantFlag;
+	private boolean myEnPassantFlag;
 
 	@Override
 	public String getEpFEN() {
@@ -3272,9 +3257,9 @@ public final class PositionImpl extends AbstractMoveablePosition implements Seri
 			if (getSqiEP() != Chess.NO_SQUARE) {
 				targets |= ofSquare(epPawnSqi);
 			}
-			m_enPassantFlag = false;
+			myEnPassantFlag = false;
 			getAllPawnMoves(0, targets);
-			if (m_enPassantFlag) {
+			if (myEnPassantFlag) {
 				return s;
 			} else {
 				String[] parts = s.split(" +");

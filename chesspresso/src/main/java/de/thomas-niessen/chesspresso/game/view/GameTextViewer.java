@@ -83,17 +83,17 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	// attributes for lines
 	private static final SimpleAttributeSet LINE = new SimpleAttributeSet();
 
-	private static final String startSymbol;
+	private static final String START_SYMBOL;
 
 	static {
 		String fontFamily;
 		if (System.getProperty("os.name").toLowerCase().contains("win")) {
 			fontFamily = "Arial";
-			startSymbol = "\u25BA "; // This arrow and the triangle \u2586 don't work or don't look good with font
+			START_SYMBOL = "\u25BA "; // This arrow and the triangle \u2586 don't work or don't look good with font
 			// 'Dialog'. The upwards triangle \u25B2 is a better choice then.
 		} else {
 			fontFamily = "Dialog";
-			startSymbol = "\u25B2 ";
+			START_SYMBOL = "\u25B2 ";
 		}
 		int fontSize = 12;
 		StyleConstants.setForeground(MAIN, Color.black);
@@ -147,13 +147,12 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 	// ======================================================================
 
-	private Game m_game;
+	private Game game;
 	private TraverseListener textCreator;
-	private UserAction m_userAction;
-	private final Component m_parent;
-	private int[] m_moveBegin, m_moveEnd;
-	private int[] m_moveNrBegin;
-	private int[] m_moveNode;
+	private UserAction userAction;
+	private int[] moveBegin, moveEnd;
+	private int[] moveNrBegin;
+	private int[] moveNode;
 
 	// ======================================================================
 
@@ -172,14 +171,13 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 		textCreator = new TreeLikeTextCreator(); // has to be set before setGame()!
 
-		setGame(game); // sets also m_game
-		m_userAction = userAction;
-		m_parent = parent;
+		setGame(game); // sets also this.game
+		this.userAction = userAction;
 
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if ((m_userAction != UserAction.ENABLED) || (e.getPoint().y < 3)) {
+				if ((userAction != UserAction.ENABLED) || (e.getPoint().y < 3)) {
 					// Ignore clicks at the upper boundary, since they always move the game to the first ply.
 					return;
 				}
@@ -191,7 +189,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 					vOffset = 10; // a selected move will stay visible when the popup is shown
 				}
 				if (SwingUtilities.isRightMouseButton(e)) {
-					TextViewerPopup popup = new TextViewerPopup(m_game, GameTextViewer.this, m_parent);
+					TextViewerPopup popup = new TextViewerPopup(game, GameTextViewer.this, parent);
 					popup.show(GameTextViewer.this, e.getX(), e.getY() + vOffset);
 				}
 			}
@@ -201,10 +199,10 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 				Rectangle2D rect;
 				try {
 					int pos = viewToModel2D(point);
-					for (int index = 0; index < m_moveBegin.length; ++index) {
+					for (int index = 0; index < moveBegin.length; ++index) {
 						// This for-loop ensures that only a click to a move, but not to a comment, to
 						// a move number or to an indentation at begin of the line counts. 
-						if (m_moveBegin[index] <= pos && pos <= m_moveEnd[index]) {
+						if (moveBegin[index] <= pos && pos <= moveEnd[index]) {
 							rect = modelToView2D(pos);
 							rect.setRect(rect.getX() - 5.d, rect.getY(), 10.d, rect.getHeight()); // magical constants
 							return rect.contains(point);
@@ -381,15 +379,15 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 	public void setGame(Game game) {
 		if (game != null) {
-			if (m_game != null) {
-				m_game.getPosition().removePositionListener(this);
-				m_game.removeChangeListener(this);
+			if (game != null) {
+				game.getPosition().removePositionListener(this);
+				game.removeChangeListener(this);
 			}
-			m_game = game;
+			this.game = game;
 			createText();
 			setCaretPosition(getDocument().getStartPosition().getOffset());
-			m_game.getPosition().addPositionListener(this);
-			m_game.addChangeListener(this);
+			game.getPosition().addPositionListener(this);
+			game.addChangeListener(this);
 		}
 	}
 
@@ -415,7 +413,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	}
 
 	public void setUserAction(UserAction userAction) {
-		m_userAction = userAction;
+		this.userAction = userAction;
 	}
 
 	// ======================================================================
@@ -441,11 +439,11 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			Color.LIGHT_GRAY);
 
 	void showCurrentGameNode() {
-		int node = m_game.getCurNode();
+		int node = game.getCurNode();
 		int index = -1;
 		if (node > 0) {
-			for (int i = 0; i < m_moveNode.length; i++) {
-				if (m_moveNode[i] >= node) {
+			for (int i = 0; i < moveNode.length; i++) {
+				if (moveNode[i] >= node) {
 					index = i;
 					break;
 				}
@@ -453,15 +451,15 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		}
 		getHighlighter().removeAllHighlights();
 		if (index >= 0) {
-			setCaretPosition(m_moveBegin[index]); // Do not delete next two lines, because they scroll forward!
-			setCaretPosition(m_moveEnd[index]);
+			setCaretPosition(moveBegin[index]); // Do not delete next two lines, because they scroll forward!
+			setCaretPosition(moveEnd[index]);
 			try {
-				getHighlighter().addHighlight(m_moveBegin[index], m_moveEnd[index], highlightPainter);
+				getHighlighter().addHighlight(moveBegin[index], moveEnd[index], highlightPainter);
 			} catch (BadLocationException ignore) {
 			}
-		} else if (node == 0 && m_moveBegin.length > 0) {
+		} else if (node == 0 && moveBegin.length > 0) {
 			// Highlight the triangle if and only if the start position is shown (node = 0)
-			// and the triangle itself is shown (m_moveBegin.length > 0, see createText()).
+			// and the triangle itself is shown (moveBegin.length > 0, see createText()).
 			setCaretPosition(0); // Do not delete next two lines, because they scroll forward!
 			setCaretPosition(1);
 			try {
@@ -498,9 +496,9 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	// TraverseListeners for text creation
 
 	// indicate whether a move number will be needed for the next move
-	private boolean m_needsMoveNumber;
+	private boolean needsMoveNumber;
 	// current move index
-	private int m_notifyIndex;
+	private int notifyIndex;
 
 	private abstract class AbstractTextCreator implements TraverseListener {
 
@@ -515,10 +513,10 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			}
 
 			/*---------- begin of move number or move -----*/
-			m_moveNrBegin[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
+			moveNrBegin[notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
 
 			/*---------- move number ----------*/
-			if (m_needsMoveNumber) {
+			if (needsMoveNumber) {
 				if (move.isWhiteMove()) {
 					appendText(((plyNumber + 2) / 2) + ". ", attrs);
 				} else {
@@ -527,8 +525,8 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			}
 
 			/*---------- move text ----------*/
-			m_moveNode[m_notifyIndex] = m_game.getCurNode();
-			m_moveBegin[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
+			moveNode[notifyIndex] = game.getCurNode();
+			moveBegin[notifyIndex] = getDocument().getEndPosition().getOffset() - 1;
 			appendText(move.toString(), attrs);
 
 			/*---------- nags ----------*/
@@ -544,16 +542,16 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			} else {
 				appendText(" ", attrs);
 			}
-			m_moveEnd[m_notifyIndex] = getDocument().getEndPosition().getOffset() - 2;
+			moveEnd[notifyIndex] = getDocument().getEndPosition().getOffset() - 2;
 
 			/*---------- post-move comment -----*/
 			if (postMoveComment != null) {
 				appendText(postMoveComment + " ", COMMENT);
 			}
 
-			m_notifyIndex++;
+			notifyIndex++;
 
-			m_needsMoveNumber = !move.isWhiteMove() || (postMoveComment != null);
+			needsMoveNumber = !move.isWhiteMove() || (postMoveComment != null);
 		}
 	}
 
@@ -562,23 +560,23 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		@Override
 		public void notifyLineStart(int level) {
 			appendText(" (", LINE);
-			m_needsMoveNumber = true;
+			needsMoveNumber = true;
 		}
 
 		@Override
 		public void notifyLineEnd(int level) {
 			appendText(") ", LINE);
-			m_needsMoveNumber = true;
+			needsMoveNumber = true;
 		}
 	}
 
 	private class TreeLikeTextCreator extends AbstractTextCreator {
 
-		private boolean m_newLineNeeded;
+		private boolean newLineNeeded;
 
 		@Override
 		public void initTraversal() {
-			m_newLineNeeded = false;
+			newLineNeeded = false;
 		}
 
 		private void indent(int level) {
@@ -590,10 +588,10 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		@Override
 		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
 				String fenBeforeMove) {
-			if (m_newLineNeeded) {
+			if (newLineNeeded) {
 				appendText(System.lineSeparator(), LINE);
 				indent(level - 1);
-				m_newLineNeeded = false;
+				newLineNeeded = false;
 			}
 			super.notifyMove(move, nags, preMoveComment, postMoveComment, plyNumber, level, fenBeforeMove);
 		}
@@ -603,15 +601,15 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			appendText(System.lineSeparator(), LINE);
 			indent(level);
 			appendText("(", LINE);
-			m_needsMoveNumber = true;
-			m_newLineNeeded = false;
+			needsMoveNumber = true;
+			newLineNeeded = false;
 		}
 
 		@Override
 		public void notifyLineEnd(int level) {
 			appendText(") ", LINE);
-			m_needsMoveNumber = true;
-			m_newLineNeeded = true;
+			needsMoveNumber = true;
+			newLineNeeded = true;
 		}
 	}
 
@@ -625,23 +623,23 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 		PuzzleModeTextCreator() {
 			stopRequested = false;
-			startFen = m_game.getTag(PGN.TAG_FEN); // can be null, if this is no puzzle
-			if (startFen != null && m_game.getNumOfPlies() > 0) { // a puzzle
-				maxPly = m_game.getPlyOffset() + 1;
+			startFen = game.getTag(PGN.TAG_FEN); // can be null, if this is no puzzle
+			if (startFen != null && game.getNumOfPlies() > 0) { // a puzzle
+				maxPly = game.getPlyOffset() + 1;
 			} else { // no puzzle
-				maxPly = m_game.getNumOfPlies() + 1;
+				maxPly = game.getNumOfPlies() + 1;
 			}
 			textCreator = new TreeLikeTextCreator();
-			m_game.getPosition().addPositionListener((t, f, m) -> {
+			game.getPosition().addPositionListener((t, f, m) -> {
 				// this listener updates maxPly
-				if (m_game.isMainLine()) { // Is there a new mainline move?
-					if (maxPly < m_game.getCurrentPly()) {
-						maxPly = m_game.getCurrentPly();
+				if (game.isMainLine()) { // Is there a new mainline move?
+					if (maxPly < game.getCurrentPly()) {
+						maxPly = game.getCurrentPly();
 						createText();
 					}
 				} else { // Is there a new sub-variation move with missing mainline move? 
-					Game copy = m_game.getDeepCopy();
-					copy.gotoNode(m_game.getCurNode());
+					Game copy = game.getDeepCopy();
+					copy.gotoNode(game.getCurNode());
 					if (copy.goBack() && copy.goForward()) {
 						if (copy.isMainLine() && maxPly < copy.getCurrentPly()) {
 							maxPly = copy.getCurrentPly();
@@ -655,12 +653,12 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		@Override
 		public void initTraversal() {
 			stopRequested = false;
-			if (!Objects.equals(startFen, m_game.getTag(PGN.TAG_FEN))) { // the game has changed
-				startFen = m_game.getTag(PGN.TAG_FEN);
+			if (!Objects.equals(startFen, game.getTag(PGN.TAG_FEN))) { // the game has changed
+				startFen = game.getTag(PGN.TAG_FEN);
 				if (startFen != null) { // puzzle mode
-					maxPly = m_game.getPlyOffset() + 1;
+					maxPly = game.getPlyOffset() + 1;
 				} else {
-					maxPly = m_game.getNumOfPlies() + 1;
+					maxPly = game.getNumOfPlies() + 1;
 				}
 			}
 			textCreator.initTraversal();
@@ -715,29 +713,29 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		// setDocument(getEditorKit().createDefaultDocument());
 		// but this should be equivalent.
 
-		int totalPlies = m_game.getTotalNumOfPlies();
-		m_moveBegin = new int[totalPlies];
-		m_moveEnd = new int[totalPlies];
-		m_moveNrBegin = new int[totalPlies];
-		m_moveNode = new int[totalPlies];
-		m_notifyIndex = 0;
+		int totalPlies = game.getTotalNumOfPlies();
+		moveBegin = new int[totalPlies];
+		moveEnd = new int[totalPlies];
+		moveNrBegin = new int[totalPlies];
+		moveNode = new int[totalPlies];
+		notifyIndex = 0;
 
 		if (totalPlies == 0) {
-			String emptyGameComment = m_game.getEmptyGameComment();
+			String emptyGameComment = game.getEmptyGameComment();
 			if (emptyGameComment != null && !emptyGameComment.isEmpty()) {
 				appendText(emptyGameComment + " ", COMMENT);
 			}
 		} else {
-			appendText(startSymbol, MAIN);
+			appendText(START_SYMBOL, MAIN);
 		}
 
-		m_needsMoveNumber = true;
-		m_game.traverse(textCreator, true);
+		needsMoveNumber = true;
+		game.traverse(textCreator, true);
 		if (!(textCreator instanceof PuzzleModeTextCreator)) {
 			if (textCreator instanceof TreeLikeTextCreator && getDocument().getLength() > 0) {
 				appendText(System.lineSeparator(), MAIN);
 			}
-			appendText(m_game.getResultStr(), MAIN);
+			appendText(game.getResultStr(), MAIN);
 		}
 
 		// TN:
@@ -745,7 +743,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		// avoided by replacing the above line by the following line. But this looks more often
 		// weird, too. So, a perfect solution would be to decide, when the new line is 
 		// necessary. Can this be done somehow? It should work, if the component is resized, too. 
-		//		appendText(System.lineSeparator() + m_game.getResultStr(), MAIN);
+		//		appendText(System.lineSeparator() + game.getResultStr(), MAIN);
 
 		// One possible solution:
 		// 1. determine the number of lines before the result string
@@ -767,78 +765,78 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	// Methods to walk through the game
 
 	private boolean goBackward() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			return m_game.goBack();
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			return game.goBack();
 		}
 		return false;
 	}
 
 	private void goBackToLineBegin() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.goBackToLineBegin();
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			game.goBackToLineBegin();
 		}
 	}
 
 	private void gotoEndOfLine() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.gotoEndOfLine();
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			game.gotoEndOfLine();
 		}
 	}
 
 	private boolean goForward() {
-		if (m_userAction != UserAction.ENABLED && m_userAction != UserAction.NAVIGABLE) {
+		if (userAction != UserAction.ENABLED && userAction != UserAction.NAVIGABLE) {
 			return false;
 		}
-		int num = m_game.getNumOfNextMoves();
+		int num = game.getNumOfNextMoves();
 		boolean retVal = false;
 		if (num > 1) {
-			retVal = m_game.goForward(0);
+			retVal = game.goForward(0);
 		} else if (num == 1) {
-			retVal = m_game.goForward();
+			retVal = game.goForward();
 		}
 		return retVal;
 	}
 
 	private void gotoStart() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.gotoStart();
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			game.gotoStart();
 		}
 	}
 
 	private void gotoEnd() {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.gotoEnd();
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			game.gotoEnd();
 		}
 	}
 
 	private int getNodeForCaret() {
 		int caret = getCaretPosition();
 		if (caret < 3) {
-			return m_game.getRootNode();
+			return game.getRootNode();
 		}
-		for (int i = 0; i < m_moveNode.length - 1; i++) {
-			if (m_moveNrBegin[i + 1] > caret) {
-				return m_moveNode[i];
+		for (int i = 0; i < moveNode.length - 1; i++) {
+			if (moveNrBegin[i + 1] > caret) {
+				return moveNode[i];
 			}
 		}
-		if (m_moveNode.length == 0) {
-			return m_game.getRootNode();
+		if (moveNode.length == 0) {
+			return game.getRootNode();
 		} else {
 			// Here we need the last node. The old 
-			// return m_moveNode[m_moveNode.length - 1];
-			// does not work in puzzle mode, because m_moveNode is not completely filled until all moves are shown.
-			int j = m_moveNode.length - 1;
-			while (m_moveNode[j] == 0 && j > 0) {
+			// return moveNode[moveNode.length - 1];
+			// does not work in puzzle mode, because moveNode is not completely filled until all moves are shown.
+			int j = moveNode.length - 1;
+			while (moveNode[j] == 0 && j > 0) {
 				--j;
 			}
-			return m_moveNode[j];
+			return moveNode[j];
 		}
 	}
 
 	private void gotoPlyForCaret() {
 		int newNode = getNodeForCaret();
-		if (m_game.getCurNode() != newNode) {
-			m_game.gotoNode(newNode);
+		if (game.getCurNode() != newNode) {
+			game.gotoNode(newNode);
 		}
 	}
 

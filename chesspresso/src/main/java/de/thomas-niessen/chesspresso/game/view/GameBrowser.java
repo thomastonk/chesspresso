@@ -67,16 +67,16 @@ import chesspresso.position.view.PositionViewProperties;
 @SuppressWarnings("serial")
 public class GameBrowser extends JPanel implements PositionMotionListener, PositionListener, GameModelChangeListener, ScreenShot {
 
-	private Game m_game;
-	private PositionView m_positionView;
-	private GameTextViewer m_textViewer;
-	protected UserAction m_userAction;
-	private boolean m_oneClickMoves;
+	private Game game;
+	private PositionView positionView;
+	private GameTextViewer textViewer;
+	protected UserAction userAction;
+	private boolean oneClickMoves;
 
-	private Component m_parent = null;
-	private JLabel m_moveLabel = null;
+	private Component parent = null;
+	private JLabel moveLabel = null;
 
-	private boolean m_highlightLastMove;
+	private boolean highlightLastMove;
 
 	// ======================================================================
 
@@ -123,32 +123,32 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		initComponents(boardOnTheRight);
 		setGame(game, bottomPlayer);
 
-		m_positionView.setShowCoordinates(true);
-		m_positionView.setDecorationsEnabled(true);
-		m_positionView.setFocusable(false);
-		m_positionFrame.add(m_positionView, BorderLayout.CENTER);
+		positionView.setShowCoordinates(true);
+		positionView.setDecorationsEnabled(true);
+		positionView.setFocusable(false);
+		positionFrame.add(positionView, BorderLayout.CENTER);
 
-		m_textFrame.add(new JScrollPane(m_textViewer), BorderLayout.CENTER);
+		textFrame.add(new JScrollPane(textViewer), BorderLayout.CENTER);
 
 		setUserAction(userAction);
-		m_oneClickMoves = false;
+		oneClickMoves = false;
 		addPopupToPositionView();
 
-		m_positionView.setPieceTracker(new PieceTracker(game));
+		positionView.setPieceTracker(new PieceTracker(game));
 
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent componentEvent) {
 				if (boardOnTheRight) {
-					setDividerLocation(getSize().width - getDividerSize() - 8 * m_positionView.getSquareSize());
+					setDividerLocation(getSize().width - getDividerSize() - 8 * positionView.getSquareSize());
 				} else {
-					setDividerLocation(Math.min(getSize().width, 8 * m_positionView.getSquareSize()));
+					setDividerLocation(Math.min(getSize().width, 8 * positionView.getSquareSize()));
 				}
 			}
 		});
 
 		// TN: guarantees a suitable maximum height
-		setMaximumSize(new Dimension(2000, m_positionView.getPreferredSize().height + 100));
+		setMaximumSize(new Dimension(2000, positionView.getPreferredSize().height + 100));
 		// The value 100 is larger than the height of the two header lines plus the
 		// height of the tools under the position view. Other values work, too, but too
 		// small values, say 30 cause problems.
@@ -158,128 +158,128 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	public void setGame(Game game, int bottomPlayer) {
 		if (game != null) {
-			if (m_game != null) {
-				m_game.getPosition().removePositionListener(this);
-				m_game.removeChangeListener(this);
+			if (game != null) {
+				game.getPosition().removePositionListener(this);
+				game.removeChangeListener(this);
 			}
-			m_game = game;
-			m_game.gotoStart();
-			m_game.getPosition().addPositionListener(this);
-			m_game.addChangeListener(this);
+			this.game = game;
+			game.gotoStart();
+			game.getPosition().addPositionListener(this);
+			game.addChangeListener(this);
 
-			if (m_positionView == null) {
-				m_positionView = new PositionView(m_game.getPosition(), bottomPlayer, m_userAction);
-				m_positionView.setShowCoordinates(true);
+			if (positionView == null) {
+				positionView = new PositionView(game.getPosition(), bottomPlayer, userAction);
+				positionView.setShowCoordinates(true);
 			} else {
-				m_positionView.setPosition(m_game.getPosition());
-				m_positionView.setBottomPlayer(bottomPlayer);
+				positionView.setPosition(game.getPosition());
+				positionView.setBottomPlayer(bottomPlayer);
 			}
-			m_positionView.setPositionMotionListener(this);
+			positionView.setPositionMotionListener(this);
 
-			if (m_textViewer == null) {
-				m_textViewer = new GameTextViewer(m_game, m_userAction, this);
+			if (textViewer == null) {
+				textViewer = new GameTextViewer(game, userAction, this);
 			} else {
-				m_textViewer.setGame(game);
+				textViewer.setGame(game);
 			}
 
 			setHeaderLines();
 			highlightLastMove();
-			m_textViewer.showCurrentGameNode();
+			textViewer.showCurrentGameNode();
 		}
 	}
 
 	// ======================================================================
 
 	public void setProperties(PositionViewProperties props) {
-		m_positionView.setProperties(props);
+		positionView.setProperties(props);
 		invalidate();
 	}
 
 	// ======================================================================
 
 	public void setProperties(final Font f, final Color whiteSquares, final Color blackSquares) {
-		if (m_positionView != null) {
-			m_positionView.setFont(f);
-			m_positionView.setWhiteSquareColor(whiteSquares);
-			m_positionView.setBlackSquareColor(blackSquares);
+		if (positionView != null) {
+			positionView.setFont(f);
+			positionView.setWhiteSquareColor(whiteSquares);
+			positionView.setBlackSquareColor(blackSquares);
 			invalidate();
 		}
 	}
 
 	@Override
 	public void setFont(final Font f) {
-		if (m_positionView != null) {
-			m_positionView.setFont(f);
+		if (positionView != null) {
+			positionView.setFont(f);
 			invalidate();
 		}
 	}
 
 	@Override
 	public Font getFont() {
-		if (m_positionView != null) {
-			return m_positionView.getFont();
+		if (positionView != null) {
+			return positionView.getFont();
 		} else {
 			return null;
 		}
 	}
 
 	public void setWhiteSquareColor(final Color whiteSquares) {
-		if (m_positionView != null) {
-			m_positionView.setWhiteSquareColor(whiteSquares);
+		if (positionView != null) {
+			positionView.setWhiteSquareColor(whiteSquares);
 			invalidate();
 		}
 	}
 
 	public void setBlackSquareColor(final Color blackSquares) {
-		if (m_positionView != null) {
-			m_positionView.setBlackSquareColor(blackSquares);
+		if (positionView != null) {
+			positionView.setBlackSquareColor(blackSquares);
 			invalidate();
 		}
 	}
 
 	public void setHighlightLastMove(boolean hlm) {
-		m_highlightLastMove = hlm;
+		highlightLastMove = hlm;
 		highlightLastMove();
 	}
 
 	public boolean isHighlightingLastMove() {
-		return m_highlightLastMove;
+		return highlightLastMove;
 	}
 
 	public Game getGame() {
-		return m_game;
+		return game;
 	}
 
 	public String getCurrentPositionAsFEN() {
-		return FEN.getFEN(m_game.getPosition());
+		return FEN.getFEN(game.getPosition());
 	}
 
 	public Font getPositionViewFont() {
-		if (m_positionView != null) {
-			return m_positionView.getFont();
+		if (positionView != null) {
+			return positionView.getFont();
 		} else {
 			return null;
 		}
 	}
 
 	public Color getWhiteSquareColor() {
-		if (m_positionView != null) {
-			return m_positionView.getWhiteSquareColor();
+		if (positionView != null) {
+			return positionView.getWhiteSquareColor();
 		} else {
 			return null;
 		}
 	}
 
 	public Color getBlackSquareColor() {
-		if (m_positionView != null) {
-			return m_positionView.getBlackSquareColor();
+		if (positionView != null) {
+			return positionView.getBlackSquareColor();
 		} else {
 			return null;
 		}
 	}
 
 	public PositionView getPositionView() {
-		return m_positionView;
+		return positionView;
 	}
 
 	public JPanel getToolbar() {
@@ -287,15 +287,15 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	}
 
 	public void highlightFirstHeaderLine(boolean highlight) {
-		m_lbHeader0.setOpaque(highlight);
+		lbHeader0.setOpaque(highlight);
 	}
 
 	public void highlightSecondHeaderLine(boolean highlight) {
-		m_lbHeader1.setOpaque(highlight);
+		lbHeader1.setOpaque(highlight);
 	}
 
 	public void allowOneClickMoves(boolean allow) {
-		m_oneClickMoves = allow;
+		oneClickMoves = allow;
 	}
 
 	// ======================================================================
@@ -304,16 +304,16 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	@Override
 	public boolean isDragAllowed(ImmutablePosition position, int from) {
 		// allow dragging only if editable and there is a stone on the square
-		return m_userAction == UserAction.ENABLED && m_game.getPosition().getStone(from) != Chess.NO_STONE;
+		return userAction == UserAction.ENABLED && game.getPosition().getStone(from) != Chess.NO_STONE;
 	}
 
 	@Override
 	public void dragged(ImmutablePosition position, int from, int to, MouseEvent e) {
-		if (m_userAction != UserAction.ENABLED) {
+		if (userAction != UserAction.ENABLED) {
 			return;
 		}
 		try {
-			Position pos = m_game.getPosition();
+			Position pos = game.getPosition();
 			int row = Chess.sqiToRow(to);
 			if (pos.getPiece(from) == Chess.PAWN && (row == 0 || row == 7)) {
 				pos.doMove(pos.getMove(from, to, Chess.QUEEN));
@@ -327,37 +327,37 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	@Override
 	public void squareClicked(ImmutablePosition position, int sqi, MouseEvent e) {
-		if (m_userAction == UserAction.ENABLED && m_oneClickMoves && m_game.getPosition() == position) {
-			OneClickMove.squareClicked(m_game.getPosition(), sqi, e);
+		if (userAction == UserAction.ENABLED && oneClickMoves && game.getPosition() == position) {
+			OneClickMove.squareClicked(game.getPosition(), sqi, e);
 		}
 	}
 
 	// ======================================================================
 
 	public int getBottomPlayer() {
-		return m_positionView.getBottomPlayer();
+		return positionView.getBottomPlayer();
 	}
 
 	public void setBottomPlayer(int player) {
-		m_positionView.setBottomPlayer(player);
+		positionView.setBottomPlayer(player);
 	}
 
-	public void setParent(final Component c) {
-		m_parent = c;
+	public void setParent(Component c) {
+		parent = c;
 	}
 
 	// =======================================================================
 
 	public void highlightLastMove() {
-		if (m_positionView == null) {
+		if (positionView == null) {
 			return;
 		}
-		m_positionView.removeDecorations(DecorationType.ARROW, Color.BLUE, GameBrowser.this);
-		if (m_highlightLastMove) {
-			Move lastMove = m_game.getLastMove();
+		positionView.removeDecorations(DecorationType.ARROW, Color.BLUE, GameBrowser.this);
+		if (highlightLastMove) {
+			Move lastMove = game.getLastMove();
 			if (lastMove != null && lastMove.getShortMoveDesc() != Move.NULL_MOVE) {
 				if (!lastMove.isCastle() && !lastMove.isCastleChess960()) {
-					m_positionView.addDecoration(DecorationFactory.getArrowDecoration(lastMove.getFromSqi(), lastMove.getToSqi(),
+					positionView.addDecoration(DecorationFactory.getArrowDecoration(lastMove.getFromSqi(), lastMove.getToSqi(),
 							Color.BLUE, GameBrowser.this), false);
 				} else {
 					int fromSquare, toSquare;
@@ -378,30 +378,30 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 							toSquare = Chess.D8;
 						}
 					}
-					m_positionView.addDecoration(
+					positionView.addDecoration(
 							DecorationFactory.getArrowDecoration(fromSquare, toSquare, Color.BLUE, GameBrowser.this), false);
-					m_positionView.addDecoration(
+					positionView.addDecoration(
 							DecorationFactory.getArrowDecoration(toSquare, fromSquare, Color.BLUE, GameBrowser.this), false);
 				}
 			}
 		}
-		m_positionView.repaint();
+		positionView.repaint();
 	}
 
 	// =======================================================================
 
 	public void flip() {
-		m_positionView.flip();
+		positionView.flip();
 	}
 
 	// =======================================================================
 
 	public void setupPuzzleMode() {
 		if (getTextCreationType() == TextCreationType.PUZZLE_MODE) {
-			if (m_game.getTag(PGN.TAG_FEN) != null) { // only fragments are treated as puzzles	
-				m_game.gotoStart();
-				m_game.goForward();
-				setBottomPlayer(m_game.getPosition().getToPlay());
+			if (game.getTag(PGN.TAG_FEN) != null) { // only fragments are treated as puzzles	
+				game.gotoStart();
+				game.goForward();
+				setBottomPlayer(game.getPosition().getToPlay());
 			}
 		}
 	}
@@ -411,23 +411,23 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		jPanel1 = new javax.swing.JPanel();
 		jPanel2 = new javax.swing.JPanel();
 		jPanel3 = new javax.swing.JPanel();
-		m_lbHeader0 = new javax.swing.JLabel();
-		m_lbHeader0.setBackground(Color.ORANGE);
-		m_lbHeader1 = new javax.swing.JLabel();
-		m_lbHeader1.setBackground(Color.ORANGE);
+		lbHeader0 = new javax.swing.JLabel();
+		lbHeader0.setBackground(Color.ORANGE);
+		lbHeader1 = new javax.swing.JLabel();
+		lbHeader1.setBackground(Color.ORANGE);
 		jSplitPane1 = new javax.swing.JSplitPane();
-		m_positionFrame = new javax.swing.JPanel();
-		m_textFrame = new javax.swing.JPanel();
+		positionFrame = new javax.swing.JPanel();
+		textFrame = new javax.swing.JPanel();
 		toolBarPanel = new javax.swing.JPanel();
 		jToolBar1 = new javax.swing.JToolBar();
 		jToolBar1.setFloatable(false);
 		jToolBar2 = new javax.swing.JToolBar();
 		jToolBar2.setFloatable(false);
-		m_buttFlipBoard = new javax.swing.JButton();
-		m_buttStart = new javax.swing.JButton();
-		m_buttBackward = new javax.swing.JButton();
-		m_buttForward = new javax.swing.JButton();
-		m_buttEnd = new javax.swing.JButton();
+		buttFlipBoard = new javax.swing.JButton();
+		buttStart = new javax.swing.JButton();
+		buttBackward = new javax.swing.JButton();
+		buttForward = new javax.swing.JButton();
+		buttEnd = new javax.swing.JButton();
 
 		setLayout(new java.awt.BorderLayout());
 
@@ -440,97 +440,97 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		jPanel1.add(jPanel3, BorderLayout.EAST);
 		jPanel1.setFocusable(false);
 
-		m_lbHeader0.setText("0");
-		jPanel2.add(m_lbHeader0);
+		lbHeader0.setText("0");
+		jPanel2.add(lbHeader0);
 
-		m_lbHeader1.setText("1");
-		jPanel2.add(m_lbHeader1);
+		lbHeader1.setText("1");
+		jPanel2.add(lbHeader1);
 
-		m_lbHeader0.setAlignmentX(CENTER_ALIGNMENT);
-		m_lbHeader1.setAlignmentX(CENTER_ALIGNMENT);
+		lbHeader0.setAlignmentX(CENTER_ALIGNMENT);
+		lbHeader1.setAlignmentX(CENTER_ALIGNMENT);
 
 		add(jPanel1, java.awt.BorderLayout.NORTH);
 
-		m_positionFrame.setLayout(new javax.swing.BoxLayout(m_positionFrame, javax.swing.BoxLayout.X_AXIS));
+		positionFrame.setLayout(new javax.swing.BoxLayout(positionFrame, javax.swing.BoxLayout.X_AXIS));
 
 		JPanel posPanel = new JPanel();
 		posPanel.setLayout(new javax.swing.BoxLayout(posPanel, javax.swing.BoxLayout.Y_AXIS));
-		posPanel.add(m_positionFrame);
+		posPanel.add(positionFrame);
 		if (!boardOnTheRight) {
 			jSplitPane1.setLeftComponent(posPanel);
 		} else {
 			jSplitPane1.setRightComponent(posPanel);
 		}
 
-		m_textFrame.setLayout(new java.awt.BorderLayout());
+		textFrame.setLayout(new java.awt.BorderLayout());
 
-		m_textFrame.setMinimumSize(new java.awt.Dimension(256, 128));
-		m_textFrame.setPreferredSize(new java.awt.Dimension(256, 256));
-		// m_textFrame.setPreferredSize(new java.awt.Dimension(330, 256));
+		textFrame.setMinimumSize(new java.awt.Dimension(256, 128));
+		textFrame.setPreferredSize(new java.awt.Dimension(256, 256));
+		// textFrame.setPreferredSize(new java.awt.Dimension(330, 256));
 		// TN: Generally the PositionView should take its required size and not more.
 		// And the GameTextViewer should have the remaining space in the component.
 		// But this does not happen, if the GameTextViewer is on the left. Here 330 is
 		// somehow a magic number. The handling should be improved.
 		if (!boardOnTheRight) {
-			jSplitPane1.setRightComponent(m_textFrame);
+			jSplitPane1.setRightComponent(textFrame);
 		} else {
-			jSplitPane1.setLeftComponent(m_textFrame);
+			jSplitPane1.setLeftComponent(textFrame);
 		}
 
 		add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
-		m_buttFlipBoard.setText("^");
-		m_buttFlipBoard.setToolTipText("Flip board");
-		m_buttFlipBoard.addActionListener(this::m_buttFlipBoardActionPerformed);
+		buttFlipBoard.setText("^");
+		buttFlipBoard.setToolTipText("Flip board");
+		buttFlipBoard.addActionListener(this::buttFlipBoardActionPerformed);
 
-		jToolBar1.add(m_buttFlipBoard);
+		jToolBar1.add(buttFlipBoard);
 
-		m_buttStart.setText("|<");
-		m_buttStart.setToolTipText("Start");
-		m_buttStart.addActionListener(this::m_buttStartActionPerformed);
+		buttStart.setText("|<");
+		buttStart.setToolTipText("Start");
+		buttStart.addActionListener(this::buttStartActionPerformed);
 
-		jToolBar1.add(m_buttStart);
+		jToolBar1.add(buttStart);
 
-		m_buttBackward.setText("<");
-		m_buttBackward.setToolTipText("Backward");
-		m_buttBackward.addActionListener(this::m_buttBackwardActionPerformed);
+		buttBackward.setText("<");
+		buttBackward.setToolTipText("Backward");
+		buttBackward.addActionListener(this::buttBackwardActionPerformed);
 
-		jToolBar1.add(m_buttBackward);
+		jToolBar1.add(buttBackward);
 
-		m_buttForward.setText(">");
-		m_buttForward.setToolTipText("Forward");
-		m_buttForward.addActionListener(this::m_buttForwardActionPerformed);
+		buttForward.setText(">");
+		buttForward.setToolTipText("Forward");
+		buttForward.addActionListener(this::buttForwardActionPerformed);
 
-		jToolBar1.add(m_buttForward);
+		jToolBar1.add(buttForward);
 
-		m_buttEnd.setText(">|");
-		m_buttEnd.setToolTipText("End");
-		m_buttEnd.addActionListener(this::m_buttEndActionPerformed);
+		buttEnd.setText(">|");
+		buttEnd.setToolTipText("End");
+		buttEnd.addActionListener(this::buttEndActionPerformed);
 
-		jToolBar1.add(m_buttEnd);
+		jToolBar1.add(buttEnd);
 
 		jToolBar1.setAlignmentX(LEFT_ALIGNMENT);
 		toolBarPanel.add(jToolBar1, BorderLayout.WEST);
 
-		m_moveLabel = new JLabel();
-		m_moveLabel.setAlignmentX(CENTER_ALIGNMENT);
+		moveLabel = new JLabel();
+		moveLabel.setAlignmentX(CENTER_ALIGNMENT);
 		JPanel moveLabelPanel = new JPanel();
-		moveLabelPanel.add(m_moveLabel);
+		moveLabelPanel.add(moveLabel);
 		toolBarPanel.add(moveLabelPanel, BorderLayout.CENTER);
 
-		m_fenButton = new JButton("FEN");
-		m_fenButton.addActionListener(new FenToClipBoard(() -> m_game.getPosition(), () -> m_parent));
-		jToolBar2.add(m_fenButton);
+		fenButton = new JButton("FEN");
+		fenButton.addActionListener(new FenToClipBoard(() -> game.getPosition(), () -> parent));
+		jToolBar2.add(fenButton);
 
-		m_allFensButton = new JButton("FENs");
-		m_allFensButton.addActionListener(new AllFensToClipBoard(() -> m_game, () -> m_parent));
-		m_allFensButton.setToolTipText("Copy all mainline FENs to system clipboard");
-		jToolBar2.add(m_allFensButton);
+		allFensButton = new JButton("FENs");
+		allFensButton.addActionListener(new AllFensToClipBoard(() -> game, () -> parent));
+		allFensButton.setToolTipText("Copy all mainline FENs to system clipboard");
+		jToolBar2.add(allFensButton);
 
-		m_pgnButton = new JButton("PGN");
-		m_pgnButton.addActionListener(new PgnToClipBoard(() -> m_game, () -> m_parent));
+		pgnButton = new JButton("PGN");
+		pgnButton.addActionListener(new PgnToClipBoard(() -> game, () -> parent));
 
-		jToolBar2.add(m_pgnButton);
+		jToolBar2.add(pgnButton);
 		jToolBar2.setAlignmentX(RIGHT_ALIGNMENT);
 		toolBarPanel.add(jToolBar2, BorderLayout.EAST);
 
@@ -539,71 +539,68 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	}
 
 	private void setHeaderLines() {
-		String s = m_game.getHeaderString(0);
+		String s = game.getHeaderString(0);
 		if (!s.isEmpty()) {
-			m_lbHeader0.setText(s);
+			lbHeader0.setText(s);
 		} else {
-			m_lbHeader0.setText(" "); // an empty header collapses
+			lbHeader0.setText(" "); // an empty header collapses
 		}
-		s = m_game.getHeaderString(1);
+		s = game.getHeaderString(1);
 		if (!s.isEmpty()) {
-			m_lbHeader1.setText(s);
+			lbHeader1.setText(s);
 		} else {
-			m_lbHeader1.setText(" "); // an empty header collapses
+			lbHeader1.setText(" "); // an empty header collapses
 		}
 	}
 
-	private void m_buttEndActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.gotoEndOfLine();
+	private void buttEndActionPerformed(ActionEvent evt) {
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			game.gotoEndOfLine();
 		}
 	}
 
-	private void m_buttForwardActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.goForward();
+	private void buttForwardActionPerformed(ActionEvent evt) {
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			game.goForward();
 		}
 	}
 
-	private void m_buttBackwardActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.goBack();
+	private void buttBackwardActionPerformed(ActionEvent evt) {
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			game.goBack();
 		}
 	}
 
-	private void m_buttStartActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_game.gotoStart();
+	private void buttStartActionPerformed(ActionEvent evt) {
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			game.gotoStart();
 		}
 	}
 
-	private void m_buttFlipBoardActionPerformed(ActionEvent evt) {
-		if (m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE) {
-			m_positionView.flip();
+	private void buttFlipBoardActionPerformed(ActionEvent evt) {
+		if (userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE) {
+			positionView.flip();
 		}
 	}
 
-	// Variables declaration - do not modify
-	// private javax.swing.JButton m_buttBackToLineBegin;
-	// private javax.swing.JButton m_buttEndOfLine;
-	private javax.swing.JButton m_buttBackward;
-	private javax.swing.JPanel m_textFrame;
-	private javax.swing.JButton m_buttFlipBoard;
-	private javax.swing.JButton m_buttStart;
+	private javax.swing.JButton buttBackward;
+	private javax.swing.JPanel textFrame;
+	private javax.swing.JButton buttFlipBoard;
+	private javax.swing.JButton buttStart;
 	private javax.swing.JSplitPane jSplitPane1;
-	private javax.swing.JButton m_buttEnd;
-	private javax.swing.JLabel m_lbHeader1;
+	private javax.swing.JButton buttEnd;
+	private javax.swing.JLabel lbHeader1;
 	private javax.swing.JPanel toolBarPanel;
 	private javax.swing.JToolBar jToolBar1;
 	private javax.swing.JToolBar jToolBar2;
-	private javax.swing.JPanel m_positionFrame;
-	private javax.swing.JLabel m_lbHeader0;
+	private javax.swing.JPanel positionFrame;
+	private javax.swing.JLabel lbHeader0;
 	private javax.swing.JPanel jPanel1;
-	private javax.swing.JButton m_buttForward;
+	private javax.swing.JButton buttForward;
 
-	private javax.swing.JButton m_fenButton;
-	private javax.swing.JButton m_allFensButton;
-	private javax.swing.JButton m_pgnButton;
+	private javax.swing.JButton fenButton;
+	private javax.swing.JButton allFensButton;
+	private javax.swing.JButton pgnButton;
 	private javax.swing.JPanel jPanel2;
 	private javax.swing.JPanel jPanel3;
 
@@ -615,13 +612,13 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	public void positionChanged(ChangeType type, short move, String fen) {
 		updateMovePane();
 		highlightLastMove();
-		if (m_positionView != null) {
-			m_positionView.removeChessbaseDecorations();
+		if (positionView != null) {
+			positionView.removeChessbaseDecorations();
 		}
 	}
 
 	private void updateMovePane() {
-		m_moveLabel.setText(m_game.getPosition().getLastMoveAsSanWithNumber());
+		moveLabel.setText(game.getPosition().getLastMoveAsSanWithNumber());
 	}
 
 	protected void addToHeaderOnTheRight(final JComponent component) {
@@ -632,16 +629,16 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	}
 
 	private void removeColorComments() {
-		m_positionView.removeChessbaseDecorations();
-		m_positionView.removeAllPieceTracking(true);
+		positionView.removeChessbaseDecorations();
+		positionView.removeAllPieceTracking(true);
 	}
 
 	private void removeAllNumbers() {
-		m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY, GameBrowser.this);
+		positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY, GameBrowser.this);
 	}
 
 	private void addPopupToPositionView() {
-		m_positionView.addMouseListener(new MouseAdapter() {
+		positionView.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent event) {
 				if (SwingUtilities.isRightMouseButton(event)) {
@@ -649,13 +646,13 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 					{
 						JMenuItem trackPieceItem = new JMenuItem("Track the piece");
 						trackPieceItem.addActionListener(
-								e -> m_positionView.addToPieceTracking(m_positionView.getSquare(event.getX(), event.getY())));
+								e -> positionView.addToPieceTracking(positionView.getSquare(event.getX(), event.getY())));
 						popup.add(trackPieceItem);
 					}
 					{
 						JMenuItem trackPieceItem = new JMenuItem("Untrack the piece");
-						trackPieceItem.addActionListener(e -> m_positionView
-								.removeFromPieceTracking(m_positionView.getSquare(event.getX(), event.getY())));
+						trackPieceItem.addActionListener(
+								e -> positionView.removeFromPieceTracking(positionView.getSquare(event.getX(), event.getY())));
 						popup.add(trackPieceItem);
 					}
 					popup.add(new JSeparator());
@@ -669,10 +666,10 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 						int iFinal = i;
 						JMenuItem addNumberMenuItem = new JMenuItem("Set number " + iFinal);
 						addNumberMenuItem.addActionListener(e -> {
-							int square = m_positionView.getSquare(event.getX(), event.getY());
-							m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY, GameBrowser.this,
+							int square = positionView.getSquare(event.getX(), event.getY());
+							positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE, Color.DARK_GRAY, GameBrowser.this,
 									d -> d.getType() == DecorationType.NUMBER_IN_SQUARE && d.getSquare() == square);
-							m_positionView.addDecoration(
+							positionView.addDecoration(
 									DecorationFactory.getNumberInSquare(square, Color.DARK_GRAY, GameBrowser.this, iFinal), true);
 						});
 						popup.add(addNumberMenuItem);
@@ -680,16 +677,16 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 					popup.add(new JSeparator());
 
 					JMenuItem removeNumberMenuItem = new JMenuItem("Remove number from square");
-					removeNumberMenuItem.addActionListener(e -> m_positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE,
+					removeNumberMenuItem.addActionListener(e -> positionView.removeDecorations(DecorationType.NUMBER_IN_SQUARE,
 							Color.DARK_GRAY, GameBrowser.this, d -> d.getType() == DecorationType.NUMBER_IN_SQUARE
-									&& d.getSquare() == m_positionView.getSquare(event.getX(), event.getY())));
+									&& d.getSquare() == positionView.getSquare(event.getX(), event.getY())));
 					popup.add(removeNumberMenuItem);
 
 					JMenuItem removeAllNumbersMenuItem = new JMenuItem("Remove all numbers from all squares");
 					removeAllNumbersMenuItem.addActionListener(e -> removeAllNumbers());
 					popup.add(removeAllNumbersMenuItem);
 
-					popup.show(m_positionView, event.getX(), event.getY());
+					popup.show(positionView, event.getX(), event.getY());
 				}
 			}
 		});
@@ -718,42 +715,42 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	}
 
 	public TextCreationType getTextCreationType() {
-		if (m_textViewer != null) {
-			return m_textViewer.getTextCreationType();
+		if (textViewer != null) {
+			return textViewer.getTextCreationType();
 		} else {
 			return null;
 		}
 	}
 
 	public void setTextCreationType(TextCreationType type) {
-		if (m_textViewer != null) {
-			m_textViewer.setTextCreationType(type);
+		if (textViewer != null) {
+			textViewer.setTextCreationType(type);
 		}
 	}
 
 	public void setUserAction(UserAction userAction) {
-		m_userAction = userAction;
-		m_positionView.setUserAction(userAction);
-		m_textViewer.setUserAction(userAction);
+		this.userAction = userAction;
+		positionView.setUserAction(userAction);
+		textViewer.setUserAction(userAction);
 
 		updateComponents();
 	}
 
 	public void removePieceTracking() {
-		m_positionView.removeAllPieceTracking(true);
+		positionView.removeAllPieceTracking(true);
 	}
 
 	private void updateComponents() {
-		boolean navButtons = m_userAction == UserAction.ENABLED || m_userAction == UserAction.NAVIGABLE;
-		m_buttFlipBoard.setEnabled(navButtons);
-		m_buttStart.setEnabled(navButtons);
-		m_buttBackward.setEnabled(navButtons);
-		m_buttForward.setEnabled(navButtons);
-		m_buttEnd.setEnabled(navButtons);
+		boolean navButtons = userAction == UserAction.ENABLED || userAction == UserAction.NAVIGABLE;
+		buttFlipBoard.setEnabled(navButtons);
+		buttStart.setEnabled(navButtons);
+		buttBackward.setEnabled(navButtons);
+		buttForward.setEnabled(navButtons);
+		buttEnd.setEnabled(navButtons);
 	}
 
 	@Override
 	public boolean doBoardScreenShot(String fileName) {
-		return ScreenShot.saveScreenShot(m_positionView, fileName);
+		return ScreenShot.saveScreenShot(positionView, fileName);
 	}
 }

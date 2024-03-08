@@ -71,12 +71,12 @@ public non-sealed class Game implements RelatedGame, Serializable {
 
 	// ======================================================================
 
-	private final GameModel m_model;
-	private final Position m_position;
-	private int m_cur;
-	private boolean m_ignoreNotifications;
-	private boolean m_alwaysAddLine; // during pgn parsing, always add new lines
-	private List<GameModelChangeListener> m_changeListeners;
+	private final GameModel model;
+	private final Position position;
+	private int cur;
+	private boolean ignoreNotifications;
+	private boolean alwaysAddLine; // during pgn parsing, always add new lines
+	private List<GameModelChangeListener> changeListeners;
 
 	// NOTE: Don't forget to check readObject, when changing fields!
 
@@ -92,27 +92,27 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	private Game(GameModel gameModel) {
-		m_model = gameModel;
-		m_position = new Position();
-		m_position.addPositionListener(this);
+		model = gameModel;
+		position = new Position();
+		position.addPositionListener(this);
 
-		String fen = m_model.getHeaderModel().getTag(PGN.TAG_FEN);
-		m_ignoreNotifications = true;
+		String fen = model.getHeaderModel().getTag(PGN.TAG_FEN);
+		ignoreNotifications = true;
 		if (fen != null) {
 			try {
-				m_position.setPositionSnapshot(new Position(fen, false));
+				position.setPositionSnapshot(new Position(fen, false));
 			} catch (InvalidFenException ignore) {
-				m_position.setPositionSnapshot(Position.createInitialPosition());
+				position.setPositionSnapshot(Position.createInitialPosition());
 			}
 		} else {
-			m_position.setPositionSnapshot(Position.createInitialPosition());
+			position.setPositionSnapshot(Position.createInitialPosition());
 		}
-		m_ignoreNotifications = false;
-		m_alwaysAddLine = false;
+		ignoreNotifications = false;
+		alwaysAddLine = false;
 	}
 
 	public Game getDeepCopy() {
-		Game copy = new Game(this.m_model.getDeepCopy());
+		Game copy = new Game(this.model.getDeepCopy());
 		copy.getPosition().setPlyOffset(getPlyOffset());
 		return copy;
 	}
@@ -126,7 +126,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	 * getNumOfPlies(), then a fragment with fewer plies is returned.
 	 */
 	public Game getFragment(int newPlyOffset, int numOfPlies) {
-		if (newPlyOffset < m_position.getPlyOffset() || newPlyOffset > m_position.getPlyOffset() + getNumOfPlies()) {
+		if (newPlyOffset < position.getPlyOffset() || newPlyOffset > position.getPlyOffset() + getNumOfPlies()) {
 			return null;
 		}
 		if (numOfPlies < 0) { // all moves starting with ply startPly
@@ -134,20 +134,20 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		}
 		Game copy = getDeepCopy();
 		copy.gotoPly(newPlyOffset);
-		Game fragment = new Game(new GameModel(copy.m_model.getHeaderModel().getDeepCopy(), new GameMoveModel()));
+		Game fragment = new Game(new GameModel(copy.model.getHeaderModel().getDeepCopy(), new GameMoveModel()));
 		String fen = copy.getPosition().getFEN();
 		if (!fen.equals(FEN.START_POSITION)) {
 			fragment.setTag(PGN.TAG_FEN, fen);
 		}
 		try {
-			fragment.m_position.initFromFEN(fen, true);
+			fragment.position.initFromFEN(fen, true);
 		} catch (InvalidFenException ignore) {
 		}
-		fragment.m_position.setPlyOffset(newPlyOffset);
+		fragment.position.setPlyOffset(newPlyOffset);
 		while (copy.goForward() && numOfPlies > 0) {
 			Move move = copy.getLastMove();
 			try {
-				fragment.m_position.doMove(move);
+				fragment.position.doMove(move);
 			} catch (IllegalMoveException ignore) {
 				return null;
 			}
@@ -169,15 +169,15 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	// ======================================================================
 
 	private GameModel getModel() {
-		return m_model;
+		return model;
 	}
 
 	public Position getPosition() {
-		return m_position;
+		return position;
 	}
 
 	public int getCurNode() {
-		return m_cur;
+		return cur;
 	}
 
 	public int getRootNode() {
@@ -185,41 +185,43 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	public void pack() {
-		m_cur = m_model.getMoveModel().pack(m_cur);
+		cur = model.getMoveModel().pack(cur);
 	}
 
 	public void setAlwaysAddLine(boolean alwaysAddLine) {
-		m_alwaysAddLine = alwaysAddLine;
+		this.alwaysAddLine = alwaysAddLine;
 	}
 
 	// ======================================================================
 
 	public void addChangeListener(GameModelChangeListener listener) {
-		if (m_changeListeners == null) {
-			m_changeListeners = new ArrayList<>();
+		if (changeListeners == null) {
+			changeListeners = new ArrayList<>();
 		}
-		m_changeListeners.add(listener);
+		changeListeners.add(listener);
 	}
 
 	public void removeChangeListener(GameModelChangeListener listener) {
-		m_changeListeners.remove(listener);
-		if (m_changeListeners.size() == 0) {
-			m_changeListeners = null;
+		if (changeListeners != null) {
+			changeListeners.remove(listener);
+			if (changeListeners.size() == 0) {
+				changeListeners = null;
+			}
 		}
 	}
 
 	protected void fireMoveModelChanged() {
-		if (m_changeListeners != null) {
-			for (GameModelChangeListener m_changeListener : m_changeListeners) {
-				m_changeListener.moveModelChanged(this);
+		if (changeListeners != null) {
+			for (GameModelChangeListener changeListener : changeListeners) {
+				changeListener.moveModelChanged(this);
 			}
 		}
 	}
 
 	protected void fireHeaderModelChanged() {
-		if (m_changeListeners != null) {
-			for (GameModelChangeListener m_changeListener : m_changeListeners) {
-				m_changeListener.headerModelChanged(this);
+		if (changeListeners != null) {
+			for (GameModelChangeListener changeListener : changeListeners) {
+				changeListener.headerModelChanged(this);
 			}
 		}
 	}
@@ -228,19 +230,19 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	// header methods
 
 	public String getTag(String tagName) {
-		return m_model.getHeaderModel().getTag(tagName);
+		return model.getHeaderModel().getTag(tagName);
 	}
 
 	public String[] getTags() {
-		return m_model.getHeaderModel().getTags();
+		return model.getHeaderModel().getTags();
 	}
 
 	public String[] getOtherTags() {
-		return m_model.getHeaderModel().getOtherTags();
+		return model.getHeaderModel().getOtherTags();
 	}
 
 	public void setTag(String tagName, String tagValue) {
-		m_model.getHeaderModel().setTag(tagName, tagValue);
+		model.getHeaderModel().setTag(tagName, tagValue);
 		fireHeaderModelChanged();
 		if (PGN.TAG_RESULT.equals(tagName)) {
 			fireMoveModelChanged();
@@ -249,23 +251,23 @@ public non-sealed class Game implements RelatedGame, Serializable {
 
 	public void setGameByFEN(String fen, boolean overwriteTags) throws InvalidFenException {
 		Position newPos = new Position(fen, false); // If this call throws, 'this' is unchanged!
-		m_cur = 0;
+		cur = 0;
 		if (overwriteTags) {
-			m_model.getHeaderModel().clearTags();
-			m_model.getHeaderModel().setTag(PGN.TAG_DATE, "????.??.??");
-			m_model.getHeaderModel().setTag(PGN.TAG_ROUND, "?");
-			m_model.getHeaderModel().setTag(PGN.TAG_ECO, "");
-			m_model.getHeaderModel().setTag(PGN.TAG_RESULT, "*");
+			model.getHeaderModel().clearTags();
+			model.getHeaderModel().setTag(PGN.TAG_DATE, "????.??.??");
+			model.getHeaderModel().setTag(PGN.TAG_ROUND, "?");
+			model.getHeaderModel().setTag(PGN.TAG_ECO, "");
+			model.getHeaderModel().setTag(PGN.TAG_RESULT, "*");
 		}
-		m_ignoreNotifications = true;
-		m_position.runAlgorithm(() -> {
-			m_model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
-			m_position.setPositionSnapshot(newPos);
-			m_model.getMoveModel().clear();
+		ignoreNotifications = true;
+		position.runAlgorithm(() -> {
+			model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
+			position.setPositionSnapshot(newPos);
+			model.getMoveModel().clear();
 			fireMoveModelChanged();
 			fireHeaderModelChanged();
 		});
-		m_ignoreNotifications = false;
+		ignoreNotifications = false;
 	}
 
 	/* At the moment this method does not protect its changes of the position by an algorithm.
@@ -282,77 +284,77 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		String fen = copy.getPosition().getFEN();
 		Position newPos = new Position(fen, false); // If this throws, 'this' is unchanged!
 
-		m_ignoreNotifications = true;
-		m_position.runAlgorithm(() -> {
-			m_cur = 0; // The order is important; this is always a valid value. 
-			m_model.getHeaderModel().setByCopying(otherModel.getHeaderModel());
-			m_model.getMoveModel().setByCopying(otherModel.getMoveModel());
-			m_position.setPositionSnapshot(newPos);
-			m_alwaysAddLine = false;
+		ignoreNotifications = true;
+		position.runAlgorithm(() -> {
+			cur = 0; // The order is important; this is always a valid value. 
+			model.getHeaderModel().setByCopying(otherModel.getHeaderModel());
+			model.getMoveModel().setByCopying(otherModel.getMoveModel());
+			position.setPositionSnapshot(newPos);
+			alwaysAddLine = false;
 			fireHeaderModelChanged();
 			fireMoveModelChanged();
 		});
-		m_ignoreNotifications = false;
+		ignoreNotifications = false;
 	}
 
 	public String getEvent() {
-		return m_model.getHeaderModel().getEvent();
+		return model.getHeaderModel().getEvent();
 	}
 
 	public String getSite() {
-		return m_model.getHeaderModel().getSite();
+		return model.getHeaderModel().getSite();
 	}
 
 	public String getDate() {
-		return m_model.getHeaderModel().getDate();
+		return model.getHeaderModel().getDate();
 	}
 
 	public String getRound() {
-		return m_model.getHeaderModel().getRound();
+		return model.getHeaderModel().getRound();
 	}
 
 	public String getWhite() {
-		return m_model.getHeaderModel().getWhite();
+		return model.getHeaderModel().getWhite();
 	}
 
 	public String getBlack() {
-		return m_model.getHeaderModel().getBlack();
+		return model.getHeaderModel().getBlack();
 	}
 
 	public String getResultStr() {
-		return m_model.getHeaderModel().getResultStr();
+		return model.getHeaderModel().getResultStr();
 	}
 
 	public String getWhiteEloStr() {
-		return m_model.getHeaderModel().getWhiteEloStr();
+		return model.getHeaderModel().getWhiteEloStr();
 	}
 
 	public String getBlackEloStr() {
-		return m_model.getHeaderModel().getBlackEloStr();
+		return model.getHeaderModel().getBlackEloStr();
 	}
 
 	public String getEventDate() {
-		return m_model.getHeaderModel().getEventDate();
+		return model.getHeaderModel().getEventDate();
 	}
 
 	public String getECO() {
-		return m_model.getHeaderModel().getECO();
+		return model.getHeaderModel().getECO();
 	}
 
 	public int getResult() {
-		return m_model.getHeaderModel().getResult();
+		return model.getHeaderModel().getResult();
 	}
 
 	public int getWhiteElo() {
-		return m_model.getHeaderModel().getWhiteElo();
+		return model.getHeaderModel().getWhiteElo();
 	}
 
 	public int getBlackElo() {
-		return m_model.getHeaderModel().getBlackElo();
+		return model.getHeaderModel().getBlackElo();
 	}
 
 	public String getDateWithoutQuestionMarks() {
-		String s = m_model.getHeaderModel().getDate();
+		String s = model.getHeaderModel().getDate();
 		if (s.startsWith("?")) {
 			return "";
 		}
@@ -363,10 +365,10 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	public String getRoundWithoutQuestionmark() {
-		if (m_model.getHeaderModel().getRound() == null || m_model.getHeaderModel().getRound().equals("?")) {
+		if (model.getHeaderModel().getRound() == null || model.getHeaderModel().getRound().equals("?")) {
 			return "";
 		}
-		return m_model.getHeaderModel().getRound();
+		return model.getHeaderModel().getRound();
 	}
 
 	public String getSingleLineDescription() {
@@ -386,11 +388,11 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	public Variant getVariant() {
-		return m_position.getVariant();
+		return position.getVariant();
 	}
 
 	public void setChess960() {
-		m_position.setChess960();
+		position.setChess960();
 	}
 
 	// ======================================================================
@@ -487,26 +489,26 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	// moves methods
 
 	public boolean currentMoveHasNag(short nag) {
-		return m_model.getMoveModel().hasNag(m_cur, nag);
+		return model.getMoveModel().hasNag(cur, nag);
 	}
 
 	public short[] getNags() {
-		return m_model.getMoveModel().getNags(m_cur);
+		return model.getMoveModel().getNags(cur);
 	}
 
 	public void addNag(short nag) {
-		m_model.getMoveModel().addNag(m_cur, nag);
+		model.getMoveModel().addNag(cur, nag);
 		fireMoveModelChanged();
 	}
 
 	public void removeNag(short nag) {
-		if (m_model.getMoveModel().removeNag(m_cur, nag)) {
+		if (model.getMoveModel().removeNag(cur, nag)) {
 			fireMoveModelChanged();
 		}
 	}
 
 	public void removeAllNags() {
-		if (m_model.getMoveModel().removeAllNags()) {
+		if (model.getMoveModel().removeAllNags()) {
 			fireMoveModelChanged();
 		}
 	}
@@ -521,28 +523,28 @@ public non-sealed class Game implements RelatedGame, Serializable {
 
 	// Comments:
 	public boolean hasComment() {
-		return m_model.getMoveModel().hasComment();
+		return model.getMoveModel().hasComment();
 	}
 
 	public String getPreMoveComment() {
-		return m_model.getMoveModel().getPreMoveComment(m_cur);
+		return model.getMoveModel().getPreMoveComment(cur);
 	}
 
 	public String getPostMoveComment() {
-		return m_model.getMoveModel().getPostMoveComment(m_cur);
+		return model.getMoveModel().getPostMoveComment(cur);
 	}
 
 	public void setPreMoveComment(String comment) {
-		if (m_model.getMoveModel().setPreMoveComment(m_cur, comment)) {
-			while (Move.isSpecial(m_model.getMoveModel().getMove(m_cur))) {
-				++m_cur;
+		if (model.getMoveModel().setPreMoveComment(cur, comment)) {
+			while (Move.isSpecial(model.getMoveModel().getMove(cur))) {
+				++cur;
 			}
 		}
 		fireMoveModelChanged();
 	}
 
 	public void setPostMoveComment(String comment) {
-		m_model.getMoveModel().setPostMoveComment(m_cur, comment);
+		model.getMoveModel().setPostMoveComment(cur, comment);
 		fireMoveModelChanged();
 	}
 
@@ -571,9 +573,8 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	private void removePreMoveComment(boolean silent) {
 		String preComment = getPreMoveComment();
 		if (preComment != null) {
-			if (m_model.getMoveModel().removePreMoveComment(m_cur)) {
-				// this removePreMoveComment does not change m_cur because only the comment is
-				// overwritten
+			if (model.getMoveModel().removePreMoveComment(cur)) {
+				// this removePreMoveComment does not change cur because only the comment is overwritten
 				if (!silent) {
 					fireMoveModelChanged();
 				}
@@ -586,14 +587,14 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	private void removePostMoveComment(boolean silent) {
-		if (m_model.getMoveModel().removePostMoveComment(m_cur) && !silent) {
+		if (model.getMoveModel().removePostMoveComment(cur) && !silent) {
 			fireMoveModelChanged();
 		}
 	}
 
 	public void removeAllComments() {
 		if (getNumOfPlies() == 0) {
-			m_model.getMoveModel().setEmptyGameComment(null);
+			model.getMoveModel().setEmptyGameComment(null);
 		} else {
 			traverse(new TraverseAdapter() {
 				@Override
@@ -608,37 +609,37 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	public String getEmptyGameComment() {
-		return m_model.getMoveModel().getEmptyGameComment();
+		return model.getMoveModel().getEmptyGameComment();
 	}
 
 	public void setEmptyGameComment(String comment) {
-		m_model.getMoveModel().setEmptyGameComment(comment.trim());
+		model.getMoveModel().setEmptyGameComment(comment.trim());
 		fireMoveModelChanged();
 	}
 
 	// ======================================================================
 
 	public int getCurrentPly() {
-		return m_position.getPlyNumber();
+		return position.getPlyNumber();
 	}
 
 	public int getCurrentMoveNumber() {
-		return (m_position.getPlyNumber() + 1) / 2;
+		return (position.getPlyNumber() + 1) / 2;
 	}
 
 	public int getNextMoveNumber() {
-		return (m_position.getPlyNumber() + 2) / 2;
+		return (position.getPlyNumber() + 2) / 2;
 	}
 
 	public int getPlyOffset() {
-		return m_position.getPlyOffset();
+		return position.getPlyOffset();
 	}
 
 	public int getNumOfPlies() {
 		int num = 0;
 		int index = 0;
-		while (m_model.getMoveModel().hasNextMove(index)) {
-			index = m_model.getMoveModel().goForward(index);
+		while (model.getMoveModel().hasNextMove(index)) {
+			index = model.getMoveModel().goForward(index);
 			num++;
 		}
 		return num;
@@ -649,17 +650,17 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	public int getTotalNumOfPlies() {
-		return m_model.getMoveModel().getTotalNumOfPlies();
+		return model.getMoveModel().getTotalNumOfPlies();
 	}
 
 	// ======================================================================
 
 	public Move getLastMove() {
-		return m_position.getLastMove();
+		return position.getLastMove();
 	}
 
 	public String getLastMoveAsSanWithNumber() {
-		return m_position.getLastMoveAsSanWithNumber();
+		return position.getLastMoveAsSanWithNumber();
 	}
 
 	public Move getNextMove() {
@@ -671,44 +672,44 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	public Move getNextMove(int whichLine) {
-		short moveAsShort = m_model.getMoveModel().getMove(m_model.getMoveModel().goForward(m_cur, whichLine));
+		short moveAsShort = model.getMoveModel().getMove(model.getMoveModel().goForward(cur, whichLine));
 		if (moveAsShort == GameMoveModel.NO_MOVE) {
 			return null;
 		}
-		return m_position.getNextMove(moveAsShort);
+		return position.getNextMove(moveAsShort);
 	}
 
 	public short getNextShortMove(int whichLine) {
-		return m_model.getMoveModel().getMove(m_model.getMoveModel().goForward(m_cur, whichLine));
+		return model.getMoveModel().getMove(model.getMoveModel().goForward(cur, whichLine));
 	}
 
 	public boolean hasNextMove() {
-		return m_model.getMoveModel().hasNextMove(m_cur);
+		return model.getMoveModel().hasNextMove(cur);
 	}
 
 	public int getNumOfNextMoves() {
-		return m_model.getMoveModel().getNumOfNextMoves(m_cur);
+		return model.getMoveModel().getNumOfNextMoves(cur);
 	}
 
 	public short[] getNextShortMoves() {
-		short[] moves = new short[m_model.getMoveModel().getNumOfNextMoves(m_cur)];
+		short[] moves = new short[model.getMoveModel().getNumOfNextMoves(cur)];
 		for (int i = 0; i < moves.length; i++) {
-			moves[i] = m_model.getMoveModel().getMove(m_model.getMoveModel().goForward(m_cur, i));
+			moves[i] = model.getMoveModel().getMove(model.getMoveModel().goForward(cur, i));
 		}
 		return moves;
 	}
 
 	public Move[] getNextMoves() {
-		Move[] moves = new Move[m_model.getMoveModel().getNumOfNextMoves(m_cur)];
+		Move[] moves = new Move[model.getMoveModel().getNumOfNextMoves(cur)];
 		for (int i = 0; i < moves.length; i++) {
-			short moveAsShort = m_model.getMoveModel().getMove(m_model.getMoveModel().goForward(m_cur, i));
-			moves[i] = m_position.getNextMove(moveAsShort);
+			short moveAsShort = model.getMoveModel().getMove(model.getMoveModel().goForward(cur, i));
+			moves[i] = position.getNextMove(moveAsShort);
 		}
 		return moves;
 	}
 
 	public boolean isMainLine() {
-		return m_model.getMoveModel().isMainLine(m_cur);
+		return model.getMoveModel().isMainLine(cur);
 	}
 
 	// ======================================================================
@@ -718,12 +719,12 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			System.out.println("goBack");
 		}
 
-		int index = m_model.getMoveModel().goBack(m_cur, true);
+		int index = model.getMoveModel().goBack(cur, true);
 		if (index != -1) {
-			m_cur = index;
-			m_ignoreNotifications = true;
-			m_position.undoMove();
-			m_ignoreNotifications = false;
+			cur = index;
+			ignoreNotifications = true;
+			position.undoMove();
+			ignoreNotifications = false;
 			return true;
 		} else {
 			return false;
@@ -743,20 +744,20 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			System.out.println("goForward " + whichLine);
 		}
 
-		int index = m_model.getMoveModel().goForward(m_cur, whichLine);
-		short shortMove = m_model.getMoveModel().getMove(index);
+		int index = model.getMoveModel().goForward(cur, whichLine);
+		short shortMove = model.getMoveModel().getMove(index);
 		if (DEBUG) {
 			System.out.println("  move = " + Move.getString(shortMove));
 		}
 		if (shortMove != GameMoveModel.NO_MOVE) {
 			try {
-				m_cur = index;
-				m_ignoreNotifications = true;
-				m_position.doMove(shortMove);
-				m_ignoreNotifications = false;
+				cur = index;
+				ignoreNotifications = true;
+				position.doMove(shortMove);
+				ignoreNotifications = false;
 				return true;
 			} catch (IllegalMoveException ex) {
-				System.out.println(m_model.toString() + " at move " + Move.getString(shortMove));
+				System.out.println(model.toString() + " at move " + Move.getString(shortMove));
 				ex.printStackTrace();
 			}
 		}
@@ -764,14 +765,14 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	public void gotoStart() {
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			while (goBack()) {
 			}
 		});
 	}
 
 	public void gotoEnd() {
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			while (!isMainLine()) {
 				goBack();
 			}
@@ -781,7 +782,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	public void gotoEndOfLine() {
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			while (goForward()) {
 			}
 		});
@@ -792,7 +793,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			System.out.println("goBackToMainLine");
 		}
 
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			goBackToLineBegin();
 			goBack();
 			goForward();
@@ -804,7 +805,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			System.out.println("goBackToLineBegin");
 		}
 
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			while (goBackInLine()) {
 			}
 		});
@@ -814,48 +815,48 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	public void gotoNode(int node) {
 		int[] nodeNodes = getNodesToRoot(node);
 
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			gotoStart();
 			for (int i = nodeNodes.length - 2; i >= 0; i--) {
 				int nextMoveIndex = 0;
 				for (int j = 1; j < getNumOfNextMoves(); j++) {
-					if (m_model.getMoveModel().goForward(m_cur, j) == nodeNodes[i]) {
+					if (model.getMoveModel().goForward(cur, j) == nodeNodes[i]) {
 						nextMoveIndex = j;
 						break;
 					}
 				}
 				goForward(nextMoveIndex);
 			}
-			m_cur = node; // now that we have made all the moves, set cur to node
+			cur = node; // now that we have made all the moves, set cur to node
 		});
 	}
 
 	public void deleteCurrentLine() {
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			goBackToLineBegin();
-			int index = m_cur;
+			int index = cur;
 			goBack();
 			if (0 == index) { // otherwise we get an exception in fireMoveModelChanged below
-				m_model.getMoveModel().clear();
+				model.getMoveModel().clear();
 			} else {
-				m_model.getMoveModel().deleteCurrentLine(index);
+				model.getMoveModel().deleteCurrentLine(index);
 			}
 			fireMoveModelChanged();
 		});
 	}
 
 	public void deleteAllSublines() {
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			// First, the position is placed in the only legal post-deletion state.
 			gotoStart();
-			if (m_model.getMoveModel().deleteAllSublines()) {
+			if (model.getMoveModel().deleteAllSublines()) {
 				fireMoveModelChanged();
 			}
 		});
 	}
 
 	public void deleteRemainingMoves() {
-		if (m_model.getMoveModel().deleteRemainingMoves(m_cur)) {
+		if (model.getMoveModel().deleteRemainingMoves(cur)) {
 			fireMoveModelChanged();
 		}
 	}
@@ -864,7 +865,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		if (getCurrentPly() == ply) {
 			return;
 		}
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			gotoStart();
 			for (int i = 0; i < ply - getPlyOffset(); ++i) {
 				goForward();
@@ -885,13 +886,13 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			System.out.println("goBackInLine");
 		}
 
-		int index = m_model.getMoveModel().goBack(m_cur, false);
+		int index = model.getMoveModel().goBack(cur, false);
 		if (index != -1) {
-			m_cur = index; // needs to be set before undoing the move to allow
+			cur = index; // needs to be set before undoing the move to allow
 			// listeners to check for curNode
-			m_ignoreNotifications = true;
-			m_position.undoMove();
-			m_ignoreNotifications = false;
+			ignoreNotifications = true;
+			position.undoMove();
+			ignoreNotifications = false;
 			return true;
 		} else {
 			return false;
@@ -911,18 +912,18 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			System.out.println("goForwardAndGetMove " + whichLine);
 		}
 
-		int index = m_model.getMoveModel().goForward(m_cur, whichLine);
-		short shortMove = m_model.getMoveModel().getMove(index);
+		int index = model.getMoveModel().goForward(cur, whichLine);
+		short shortMove = model.getMoveModel().getMove(index);
 		if (DEBUG) {
 			System.out.println("  move = " + Move.getString(shortMove));
 		}
 		if (shortMove != GameMoveModel.NO_MOVE) {
 			try {
-				m_cur = index;
-				m_ignoreNotifications = true;
-				m_position.doMove(shortMove);
-				Move move = m_position.getLastMove();
-				m_ignoreNotifications = false;
+				cur = index;
+				ignoreNotifications = true;
+				position.doMove(shortMove);
+				Move move = position.getLastMove();
+				ignoreNotifications = false;
 				return move;
 			} catch (IllegalMoveException ex) {
 				ex.printStackTrace();
@@ -934,7 +935,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	private int getNumOfPliesToRoot(int node) {
 		int plies = 0;
 		while (node > 0) {
-			node = m_model.getMoveModel().goBack(node, true);
+			node = model.getMoveModel().goBack(node, true);
 			plies++;
 		}
 		return plies;
@@ -943,7 +944,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	private int[] getNodesToRoot(int node) {
 		int[] nodes;
 		int i;
-		if (m_model.getMoveModel().getMove(node) != GameMoveModel.NO_MOVE) {
+		if (model.getMoveModel().getMove(node) != GameMoveModel.NO_MOVE) {
 			nodes = new int[getNumOfPliesToRoot(node) + 1];
 			nodes[0] = node;
 			i = 1;
@@ -952,7 +953,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			i = 0;
 		}
 		for (; i < nodes.length; i++) {
-			node = m_model.getMoveModel().goBack(node, true);
+			node = model.getMoveModel().goBack(node, true);
 			nodes[i] = node;
 		}
 		return nodes;
@@ -964,9 +965,9 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		if (isMainLine()) {
 			return true;
 		}
-		int val = m_model.getMoveModel().promoteVariation(m_cur);
+		int val = model.getMoveModel().promoteVariation(cur);
 		if (val != -1) {
-			m_cur = val;
+			cur = val;
 			fireMoveModelChanged();
 			return true;
 		} else {
@@ -984,12 +985,12 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	 * @param withLines whether to include sublines of the mainline.
 	 */
 	public void traverse(TraverseListener listener, boolean withLines) {
-		m_position.runAlgorithm(() -> {
+		position.runAlgorithm(() -> {
 			int index = getCurNode();
 			gotoStart();
 			listener.initTraversal();
 			if (!listener.stopRequested()) {
-				traverse(listener, withLines, m_position.getPlyNumber(), 0);
+				traverse(listener, withLines, position.getPlyNumber(), 0);
 			}
 			try {
 				gotoNode(index);
@@ -1079,7 +1080,7 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		// check the header
 
 		// check an empty game comment
-		if ((other.getNumOfPlies() > getNumOfPlies()) || !m_model.getHeaderModel().contains(other.m_model.getHeaderModel())
+		if ((other.getNumOfPlies() > getNumOfPlies()) || !model.getHeaderModel().contains(other.model.getHeaderModel())
 				|| !checkComment(getEmptyGameComment(), other.getEmptyGameComment())) {
 			return false;
 		}
@@ -1161,19 +1162,19 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	 */
 	@Override
 	public String toString() {
-		return m_model.toString();
+		return model.toString();
 	}
 
 	// ======================================================================
 
 	public void removeEvaluationNags() {
-		if (m_model.getMoveModel().removeEvaluationNags(m_cur)) {
+		if (model.getMoveModel().removeEvaluationNags(cur)) {
 			fireMoveModelChanged();
 		}
 	}
 
 	public void removePunctuationNags() {
-		if (m_model.getMoveModel().removePunctuationNags(m_cur)) {
+		if (model.getMoveModel().removePunctuationNags(cur)) {
 			fireMoveModelChanged();
 		}
 	}
@@ -1187,12 +1188,12 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		Position pos = getPosition();
 		if (pos.isMate()) {
 			if (pos.getToPlay() == Chess.WHITE) {
-				m_model.getHeaderModel().setTag(PGN.TAG_RESULT, PGN.RESULT_BLACK_WINS);
+				model.getHeaderModel().setTag(PGN.TAG_RESULT, PGN.RESULT_BLACK_WINS);
 			} else {
-				m_model.getHeaderModel().setTag(PGN.TAG_RESULT, PGN.RESULT_WHITE_WINS);
+				model.getHeaderModel().setTag(PGN.TAG_RESULT, PGN.RESULT_WHITE_WINS);
 			}
 		} else if (pos.isStaleMate()) {
-			m_model.getHeaderModel().setTag(PGN.TAG_RESULT, PGN.RESULT_DRAW);
+			model.getHeaderModel().setTag(PGN.TAG_RESULT, PGN.RESULT_DRAW);
 		}
 	}
 
@@ -1201,40 +1202,40 @@ public non-sealed class Game implements RelatedGame, Serializable {
 
 	@Override
 	public boolean checkCompatibility(Position pos) {
-		return m_position == pos;
+		return position == pos;
 	}
 
 	@Override
 	public void positionChanged(ChangeType type, short move, String fen) {
-		if (m_ignoreNotifications) {
+		if (ignoreNotifications) {
 			return;
 		}
 		if (type == ChangeType.MOVE_DONE) {
-			if (!m_alwaysAddLine) {
+			if (!alwaysAddLine) {
 				short[] moves = getNextShortMoves();
 				for (int i = 0; i < moves.length; i++) {
 					if (moves[i] == move) {
-						m_cur = m_model.getMoveModel().goForward(m_cur, i);
+						cur = model.getMoveModel().goForward(cur, i);
 						return;
 					}
 				}
 			}
-			m_cur = m_model.getMoveModel().appendAsRightMostLine(m_cur, move);
+			cur = model.getMoveModel().appendAsRightMostLine(cur, move);
 			fireMoveModelChanged();
 		} else if (type == ChangeType.MOVE_UNDONE) {
-			m_cur = m_model.getMoveModel().goBack(m_cur, true);
+			cur = model.getMoveModel().goBack(cur, true);
 		} else if (type == ChangeType.START_POS_CHANGED) {
 			if (fen == null) {
 				System.err.println("Game::positionChanged: ChangeType START_POS_CHANGED, but no FEN string.");
-				m_model.getHeaderModel().removeTag(PGN.TAG_FEN);
+				model.getHeaderModel().removeTag(PGN.TAG_FEN);
 				return;
 			}
-			m_cur = 0;
-			m_model.getMoveModel().clear();
+			cur = 0;
+			model.getMoveModel().clear();
 			if (fen.equals(FEN.START_POSITION)) {
-				m_model.getHeaderModel().removeTag(PGN.TAG_FEN);
+				model.getHeaderModel().removeTag(PGN.TAG_FEN);
 			} else {
-				m_model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
+				model.getHeaderModel().setTag(PGN.TAG_FEN, fen);
 			}
 			// Don't change other things here, say the result, because that result in an order problem.
 		}
@@ -1253,19 +1254,19 @@ public non-sealed class Game implements RelatedGame, Serializable {
 		// had been called! (Reflection allows to use constructors, but not for this.)
 		Class<Game> c = Game.class;
 		{
-			Field f = c.getDeclaredField("m_model");
+			Field f = c.getDeclaredField("model");
 			f.setAccessible(true);
 			f.set(this, new GameModel());
 			f.setAccessible(false);
 		}
 		{
-			Field f = c.getDeclaredField("m_position");
+			Field f = c.getDeclaredField("position");
 			f.setAccessible(true);
 			f.set(this, Position.createInitialPosition());
 			f.setAccessible(false);
 		}
 
-		m_position.addPositionListener(this);
+		position.addPositionListener(this);
 
 		try {
 			pgnRreader.parseGame(this);
@@ -1287,6 +1288,6 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	// For debug purposes: 
 
 	public void dumpMoveModel(PrintStream out) {
-		m_model.getMoveModel().write(out);
+		model.getMoveModel().write(out);
 	}
 }

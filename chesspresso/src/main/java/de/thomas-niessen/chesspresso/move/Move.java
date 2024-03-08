@@ -146,16 +146,16 @@ public class Move implements Serializable {
 
 	private static final String NULL_MOVE_STRING = "--";
 
-	private static final int[] s_promo = new int[Chess.MAX_PIECE + 1];
+	private static final int[] S_PROMO = new int[Chess.MAX_PIECE + 1];
 
 	static {
 		for (int i = 0; i <= Chess.MAX_PIECE; i++) {
-			s_promo[i] = NO_PROMO;
+			S_PROMO[i] = NO_PROMO;
 		}
-		s_promo[Chess.KNIGHT] = PROMO_KNIGHT;
-		s_promo[Chess.BISHOP] = PROMO_BISHOP;
-		s_promo[Chess.ROOK] = PROMO_ROOK;
-		s_promo[Chess.QUEEN] = PROMO_QUEEN;
+		S_PROMO[Chess.KNIGHT] = PROMO_KNIGHT;
+		S_PROMO[Chess.BISHOP] = PROMO_BISHOP;
+		S_PROMO[Chess.ROOK] = PROMO_ROOK;
+		S_PROMO[Chess.QUEEN] = PROMO_QUEEN;
 	}
 
 	// ======================================================================
@@ -186,9 +186,9 @@ public class Move implements Serializable {
 	 */
 	public static short getPawnMove(int fromSqi, int toSqi, boolean capturing, int promotionPiece) {
 		if (capturing) {
-			return (short) (CAPTURING_MOVE | fromSqi << FROM_SHIFT | toSqi << TO_SHIFT | s_promo[promotionPiece]);
+			return (short) (CAPTURING_MOVE | fromSqi << FROM_SHIFT | toSqi << TO_SHIFT | S_PROMO[promotionPiece]);
 		} else {
-			return (short) (REGULAR_MOVE | fromSqi << FROM_SHIFT | toSqi << TO_SHIFT | s_promo[promotionPiece]);
+			return (short) (REGULAR_MOVE | fromSqi << FROM_SHIFT | toSqi << TO_SHIFT | S_PROMO[promotionPiece]);
 		}
 	}
 
@@ -267,7 +267,7 @@ public class Move implements Serializable {
 	public static int getPromotionPiece(short move) {
 		int promo = move & PROMO_MASK;
 		for (int piece = 0; piece <= Chess.MAX_PIECE; piece++) {
-			if (s_promo[piece] == promo) {
+			if (S_PROMO[piece] == promo) {
 				return piece;
 			}
 		}
@@ -418,8 +418,8 @@ public class Move implements Serializable {
 	private static final int MOVING_MUL = 0x00010000;
 	private static final int MOVING_MASK = 0x00070000;
 
-	private final short m_move;
-	private final int m_info;
+	private final short move;
+	private final int info;
 
 	/*
 	 * =============================================================================
@@ -439,8 +439,8 @@ public class Move implements Serializable {
 	 * @param whiteToMove whether it is a white move
 	 */
 	public Move(short move, int movingPiece, int colFrom, int rowFrom, boolean isCheck, boolean isMate, boolean whiteToMove) {
-		m_move = move;
-		m_info = COL_FROM_MUL * (colFrom - Chess.NO_COL) + ROW_FROM_MUL * (rowFrom - Chess.NO_ROW) + (isCheck ? CHECK_MUL : 0)
+		this.move = move;
+		info = COL_FROM_MUL * (colFrom - Chess.NO_COL) + ROW_FROM_MUL * (rowFrom - Chess.NO_ROW) + (isCheck ? CHECK_MUL : 0)
 				+ (isMate ? MATE_MUL : 0) + (whiteToMove ? TOPLAY_MUL : 0) + MOVING_MUL * movingPiece;
 	}
 
@@ -449,87 +449,87 @@ public class Move implements Serializable {
 	 */
 
 	public short getShortMoveDesc() {
-		return m_move;
+		return move;
 	}
 
 	public int getPromotionPiece() {
-		return Move.getPromotionPiece(m_move);
+		return Move.getPromotionPiece(move);
 	}
 
 	public int getFromSqi() {
-		return Move.getFromSqi(m_move);
+		return Move.getFromSqi(move);
 	}
 
 	public int getToSqi() {
-		return Move.getToSqi(m_move);
+		return Move.getToSqi(move);
 	}
 
 	public int getMovingPiece() {
-		return (m_info & MOVING_MASK) / MOVING_MUL;
+		return (info & MOVING_MASK) / MOVING_MUL;
 	}
 
 	public int getColFrom() {
-		return (m_info & COL_FROM_MASK) / COL_FROM_MUL + Chess.NO_COL;
+		return (info & COL_FROM_MASK) / COL_FROM_MUL + Chess.NO_COL;
 	}
 
 	public int getRowFrom() {
-		return (m_info & ROW_FROM_MASK) / ROW_FROM_MUL + Chess.NO_ROW;
+		return (info & ROW_FROM_MASK) / ROW_FROM_MUL + Chess.NO_ROW;
 	}
 
 	public boolean isCapturing() {
-		return Move.isCapturing(m_move);
+		return Move.isCapturing(move);
 	}
 
 	public boolean isPromotion() {
-		return Move.isPromotion(m_move);
+		return Move.isPromotion(move);
 	}
 
 	public boolean isCheck() {
-		return (m_info & CHECK_MASK) != 0;
+		return (info & CHECK_MASK) != 0;
 	}
 
 	public boolean isMate() {
-		return (m_info & MATE_MASK) != 0;
+		return (info & MATE_MASK) != 0;
 	}
 
 	public boolean isCastle() {
-		return Move.isCastle(m_move);
+		return Move.isCastle(move);
 	}
 
 	public boolean isShortCastle() {
-		return Move.isShortCastle(m_move);
+		return Move.isShortCastle(move);
 	}
 
 	public boolean isLongCastle() {
-		return Move.isLongCastle(m_move);
+		return Move.isLongCastle(move);
 	}
 
 	public boolean isCastleChess960() {
-		return Move.isCastleChess960(m_move);
+		return Move.isCastleChess960(move);
 	}
 
 	public boolean isShortCastleChess960() {
-		return Move.isShortCastleChess960(m_move);
+		return Move.isShortCastleChess960(move);
 	}
 
 	public boolean isLongCastleChess960() {
-		return Move.isLongCastleChess960(m_move);
+		return Move.isLongCastleChess960(move);
 	}
 
 	public boolean isEPMove() {
-		return Move.isEPMove(m_move);
+		return Move.isEPMove(move);
 	}
 
 	public boolean isNullMove() {
-		return Move.isNullMove(m_move);
+		return Move.isNullMove(move);
 	}
 
 	public boolean isValid() {
-		return Move.isValid(m_move);
+		return Move.isValid(move);
 	}
 
 	public boolean isWhiteMove() {
-		return (m_info & TOPLAY_MASK) != 0;
+		return (info & TOPLAY_MASK) != 0;
 	}
 
 	/*
@@ -540,8 +540,8 @@ public class Move implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + m_info;
-		result = prime * result + m_move;
+		result = prime * result + info;
+		result = prime * result + move;
 		return result;
 	}
 
@@ -554,10 +554,10 @@ public class Move implements Serializable {
 			return false;
 		}
 		Move other = (Move) obj;
-		if (m_info != other.m_info) {
+		if (info != other.info) {
 			return false;
 		}
-		return m_move == other.m_move;
+		return move == other.move;
 	}
 
 	/**
@@ -579,8 +579,8 @@ public class Move implements Serializable {
 			} else {
 				int piece = getMovingPiece();
 				if (piece == Chess.NO_PIECE) {
-					System.out.println("Move::getLAN: unexpected NO_PIECE for " + m_move + " " + m_info + " "
-							+ Integer.toBinaryString(m_info));
+					System.out.println(
+							"Move::getLAN: unexpected NO_PIECE for " + move + " " + info + " " + Integer.toBinaryString(info));
 				}
 				if (piece != Chess.PAWN) {
 					sb.append(Chess.pieceToChar(piece));
@@ -620,8 +620,8 @@ public class Move implements Serializable {
 			} else {
 				int piece = getMovingPiece();
 				if (piece == Chess.NO_PIECE) {
-					System.out.println("Move::getSAN: unexpected NO_PIECE for " + m_move + " " + m_info + " "
-							+ Integer.toBinaryString(m_info));
+					System.out.println(
+							"Move::getSAN: unexpected NO_PIECE for " + move + " " + info + " " + Integer.toBinaryString(info));
 				}
 				if (piece != Chess.PAWN) {
 					sb.append(Chess.pieceToChar(piece));

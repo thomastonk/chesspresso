@@ -25,7 +25,7 @@ import chesspresso.Chess;
  */
 public abstract class AbstractMutablePosition extends AbstractPosition implements MutablePosition {
 
-	protected int m_plyOffset;
+	protected int plyOffset;
 
 	/*
 	 * =========================================================================
@@ -377,11 +377,11 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 
 	@Override
 	public void setPlyOffset(int plyOffset) {
-		m_plyOffset = plyOffset;
+		this.plyOffset = plyOffset;
 	}
 
 	@Override
 	public int getPlyOffset() {
-		return m_plyOffset;
+		return plyOffset;
 	}
 }

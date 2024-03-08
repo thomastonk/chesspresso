@@ -30,11 +30,11 @@ import chesspresso.position.FEN;
  * @author Bernhard Seybold
  * 
  */
-public class PGNWriter extends PGN {
+public class PGNWriter {
 
-	private final PrintWriter m_out;
-	private int m_charactersPerLine;
-	private int m_curCol;
+	private final PrintWriter printWriter;
+	private int charactersPerLine;
+	private int curCol;
 
 	/*
 	 * =============================================================================
@@ -45,7 +45,7 @@ public class PGNWriter extends PGN {
 	}
 
 	public PGNWriter(PrintWriter out) {
-		m_out = out;
+		printWriter = out;
 		setCharactersPerLine(80);
 	}
 
@@ -54,21 +54,21 @@ public class PGNWriter extends PGN {
 	 */
 
 	public void setCharactersPerLine(int chars) {
-		m_charactersPerLine = chars;
+		charactersPerLine = chars;
 	}
 
 	public void write(Game game) {
 		writeHeader(game);
-		m_out.println();
-		m_curCol = 0;
+		printWriter.println();
+		curCol = 0;
 		writeMoves(game);
-		if (m_curCol > 0) {
-			m_out.println();
+		if (curCol > 0) {
+			printWriter.println();
 		}
 	}
 
 	public void writeNewLine() {
-		m_out.println();
+		printWriter.println();
 	}
 
 	public static String writeToString(Game game) {
@@ -97,41 +97,52 @@ public class PGNWriter extends PGN {
 	 */
 
 	private void writeHeader(Game game) {
-		m_out.println(TOK_TAG_BEGIN + TAG_EVENT + " " + TOK_QUOTE + game.getEvent() + TOK_QUOTE + TOK_TAG_END);
-		m_out.println(TOK_TAG_BEGIN + TAG_SITE + " " + TOK_QUOTE + game.getSite() + TOK_QUOTE + TOK_TAG_END);
-		m_out.println(TOK_TAG_BEGIN + TAG_DATE + " " + TOK_QUOTE + game.getDate() + TOK_QUOTE + TOK_TAG_END);
-		m_out.println(TOK_TAG_BEGIN + TAG_ROUND + " " + TOK_QUOTE + game.getRound() + TOK_QUOTE + TOK_TAG_END);
-		m_out.println(TOK_TAG_BEGIN + TAG_WHITE + " " + TOK_QUOTE + game.getWhite() + TOK_QUOTE + TOK_TAG_END);
-		m_out.println(TOK_TAG_BEGIN + TAG_BLACK + " " + TOK_QUOTE + game.getBlack() + TOK_QUOTE + TOK_TAG_END);
-		m_out.println(TOK_TAG_BEGIN + TAG_RESULT + " " + TOK_QUOTE + game.getResultStr() + TOK_QUOTE + TOK_TAG_END);
+		printWriter.println(
+				PGN.TOK_TAG_BEGIN + PGN.TAG_EVENT + " " + PGN.TOK_QUOTE + game.getEvent() + PGN.TOK_QUOTE + PGN.TOK_TAG_END);
+		printWriter.println(
+				PGN.TOK_TAG_BEGIN + PGN.TAG_SITE + " " + PGN.TOK_QUOTE + game.getSite() + PGN.TOK_QUOTE + PGN.TOK_TAG_END);
+		printWriter.println(
+				PGN.TOK_TAG_BEGIN + PGN.TAG_DATE + " " + PGN.TOK_QUOTE + game.getDate() + PGN.TOK_QUOTE + PGN.TOK_TAG_END);
+		printWriter.println(
+				PGN.TOK_TAG_BEGIN + PGN.TAG_ROUND + " " + PGN.TOK_QUOTE + game.getRound() + PGN.TOK_QUOTE + PGN.TOK_TAG_END);
+		printWriter.println(
+				PGN.TOK_TAG_BEGIN + PGN.TAG_WHITE + " " + PGN.TOK_QUOTE + game.getWhite() + PGN.TOK_QUOTE + PGN.TOK_TAG_END);
+		printWriter.println(
+				PGN.TOK_TAG_BEGIN + PGN.TAG_BLACK + " " + PGN.TOK_QUOTE + game.getBlack() + PGN.TOK_QUOTE + PGN.TOK_TAG_END);
+		printWriter.println(
+				PGN.TOK_TAG_BEGIN + PGN.TAG_RESULT + " " + PGN.TOK_QUOTE + game.getResultStr() + PGN.TOK_QUOTE + PGN.TOK_TAG_END);
 
 		String eloStr = game.getWhiteEloStr();
 		if (eloStr != null && !eloStr.isBlank()) {
-			m_out.println(TOK_TAG_BEGIN + TAG_WHITE_ELO + " " + TOK_QUOTE + game.getWhiteElo() + TOK_QUOTE + TOK_TAG_END);
+			printWriter.println(PGN.TOK_TAG_BEGIN + PGN.TAG_WHITE_ELO + " " + PGN.TOK_QUOTE + game.getWhiteElo() + PGN.TOK_QUOTE
+					+ PGN.TOK_TAG_END);
 		}
 		eloStr = game.getBlackEloStr();
 		if (eloStr != null && !eloStr.isBlank()) {
-			m_out.println(TOK_TAG_BEGIN + TAG_BLACK_ELO + " " + TOK_QUOTE + game.getBlackElo() + TOK_QUOTE + TOK_TAG_END);
+			printWriter.println(PGN.TOK_TAG_BEGIN + PGN.TAG_BLACK_ELO + " " + PGN.TOK_QUOTE + game.getBlackElo() + PGN.TOK_QUOTE
+					+ PGN.TOK_TAG_END);
 		}
 		String eventDateStr = game.getEventDate();
 		if (eventDateStr != null && !eventDateStr.isBlank()) {
-			m_out.println(TOK_TAG_BEGIN + TAG_EVENT_DATE + " " + TOK_QUOTE + game.getEventDate() + TOK_QUOTE + TOK_TAG_END);
+			printWriter.println(PGN.TOK_TAG_BEGIN + PGN.TAG_EVENT_DATE + " " + PGN.TOK_QUOTE + game.getEventDate() + PGN.TOK_QUOTE
+					+ PGN.TOK_TAG_END);
 		}
 		String ecoStr = game.getECO();
 		if (ecoStr != null && !ecoStr.isBlank()) {
-			m_out.println(TOK_TAG_BEGIN + TAG_ECO + " " + TOK_QUOTE + ecoStr + TOK_QUOTE + TOK_TAG_END);
+			printWriter.println(PGN.TOK_TAG_BEGIN + PGN.TAG_ECO + " " + PGN.TOK_QUOTE + ecoStr + PGN.TOK_QUOTE + PGN.TOK_TAG_END);
 		}
 		// TN: I think the following is nonsense: a FEN tag is needed if and only if the
 		// start position of the game is not the usual one; but getPosition doesn't give
 		// the start position!
 		//        if (!game.getPosition().isStartPosition())
-		//            m_out.println(TOK_TAG_BEGIN + TAG_FEN        + " " + TOK_QUOTE + FEN.getFEN(game.getPosition()) + TOK_QUOTE + TOK_TAG_END);
+		//            out.println(TOK_TAG_BEGIN + TAG_FEN        + " " + TOK_QUOTE + FEN.getFEN(game.getPosition()) + TOK_QUOTE + TOK_TAG_END);
 		// New code:
 		Game copy = new Game(game);
 		copy.gotoStart();
 		if (!copy.getPosition().isStartPosition()) {
-			m_out.println(TOK_TAG_BEGIN + TAG_SET_UP + " " + TOK_QUOTE + "1" + TOK_QUOTE + TOK_TAG_END);
-			m_out.println(TOK_TAG_BEGIN + TAG_FEN + " " + TOK_QUOTE + FEN.getFEN(copy.getPosition()) + TOK_QUOTE + TOK_TAG_END);
+			printWriter.println(PGN.TOK_TAG_BEGIN + PGN.TAG_SET_UP + " " + PGN.TOK_QUOTE + "1" + PGN.TOK_QUOTE + PGN.TOK_TAG_END);
+			printWriter.println(PGN.TOK_TAG_BEGIN + PGN.TAG_FEN + " " + PGN.TOK_QUOTE + FEN.getFEN(copy.getPosition())
+					+ PGN.TOK_QUOTE + PGN.TOK_TAG_END);
 		}
 		// The copy is used to prevent side effects; a game.gotoStart() would do the
 		// same job, but if the game is shown in a game browser, it would be set to the
@@ -141,10 +152,11 @@ public class PGNWriter extends PGN {
 		String[] otherTags = game.getOtherTags();
 		if (otherTags != null) {
 			for (String otherTag : otherTags) {
-				if (otherTag.equals(TAG_FEN) || otherTag.equals(TAG_SET_UP)) {
+				if (otherTag.equals(PGN.TAG_FEN) || otherTag.equals(PGN.TAG_SET_UP)) {
 					continue;
 				}
-				m_out.println(TOK_TAG_BEGIN + otherTag + " " + TOK_QUOTE + game.getTag(otherTag) + TOK_QUOTE + TOK_TAG_END);
+				printWriter.println(PGN.TOK_TAG_BEGIN + otherTag + " " + PGN.TOK_QUOTE + game.getTag(otherTag) + PGN.TOK_QUOTE
+						+ PGN.TOK_TAG_END);
 			}
 		}
 	}
@@ -158,7 +170,7 @@ public class PGNWriter extends PGN {
 				public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber,
 						int level, String fenBeforeMove) {
 					if (preMoveComment != null) {
-						print(TOK_COMMENT_BEGIN + preMoveComment + TOK_COMMENT_END, true);
+						print(PGN.TOK_COMMENT_BEGIN + preMoveComment + PGN.TOK_COMMENT_END, true);
 					}
 					if (needsMoveNumber) {
 						if (move.isWhiteMove()) {
@@ -171,31 +183,31 @@ public class PGNWriter extends PGN {
 
 					if (nags != null) {
 						for (short nag : nags) {
-							print(TOK_NAG_BEGIN + String.valueOf(nag), true);
+							print(PGN.TOK_NAG_BEGIN + String.valueOf(nag), true);
 						}
 					}
 					if (postMoveComment != null) {
-						print(TOK_COMMENT_BEGIN + postMoveComment + TOK_COMMENT_END, true);
+						print(PGN.TOK_COMMENT_BEGIN + postMoveComment + PGN.TOK_COMMENT_END, true);
 					}
 					needsMoveNumber = !move.isWhiteMove() || (postMoveComment != null);
 				}
 
 				@Override
 				public void notifyLineStart(int level) {
-					print(String.valueOf(TOK_LINE_BEGIN), false);
+					print(String.valueOf(PGN.TOK_LINE_BEGIN), false);
 					needsMoveNumber = true;
 				}
 
 				@Override
 				public void notifyLineEnd(int level) {
-					print(String.valueOf(TOK_LINE_END), true);
+					print(String.valueOf(PGN.TOK_LINE_END), true);
 					needsMoveNumber = true;
 				}
 			}, true);
 		} else {
 			String s = game.getEmptyGameComment();
 			if (s != null && !s.isEmpty()) {
-				print(TOK_COMMENT_BEGIN + s + TOK_COMMENT_END, true);
+				print(PGN.TOK_COMMENT_BEGIN + s + PGN.TOK_COMMENT_END, true);
 			}
 		}
 
@@ -206,15 +218,15 @@ public class PGNWriter extends PGN {
 		if (s == null) {
 			return;
 		}
-		if (m_curCol > 0 && m_curCol + s.length() > m_charactersPerLine) {
-			m_out.println();
-			m_curCol = 0;
+		if (curCol > 0 && curCol + s.length() > charactersPerLine) {
+			printWriter.println();
+			curCol = 0;
 		}
-		m_out.print(s);
-		m_curCol += s.length();
-		if (m_curCol > 0 && addSpace) {
-			m_out.print(" ");
-			m_curCol += 1;
+		printWriter.print(s);
+		curCol += s.length();
+		if (curCol > 0 && addSpace) {
+			printWriter.print(" ");
+			curCol += 1;
 		}
 	}
 }
