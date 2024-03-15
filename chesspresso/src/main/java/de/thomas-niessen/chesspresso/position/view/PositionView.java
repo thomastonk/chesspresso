@@ -668,17 +668,17 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	public void mouseMoved(MouseEvent e) {
 	}
 
-	private final static String[] whiteStoneStrings = { "\u2654", "\u2659", "\u2655", "\u2656", "\u2657", "\u2658", " ", "\u2658",
+	private final static String[] WHITE_STONE_STRINGS = { "\u2654", "\u2659", "\u2655", "\u2656", "\u2657", "\u2658", " ", "\u2658",
 			"\u2657", "\u2656", "\u2655", "\u2659", "\u2654" },
-			blackStoneStrings = { "\u265A", "\u265F", "\u265B", "\u265C", "\u265D", "\u265E", " ", "\u265E", "\u265D", "\u265C",
+			BLACK_STONE_STRINGS = { "\u265A", "\u265F", "\u265B", "\u265C", "\u265D", "\u265E", " ", "\u265E", "\u265D", "\u265C",
 					"\u265B", "\u265F", "\u265A" };
 
 	private static String getStringForStone(int stone, boolean isWhite) {
-		return isWhite ? whiteStoneStrings[stone - Chess.MIN_STONE] : blackStoneStrings[stone - Chess.MIN_STONE];
+		return isWhite ? WHITE_STONE_STRINGS[stone - Chess.MIN_STONE] : BLACK_STONE_STRINGS[stone - Chess.MIN_STONE];
 	}
 
 	public static String getStringForStone(int stone) {
-		return stone < 0 ? whiteStoneStrings[stone - Chess.MIN_STONE] : blackStoneStrings[stone - Chess.MIN_STONE];
+		return stone < 0 ? WHITE_STONE_STRINGS[stone - Chess.MIN_STONE] : BLACK_STONE_STRINGS[stone - Chess.MIN_STONE];
 	}
 
 	@Override
@@ -820,8 +820,8 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 		return partsOfShape;
 	}
 
-	private final static char[][] letters = { { 'a' }, { 'b' }, { 'c' }, { 'd' }, { 'e' }, { 'f' }, { 'g' }, { 'h' } };
-	private final static char[][] numbers = { { '1' }, { '2' }, { '3' }, { '4' }, { '5' }, { '6' }, { '7' }, { '8' } };
+	private final static char[][] LETTERS = { { 'a' }, { 'b' }, { 'c' }, { 'd' }, { 'e' }, { 'f' }, { 'g' }, { 'h' } };
+	private final static char[][] NUMBERS = { { '1' }, { '2' }, { '3' }, { '4' }, { '5' }, { '6' }, { '7' }, { '8' } };
 
 	private void drawCoordinates(Graphics2D g2) {
 		Font oldFont = g2.getFont();
@@ -835,7 +835,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 				} else {
 					g2.setColor(blackSquareColor);
 				}
-				g2.drawChars(letters[x], 0, 1, x * squareSize + 1, 8 * squareSize - 3);
+				g2.drawChars(LETTERS[x], 0, 1, x * squareSize + 1, 8 * squareSize - 3);
 			}
 			for (int y = 0; y < Chess.NUM_OF_ROWS; y++) {
 				if (y % 2 == 0) {
@@ -843,7 +843,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 				} else {
 					g2.setColor(blackSquareColor);
 				}
-				g2.drawChars(numbers[Chess.NUM_OF_ROWS - 1 - y], 0, 1, 8 * squareSize - 10, y * squareSize + 14);
+				g2.drawChars(NUMBERS[Chess.NUM_OF_ROWS - 1 - y], 0, 1, 8 * squareSize - 10, y * squareSize + 14);
 			}
 		} else { //h-a in the bottom line, 1-8 in the rightmost file from top to bottom
 			for (int x = 0; x < Chess.NUM_OF_COLS; x++) {
@@ -852,7 +852,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 				} else {
 					g2.setColor(blackSquareColor);
 				}
-				g2.drawChars(letters[Chess.NUM_OF_COLS - 1 - x], 0, 1, x * squareSize + 2, 8 * squareSize - 2);
+				g2.drawChars(LETTERS[Chess.NUM_OF_COLS - 1 - x], 0, 1, x * squareSize + 2, 8 * squareSize - 2);
 			}
 			for (int y = 0; y < Chess.NUM_OF_ROWS; y++) {
 				if (y % 2 == 0) {
@@ -860,7 +860,7 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 				} else {
 					g2.setColor(blackSquareColor);
 				}
-				g2.drawChars(numbers[y], 0, 1, 8 * squareSize - 12, y * squareSize + 16);
+				g2.drawChars(NUMBERS[y], 0, 1, 8 * squareSize - 12, y * squareSize + 16);
 			}
 		}
 		g2.setFont(oldFont);

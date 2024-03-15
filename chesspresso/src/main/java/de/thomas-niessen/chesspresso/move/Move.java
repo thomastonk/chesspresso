@@ -56,8 +56,8 @@ public class Move implements Serializable {
 	}
 
 	// TN: these comments are misleading and do not match the implementation.
-	// ((Better comments and an idea for a less confusing implementation is
-	// noted in Fortschritt.txt.)
+	// ((Better comments and an idea for a less confusing implementation are
+	// noted in my own files.)
 	// ======================================================================
 	// move encoding (users of the class should abstract from implementation and
 	// use accessors)
@@ -86,7 +86,7 @@ public class Move implements Serializable {
 	private final static int REGULAR_MOVE = 0x00000000;
 	private final static int CAPTURING_MOVE = 0x00008000;
 
-	private final static int PROMO_MASK = 0x00007000;
+	private final static int SPECIAL_MASK = 0x00007000; // Used for promotion, ep, castling and special moves.
 	private final static int CASTLE_MOVE = 0x00007000;
 	private final static int CASTLE_MOVE_CHESS960 = 0x00006000;
 	private final static int EP_MOVE = 0x00006000;
@@ -260,12 +260,12 @@ public class Move implements Serializable {
 	}
 
 	public static boolean isPromotion(short move) {
-		int promo = move & PROMO_MASK;
+		int promo = move & SPECIAL_MASK;
 		return promo == PROMO_QUEEN || promo == PROMO_ROOK || promo == PROMO_BISHOP || promo == PROMO_KNIGHT;
-	} // slow but safe
+	}
 
 	public static int getPromotionPiece(short move) {
-		int promo = move & PROMO_MASK;
+		int promo = move & SPECIAL_MASK;
 		for (int piece = 0; piece <= Chess.MAX_PIECE; piece++) {
 			if (S_PROMO[piece] == promo) {
 				return piece;
@@ -275,7 +275,7 @@ public class Move implements Serializable {
 	}
 
 	public static boolean isEPMove(short move) {
-		return (move & PROMO_MASK) == EP_MOVE && (move & TYPE_MASK) == CAPTURING_MOVE;
+		return (move & SPECIAL_MASK) == EP_MOVE && (move & TYPE_MASK) == CAPTURING_MOVE;
 	}
 
 	public static int getEpCapturedPawnSquare(short move) {
@@ -287,7 +287,7 @@ public class Move implements Serializable {
 	}
 
 	public static boolean isCastle(short move) {
-		return (move & PROMO_MASK) == CASTLE_MOVE && move != NULL_MOVE;
+		return (move & SPECIAL_MASK) == CASTLE_MOVE && move != NULL_MOVE;
 	}
 
 	public static boolean isShortCastle(short move) {
@@ -299,16 +299,16 @@ public class Move implements Serializable {
 	}
 
 	public static boolean isCastleChess960(short move) {
-		return (move & TYPE_MASK) != CAPTURING_MOVE && (move & PROMO_MASK) == CASTLE_MOVE_CHESS960;
+		return (move & TYPE_MASK) != CAPTURING_MOVE && (move & SPECIAL_MASK) == CASTLE_MOVE_CHESS960;
 	}
 
 	public static boolean isShortCastleChess960(short move) {
-		return (move & TYPE_MASK) != CAPTURING_MOVE && (move & PROMO_MASK) == CASTLE_MOVE_CHESS960
+		return (move & TYPE_MASK) != CAPTURING_MOVE && (move & SPECIAL_MASK) == CASTLE_MOVE_CHESS960
 				&& (getFromSqi(move) < getToSqi(move));
 	}
 
 	public static boolean isLongCastleChess960(short move) {
-		return (move & TYPE_MASK) != CAPTURING_MOVE && (move & PROMO_MASK) == CASTLE_MOVE_CHESS960
+		return (move & TYPE_MASK) != CAPTURING_MOVE && (move & SPECIAL_MASK) == CASTLE_MOVE_CHESS960
 				&& (getFromSqi(move) > getToSqi(move));
 	}
 
@@ -317,11 +317,11 @@ public class Move implements Serializable {
 	}
 
 	public static boolean isSpecial(short move) {
-		return (move & PROMO_MASK) == SPECIAL_MOVE;
+		return (move & SPECIAL_MASK) == SPECIAL_MOVE;
 	}
 
 	public static boolean isValid(short move) {
-		return (move & PROMO_MASK) != SPECIAL_MOVE;
+		return (move & SPECIAL_MASK) != SPECIAL_MOVE;
 	}
 
 	/*

@@ -172,12 +172,12 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		textCreator = new TreeLikeTextCreator(); // has to be set before setGame()!
 
 		setGame(game); // sets also this.game
-		this.userAction = userAction;
+		setUserAction(userAction);
 
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if ((userAction != UserAction.ENABLED) || (e.getPoint().y < 3)) {
+				if ((getUserAction() != UserAction.ENABLED) || (e.getPoint().y < 3)) {
 					// Ignore clicks at the upper boundary, since they always move the game to the first ply.
 					return;
 				}
@@ -412,7 +412,11 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		createText();
 	}
 
-	public void setUserAction(UserAction userAction) {
+	UserAction getUserAction() {
+		return userAction;
+	}
+
+	void setUserAction(UserAction userAction) {
 		this.userAction = userAction;
 	}
 
@@ -435,7 +439,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 
 	// ======================================================================
 
-	private static final DefaultHighlighter.DefaultHighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(
+	private static final DefaultHighlighter.DefaultHighlightPainter HIGHLIGHT_PAINTER = new DefaultHighlighter.DefaultHighlightPainter(
 			Color.LIGHT_GRAY);
 
 	void showCurrentGameNode() {
@@ -454,7 +458,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			setCaretPosition(moveBegin[index]); // Do not delete next two lines, because they scroll forward!
 			setCaretPosition(moveEnd[index]);
 			try {
-				getHighlighter().addHighlight(moveBegin[index], moveEnd[index], highlightPainter);
+				getHighlighter().addHighlight(moveBegin[index], moveEnd[index], HIGHLIGHT_PAINTER);
 			} catch (BadLocationException ignore) {
 			}
 		} else if (node == 0 && moveBegin.length > 0) {
@@ -463,7 +467,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			setCaretPosition(0); // Do not delete next two lines, because they scroll forward!
 			setCaretPosition(1);
 			try {
-				getHighlighter().addHighlight(0, 1, highlightPainter);
+				getHighlighter().addHighlight(0, 1, HIGHLIGHT_PAINTER);
 			} catch (BadLocationException ignore) {
 			}
 		}
