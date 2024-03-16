@@ -63,7 +63,7 @@ import chesspresso.position.Position;
  * @author Bernhard Seybold
  * 
  */
-public non-sealed class Game implements RelatedGame, Serializable {
+public non-sealed class Game implements Comparable<Game>, RelatedGame, Serializable {
 	@Serial
 	private static final long serialVersionUID = 2L;
 
@@ -1036,25 +1036,13 @@ public non-sealed class Game implements RelatedGame, Serializable {
 	}
 
 	// ======================================================================
+	// hashCode, equals and compareTo all depend on the model's methods.
 
-	/**
-	 * Returns the hash code of the game, which is defined as the hash code of the
-	 * move model. That means two game are considered equal if they contain exactly
-	 * the same lines. The header does not matter.
-	 *
-	 * @return the hash code
-	 */
 	@Override
 	public int hashCode() {
 		return getModel().hashCode();
 	}
 
-	/**
-	 * Returns whether two games are equal. This is the case if they contain exactly
-	 * the same lines. The header does not matter.
-	 *
-	 * @return the hash code
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -1064,6 +1052,11 @@ public non-sealed class Game implements RelatedGame, Serializable {
 			return false;
 		}
 		return game.getModel().equals(getModel());
+	}
+
+	@Override
+	public int compareTo(Game other) {
+		return getModel().compareTo(other.getModel());
 	}
 
 	// ======================================================================

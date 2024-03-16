@@ -31,7 +31,7 @@ import chesspresso.position.NAG;
  *
  * @author Bernhard Seybold
  */
-class GameMoveModel implements Serializable {
+final class GameMoveModel implements Comparable<GameMoveModel>, Serializable {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
@@ -1496,6 +1496,23 @@ class GameMoveModel implements Serializable {
 			}
 			index1 = goForward(index1);
 			index2 = gameMoveModel.goForward(index2);
+		}
+	}
+
+	@Override
+	public int compareTo(GameMoveModel other) {
+		int index1 = 0, index2 = 0;
+		for (;;) {
+			short move1 = nodes[index1];
+			short move2 = other.nodes[index2];
+			if (move1 == LINE_END && move2 == LINE_END) {
+				return 0;
+			}
+			if (move1 != move2) {
+				return move1 - move2;
+			}
+			index1 = goForward(index1);
+			index2 = other.goForward(index2);
 		}
 	}
 }

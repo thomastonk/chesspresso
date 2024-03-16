@@ -20,7 +20,7 @@ import java.io.Serializable;
 /**
  * @author Bernhard Seybold
  */
-class GameModel implements Serializable {
+final class GameModel implements Comparable<GameModel>, Serializable {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
@@ -54,6 +54,7 @@ class GameModel implements Serializable {
 	}
 
 	// =============================================================================
+	// hashCode, equals and compareTo all depend on the move model's methods.
 
 	@Override
 	public int hashCode() {
@@ -71,10 +72,16 @@ class GameModel implements Serializable {
 		return gameModel.getMoveModel().equals(getMoveModel());
 	}
 
+	@Override
+	public int compareTo(GameModel other) {
+		return getMoveModel().compareTo(other.getMoveModel());
+	}
+
 	// =============================================================================
 
 	@Override
 	public String toString() {
 		return headerModel.toString();
 	}
+
 }
