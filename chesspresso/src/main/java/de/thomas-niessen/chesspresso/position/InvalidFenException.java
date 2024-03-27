@@ -21,7 +21,7 @@ package chesspresso.position;
  * 
  */
 @SuppressWarnings("serial")
-public class InvalidFenException extends java.lang.Exception {
+public class InvalidFenException extends Exception {
 	public InvalidFenException(String msg) {
 		super(msg);
 	}

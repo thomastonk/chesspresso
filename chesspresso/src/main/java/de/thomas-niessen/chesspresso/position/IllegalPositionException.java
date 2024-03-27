@@ -21,7 +21,7 @@ package chesspresso.position;
  * 
  */
 @SuppressWarnings("serial")
-public class IllegalPositionException extends java.lang.Exception {
+public class IllegalPositionException extends Exception {
 	public IllegalPositionException(String msg) {
 		super(msg);
 	}

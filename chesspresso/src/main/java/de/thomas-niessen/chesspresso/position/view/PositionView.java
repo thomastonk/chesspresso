@@ -668,8 +668,8 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 	public void mouseMoved(MouseEvent e) {
 	}
 
-	private final static String[] WHITE_STONE_STRINGS = { "\u2654", "\u2659", "\u2655", "\u2656", "\u2657", "\u2658", " ", "\u2658",
-			"\u2657", "\u2656", "\u2655", "\u2659", "\u2654" },
+	private final static String[] WHITE_STONE_STRINGS = { "\u2654", "\u2659", "\u2655", "\u2656", "\u2657", "\u2658", " ",
+			"\u2658", "\u2657", "\u2656", "\u2655", "\u2659", "\u2654" },
 			BLACK_STONE_STRINGS = { "\u265A", "\u265F", "\u265B", "\u265C", "\u265D", "\u265E", " ", "\u265E", "\u265D", "\u265C",
 					"\u265B", "\u265F", "\u265A" };
 
