@@ -25,10 +25,9 @@ import chesspresso.move.Move;
 import chesspresso.position.FEN;
 
 /**
- * A PGN writer is able to write a game (collection) in PGN syntax.
+ * A PGN writer is able to write a game in PGN syntax.
  *
  * @author Bernhard Seybold
- * 
  */
 public class PGNWriter {
 

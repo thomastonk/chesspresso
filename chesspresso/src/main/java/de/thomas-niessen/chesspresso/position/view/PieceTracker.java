@@ -31,9 +31,30 @@ public class PieceTracker {
 
 	private final static boolean DEBUG = false;
 
-	private final static Color FUTURE_COLOR_WHITE_PIECE = new Color(0, 253, 0); // almost full green 
+	private final static Color FUTURE_COLOR_WHITE_PIECE[];
+	static {
+		FUTURE_COLOR_WHITE_PIECE = new Color[7];
+		FUTURE_COLOR_WHITE_PIECE[Chess.KING] = new Color(0, 253, 0); // green
+		FUTURE_COLOR_WHITE_PIECE[Chess.KNIGHT] = new Color(0, 223, 30);
+		FUTURE_COLOR_WHITE_PIECE[Chess.QUEEN] = new Color(0, 193, 60);
+		FUTURE_COLOR_WHITE_PIECE[Chess.ROOK] = new Color(0, 163, 90);
+		FUTURE_COLOR_WHITE_PIECE[Chess.BISHOP] = new Color(0, 133, 120);
+		FUTURE_COLOR_WHITE_PIECE[Chess.PAWN] = new Color(0, 103, 150);
+		FUTURE_COLOR_WHITE_PIECE[Chess.NO_PIECE] = FUTURE_COLOR_WHITE_PIECE[Chess.ROOK]; // for rook in castling
+	}
+	private final static Color FUTURE_COLOR_BLACK_PIECE[];
+	static {
+		FUTURE_COLOR_BLACK_PIECE = new Color[7];
+		FUTURE_COLOR_BLACK_PIECE[Chess.KING] = new Color(253, 153, 0); // orange
+		FUTURE_COLOR_BLACK_PIECE[Chess.KNIGHT] = new Color(253, 123, 0);
+		FUTURE_COLOR_BLACK_PIECE[Chess.QUEEN] = new Color(253, 93, 0);
+		FUTURE_COLOR_BLACK_PIECE[Chess.ROOK] = new Color(253, 63, 0);
+		FUTURE_COLOR_BLACK_PIECE[Chess.BISHOP] = new Color(253, 33, 0);
+		FUTURE_COLOR_BLACK_PIECE[Chess.PAWN] = new Color(253, 3, 0);
+		FUTURE_COLOR_BLACK_PIECE[Chess.NO_PIECE] = FUTURE_COLOR_BLACK_PIECE[Chess.ROOK];
+	}
+
 	private final static Color PAST_COLOR_WHITE_PIECE = new Color(160, 160, 160); // a light grey 
-	private final static Color FUTURE_COLOR_BLACK_PIECE = new Color(253, 200, 0); // almost full orange
 	private final static Color PAST_COLOR_BLACK_PIECE = new Color(100, 100, 100); // a dark gray 
 
 	private final Game game;
@@ -131,11 +152,7 @@ public class PieceTracker {
 				move = copy.getLastMove();
 			}
 			currentStartingSquares = new HashSet<>(startingSquares);
-			// Make a reverse copy by hand. Java 21 will offer List.reverse(). 
-			List<Move> pastMovesReversed = new ArrayList<>(pastMoves.size());
-			for (int index = pastMoves.size() - 1; index >= 0; --index) {
-				pastMovesReversed.add(pastMoves.get(index));
-			}
+			List<Move> pastMovesReversed = pastMoves.reversed();
 			addDecorations(this, positionView, currentStartingSquares, pastMovesReversed, false);
 		}
 		{ // add decorations for moves to be made in the future
@@ -163,7 +180,7 @@ public class PieceTracker {
 			}
 			if (trackedSquares.contains(move.getFromSqi())) {
 				positionView.addDecoration(DecorationFactory.getArrowDecoration(move.getFromSqi(), move.getToSqi(),
-						getColor(move.isWhiteMove(), isFutureMove), pieceTracker), false);
+						getColor((short) move.getMovingPiece(), move.isWhiteMove(), isFutureMove), pieceTracker), false);
 				trackedSquares.remove(move.getFromSqi());
 				trackedSquares.add(move.getToSqi());
 			} else if (trackedSquares.contains(move.getToSqi())) { // a tracked piece is captured
@@ -189,7 +206,7 @@ public class PieceTracker {
 				}
 				if (fromSqi != Chess.NO_SQUARE && toSqi != Chess.NO_SQUARE) {
 					positionView.addDecoration(DecorationFactory.getArrowDecoration(fromSqi, toSqi,
-							getColor(move.isWhiteMove(), isFutureMove), pieceTracker), false);
+							getColor(Chess.ROOK, move.isWhiteMove(), isFutureMove), pieceTracker), false);
 					trackedSquares.remove(fromSqi);
 					trackedSquares.add(toSqi);
 				}
@@ -214,7 +231,7 @@ public class PieceTracker {
 				}
 				if (fromSqi != Chess.NO_SQUARE && toSqi != Chess.NO_SQUARE) {
 					positionView.addDecoration(DecorationFactory.getArrowDecoration(fromSqi, toSqi,
-							getColor(whiteMoved, isFutureMove), pieceTracker), false);
+							getColor(Chess.ROOK, whiteMoved, isFutureMove), pieceTracker), false);
 					trackedSquares.remove(fromSqi);
 					trackedSquares.add(toSqi);
 				}
@@ -231,16 +248,16 @@ public class PieceTracker {
 		}
 	}
 
-	private static Color getColor(boolean isWhiteStone, boolean isFutureMove) {
+	private static Color getColor(short piece, boolean isWhiteStone, boolean isFutureMove) {
 		if (isWhiteStone) {
 			if (isFutureMove) {
-				return FUTURE_COLOR_WHITE_PIECE;
+				return FUTURE_COLOR_WHITE_PIECE[piece];
 			} else {
 				return PAST_COLOR_WHITE_PIECE;
 			}
 		} else {
 			if (isFutureMove) {
-				return FUTURE_COLOR_BLACK_PIECE;
+				return FUTURE_COLOR_BLACK_PIECE[piece];
 			} else {
 				return PAST_COLOR_BLACK_PIECE;
 			}

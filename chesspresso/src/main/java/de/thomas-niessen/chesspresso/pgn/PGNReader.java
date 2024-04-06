@@ -25,7 +25,6 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -454,8 +453,8 @@ public final class PGNReader {
 		}
 		if (getVariantFromTag() == Variant.CHESS960) { // Chess960 needs a FEN
 			if (curGame.getTag(PGN.TAG_FEN) == null) {
-				throw new PGNSyntaxError(Severity.ERROR, "Chess960 variant detected, but without FEN.", filename,
-						getLineNumber(), "");
+				throw new PGNSyntaxError(Severity.ERROR, "Chess960 variant detected, but without FEN.", filename, getLineNumber(),
+						"");
 			}
 		}
 		String fen = curGame.getTag(PGN.TAG_FEN);
@@ -499,8 +498,7 @@ public final class PGNReader {
 		}
 		if (buf[0] == '1') {
 			if (buf[1] == '/') {
-				if (lastTokenLength == 7 && buf[2] == '2' && buf[3] == '-' && buf[4] == '1' && buf[5] == '/'
-						&& buf[6] == '2') {
+				if (lastTokenLength == 7 && buf[2] == '2' && buf[3] == '-' && buf[4] == '1' && buf[5] == '/' && buf[6] == '2') {
 					return Chess.RES_DRAW;
 				}
 			} else if (lastTokenLength == 3 && buf[1] == '-' && buf[2] == '0') {
@@ -601,8 +599,7 @@ public final class PGNReader {
 					syntaxError("Illegal pawn move near ply " + curGame.getPosition().getPlyNumber() + ", move "
 							+ getLastTokenAsString());
 				}
-				if (last >= 3 && (buf[1] >= '2' && buf[1] <= '7')
-						&& ((buf[2] >= 'a' && buf[2] <= 'h') || buf[2] == 'x')) { // LAN notation as used by Rusz's SEE, for example!
+				if (last >= 3 && (buf[1] >= '2' && buf[1] <= '7') && ((buf[2] >= 'a' && buf[2] <= 'h') || buf[2] == 'x')) { // LAN notation as used by Rusz's SEE, for example!
 					int col = Chess.NO_COL;
 					if (buf[2] == 'x') {
 						col = Chess.charToCol(ch);
@@ -869,7 +866,7 @@ public final class PGNReader {
 		}
 	}
 
-	private String aggregateComments(Collection<String> comments) {
+	private String aggregateComments(Iterable<String> comments) {
 		StringBuilder aggregated = new StringBuilder();
 		boolean first = true;
 		for (String comment : comments) {
