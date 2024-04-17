@@ -47,6 +47,7 @@ import chesspresso.Chess;
 import chesspresso.Mouse;
 import chesspresso.ScreenShot;
 import chesspresso.game.view.UserAction;
+import chesspresso.move.Move;
 import chesspresso.position.Position;
 import chesspresso.position.PositionListener;
 import chesspresso.position.PositionMotionListener;
@@ -467,6 +468,38 @@ public class PositionView extends JPanel implements PositionListener, MouseListe
 			}
 			repaint();
 		}
+	}
+
+	public void highlightLastMove(Move lastMove, Object owner, Color color) {
+		removeDecorations(DecorationType.ARROW, color, owner);
+		if (lastMove != null && lastMove.getShortMoveDesc() != Move.NULL_MOVE) {
+			if (!lastMove.isCastle() && !lastMove.isCastleChess960()) {
+				addDecoration(DecorationFactory.getArrowDecoration(lastMove.getFromSqi(), lastMove.getToSqi(), color, owner),
+						false);
+			} else {
+				int fromSquare, toSquare;
+				if (lastMove.isWhiteMove()) {
+					if (lastMove.isShortCastle() || lastMove.isShortCastleChess960()) {
+						fromSquare = Chess.F1;
+						toSquare = Chess.G1;
+					} else {
+						fromSquare = Chess.C1;
+						toSquare = Chess.D1;
+					}
+				} else {
+					if (lastMove.isShortCastle() || lastMove.isShortCastleChess960()) {
+						fromSquare = Chess.F8;
+						toSquare = Chess.G8;
+					} else {
+						fromSquare = Chess.C8;
+						toSquare = Chess.D8;
+					}
+				}
+				addDecoration(DecorationFactory.getArrowDecoration(fromSquare, toSquare, color, owner), false);
+				addDecoration(DecorationFactory.getArrowDecoration(toSquare, fromSquare, color, owner), false);
+			}
+		}
+		repaint();
 	}
 
 	// ======================================================================

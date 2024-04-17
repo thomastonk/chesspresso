@@ -42,7 +42,6 @@ import chesspresso.game.Game;
 import chesspresso.game.GameModelChangeListener;
 import chesspresso.game.view.GameTextViewer.TextCreationType;
 import chesspresso.move.IllegalMoveException;
-import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
 import chesspresso.position.FEN;
 import chesspresso.position.ImmutablePosition;
@@ -352,40 +351,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		if (positionView == null) {
 			return;
 		}
-		positionView.removeDecorations(DecorationType.ARROW, Color.BLUE, GameBrowser.this);
-		if (highlightLastMove) {
-			Move lastMove = game.getLastMove();
-			if (lastMove != null && lastMove.getShortMoveDesc() != Move.NULL_MOVE) {
-				if (!lastMove.isCastle() && !lastMove.isCastleChess960()) {
-					positionView.addDecoration(DecorationFactory.getArrowDecoration(lastMove.getFromSqi(), lastMove.getToSqi(),
-							Color.BLUE, GameBrowser.this), false);
-				} else {
-					int fromSquare, toSquare;
-					if (lastMove.isWhiteMove()) {
-						if (lastMove.isShortCastle() || lastMove.isShortCastleChess960()) {
-							fromSquare = Chess.F1;
-							toSquare = Chess.G1;
-						} else {
-							fromSquare = Chess.C1;
-							toSquare = Chess.D1;
-						}
-					} else {
-						if (lastMove.isShortCastle() || lastMove.isShortCastleChess960()) {
-							fromSquare = Chess.F8;
-							toSquare = Chess.G8;
-						} else {
-							fromSquare = Chess.C8;
-							toSquare = Chess.D8;
-						}
-					}
-					positionView.addDecoration(
-							DecorationFactory.getArrowDecoration(fromSquare, toSquare, Color.BLUE, GameBrowser.this), false);
-					positionView.addDecoration(
-							DecorationFactory.getArrowDecoration(toSquare, fromSquare, Color.BLUE, GameBrowser.this), false);
-				}
-			}
-		}
-		positionView.repaint();
+		positionView.highlightLastMove(game.getLastMove(), GameBrowser.this, Color.BLUE);
 	}
 
 	// =======================================================================
