@@ -76,6 +76,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 	private JLabel moveLabel = null;
 
 	private boolean highlightLastMove;
+	private static final Color HIGHLIGHT_LAST_MOVE_COLOR = new Color(143, 13, 99);
 
 	// ======================================================================
 
@@ -238,6 +239,7 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 
 	public void setHighlightLastMove(boolean hlm) {
 		highlightLastMove = hlm;
+		positionView.removeDecorations(DecorationType.ARROW, HIGHLIGHT_LAST_MOVE_COLOR, GameBrowser.this);
 		highlightLastMove();
 	}
 
@@ -351,7 +353,9 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 		if (positionView == null) {
 			return;
 		}
-		positionView.highlightLastMove(game.getLastMove(), GameBrowser.this, Color.BLUE);
+		if (highlightLastMove) {
+			positionView.highlightLastMove(game.getLastMove(), GameBrowser.this, HIGHLIGHT_LAST_MOVE_COLOR);
+		}
 	}
 
 	// =======================================================================
