@@ -629,224 +629,224 @@ public class FEN {
 		for (int i = 0; i < castleString.length(); ++i) {
 			int ch = castleString.charAt(i);
 			switch (ch) {
-				case 'A' -> {
-					if (whitesQueensideRookSquare == Chess.A1) {
-						queensideRookSquare = Chess.A1;
-						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
-					} else {
-						return CastlingInfoError.NO_WHITE_ROOK_ON_A1;
-					}
+			case 'A' -> {
+				if (whitesQueensideRookSquare == Chess.A1) {
+					queensideRookSquare = Chess.A1;
+					castles |= ImmutablePosition.WHITE_LONG_CASTLE;
+				} else {
+					return CastlingInfoError.NO_WHITE_ROOK_ON_A1;
 				}
-				case 'B' -> {
-					if (whitesQueensideRookSquare == Chess.B1) {
-						queensideRookSquare = Chess.B1;
-						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
-					} else {
-						return CastlingInfoError.NO_WHITE_ROOK_ON_B1;
-					}
+			}
+			case 'B' -> {
+				if (whitesQueensideRookSquare == Chess.B1) {
+					queensideRookSquare = Chess.B1;
+					castles |= ImmutablePosition.WHITE_LONG_CASTLE;
+				} else {
+					return CastlingInfoError.NO_WHITE_ROOK_ON_B1;
 				}
-				case 'C' -> {
-					if (whitesKingSquare > Chess.C1) {
-						if (whitesQueensideRookSquare == Chess.C1) {
-							queensideRookSquare = Chess.C1;
-							castles |= ImmutablePosition.WHITE_LONG_CASTLE;
-						} else {
-							return CastlingInfoError.NO_WHITE_ROOK_ON_C1;
-						}
-					} else if (whitesKingSquare < Chess.C1) {
-						if (whitesKingsideRookSquare == Chess.C1) {
-							kingsideRookSquare = Chess.C1;
-							castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
-						} else {
-							return CastlingInfoError.NO_WHITE_ROOK_ON_C1;
-						}
+			}
+			case 'C' -> {
+				if (whitesKingSquare > Chess.C1) {
+					if (whitesQueensideRookSquare == Chess.C1) {
+						queensideRookSquare = Chess.C1;
+						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 					} else {
 						return CastlingInfoError.NO_WHITE_ROOK_ON_C1;
 					}
+				} else if (whitesKingSquare < Chess.C1) {
+					if (whitesKingsideRookSquare == Chess.C1) {
+						kingsideRookSquare = Chess.C1;
+						castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
+					} else {
+						return CastlingInfoError.NO_WHITE_ROOK_ON_C1;
+					}
+				} else {
+					return CastlingInfoError.NO_WHITE_ROOK_ON_C1;
 				}
-				case 'D' -> {
-					if (whitesKingSquare > Chess.D1) {
-						if (whitesQueensideRookSquare == Chess.D1) {
-							queensideRookSquare = Chess.D1;
-							castles |= ImmutablePosition.WHITE_LONG_CASTLE;
-						} else {
-							return CastlingInfoError.NO_WHITE_ROOK_ON_D1;
-						}
-					} else if (whitesKingSquare < Chess.D1) {
-						if (whitesKingsideRookSquare == Chess.D1) {
-							kingsideRookSquare = Chess.D1;
-							castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
-						} else {
-							return CastlingInfoError.NO_WHITE_ROOK_ON_D1;
-						}
+			}
+			case 'D' -> {
+				if (whitesKingSquare > Chess.D1) {
+					if (whitesQueensideRookSquare == Chess.D1) {
+						queensideRookSquare = Chess.D1;
+						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 					} else {
 						return CastlingInfoError.NO_WHITE_ROOK_ON_D1;
 					}
+				} else if (whitesKingSquare < Chess.D1) {
+					if (whitesKingsideRookSquare == Chess.D1) {
+						kingsideRookSquare = Chess.D1;
+						castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
+					} else {
+						return CastlingInfoError.NO_WHITE_ROOK_ON_D1;
+					}
+				} else {
+					return CastlingInfoError.NO_WHITE_ROOK_ON_D1;
 				}
-				case 'E' -> {
-					if (whitesKingSquare > Chess.E1) {
-						if (whitesQueensideRookSquare == Chess.E1) {
-							queensideRookSquare = Chess.E1;
-							castles |= ImmutablePosition.WHITE_LONG_CASTLE;
-						} else {
-							return CastlingInfoError.NO_WHITE_ROOK_ON_E1;
-						}
-					} else if (whitesKingSquare < Chess.E1) {
-						if (whitesKingsideRookSquare == Chess.E1) {
-							kingsideRookSquare = Chess.E1;
-							castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
-						} else {
-							return CastlingInfoError.NO_WHITE_ROOK_ON_E1;
-						}
+			}
+			case 'E' -> {
+				if (whitesKingSquare > Chess.E1) {
+					if (whitesQueensideRookSquare == Chess.E1) {
+						queensideRookSquare = Chess.E1;
+						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 					} else {
 						return CastlingInfoError.NO_WHITE_ROOK_ON_E1;
 					}
+				} else if (whitesKingSquare < Chess.E1) {
+					if (whitesKingsideRookSquare == Chess.E1) {
+						kingsideRookSquare = Chess.E1;
+						castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
+					} else {
+						return CastlingInfoError.NO_WHITE_ROOK_ON_E1;
+					}
+				} else {
+					return CastlingInfoError.NO_WHITE_ROOK_ON_E1;
 				}
-				case 'F' -> {
-					if (whitesKingSquare > Chess.F1) {
-						if (whitesQueensideRookSquare == Chess.F1) {
-							queensideRookSquare = Chess.F1;
-							castles |= ImmutablePosition.WHITE_LONG_CASTLE;
-						} else {
-							return CastlingInfoError.NO_WHITE_ROOK_ON_F1;
-						}
-					} else if (whitesKingSquare < Chess.F1) {
-						if (whitesKingsideRookSquare == Chess.F1) {
-							kingsideRookSquare = Chess.F1;
-							castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
-						} else {
-							return CastlingInfoError.NO_WHITE_ROOK_ON_F1;
-						}
+			}
+			case 'F' -> {
+				if (whitesKingSquare > Chess.F1) {
+					if (whitesQueensideRookSquare == Chess.F1) {
+						queensideRookSquare = Chess.F1;
+						castles |= ImmutablePosition.WHITE_LONG_CASTLE;
 					} else {
 						return CastlingInfoError.NO_WHITE_ROOK_ON_F1;
 					}
-				}
-				case 'G' -> {
-					if (whitesKingsideRookSquare == Chess.G1) {
-						kingsideRookSquare = Chess.G1;
+				} else if (whitesKingSquare < Chess.F1) {
+					if (whitesKingsideRookSquare == Chess.F1) {
+						kingsideRookSquare = Chess.F1;
 						castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
 					} else {
-						return CastlingInfoError.NO_WHITE_ROOK_ON_G1;
+						return CastlingInfoError.NO_WHITE_ROOK_ON_F1;
 					}
+				} else {
+					return CastlingInfoError.NO_WHITE_ROOK_ON_F1;
 				}
-				case 'H' -> {
-					if (whitesKingsideRookSquare == Chess.H1) {
-						kingsideRookSquare = Chess.H1;
-						castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
-					} else {
-						return CastlingInfoError.NO_WHITE_ROOK_ON_H1;
-					}
+			}
+			case 'G' -> {
+				if (whitesKingsideRookSquare == Chess.G1) {
+					kingsideRookSquare = Chess.G1;
+					castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
+				} else {
+					return CastlingInfoError.NO_WHITE_ROOK_ON_G1;
 				}
-				case 'a' -> {
-					if (blacksQueensideRookSquare == Chess.A8) {
-						queensideRookSquare = Chess.A1;
+			}
+			case 'H' -> {
+				if (whitesKingsideRookSquare == Chess.H1) {
+					kingsideRookSquare = Chess.H1;
+					castles |= ImmutablePosition.WHITE_SHORT_CASTLE;
+				} else {
+					return CastlingInfoError.NO_WHITE_ROOK_ON_H1;
+				}
+			}
+			case 'a' -> {
+				if (blacksQueensideRookSquare == Chess.A8) {
+					queensideRookSquare = Chess.A1;
+					castles |= ImmutablePosition.BLACK_LONG_CASTLE;
+				} else {
+					return CastlingInfoError.NO_BLACK_ROOK_ON_A8;
+				}
+			}
+			case 'b' -> {
+				if (blacksQueensideRookSquare == Chess.B8) {
+					queensideRookSquare = Chess.B1;
+					castles |= ImmutablePosition.BLACK_LONG_CASTLE;
+				} else {
+					return CastlingInfoError.NO_BLACK_ROOK_ON_B8;
+				}
+			}
+			case 'c' -> {
+				if (blacksKingSquare > Chess.C8) {
+					if (blacksQueensideRookSquare == Chess.C8) {
+						queensideRookSquare = Chess.C1;
 						castles |= ImmutablePosition.BLACK_LONG_CASTLE;
-					} else {
-						return CastlingInfoError.NO_BLACK_ROOK_ON_A8;
-					}
-				}
-				case 'b' -> {
-					if (blacksQueensideRookSquare == Chess.B8) {
-						queensideRookSquare = Chess.B1;
-						castles |= ImmutablePosition.BLACK_LONG_CASTLE;
-					} else {
-						return CastlingInfoError.NO_BLACK_ROOK_ON_B8;
-					}
-				}
-				case 'c' -> {
-					if (blacksKingSquare > Chess.C8) {
-						if (blacksQueensideRookSquare == Chess.C8) {
-							queensideRookSquare = Chess.C1;
-							castles |= ImmutablePosition.BLACK_LONG_CASTLE;
-						} else {
-							return CastlingInfoError.NO_BLACK_ROOK_ON_C8;
-						}
-					} else if (blacksKingSquare < Chess.C8) {
-						if (blacksKingsideRookSquare == Chess.C8) {
-							kingsideRookSquare = Chess.C1;
-							castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
-						} else {
-							return CastlingInfoError.NO_BLACK_ROOK_ON_C8;
-						}
 					} else {
 						return CastlingInfoError.NO_BLACK_ROOK_ON_C8;
 					}
+				} else if (blacksKingSquare < Chess.C8) {
+					if (blacksKingsideRookSquare == Chess.C8) {
+						kingsideRookSquare = Chess.C1;
+						castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
+					} else {
+						return CastlingInfoError.NO_BLACK_ROOK_ON_C8;
+					}
+				} else {
+					return CastlingInfoError.NO_BLACK_ROOK_ON_C8;
 				}
-				case 'd' -> {
-					if (blacksKingSquare > Chess.D8) {
-						if (blacksQueensideRookSquare == Chess.D8) {
-							queensideRookSquare = Chess.D1;
-							castles |= ImmutablePosition.BLACK_LONG_CASTLE;
-						} else {
-							return CastlingInfoError.NO_BLACK_ROOK_ON_D8;
-						}
-					} else if (blacksKingSquare < Chess.D8) {
-						if (blacksKingsideRookSquare == Chess.D8) {
-							kingsideRookSquare = Chess.D1;
-							castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
-						} else {
-							return CastlingInfoError.NO_BLACK_ROOK_ON_D8;
-						}
+			}
+			case 'd' -> {
+				if (blacksKingSquare > Chess.D8) {
+					if (blacksQueensideRookSquare == Chess.D8) {
+						queensideRookSquare = Chess.D1;
+						castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 					} else {
 						return CastlingInfoError.NO_BLACK_ROOK_ON_D8;
 					}
+				} else if (blacksKingSquare < Chess.D8) {
+					if (blacksKingsideRookSquare == Chess.D8) {
+						kingsideRookSquare = Chess.D1;
+						castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
+					} else {
+						return CastlingInfoError.NO_BLACK_ROOK_ON_D8;
+					}
+				} else {
+					return CastlingInfoError.NO_BLACK_ROOK_ON_D8;
 				}
-				case 'e' -> {
-					if (blacksKingSquare > Chess.E8) {
-						if (blacksQueensideRookSquare == Chess.E8) {
-							queensideRookSquare = Chess.E1;
-							castles |= ImmutablePosition.BLACK_LONG_CASTLE;
-						} else {
-							return CastlingInfoError.NO_BLACK_ROOK_ON_E8;
-						}
-					} else if (blacksKingSquare < Chess.E8) {
-						if (blacksKingsideRookSquare == Chess.E8) {
-							kingsideRookSquare = Chess.E1;
-							castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
-						} else {
-							return CastlingInfoError.NO_BLACK_ROOK_ON_E8;
-						}
+			}
+			case 'e' -> {
+				if (blacksKingSquare > Chess.E8) {
+					if (blacksQueensideRookSquare == Chess.E8) {
+						queensideRookSquare = Chess.E1;
+						castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 					} else {
 						return CastlingInfoError.NO_BLACK_ROOK_ON_E8;
 					}
+				} else if (blacksKingSquare < Chess.E8) {
+					if (blacksKingsideRookSquare == Chess.E8) {
+						kingsideRookSquare = Chess.E1;
+						castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
+					} else {
+						return CastlingInfoError.NO_BLACK_ROOK_ON_E8;
+					}
+				} else {
+					return CastlingInfoError.NO_BLACK_ROOK_ON_E8;
 				}
-				case 'f' -> {
-					if (blacksKingSquare > Chess.F8) {
-						if (blacksQueensideRookSquare == Chess.F8) {
-							queensideRookSquare = Chess.F1;
-							castles |= ImmutablePosition.BLACK_LONG_CASTLE;
-						} else {
-							return CastlingInfoError.NO_BLACK_ROOK_ON_F8;
-						}
-					} else if (blacksKingSquare < Chess.F8) {
-						if (blacksKingsideRookSquare == Chess.F8) {
-							kingsideRookSquare = Chess.F1;
-							castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
-						} else {
-							return CastlingInfoError.NO_BLACK_ROOK_ON_F8;
-						}
+			}
+			case 'f' -> {
+				if (blacksKingSquare > Chess.F8) {
+					if (blacksQueensideRookSquare == Chess.F8) {
+						queensideRookSquare = Chess.F1;
+						castles |= ImmutablePosition.BLACK_LONG_CASTLE;
 					} else {
 						return CastlingInfoError.NO_BLACK_ROOK_ON_F8;
 					}
-				}
-				case 'g' -> {
-					if (blacksKingsideRookSquare == Chess.G8) {
-						kingsideRookSquare = Chess.G1;
+				} else if (blacksKingSquare < Chess.F8) {
+					if (blacksKingsideRookSquare == Chess.F8) {
+						kingsideRookSquare = Chess.F1;
 						castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
 					} else {
-						return CastlingInfoError.NO_BLACK_ROOK_ON_G8;
+						return CastlingInfoError.NO_BLACK_ROOK_ON_F8;
 					}
+				} else {
+					return CastlingInfoError.NO_BLACK_ROOK_ON_F8;
 				}
-				case 'h' -> {
-					if (blacksKingsideRookSquare == Chess.H8) {
-						kingsideRookSquare = Chess.H1;
-						castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
-					} else {
-						return CastlingInfoError.NO_BLACK_ROOK_ON_H8;
-					}
+			}
+			case 'g' -> {
+				if (blacksKingsideRookSquare == Chess.G8) {
+					kingsideRookSquare = Chess.G1;
+					castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
+				} else {
+					return CastlingInfoError.NO_BLACK_ROOK_ON_G8;
 				}
-				default -> {
-				} // cannot be reached, since castleString matches [A-Ha-h]+.
+			}
+			case 'h' -> {
+				if (blacksKingsideRookSquare == Chess.H8) {
+					kingsideRookSquare = Chess.H1;
+					castles |= ImmutablePosition.BLACK_SHORT_CASTLE;
+				} else {
+					return CastlingInfoError.NO_BLACK_ROOK_ON_H8;
+				}
+			}
+			default -> {
+			} // cannot be reached, since castleString matches [A-Ha-h]+.
 			}
 		}
 
@@ -1267,27 +1267,72 @@ public class FEN {
 	}
 
 	// Reflect the position along the a1-h8 diagonal.
-	//  Castling and the en passant square are always void in the result.
-	public static String reflectAlongDiagonal(String fen) {
+	// Castling and the en passant square are always void in the result.
+	public static String flipAlongA1H8Diagonal(String fen) {
 		PositionImpl pos;
 		try {
 			pos = new PositionImpl(fen, false);
 		} catch (InvalidFenException ignore) {
 			return null;
 		}
-		PositionImpl reflectedPos = new PositionImpl(0);
-		for (int sqi = Chess.A1; sqi <= Chess.H8; ++sqi) {
-			int stone = pos.getStone(sqi);
-			if (stone != Chess.NO_STONE) {
-				reflectedPos.setStone(Chess.getDiagonallyReflectedSquare(sqi), stone);
+		pos.flipAboutA1H8Diagonal();
+		String[] fenParts = fen.trim().split(" +");
+		return pos.getFEN(Math.min(fenParts.length, 6));
+	}
+
+	// Reflect the position along the a8-h1 diagonal.
+	// Castling and the en passant square are always void in the result.
+	public static String flipAlongA8H1Diagonal(String fen) {
+		PositionImpl pos;
+		try {
+			pos = new PositionImpl(fen, false);
+		} catch (InvalidFenException ignore) {
+			return null;
+		}
+		pos.flipAboutA8H1Diagonal();
+		String[] fenParts = fen.trim().split(" +");
+		return pos.getFEN(Math.min(fenParts.length, 6));
+	}
+
+	public static String rotate90degrees(String fen) {
+		PositionImpl pos;
+		try {
+			pos = new PositionImpl(fen, false);
+		} catch (InvalidFenException ignore) {
+			return null;
+		}
+		pos.rotate90DegreesClockwise();
+		String[] fenParts = fen.trim().split(" +");
+		return pos.getFEN(Math.min(fenParts.length, 6));
+	}
+
+	// Returns a set of the symmetrical FENs obtained by the non-trivial members of the
+	// symmetry group of the chessboard. No checks for validity or duplicates.
+	public static List<String> getSymmetricalFENs(String fen) {
+		List<String> symmetricalFENs = new ArrayList<>(7);
+		symmetricalFENs.add(switchLeftAndRight(fen));
+		symmetricalFENs.add(switchTopAndBottom(fen));
+		String newFen = flipAlongA1H8Diagonal(fen);
+		if (newFen != null) {
+			symmetricalFENs.add(newFen);
+		}
+		newFen = flipAlongA8H1Diagonal(fen);
+		if (newFen != null) {
+			symmetricalFENs.add(newFen);
+		}
+		newFen = rotate90degrees(fen);
+		if (newFen != null) { // 90 degrees
+			symmetricalFENs.add(newFen);
+			newFen = rotate90degrees(newFen);
+			if (newFen != null) { // 180 degrees
+				symmetricalFENs.add(newFen);
+				newFen = rotate90degrees(newFen);
+				if (newFen != null) { // 270 degrees
+					symmetricalFENs.add(newFen);
+				}
 			}
 		}
-		reflectedPos.setToPlay(pos.getToPlay());
-		reflectedPos.setHalfMoveClock(pos.getHalfMoveClock());
-		reflectedPos.setPlyOffset(pos.getPlyOffset());
-
-		String[] fenParts = fen.trim().split(" +");
-		return reflectedPos.getFEN(Math.min(fenParts.length, 6));
+		return symmetricalFENs;
 	}
 
 	public static String removePieces(String fen, int piece) {
@@ -1303,28 +1348,28 @@ public class FEN {
 		if (fenParts.length > 0) {
 			String rows = fenParts[0];
 			switch (piece) {
-				case Chess.QUEEN -> {
-					rows = rows.replace('Q', '1');
-					rows = rows.replace('q', '1');
-				}
-				case Chess.ROOK -> {
-					rows = rows.replace('R', '1');
-					rows = rows.replace('r', '1');
-				}
-				case Chess.BISHOP -> {
-					rows = rows.replace('B', '1');
-					rows = rows.replace('b', '1');
-				}
-				case Chess.KNIGHT -> {
-					rows = rows.replace('N', '1');
-					rows = rows.replace('n', '1');
-				}
-				case Chess.PAWN -> {
-					rows = rows.replace('P', '1');
-					rows = rows.replace('p', '1');
-				}
-				default -> {
-				}
+			case Chess.QUEEN -> {
+				rows = rows.replace('Q', '1');
+				rows = rows.replace('q', '1');
+			}
+			case Chess.ROOK -> {
+				rows = rows.replace('R', '1');
+				rows = rows.replace('r', '1');
+			}
+			case Chess.BISHOP -> {
+				rows = rows.replace('B', '1');
+				rows = rows.replace('b', '1');
+			}
+			case Chess.KNIGHT -> {
+				rows = rows.replace('N', '1');
+				rows = rows.replace('n', '1');
+			}
+			case Chess.PAWN -> {
+				rows = rows.replace('P', '1');
+				rows = rows.replace('p', '1');
+			}
+			default -> {
+			}
 			}
 
 			int sum = 0;
@@ -1387,18 +1432,18 @@ public class FEN {
 				} else {
 					String str = Chess.sqiToStr(Chess.coorToSqi(colIndex, 7 - rowIndex));
 					switch (ch) {
-						case 'K' -> whites.add("K" + str);
-						case 'Q' -> whites.add("Q" + str);
-						case 'R' -> whites.add("R" + str);
-						case 'B' -> whites.add("B" + str);
-						case 'N' -> whites.add("N" + str);
-						case 'P' -> whites.add("P" + str);
-						case 'k' -> blacks.add("K" + str);
-						case 'q' -> blacks.add("Q" + str);
-						case 'r' -> blacks.add("R" + str);
-						case 'b' -> blacks.add("B" + str);
-						case 'n' -> blacks.add("N" + str);
-						case 'p' -> blacks.add("P" + str);
+					case 'K' -> whites.add("K" + str);
+					case 'Q' -> whites.add("Q" + str);
+					case 'R' -> whites.add("R" + str);
+					case 'B' -> whites.add("B" + str);
+					case 'N' -> whites.add("N" + str);
+					case 'P' -> whites.add("P" + str);
+					case 'k' -> blacks.add("K" + str);
+					case 'q' -> blacks.add("Q" + str);
+					case 'r' -> blacks.add("R" + str);
+					case 'b' -> blacks.add("B" + str);
+					case 'n' -> blacks.add("N" + str);
+					case 'p' -> blacks.add("P" + str);
 					}
 					++colIndex;
 				}
