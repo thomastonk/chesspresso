@@ -122,7 +122,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	// ======================================================================
 
 	public enum TextCreationType {
-		COMPACT("Compact"), TREE_LIKE("Tree-like"), PUZZLE_MODE("Puzzle mode");
+		COMPACT("Compact"), TREE_LIKE("Tree-like"), PUZZLE_MODE("Puzzle mode"), HIDE_VARIATIONS("Hide variations");
 
 		final String description;
 
@@ -407,7 +407,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		case COMPACT -> textCreator = new CompactTextCreator();
 		case TREE_LIKE -> textCreator = new TreeLikeTextCreator();
 		case PUZZLE_MODE -> textCreator = new PuzzleModeTextCreator();
-		default -> throw new IllegalArgumentException("GameTextViewer::setTextCreationType: " + type);
+		case HIDE_VARIATIONS -> textCreator = new HideVariationsTextCreator();
 		}
 		createText();
 	}
@@ -614,6 +614,25 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			appendText(") ", LINE);
 			needsMoveNumber = true;
 			newLineNeeded = true;
+		}
+	}
+
+	private class HideVariationsTextCreator extends AbstractTextCreator {
+
+		@Override
+		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
+				String fenBeforeMove) {
+			if (level == 0) {
+				super.notifyMove(move, nags, preMoveComment, postMoveComment, plyNumber, level, fenBeforeMove);
+			}
+		}
+
+		@Override
+		public void notifyLineStart(int level) {
+		}
+
+		@Override
+		public void notifyLineEnd(int level) {
 		}
 	}
 
