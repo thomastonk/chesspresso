@@ -1076,9 +1076,9 @@ public class FEN {
 			int hmc = 0;
 			try {
 				hmc = Integer.parseInt(fenParts[4]);
-			} catch (NumberFormatException ignore) {
+			} catch (NumberFormatException _) {
 			}
-			if (toPlay.equals("w")) { // new fen has black to play 				
+			if ( toPlay.equals("w")) { // new fen has black to play 				
 				newFen.append(' ').append(hmc).append(' ').append((hmc + 2) / 2);
 			} else {
 				newFen.append(' ').append(hmc).append(' ').append((hmc + 3) / 2);
@@ -1092,9 +1092,9 @@ public class FEN {
 				try {
 					hmc = Integer.parseInt(fenParts[4]);
 					mn = Integer.parseInt(fenParts[5]);
-				} catch (NumberFormatException ignore) {
+				} catch (NumberFormatException _) {
 				}
-				if (hmc > 2 * (mn - 1)) {
+				if ( hmc > 2 * (mn - 1)) {
 					++mn; // increase
 				}
 				newFen.append(' ').append(hmc).append(' ').append(mn);
@@ -1272,7 +1272,7 @@ public class FEN {
 		PositionImpl pos;
 		try {
 			pos = new PositionImpl(fen, false);
-		} catch (InvalidFenException ignore) {
+		} catch (InvalidFenException _) {
 			return null;
 		}
 		pos.flipAboutA1H8Diagonal();
@@ -1286,7 +1286,7 @@ public class FEN {
 		PositionImpl pos;
 		try {
 			pos = new PositionImpl(fen, false);
-		} catch (InvalidFenException ignore) {
+		} catch (InvalidFenException _) {
 			return null;
 		}
 		pos.flipAboutA8H1Diagonal();
@@ -1298,7 +1298,7 @@ public class FEN {
 		PositionImpl pos;
 		try {
 			pos = new PositionImpl(fen, false);
-		} catch (InvalidFenException ignore) {
+		} catch (InvalidFenException _) {
 			return null;
 		}
 		pos.rotate90DegreesClockwise();

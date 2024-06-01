@@ -80,11 +80,11 @@ public abstract class AbstractMutablePosition extends AbstractPosition implement
 	public void setStart() {
 		try {
 			initFromFEN(FEN.START_POSITION, true);
-		} catch (InvalidFenException ignore) {
+		} catch (InvalidFenException _) {
 		}
 	}
 
-	@Override
+	@ Override
 	public void setPositionSnapshot(ImmutablePosition position) {
 		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 			setStone(sqi, position.getStone(sqi));

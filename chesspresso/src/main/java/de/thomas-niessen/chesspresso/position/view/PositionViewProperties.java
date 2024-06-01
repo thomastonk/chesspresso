@@ -107,7 +107,7 @@ public class PositionViewProperties extends JDialog {
 				positionView.setFont(font.deriveFont(Font.PLAIN, fontSize));
 			}
 			positionView.setSolidStones(cbSolid.isSelected());
-		} catch (NumberFormatException ignore) {
+		} catch (NumberFormatException _) {
 		}
 	}
 

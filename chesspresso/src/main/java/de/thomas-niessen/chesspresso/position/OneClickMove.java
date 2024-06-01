@@ -36,7 +36,7 @@ public class OneClickMove {
 			try {
 				position.doMove(uniqueMove);
 				return true;
-			} catch (IllegalMoveException ignore) {
+			} catch (IllegalMoveException _) {
 				return false;
 			}
 		}
@@ -46,7 +46,7 @@ public class OneClickMove {
 			try {
 				position.doMove(uniqueMove);
 				return true;
-			} catch (IllegalMoveException ignore) {
+			} catch (IllegalMoveException _) {
 				return false;
 			}
 		}

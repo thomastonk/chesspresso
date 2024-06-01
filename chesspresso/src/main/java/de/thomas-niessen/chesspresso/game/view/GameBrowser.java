@@ -322,11 +322,11 @@ public class GameBrowser extends JPanel implements PositionMotionListener, Posit
 				pos.doMove(pos.getMove(from, to, Chess.NO_PIECE));
 			}
 			// TN: This code is not complete, because underpromotions are not possible.
-		} catch (IllegalMoveException ignore) {
+		} catch (IllegalMoveException _) {
 		}
 	}
 
-	@Override
+	@ Override
 	public void squareClicked(ImmutablePosition position, int sqi, MouseEvent e) {
 		if (userAction == UserAction.ENABLED && oneClickMoves && game.getPosition() == position) {
 			OneClickMove.squareClicked(game.getPosition(), sqi, e);

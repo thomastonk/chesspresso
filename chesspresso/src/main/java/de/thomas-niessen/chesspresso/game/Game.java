@@ -101,7 +101,7 @@ public non-sealed class Game implements Comparable<Game>, RelatedGame, Serializa
 		if (fen != null) {
 			try {
 				position.setPositionSnapshot(new Position(fen, false));
-			} catch (InvalidFenException ignore) {
+			} catch (InvalidFenException _) {
 				position.setPositionSnapshot(Position.createInitialPosition());
 			}
 		} else {
@@ -141,14 +141,14 @@ public non-sealed class Game implements Comparable<Game>, RelatedGame, Serializa
 		}
 		try {
 			fragment.position.initFromFEN(fen, true);
-		} catch (InvalidFenException ignore) {
+		} catch (InvalidFenException _) {
 		}
 		fragment.position.setPlyOffset(newPlyOffset);
 		while (copy.goForward() && numOfPlies > 0) {
 			Move move = copy.getLastMove();
 			try {
 				fragment.position.doMove(move);
-			} catch (IllegalMoveException ignore) {
+			} catch (IllegalMoveException _) {
 				return null;
 			}
 			fragment.setPreMoveComment(copy.getPreMoveComment());
@@ -994,7 +994,7 @@ public non-sealed class Game implements Comparable<Game>, RelatedGame, Serializa
 			}
 			try {
 				gotoNode(index);
-			} catch (IllegalArgumentException ignore) {
+			} catch (IllegalArgumentException _) {
 				// this exception can happen, if the TraverseListener changes the game and index becomes invalid
 			}
 		});
@@ -1097,10 +1097,10 @@ public non-sealed class Game implements Comparable<Game>, RelatedGame, Serializa
 					try {
 						game.getPosition().doMove(move);
 						other.getPosition().doMove(otherMove);
-					} catch (IllegalMoveException ignore) {
+					} catch (IllegalMoveException _) {
 						return false;
 					}
-					if (!checkComment(game.getPreMoveComment(), other.getPreMoveComment())
+					if (! checkComment(game.getPreMoveComment(), other.getPreMoveComment())
 							|| !checkComment(game.getPostMoveComment(), other.getPostMoveComment())
 							|| !checkNAGs(game.getNags(), other.getNags()) || !checkMoves(game, other)) {
 						return false;

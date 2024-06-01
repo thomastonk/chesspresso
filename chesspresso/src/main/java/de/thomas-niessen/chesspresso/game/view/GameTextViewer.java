@@ -145,10 +145,14 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		}
 	}
 
+	private interface TextCreator extends TraverseListener {
+		TextCreationType getTextCreationType();
+	}
+
 	// ======================================================================
 
 	private Game game;
-	private TraverseListener textCreator;
+	private TextCreator textCreator;
 	private UserAction userAction;
 	private int[] moveBegin, moveEnd;
 	private int[] moveNrBegin;
@@ -208,7 +212,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 							return rect.contains(point);
 						}
 					}
-				} catch (BadLocationException ignore) {
+				} catch (BadLocationException _) {
 				}
 				return false;
 			}
@@ -342,7 +346,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 						setCaretPosition(Utilities.getPositionBelow(GameTextViewer.this, getCaretPosition(),
 								(float) modelToView2D(getCaretPosition()).getCenterX()));
 					}
-				} catch (BadLocationException ignore) {
+				} catch (BadLocationException _) {
 				}
 			}
 			gotoPlyForCaret();
@@ -392,14 +396,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	}
 
 	public TextCreationType getTextCreationType() {
-		if (textCreator instanceof CompactTextCreator) {
-			return TextCreationType.COMPACT;
-		} else if (textCreator instanceof TreeLikeTextCreator) {
-			return TextCreationType.TREE_LIKE;
-		} else if (textCreator instanceof PuzzleModeTextCreator) {
-			return TextCreationType.PUZZLE_MODE;
-		}
-		throw new IllegalStateException("GameTextViewer::getTextCreationType: unknown text creator.");
+		return textCreator.getTextCreationType();
 	}
 
 	public void setTextCreationType(TextCreationType type) {
@@ -459,23 +456,23 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			setCaretPosition(moveEnd[index]);
 			try {
 				getHighlighter().addHighlight(moveBegin[index], moveEnd[index], HIGHLIGHT_PAINTER);
-			} catch (BadLocationException ignore) {
+			} catch (BadLocationException _) {
 			}
-		} else if (node == 0 && moveBegin.length > 0) {
+		} else if ( node == 0 && moveBegin.length > 0) {
 			// Highlight the triangle if and only if the start position is shown (node = 0)
 			// and the triangle itself is shown (moveBegin.length > 0, see createText()).
 			setCaretPosition(0); // Do not delete next two lines, because they scroll forward!
 			setCaretPosition(1);
 			try {
 				getHighlighter().addHighlight(0, 1, HIGHLIGHT_PAINTER);
-			} catch (BadLocationException ignore) {
+			} catch (BadLocationException _) {
 			}
 		}
 	}
 
 	// PositionListener
 
-	@Override
+	@ Override
 	public void positionChanged(ChangeType type, short move, String fen) {
 		showCurrentGameNode();
 	}
@@ -504,7 +501,7 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 	// current move index
 	private int notifyIndex;
 
-	private abstract class AbstractTextCreator implements TraverseListener {
+	private abstract class AbstractTextCreator implements TextCreator {
 
 		@Override
 		public void notifyMove(Move move, short[] nags, String preMoveComment, String postMoveComment, int plyNumber, int level,
@@ -572,6 +569,12 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			appendText(") ", LINE);
 			needsMoveNumber = true;
 		}
+
+		@Override
+		public TextCreationType getTextCreationType() {
+			return TextCreationType.COMPACT;
+		}
+
 	}
 
 	private class TreeLikeTextCreator extends AbstractTextCreator {
@@ -615,6 +618,11 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 			needsMoveNumber = true;
 			newLineNeeded = true;
 		}
+
+		@Override
+		public TextCreationType getTextCreationType() {
+			return TextCreationType.TREE_LIKE;
+		}
 	}
 
 	private class HideVariationsTextCreator extends AbstractTextCreator {
@@ -634,9 +642,14 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		@Override
 		public void notifyLineEnd(int level) {
 		}
+
+		@Override
+		public TextCreationType getTextCreationType() {
+			return TextCreationType.HIDE_VARIATIONS;
+		}
 	}
 
-	private class PuzzleModeTextCreator implements TraverseListener {
+	private class PuzzleModeTextCreator implements TextCreator {
 
 		private int maxPly;
 		private boolean stopRequested;
@@ -710,6 +723,11 @@ public class GameTextViewer extends JEditorPane implements PositionListener, Gam
 		@Override
 		public void notifyLineEnd(int level) {
 			textCreator.notifyLineEnd(level);
+		}
+
+		@Override
+		public TextCreationType getTextCreationType() {
+			return TextCreationType.PUZZLE_MODE;
 		}
 	}
 

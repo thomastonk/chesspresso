@@ -77,7 +77,7 @@ public final class Position implements MoveablePosition, Serializable {
 	public static Position createInitialPosition() {
 		try {
 			return new Position(FEN.START_POSITION, false);
-		} catch (InvalidFenException ignore) {
+		} catch (InvalidFenException _) {
 			return null;
 		}
 	}
