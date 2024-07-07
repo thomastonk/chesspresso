@@ -54,7 +54,7 @@ public class Chess {
 			C2 = 10, D2 = 11, E2 = 12, F2 = 13, G2 = 14, H2 = 15, A1 = 0, B1 = 1, C1 = 2, D1 = 3, E1 = 4, F1 = 5, G1 = 6, H1 = 7;
 
 	public static final int A_FILE = 0, B_FILE = 1, C_FILE = 2, D_FILE = 3, E_FILE = 4, F_FILE = 5, G_FILE = 6, H_FILE = 7;
-	// These values are equal to the square values in the first row.
+	// These values are equal to the values of the squares in the first row.
 
 	public static final int NO_COL = -1, NO_ROW = -1, NO_SQUARE = -1, NO_FILE = -1;
 
@@ -433,7 +433,7 @@ public class Chess {
 
 	/* ========== players ========== */
 
-	public static final int WHITE = 0, BLACK = 1, NOBODY = -1, ANYBODY = -1;
+	public static final int WHITE = 0, BLACK = 1, NOBODY = -1, ANYBODY = -2;
 
 	/**
 	 * Returns the opposite player.
@@ -442,19 +442,14 @@ public class Chess {
 	 * @return the opposite player (color respectively)
 	 */
 	public static int otherPlayer(int player) {
-		return 1 - player;
+		if (player >= 0) {
+			return 1 - player;
+		} else {
+			return player;
+		}
 	}
 
 	/* ========== plies, moves ========== */
-
-	/**
-	 * Returns whether it is white move at the given ply.
-	 *
-	 * @param plyNumber the ply number, starting at 0
-	 */
-	public static boolean isWhitePly(int plyNumber) {
-		return plyNumber % 2 == 0;
-	}
 
 	/**
 	 * Converts a ply to a move number
@@ -482,13 +477,6 @@ public class Chess {
 	 */
 	public static int getInvertedSquare(int square) {
 		return (7 - sqiToRow(square)) * 8 + sqiToCol(square);
-	}
-
-	/**
-	 * Returns the square reflected along the diagonal A1-H8.
-	 */
-	public static int getDiagonallyReflectedSquare(int square) {
-		return sqiToCol(square) * 8 + sqiToRow(square);
 	}
 
 	/**

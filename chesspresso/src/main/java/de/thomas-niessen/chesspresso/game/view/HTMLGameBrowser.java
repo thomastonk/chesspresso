@@ -88,7 +88,7 @@ public class HTMLGameBrowser implements TraverseListener {
 		if (showMoveNumber) {
 			moves.append(plyNumber / 2 + 1).append(".");
 		}
-		showMoveNumber = Chess.isWhitePly(plyNumber + 1);
+		showMoveNumber = (plyNumber + 1) % 2 == 0;
 
 		moves.append(move.toString());
 		if (nags != null) {
